@@ -13,36 +13,46 @@ export const metadata: Metadata = buildMetadata({
 export default function HomePage() {
   return (
     <>
-      <section className="home-hero-photo" id="top">
-        <h1 className="sr-only">
-          Body Shaper System™ — Your Body. Your Blueprint. Your System.
-          Personalized Body Systems, Delivered to You.
-        </h1>
-        <div className="home-hero-photo-inner">
-          <img
-            src="/images/home-hero.webp"
-            alt="Body Shaper System personalized body optimization technology"
-            fetchPriority="high"
-            loading="eager"
-            decoding="sync"
-          />
-          <div className="home-hero-photo-overlay" aria-hidden="true" />
-
-          <a
-            href={WHATSAPP_URL}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="home-hero-hit"
-            style={{ left: "76.24%", top: "2.6%", width: "22.48%", height: "4.49%" }}
-            aria-label="Book now via WhatsApp"
-          />
-
-          <a
-            href={JOTFORM_BLUEPRINT_URL}
-            className="home-hero-hit cta-main"
-            style={{ left: "2.05%", top: "46.45%", width: "35.58%", height: "4.23%" }}
-            aria-label="Start My Body Blueprint™"
-          />
+      <section className="hero" id="top">
+        <div className="hero-bg" />
+        <div className="home-hero-monogram" aria-hidden="true">
+          <img src="/images/bss-wordmark.png" alt="" />
+        </div>
+        <div className="home-hero-deco home-hero-deco-ring" aria-hidden="true">
+          <svg viewBox="0 0 100 100" width="100%" height="100%" fill="none">
+            <circle cx="50" cy="50" r="48" stroke="#C79E93" strokeWidth="0.6" />
+            <circle cx="50" cy="50" r="32" stroke="#C79E93" strokeWidth="0.6" />
+          </svg>
+        </div>
+        <div className="home-hero-deco home-hero-deco-arc" aria-hidden="true">
+          <svg viewBox="0 0 200 200" width="100%" height="100%" fill="none">
+            <circle cx="100" cy="100" r="98" stroke="#C79E93" strokeWidth="0.6" />
+            <circle cx="100" cy="100" r="80" stroke="#C79E93" strokeWidth="0.6" strokeDasharray="1 7" />
+          </svg>
+        </div>
+        <div className="hero-tag">Since 2017 — Miami, Florida</div>
+        <div className="hero-content reveal">
+          <h1>
+            Personalized Body Systems.
+            <br />
+            <em>Delivered to You.</em>
+          </h1>
+          <p>
+            Advanced body contouring, personalized strategy, and luxury in-home
+            treatments designed around your unique Body Blueprint™. Every
+            transformation begins with understanding your body.
+          </p>
+          <div className="hero-actions">
+            <a href="#build" className="btn btn-primary">
+              Build My Blueprint™
+            </a>
+            <a href={WHATSAPP_URL} className="btn btn-outline">
+              Chat with a Specialist
+            </a>
+          </div>
+        </div>
+        <div className="scroll-cue">
+          <span className="line" /> Scroll
         </div>
       </section>
 
