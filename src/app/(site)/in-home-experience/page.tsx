@@ -1,12 +1,14 @@
 import type { Metadata } from "next";
+import { buildMetadata } from "@/lib/seo";
 import { JOTFORM_BLUEPRINT_URL, WHATSAPP_URL } from "@/lib/nav";
 import ServiceAreaMap from "@/components/ServiceAreaMap";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = buildMetadata({
   title: "The In-Home Experience™",
   description:
     "Luxury body optimization, delivered to your home. Professional equipment, personalized care and advanced technology — Exilis®, Endospheres®, EMS® and Lymphatic Protocols™ — brought directly to you.",
-};
+  path: "/in-home-experience",
+});
 
 export default function InHomeExperiencePage() {
   return (

@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
+import { buildMetadata } from "@/lib/seo";
 import { WHATSAPP_URL, JOTFORM_WAIVER_URL } from "@/lib/nav";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = buildMetadata({
   title: "Policies",
   description:
     "Appointments, cancellations, deposits, package validity and more — everything you need to know before your Body Blueprint™ journey with Body Shaper System™.",
-};
+  path: "/policies",
+});
 
 const POLICIES = [
   {

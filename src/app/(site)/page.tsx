@@ -1,12 +1,14 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { INSTAGRAM_URL, JOTFORM_BLUEPRINT_URL, WHATSAPP_URL } from "@/lib/nav";
+import { buildMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = buildMetadata({
   title: "Personalized Body Systems, Delivered to You",
   description:
     "Since 2017, Body Shaper System™ has designed personalized body optimization systems in Miami — built on your unique Body Blueprint™, delivered through luxury in-home treatments.",
-};
+  path: "/",
+});
 
 export default function HomePage() {
   return (

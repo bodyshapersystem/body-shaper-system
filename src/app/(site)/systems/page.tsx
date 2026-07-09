@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
+import { buildMetadata } from "@/lib/seo";
 import { JOTFORM_BLUEPRINT_URL, WHATSAPP_URL } from "@/lib/nav";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = buildMetadata({
   title: "Personalized Systems™",
   description:
     "Five curated Personalized Systems™ — Sculpt Start™, Sculpt Signature™, Mom Reset™, GLP-1 Reshape™ and Total Body Optimization™ — each built on your Body Blueprint™.",
-};
+  path: "/systems",
+});
 
 /* ---------- Subtle decorative primitives (pure SVG, no content) ---------- */
 

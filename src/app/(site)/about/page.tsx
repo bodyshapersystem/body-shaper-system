@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
+import { buildMetadata } from "@/lib/seo";
 import { WHATSAPP_URL, JOTFORM_BLUEPRINT_URL } from "@/lib/nav";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = buildMetadata({
   title: "About Us",
   description:
     "The story behind Body Shaper System™ — how a private treatment suite in Coconut Grove became a personalized body optimization methodology, founded by Emmy Branger in Miami.",
-};
+  path: "/about",
+});
 
 export default function AboutPage() {
   return (
@@ -20,7 +22,7 @@ export default function AboutPage() {
           />
         </div>
         <div className="about-kicker-rule" />
-        <p className="about-subtitle">the story behind body shaper system™</p>
+        <h1 className="about-subtitle">the story behind body shaper system™</h1>
       </section>
 
       {/* INTRO */}

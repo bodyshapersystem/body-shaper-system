@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
+import { buildMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = buildMetadata({
   title: "Reviews",
   description:
     "Trusted since 2017. Hear from Caro and other clients who have trusted Body Shaper System™ to guide their personalized transformation journey.",
-};
+  path: "/reviews",
+});
 
 export default function ReviewsPage() {
   return (

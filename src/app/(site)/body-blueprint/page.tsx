@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
+import { buildMetadata } from "@/lib/seo";
 import { JOTFORM_BLUEPRINT_URL, WHATSAPP_URL } from "@/lib/nav";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = buildMetadata({
   title: "The Body Blueprint™",
   description:
     "Every transformation begins with a blueprint. The Body Blueprint™ is a personalized evaluation of how your body functions, used to design your Personalized System™.",
-};
+  path: "/body-blueprint",
+});
 
 /* ---------- Subtle decorative primitives (pure SVG, no content) ---------- */
 
