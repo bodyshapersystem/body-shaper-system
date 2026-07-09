@@ -49,6 +49,22 @@ export default function InHomeExperiencePage() {
   </div>
 </section>
 
+{/* SEE THE EXPERIENCE */}
+<section className="section" style={{background: 'var(--charcoal)', textAlign: 'center'}}>
+  <span className="eyebrow reveal" style={{display: 'block', color: 'var(--rose)'}}>Are You Ready?</span>
+  <h2 className="reveal" style={{fontFamily: 'var(--serif)', fontWeight: '400', fontSize: 'clamp(28px,3.6vw,42px)', color: 'var(--ivory)', margin: '16px 0 50px'}}>See The Experience Arrive.</h2>
+  <div className="video-frame portrait reveal" style={{margin: '0 auto'}}>
+    <video
+      controls
+      preload="metadata"
+      poster="/images/poster-inhome.jpg"
+      aria-label="The Body Shaper System In-Home Experience arriving at your door"
+    >
+      <source src="/videos/inhome-ready.mp4" type="video/mp4" />
+    </video>
+  </div>
+</section>
+
 {/* TECHNOLOGIES */}
 <section className="section" style={{background: 'var(--beige)'}}>
   <div style={{textAlign: 'center', maxWidth: '600px', margin: '0 auto'}}>

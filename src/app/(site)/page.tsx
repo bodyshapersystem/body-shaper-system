@@ -72,20 +72,15 @@ export default function HomePage() {
           its own strategy.
         </p>
 
-        <div className="video-frame reveal">
-          <div className="play">
-            <div className="play-ring">
-              <svg width="16" height="18" viewBox="0 0 16 18" fill="none">
-                <path d="M1 1L15 9L1 17V1Z" fill="#F5EEE4" />
-              </svg>
-            </div>
-            <span className="video-caption">
-              What is Body Shaper System™? — Emmy Branger, Founder
-            </span>
-          </div>
-          <div className="subtitle-demo">
-            &ldquo;Every body deserves its own strategy.&rdquo;
-          </div>
+        <div className="video-frame portrait reveal">
+          <video
+            controls
+            preload="metadata"
+            poster="/images/poster-home-what-is.jpg"
+            aria-label="What is Body Shaper System? — Emmy Branger, Founder"
+          >
+            <source src="/videos/home-what-is.mp4" type="video/mp4" />
+          </video>
         </div>
       </section>
       </div>

@@ -1425,3 +1425,11 @@
 .home-hero-hit.cta-main:hover{
   transform:translateY(-2px);
 }
+
+/* ---------- Portrait video player variant (real client footage) ---------- */
+.video-frame.portrait{
+  aspect-ratio:9/16;max-width:360px;background:#000;
+}
+.video-frame.portrait video{
+  width:100%;height:100%;object-fit:cover;display:block;
+}

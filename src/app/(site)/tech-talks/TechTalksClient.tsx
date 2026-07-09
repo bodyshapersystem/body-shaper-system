@@ -263,7 +263,16 @@ export default function TechTalksClient() {
     </div>
 
     <div className="tech-hero-media single">
-      <div className="ph-block dark"><span>(Insert Educational Video)</span></div>
+      <div className="video-frame portrait" style={{margin: '0 auto'}}>
+        <video
+          controls
+          preload="metadata"
+          poster="/images/poster-ems.jpg"
+          aria-label="What is EMS? — Body Shaper System educational video"
+        >
+          <source src="/videos/ems-explainer.mp4" type="video/mp4" />
+        </video>
+      </div>
     </div>
 
     <div className="tech-copy">

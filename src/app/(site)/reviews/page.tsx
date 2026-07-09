@@ -31,11 +31,15 @@ export default function ReviewsPage() {
 <section className="section" style={{background: 'var(--charcoal)', textAlign: 'center'}}>
   <span className="eyebrow reveal" style={{display: 'block', color: 'var(--rose)'}}>Featured Story</span>
   <h2 className="reveal" style={{fontFamily: 'var(--serif)', fontWeight: '400', fontSize: 'clamp(28px,3.6vw,42px)', color: 'var(--ivory)', margin: '16px 0 50px'}}>Hear From Caro.</h2>
-  <div className="video-frame reveal" style={{marginBottom: '0'}}>
-    <div className="play">
-      <div className="play-ring"><svg width="18" height="20" viewBox="0 0 18 20" fill="none"><path d="M1 1L17 10L1 19V1Z" fill="#F5EEE4"/></svg></div>
-      <span className="video-caption">Caro's Transformation Story</span>
-    </div>
+  <div className="video-frame portrait reveal" style={{marginBottom: '0', marginLeft: 'auto', marginRight: 'auto'}}>
+    <video
+      controls
+      preload="metadata"
+      poster="/images/poster-caro.jpg"
+      aria-label="Caro's Transformation Story"
+    >
+      <source src="/videos/caro-testimonial.mp4" type="video/mp4" />
+    </video>
   </div>
 </section>
 
