@@ -26,7 +26,7 @@ export default function Footer() {
           </div>
           <div className="footer-col">
             <h4>Connect</h4>
-            <a href={INSTAGRAM_URL}>Instagram — @bodyshapersystem_</a>
+            <a href={INSTAGRAM_URL}>Instagram — @bodyshapersystem_mia</a>
             <a href={WHATSAPP_URL}>WhatsApp — Chat with a Specialist</a>
             <a href="https://bodyshapersystem.com">bodyshapersystem.com</a>
           </div>

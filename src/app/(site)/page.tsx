@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import Link from "next/link";
 import { INSTAGRAM_URL, JOTFORM_BLUEPRINT_URL, WHATSAPP_URL } from "@/lib/nav";
 
@@ -55,6 +54,13 @@ export default function HomePage() {
         </div>
       </section>
 
+      <div className="home-whatis-wrap">
+        <div className="home-deco" style={{top: '20px', right: '6vw', width: '130px', height: '50px'}} aria-hidden="true">
+          <svg viewBox="0 0 140 60" width="100%" height="100%" fill="none"><path d="M0 30C20 10 40 10 60 30C80 50 100 50 120 30C130 20 135 15 140 10" stroke="#6B5240" strokeWidth="0.6"/></svg>
+        </div>
+        <div className="home-deco" style={{top: '60px', left: '4vw'}} aria-hidden="true">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" className="home-star"><path d="M12 2l1.8 6.2L20 10l-6.2 1.8L12 18l-1.8-6.2L4 10l6.2-1.8L12 2Z" fill="currentColor"/></svg>
+        </div>
       <section className="section what-is">
         <span className="eyebrow reveal">What is Body Shaper System™</span>
         <h2 className="reveal">
@@ -90,6 +96,7 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+      </div>
 
       <div className="wave-divider">
         <svg viewBox="0 0 180 40" fill="none">
@@ -102,13 +109,11 @@ export default function HomePage() {
       </div>
 
       <section className="blueprint section" id="blueprint">
-        <div className="blueprint-diagram reveal">
-          <Image
-            src="/images/body-blueprint-map.png"
-            alt="Your Body Blueprint — personalized areas of focus diagram"
-            width={420}
-            height={420}
-            style={{ width: "100%", maxWidth: 420, height: "auto", borderRadius: 2 }}
+        <div className="blueprint-diagram reveal" style={{overflow: "hidden", borderRadius: 2}}>
+          <img
+            src="/images/tech-exilis.webp"
+            alt="Exilis® treatment session — part of a Personalized System™"
+            style={{ width: "100%", height: "100%", objectFit: "cover" }}
           />
         </div>
         <div className="blueprint-copy reveal">
@@ -148,6 +153,10 @@ export default function HomePage() {
         </div>
       </section>
 
+      <div className="home-inhome-wrap">
+        <div className="home-deco" style={{bottom: '30px', right: '5vw'}} aria-hidden="true">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" className="home-star"><path d="M12 2l1.8 6.2L20 10l-6.2 1.8L12 18l-1.8-6.2L4 10l6.2-1.8L12 2Z" fill="currentColor"/></svg>
+        </div>
       <section className="inhome" id="inhome">
         <div className="inhome-media reveal">
           <div className="frame-inner" />
@@ -176,30 +185,27 @@ export default function HomePage() {
           </Link>
         </div>
       </section>
+      </div>
 
       <section className="transformations section" id="transformations">
         <div className="transformations-head reveal">
           <h2>Transformations</h2>
           <span className="eyebrow">Real Clients. Real Systems.</span>
         </div>
-        <div className="gallery reveal">
-          <div className="gallery-item">
-            <div className="cap">Sculpt Signature™ — 8 Weeks</div>
+        <div className="gallery gallery-real reveal">
+          <div className="gallery-real-item">
+            <div className="gallery-real-photos">
+              <img src="/images/transformations/case3-before.jpg" alt="Before" />
+              <img src="/images/transformations/case3-after.jpg" alt="After" />
+            </div>
+            <div className="cap">Total Body Optimization™ — 6 Weeks</div>
           </div>
-          <div className="gallery-item">
-            <div className="cap">GLP-1 Reshape™ — 12 Weeks</div>
-          </div>
-          <div className="gallery-item">
-            <div className="cap">Mom Reset™ — 10 Weeks</div>
-          </div>
-          <div className="gallery-item">
-            <div className="cap">Total Body Optimization™</div>
-          </div>
-          <div className="gallery-item">
-            <div className="cap">Sculpt Start™ — 6 Weeks</div>
-          </div>
-          <div className="gallery-item">
-            <div className="cap">Sculpt Signature™ — 12 Weeks</div>
+          <div className="gallery-real-item">
+            <div className="gallery-real-photos">
+              <img src="/images/transformations/case1-before.jpg" alt="Before" />
+              <img src="/images/transformations/case1-after.jpg" alt="After" />
+            </div>
+            <div className="cap">Sculpt Start™ — 4 Weeks</div>
           </div>
         </div>
         <div className="gallery-cta reveal">
@@ -210,7 +216,7 @@ export default function HomePage() {
       </section>
 
       <section className="journey section" id="techtalks">
-        <span className="eyebrow reveal">@bodyshapersystem_</span>
+        <span className="eyebrow reveal">@bodyshapersystem_mia</span>
         <h2 className="reveal">Follow the Journey</h2>
         <p className="reveal">
           Explore our latest transformations, educational content and
@@ -227,7 +233,7 @@ export default function HomePage() {
           href={INSTAGRAM_URL}
           className="btn btn-dark-outline reveal"
         >
-          Follow @bodyshapersystem_
+          Follow @bodyshapersystem_mia
         </a>
       </section>
 

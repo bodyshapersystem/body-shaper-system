@@ -125,9 +125,8 @@ export default function TechTalksClient() {
       <h2>Exilis®</h2>
     </div>
 
-    <div className="tech-hero-media">
+    <div className="tech-hero-media single">
       <div className="ph-block" style={{backgroundImage: 'url(\'/images/tech-exilis.webp\')', backgroundSize: 'cover', backgroundPosition: 'center', color: 'transparent'}}></div>
-      <div className="ph-block dark"><span>(Insert Educational Video)</span></div>
     </div>
 
     <div className="tech-copy">
@@ -181,15 +180,6 @@ export default function TechTalksClient() {
       </div>
     </div>
 
-    <div style={{textAlign: 'center', marginTop: '60px'}}>
-      <span className="eyebrow" style={{display: 'block'}}>Before &amp; After</span>
-    </div>
-    <div className="ba-gallery">
-      <div className="ba-pair"><div className="ph-block"><span>(Insert Before)</span></div><div className="ph-block dark"><span>(Insert After)</span></div></div>
-      <div className="ba-pair"><div className="ph-block rose"><span>(Insert Before)</span></div><div className="ph-block"><span>(Insert After)</span></div></div>
-      <div className="ba-pair"><div className="ph-block dark"><span>(Insert Before)</span></div><div className="ph-block rose"><span>(Insert After)</span></div></div>
-    </div>
-
     <div className="tech-final-cta">
       <h3>Not sure if Exilis® is right for you?</h3>
       <p>Every body responds differently. Start with your personalized Body Blueprint™ and we'll recommend the most effective Personalized System™ for your goals.</p>
@@ -205,9 +195,8 @@ export default function TechTalksClient() {
       <h2>Endospheres®</h2>
     </div>
 
-    <div className="tech-hero-media">
+    <div className="tech-hero-media single">
       <div className="ph-block" style={{backgroundImage: 'url(\'/images/tech-endospheres-roller.jpeg\')', backgroundSize: 'cover', backgroundPosition: 'center', color: 'transparent'}}></div>
-      <div className="ph-block dark"><span>(Insert Educational Video)</span></div>
     </div>
 
     <div className="tech-copy">
@@ -258,15 +247,6 @@ export default function TechTalksClient() {
       </div>
     </div>
 
-    <div style={{textAlign: 'center', marginTop: '60px'}}>
-      <span className="eyebrow" style={{display: 'block'}}>Before &amp; After</span>
-    </div>
-    <div className="ba-gallery">
-      <div className="ba-pair"><div className="ph-block rose"><span>(Insert Before)</span></div><div className="ph-block"><span>(Insert After)</span></div></div>
-      <div className="ba-pair"><div className="ph-block"><span>(Insert Before)</span></div><div className="ph-block dark"><span>(Insert After)</span></div></div>
-      <div className="ba-pair"><div className="ph-block dark"><span>(Insert Before)</span></div><div className="ph-block rose"><span>(Insert After)</span></div></div>
-    </div>
-
     <div className="tech-final-cta">
       <h3>Not sure which technology is right for you?</h3>
       <p>Every transformation begins with understanding your body. Build your personalized Body Blueprint™ and we'll recommend the right Personalized System™ for your goals.</p>
@@ -282,8 +262,7 @@ export default function TechTalksClient() {
       <h2>EMS®</h2>
     </div>
 
-    <div className="tech-hero-media">
-      <div className="ph-block" style={{backgroundImage: 'url(\'/images/tech-device-1.jpeg\')', backgroundSize: 'cover', backgroundPosition: 'center', color: 'transparent'}}></div>
+    <div className="tech-hero-media single">
       <div className="ph-block dark"><span>(Insert Educational Video)</span></div>
     </div>
 
@@ -334,15 +313,6 @@ export default function TechTalksClient() {
         <details><summary>Can EMS® be combined with other technologies?</summary><p>Yes. EMS® is often combined with Exilis®, Endospheres® and Lymphatic Protocols™ depending on your goals.</p></details>
         <details><summary>Who should avoid EMS®?</summary><p>Certain medical conditions or implanted electronic devices may not be suitable for EMS®. Every client is evaluated before treatment to confirm it's the right fit.</p></details>
       </div>
-    </div>
-
-    <div style={{textAlign: 'center', marginTop: '60px'}}>
-      <span className="eyebrow" style={{display: 'block'}}>Before &amp; After</span>
-    </div>
-    <div className="ba-gallery">
-      <div className="ba-pair"><div className="ph-block dark"><span>(Insert Before)</span></div><div className="ph-block"><span>(Insert After)</span></div></div>
-      <div className="ba-pair"><div className="ph-block"><span>(Insert Before)</span></div><div className="ph-block rose"><span>(Insert After)</span></div></div>
-      <div className="ba-pair"><div className="ph-block rose"><span>(Insert Before)</span></div><div className="ph-block dark"><span>(Insert After)</span></div></div>
     </div>
 
     <div className="tech-final-cta">
@@ -514,7 +484,7 @@ export default function TechTalksClient() {
   <article id="article-body-contouring" className="edu-article">
     <span className="eyebrow">Body &amp; Muscle</span>
     <h3>Body Contouring</h3>
-    <div className="ph-block art-media dark"><span>(Insert Editorial Photo)</span></div>
+    <div className="ph-block art-media" style={{backgroundImage: 'url(\'/images/edu-body-contouring.jpg\')', backgroundSize: 'cover', backgroundPosition: 'center', color: 'transparent'}}></div>
     <p>Weight loss, fat reduction, body contouring, muscle definition and body composition are often used interchangeably — but they describe very different processes.</p>
     <p>Weight loss reflects the number on a scale. Fat reduction targets specific fat cells. Body contouring shapes and refines the silhouette. Muscle definition builds visible tone. Body composition describes the overall ratio of fat, muscle and water in your body.</p>
     <p>Because each of these addresses something different, contouring is never approached as a single treatment — it's a personalized combination of technologies, chosen specifically for your goals and your Body Blueprint™.</p>
@@ -590,7 +560,7 @@ export default function TechTalksClient() {
   <article id="article-postpartum" className="edu-article">
     <span className="eyebrow">Recovery</span>
     <h3>Postpartum Recovery</h3>
-    <div className="ph-block art-media dark"><span>(Insert Editorial Photo)</span></div>
+    <div className="ph-block art-media dark"><div className="art-graphic"><span className="ring-lg">✦</span><span className="label" style={{color: 'var(--ivory)'}}>Mom Reset™</span></div></div>
     <p>Pregnancy changes the body in ways that are entirely individual — skin elasticity, core strength, fluid balance and recovery timelines all vary from client to client.</p>
     <p>Some clients experience skin laxity, others notice core separation or fluid retention, and recovery pace differs for everyone. This is why postpartum care should never follow a generic template.</p>
     <p>A personalized approach — built on your specific Body Blueprint™ — accounts for where you are in your recovery, not just where you were before.</p>
@@ -609,7 +579,7 @@ export default function TechTalksClient() {
   <article id="article-compression" className="edu-article">
     <span className="eyebrow">Recovery</span>
     <h3>Compression Garments</h3>
-    <div className="ph-block art-media"><span>(Insert Editorial Photo)</span></div>
+    <div className="ph-block art-media" style={{backgroundImage: 'url(\'/images/edu-compression.jpg\')', backgroundSize: 'cover', backgroundPosition: 'center', color: 'transparent'}}></div>
     <p>Compression garments support circulation and help manage swelling following certain treatments, making them a helpful part of recovery for many Personalized Systems™.</p>
     <p>Worn correctly, compression can support smoother, more comfortable healing between sessions — though the right garment and duration depend on your specific protocol.</p>
     <p>Choosing one isn't one-size-fits-all either — fit, compression level and garment type all matter, which is why we guide clients individually.</p>
@@ -629,7 +599,7 @@ export default function TechTalksClient() {
   <article id="article-hydration" className="edu-article">
     <span className="eyebrow">Nutrition &amp; Hydration</span>
     <h3>Hydration</h3>
-    <div className="ph-block art-media rose"><span>(Insert Editorial Photo)</span></div>
+    <div className="ph-block art-media rose"><div className="art-graphic"><span className="ring-lg">◯</span><span className="label">Hydration</span></div></div>
     <p>Hydration plays a quiet but essential role in nearly every part of your results — recovery, skin quality, muscle function and how your body responds to treatment.</p>
     <p>Well-hydrated tissue responds more predictably to technologies like Exilis® and Endospheres®, and proper hydration supports the body's natural processes as it recovers between sessions.</p>
     <p>We recommend hydration as a simple, consistent habit that supports your Personalized System™ from the inside out.</p>
@@ -648,7 +618,7 @@ export default function TechTalksClient() {
   <article id="article-recovery" className="edu-article">
     <span className="eyebrow">Recovery</span>
     <h3>Recovery</h3>
-    <div className="ph-block art-media dark"><span>(Insert Editorial Photo)</span></div>
+    <div className="ph-block art-media" style={{backgroundImage: 'url(\'/images/tech-session.jpeg\')', backgroundSize: 'cover', backgroundPosition: 'center', color: 'transparent'}}></div>
     <p>Recovery is an active part of body optimization, not an afterthought. Sleep, movement, nutrition, hydration and consistency all shape how your body responds between sessions.</p>
     <p>Rushing recovery — or ignoring it altogether — can slow progress regardless of which technologies are used. A well-supported body simply responds better.</p>
     <p>Your Personalized System™ always considers recovery alongside treatment, not separately from it.</p>
@@ -667,7 +637,7 @@ export default function TechTalksClient() {
   <article id="article-nutrition" className="edu-article">
     <span className="eyebrow">Nutrition &amp; Hydration</span>
     <h3>Nutrition Basics</h3>
-    <div className="ph-block art-media"><span>(Insert Editorial Photo)</span></div>
+    <div className="ph-block art-media"><div className="art-graphic"><span className="ring-lg">✦</span><span className="label">Nutrition</span></div></div>
     <p>Good nutrition doesn't need to be complicated or restrictive. Protein supports muscle and tissue repair, fiber supports digestion, and consistent hydration supports nearly everything else.</p>
     <p>We encourage balanced, sustainable habits over strict rules — nutrition should support your results, not add stress to your routine.</p>
     <p>Body Shaper System™ does not replace nutritional counseling. For personalized dietary guidance, we always recommend working alongside a qualified nutrition professional.</p>
@@ -686,7 +656,7 @@ export default function TechTalksClient() {
   <article id="article-body-composition" className="edu-article">
     <span className="eyebrow">Body &amp; Muscle</span>
     <h3>Body Composition</h3>
-    <div className="ph-block art-media rose"><span>(Insert Editorial Photo)</span></div>
+    <div className="ph-block art-media" style={{backgroundImage: 'url(\'/images/blueprint-hero.jpg\')', backgroundSize: 'cover', backgroundPosition: 'center', color: 'transparent'}}></div>
     <p>Weight, fat, muscle and water are four different things — yet the scale only measures one number that reflects all of them combined.</p>
     <p>Two people can weigh exactly the same and look completely different, because their ratio of fat to muscle to water is different. This is why the scale rarely tells the full story of your progress.</p>
     <p>We look at body composition — not just weight — when evaluating your Body Blueprint™ and tracking progress throughout your Personalized System™.</p>
@@ -705,7 +675,7 @@ export default function TechTalksClient() {
   <article id="article-frequency" className="edu-article">
     <span className="eyebrow">Frequency</span>
     <h3>Treatment Frequency</h3>
-    <div className="ph-block art-media dark"><span>(Insert Editorial Photo)</span></div>
+    <div className="ph-block art-media dark"><div className="art-graphic"><span className="ring-lg">◐</span><span className="label" style={{color: 'var(--ivory)'}}>Consistency</span></div></div>
     <p>Consistency matters more than intensity. Spacing sessions appropriately gives your body time to respond and remodel between treatments — rushing frequency doesn't accelerate results.</p>
     <p>Treatment frequency also varies significantly from client to client, based on goals, body composition and the specific technologies involved.</p>
     <p>This is exactly why every Personalized System™ includes its own recommended schedule — never a generic, one-size-fits-all calendar.</p>
