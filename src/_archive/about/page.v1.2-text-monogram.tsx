@@ -19,11 +19,11 @@ export default function AboutPage() {
         </div>
         <div className="about-monogram-rule" />
         <div className="about-wordmark reveal in">
-          <img
-            src="/images/bss-wordmark.png"
-            alt="body shaper system."
-            style={{ width: "min(66vw, 340px)", height: "auto", margin: "0 auto" }}
-          />
+          <span>body</span>
+          <span>shaper</span>
+          <span>
+            system.<sup>™</sup>
+          </span>
         </div>
         <div className="about-kicker-rule" />
         <p className="about-subtitle">the story behind body shaper system™</p>

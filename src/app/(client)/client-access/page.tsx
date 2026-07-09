@@ -25,7 +25,7 @@ export default function ClientAccessPage() {
       </div>
       <div className="login-panel">
         <div className="login-card reveal in">
-          <span className="logo">Body Shaper System™</span>
+          <span className="logo">body shaper system™</span>
           <h1>Welcome Back.</h1>
           <p className="sub">Continue your transformation journey.</p>
 

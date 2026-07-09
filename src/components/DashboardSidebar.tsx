@@ -17,7 +17,7 @@ export default function DashboardSidebar({ active }: { active: "dashboard" | "se
         ☰
       </button>
       <aside className={`dash-sidebar${open ? " open" : ""}`}>
-        <span className="logo">Body Shaper System™</span>
+        <span className="logo">body shaper system™</span>
         <nav className="dash-nav">
           <Link href="/client-dashboard" className={active === "dashboard" ? "active" : ""}>
             Dashboard

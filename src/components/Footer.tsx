@@ -7,7 +7,7 @@ export default function Footer() {
       <div className="footer-top">
         <div className="footer-brand">
           <Link href="/" className="logo">
-            Body Shaper System™
+            body shaper system™
           </Link>
           <p>Personalized Body Systems. Delivered to You.</p>
         </div>

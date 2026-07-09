@@ -26,7 +26,7 @@ export default function ClientWelcomePage() {
   return (
     <>
       <div className="onb-topbar">
-        <span className="logo">Body Shaper System™</span>
+        <span className="logo">body shaper system™</span>
       </div>
       <div className="onb-dots">
         {Array.from({ length: TOTAL_STEPS }, (_, i) => i + 1).map((n) => (
