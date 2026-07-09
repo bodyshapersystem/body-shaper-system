@@ -12,6 +12,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "/tech-talks",
     "/reviews",
     "/faq",
+    "/policies",
   ];
 
   return routes.map((route) => ({

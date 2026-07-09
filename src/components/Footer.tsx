@@ -22,10 +22,11 @@ export default function Footer() {
             <Link href="/reviews">Reviews</Link>
             <Link href="/tech-talks">Tech Talks™</Link>
             <Link href="/faq">FAQ</Link>
+            <Link href="/policies">Policies</Link>
           </div>
           <div className="footer-col">
             <h4>Connect</h4>
-            <a href={INSTAGRAM_URL}>Instagram — @bodyshapersystem</a>
+            <a href={INSTAGRAM_URL}>Instagram — @bodyshapersystem_</a>
             <a href={WHATSAPP_URL}>WhatsApp — Chat with a Specialist</a>
             <a href="https://bodyshapersystem.com">bodyshapersystem.com</a>
           </div>

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
-import { JOTFORM_BLUEPRINT_URL, WHATSAPP_URL } from "@/lib/nav";
+import { INSTAGRAM_URL, JOTFORM_BLUEPRINT_URL, WHATSAPP_URL } from "@/lib/nav";
 
 export const metadata: Metadata = {
   title: "Personalized Body Systems, Delivered to You",
@@ -210,7 +210,7 @@ export default function HomePage() {
       </section>
 
       <section className="journey section" id="techtalks">
-        <span className="eyebrow reveal">@bodyshapersystem</span>
+        <span className="eyebrow reveal">@bodyshapersystem_</span>
         <h2 className="reveal">Follow the Journey</h2>
         <p className="reveal">
           Explore our latest transformations, educational content and
@@ -224,10 +224,10 @@ export default function HomePage() {
           <div className="tile" />
         </div>
         <a
-          href="https://instagram.com/bodyshapersystem"
+          href={INSTAGRAM_URL}
           className="btn btn-dark-outline reveal"
         >
-          Follow @bodyshapersystem
+          Follow @bodyshapersystem_
         </a>
       </section>
 

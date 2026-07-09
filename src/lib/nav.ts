@@ -13,9 +13,10 @@ export const NAV_ITEMS: NavItem[] = [
   { label: "Reviews", href: "/reviews" },
   { label: "About Us", href: "/about" },
   { label: "FAQ", href: "/faq" },
+  { label: "Policies", href: "/policies" },
 ];
 
 export const WHATSAPP_URL = "https://wa.me/17379755112";
-export const INSTAGRAM_URL = "https://instagram.com/bodyshapersystem";
+export const INSTAGRAM_URL = "https://instagram.com/bodyshapersystem_";
 export const JOTFORM_BLUEPRINT_URL =
   "https://form.jotform.com/beautyboxmia/lets-build-your-blueprint";

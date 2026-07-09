@@ -1179,3 +1179,14 @@
 .tf-modal-body .tech-tags{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:28px;}
 .tf-modal-body .tech-tag{font-size:12px;padding:8px 15px;border:1px solid var(--line);color:var(--charcoal);}
 .tf-modal-body .notes{font-size:14.5px;color:#4a443d;line-height:1.75;}
+
+/* ================================================================
+   POLICIES PAGE
+   Additive only.
+   ================================================================ */
+
+.policies-list{max-width:720px;margin:0 auto;padding:20px 8vw 100px;}
+.policy-item{padding:36px 0;border-bottom:1px solid var(--line);}
+.policy-item:last-child{border-bottom:none;}
+.policy-item h3{font-family:var(--serif);font-weight:500;font-size:21px;color:var(--charcoal);margin-bottom:10px;}
+.policy-item p{font-size:15px;color:#4a443d;line-height:1.75;max-width:600px;}
