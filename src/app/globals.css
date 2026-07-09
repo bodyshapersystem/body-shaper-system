@@ -338,7 +338,7 @@
 
 /* ---------- Added tokens for inner pages ---------- */
 :root{
-  --burgundy:#8B2E3A;
+  --gold:#B08D57;
 }
 
 /* Topographic + compass signature motif (used sparingly, per brand ref) */
@@ -1190,3 +1190,61 @@
 .policy-item:last-child{border-bottom:none;}
 .policy-item h3{font-family:var(--serif);font-weight:500;font-size:21px;color:var(--charcoal);margin-bottom:10px;}
 .policy-item p{font-size:15px;color:#4a443d;line-height:1.75;max-width:600px;}
+
+/* ================================================================
+   BODY BLUEPRINT PAGE — v1.1 visual enhancement (additive only)
+   Same pattern as the Systems page: scoped wrapper classes only,
+   nothing above this block was modified. .page-hero / .timeline /
+   .evaluate-grid / .final-cta remain untouched and still shared
+   with other pages.
+   ================================================================ */
+
+.bp-deco{position:absolute;pointer-events:none;z-index:0;}
+.bp-deco svg{display:block;}
+
+/* Hero */
+.bp-hero-wrap{position:relative;overflow:hidden;}
+.bp-hero-wrap .page-hero{position:relative;z-index:1;}
+.bp-hero-arc{top:-70px;right:-90px;width:360px;height:360px;opacity:0.45;}
+.bp-hero-grid{bottom:20px;left:3vw;width:110px;height:110px;opacity:0.3;}
+
+/* What is it / pull-quote placeholder */
+.bp-whatis-wrap{position:relative;overflow:hidden;}
+.bp-whatis-wrap .bp-deco-ring{top:10%;left:-40px;width:220px;height:220px;opacity:0.3;}
+.bp-whatis-wrap .bp-deco-cross{bottom:-20px;right:4vw;width:160px;height:160px;opacity:0.3;}
+
+.bp-pullquote{
+  position:relative;max-width:640px;margin:44px auto 0;padding:50px 6vw;
+  text-align:center;border-top:1px solid var(--line);border-bottom:1px solid var(--line);
+}
+.bp-pullquote::before{
+  content:"";position:absolute;top:-1px;left:50%;transform:translateX(-50%);
+  width:34px;height:1px;background:var(--gold);opacity:0.8;
+}
+.bp-pullquote p{
+  font-family:var(--serif);font-style:italic;font-weight:400;
+  font-size:clamp(20px,2.4vw,26px);color:var(--charcoal);line-height:1.5;
+}
+.bp-pullquote span{
+  display:block;margin-top:18px;font-family:var(--sans);font-style:normal;
+  font-size:11px;letter-spacing:0.14em;text-transform:uppercase;color:var(--mocha);
+}
+
+/* Evaluate section */
+.bp-evaluate-wrap{position:relative;overflow:hidden;}
+.bp-evaluate-wrap .bp-deco-arc-2{top:-50px;left:-60px;width:260px;height:260px;opacity:0.28;}
+.bp-evaluate-wrap .bp-deco-dots{bottom:-30px;right:-20px;width:200px;height:200px;opacity:0.28;}
+
+/* Timeline */
+.bp-timeline-wrap{position:relative;overflow:hidden;}
+.bp-timeline-wrap .bp-deco-grid-2{top:-20px;right:6vw;width:130px;height:130px;opacity:0.3;}
+.bp-timeline-wrap .bp-deco-ring-2{bottom:-60px;left:-50px;width:240px;height:240px;opacity:0.28;}
+.bp-timeline-wrap .eyebrow{position:relative;display:inline-flex;align-items:center;gap:10px;}
+.bp-timeline-wrap .eyebrow::before,.bp-timeline-wrap .eyebrow::after{
+  content:"";width:26px;height:1px;background:var(--mocha);display:inline-block;
+}
+
+/* Final CTA */
+.bp-cta-wrap{position:relative;overflow:hidden;}
+.bp-cta-wrap .bp-deco-cross-2{top:10%;left:5vw;width:130px;height:130px;opacity:0.28;}
+.bp-cta-wrap .bp-deco-arc-3{bottom:-90px;right:-70px;width:320px;height:320px;opacity:0.28;}
