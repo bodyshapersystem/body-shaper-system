@@ -1460,3 +1460,142 @@
 .video-frame.portrait video{
   width:100%;height:100%;object-fit:cover;display:block;
 }
+
+/* =====================================================================
+   Architecture Documentation — Master Ecosystem Architecture page
+   Editorial / blueprint visual language, reusing brand palette + the
+   Tech Talks contour/target motif family via BrandOverlay. No new
+   colors, no gradients, no shadows — see approved mockup.
+===================================================================== */
+.arch-page{ position:relative; background:var(--ivory); overflow:hidden; }
+.arch-overlay{ z-index:0; }
+.arch-content{ position:relative; z-index:1; max-width:1240px; margin:0 auto; padding:0 32px; }
+
+/* Top bar */
+.arch-topbar{
+  position:relative; display:flex; justify-content:space-between; align-items:flex-start;
+  padding:36px 0 0; font-family:var(--sans); font-size:11px; letter-spacing:.16em; text-transform:uppercase;
+  color:var(--charcoal); opacity:.75;
+}
+.arch-version{ text-align:right; line-height:1.6; }
+.arch-tick{ position:absolute; top:-6px; width:18px; height:18px; opacity:.35; pointer-events:none; }
+.arch-tick::before, .arch-tick::after{ content:""; position:absolute; background:var(--charcoal); }
+.arch-tick::before{ top:50%; left:0; width:100%; height:1px; }
+.arch-tick::after{ left:50%; top:0; width:1px; height:100%; }
+.arch-tick-tl{ left:-8px; }
+.arch-tick-tr{ right:-8px; }
+
+/* Hero */
+.arch-hero{ position:relative; padding:56px 0 64px; max-width:760px; }
+.arch-hero h1{
+  font-family:var(--serif); font-weight:500; line-height:0.96;
+  font-size:clamp(40px, 7vw, 84px); color:var(--charcoal); margin-bottom:26px;
+}
+.arch-hero-sub{
+  font-family:var(--sans); font-size:12.5px; letter-spacing:.14em; text-transform:uppercase;
+  color:var(--charcoal); opacity:.6; line-height:1.8;
+}
+
+/* Rows */
+.arch-row{
+  position:relative; display:grid;
+  grid-template-columns:6px 300px 1fr 150px;
+  gap:44px; padding:64px 0; border-top:1px solid var(--line);
+}
+.arch-bar{ align-self:stretch; width:6px; border-radius:1px; }
+.arch-row-num{
+  display:block; font-family:var(--sans); font-size:12px; letter-spacing:.1em; color:var(--taupe); margin-bottom:16px;
+}
+.arch-row-head h2{
+  font-family:var(--serif); font-weight:500; line-height:1.08; font-size:clamp(24px,2.2vw,32px);
+  color:var(--charcoal); margin-bottom:14px;
+}
+.arch-row-eyebrow{
+  font-family:var(--sans); font-size:11px; letter-spacing:.13em; text-transform:uppercase;
+  color:var(--charcoal); opacity:.6; margin-bottom:16px; display:flex; align-items:center; gap:10px; flex-wrap:wrap;
+}
+.arch-status{ display:inline-flex; align-items:center; gap:6px; color:var(--olive); opacity:1; }
+.arch-status-dot{ width:6px; height:6px; border-radius:50%; background:var(--olive); display:inline-block; }
+.arch-row-desc{ font-family:var(--sans); font-size:14.5px; line-height:1.65; color:var(--charcoal); opacity:.72; max-width:300px; }
+.arch-row-label{
+  text-align:right; font-family:var(--sans); font-size:10.5px; letter-spacing:.13em; text-transform:uppercase;
+  color:var(--taupe); line-height:1.8; white-space:nowrap;
+}
+
+/* Icon tiles (rows 01 / 02) */
+.arch-tiles{ display:grid; gap:32px 36px; }
+.arch-tiles.cols-2{ grid-template-columns:repeat(2,1fr); }
+.arch-tiles.cols-3{ grid-template-columns:repeat(3,1fr); }
+.arch-tile{ display:flex; gap:14px; align-items:flex-start; }
+.arch-tile-icon{ flex-shrink:0; width:26px; height:26px; color:var(--mocha); }
+.arch-tile-icon svg{ width:100%; height:100%; }
+.arch-tile h3{ font-family:var(--sans); font-size:14.5px; font-weight:600; color:var(--charcoal); margin-bottom:5px; }
+.arch-tile p{ font-family:var(--sans); font-size:13px; line-height:1.55; color:var(--charcoal); opacity:.62; }
+
+/* Portal list (row 03) */
+.arch-portal{ display:grid; grid-template-columns:1fr 1fr; gap:0 56px; align-content:start; }
+.arch-portal-item{
+  display:flex; gap:14px; align-items:flex-start; padding:16px 0; border-top:1px solid var(--line);
+}
+.arch-portal-item:nth-child(1), .arch-portal-item:nth-child(2){ border-top:none; }
+.arch-portal-item .arch-tile-icon{ width:22px; height:22px; margin-top:2px; }
+.arch-portal-item h3{ font-family:var(--sans); font-size:14px; font-weight:600; color:var(--charcoal); margin-bottom:4px; }
+.arch-portal-status{ font-family:var(--sans); font-size:10.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--taupe); }
+
+/* Roadmap (row 04) */
+.arch-roadmap{ position:relative; display:grid; grid-template-columns:repeat(5,1fr); gap:20px; }
+.arch-roadmap::before{ content:""; position:absolute; top:15px; left:0; right:0; height:1px; background:var(--line); }
+.arch-roadmap-step{ position:relative; }
+.arch-roadmap-num{
+  position:relative; z-index:1; display:flex; align-items:center; justify-content:center;
+  width:30px; height:30px; border-radius:50%; border:1px solid var(--gold); background:var(--ivory);
+  font-family:var(--sans); font-size:11px; color:var(--gold); margin-bottom:16px;
+}
+.arch-roadmap-step h4{ font-family:var(--serif); font-weight:600; font-size:14.5px; color:var(--charcoal); margin-bottom:6px; }
+.arch-roadmap-step p{ font-family:var(--sans); font-size:12px; line-height:1.55; color:var(--charcoal); opacity:.6; }
+
+/* Lifecycle grid (row 05) */
+.arch-lifecycle{ display:grid; grid-template-columns:repeat(5,1fr); gap:30px 24px; }
+.arch-lifecycle-item .n{ display:block; font-family:var(--sans); font-size:11px; color:var(--taupe); margin-bottom:10px; }
+.arch-lifecycle-item h4{ font-family:var(--serif); font-weight:600; font-size:14.5px; color:var(--charcoal); margin-bottom:5px; }
+.arch-lifecycle-item p{ font-family:var(--sans); font-size:12px; line-height:1.5; color:var(--charcoal); opacity:.6; }
+
+/* Closing */
+.arch-closing{ position:relative; text-align:center; padding:56px 0 64px; border-top:1px solid var(--line); margin-top:8px; }
+.arch-closing-mark{
+  display:block; width:8px; height:8px; margin:0 auto 24px; border-radius:50%;
+  border:1px solid var(--taupe); opacity:.6;
+}
+.arch-closing p{
+  font-family:var(--sans); font-size:11px; letter-spacing:.14em; text-transform:uppercase;
+  color:var(--charcoal); opacity:.6;
+}
+.arch-closing .sep{ opacity:.5; margin:0 4px; }
+
+/* Responsive */
+@media (max-width:900px){
+  .arch-row{
+    grid-template-columns:6px 1fr;
+    grid-template-areas:"bar head" "bar body" "bar label";
+    gap:22px 24px; padding:48px 0;
+  }
+  .arch-row-head{ grid-area:head; }
+  .arch-row-body{ grid-area:body; }
+  .arch-row-label{ grid-area:label; text-align:left; margin-top:4px; }
+  .arch-row-desc{ max-width:none; }
+  .arch-tiles.cols-3{ grid-template-columns:1fr 1fr; }
+  .arch-portal{ grid-template-columns:1fr; }
+  .arch-portal-item:nth-child(2){ border-top:1px solid var(--line); }
+  .arch-roadmap{ grid-template-columns:repeat(2,1fr); gap:28px 20px; }
+  .arch-roadmap::before{ display:none; }
+  .arch-lifecycle{ grid-template-columns:repeat(2,1fr); }
+  .arch-topbar{ flex-direction:column; gap:6px; }
+  .arch-version{ text-align:left; }
+}
+@media (max-width:560px){
+  .arch-hero{ padding:44px 0 48px; }
+  .arch-hero h1{ font-size:clamp(32px,11vw,48px); }
+  .arch-tiles.cols-2, .arch-tiles.cols-3{ grid-template-columns:1fr; }
+  .arch-roadmap{ grid-template-columns:1fr; }
+  .arch-lifecycle{ grid-template-columns:1fr 1fr; }
+}
