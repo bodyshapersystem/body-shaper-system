@@ -219,15 +219,26 @@ export default function HomePage() {
         <span className="eyebrow reveal">@bodyshapersystem_mia</span>
         <h2 className="reveal">Follow the Journey</h2>
         <p className="reveal">
-          Explore our latest transformations, educational content and
-          behind-the-scenes moments.
+          Follow our transformations, Body Talks™, technology education,
+          client results and behind-the-scenes moments from Body Shaper
+          System™.
         </p>
         <div className="ig-strip reveal">
-          <div className="tile" />
-          <div className="tile" />
-          <div className="tile" />
-          <div className="tile" />
-          <div className="tile" />
+          <a href={INSTAGRAM_URL} className="tile">
+            <img src="/images/ig1-bodytalks.jpg" alt="Body Talks™ — why one treatment isn't enough" />
+          </a>
+          <a href={INSTAGRAM_URL} className="tile">
+            <img src="/images/ig2-plant-emmy.jpg" alt="Emmy Branger with the Endospheres® device" />
+          </a>
+          <a href={INSTAGRAM_URL} className="tile">
+            <img src="/images/ig3-notmassage.jpg" alt="This isn't a massage. It's technology." />
+          </a>
+          <a href={INSTAGRAM_URL} className="tile">
+            <img src="/images/ig4-hormonas.jpg" alt="Hormonas de la Felicidad — Body Shaper System" />
+          </a>
+          <a href={INSTAGRAM_URL} className="tile">
+            <img src="/images/ig5-exilis-hand.jpg" alt="Exilis® session in progress" />
+          </a>
         </div>
         <a
           href={INSTAGRAM_URL}

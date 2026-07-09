@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { WHATSAPP_URL, JOTFORM_WAIVER_URL } from "@/lib/nav";
+import { WHATSAPP_URL } from "@/lib/nav";
 
 export const metadata: Metadata = {
   title: "Policies",
@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 const POLICIES = [
   {
     title: "Appointments",
-    body: "Body Shaper System™ is a luxury mobile experience. Since we travel to you, please allow a 10-minute arrival window before or after your scheduled appointment time. We always do our best to arrive on time, but traffic, parking, building access, and travel time may vary.",
+    body: "Appointments are reserved exclusively for you. Please arrive on time to ensure the best possible experience.",
   },
   {
     title: "Cancellation Policy",
@@ -88,24 +88,6 @@ export default function PoliciesPage() {
             <p>{p.body}</p>
           </div>
         ))}
-      </section>
-
-      {/* WAIVER */}
-      <section className="section policies-waiver" style={{ textAlign: "center", paddingTop: 0 }}>
-        <div className="policies-waiver-box reveal in">
-          <span className="eyebrow" style={{ display: "block" }}>
-            Ready For Your Session?
-          </span>
-          <h3>Complete your waiver before you arrive.</h3>
-          <p>
-            Please complete our online waiver before your appointment to
-            save time and help us prepare for your Body Blueprint™
-            experience.
-          </p>
-          <a href={JOTFORM_WAIVER_URL} className="btn btn-primary">
-            Complete Waiver Form
-          </a>
-        </div>
       </section>
 
       {/* QUESTIONS? */}
