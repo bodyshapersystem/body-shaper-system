@@ -4,7 +4,7 @@ import TransformationsClient from "./TransformationsClient";
 export const metadata: Metadata = {
   title: "Transformations",
   description:
-    "Real transformations, designed around you. Every Body Blueprint™ is different, because every body is different.",
+    "Real results, designed around you. Every transformation begins with understanding your body — explore personalized strategies, not procedures.",
 };
 
 export default function TransformationsPage() {

@@ -1101,3 +1101,81 @@
    (monogram removed per request; rule kept only as historical note,
    no longer referenced in markup) */
 .about-top{padding-top:150px;}
+
+/* ================================================================
+   TRANSFORMATIONS PAGE — v1 (simplified)
+   Additive only. The full v1 layout/components are archived in
+   src/_archive/transformations and untouched above this block.
+   ================================================================ */
+
+.tf-hero{padding:170px 8vw 90px;text-align:center;max-width:720px;margin:0 auto;}
+.tf-hero h1{font-family:var(--serif);font-weight:400;font-size:clamp(38px,5.5vw,68px);color:var(--charcoal);line-height:1.1;}
+.tf-hero p{margin-top:22px;font-size:16.5px;color:#4a443d;max-width:520px;margin-left:auto;margin-right:auto;line-height:1.7;}
+
+.tf-grid{max-width:1180px;margin:0 auto;padding:0 8vw 60px;display:flex;flex-direction:column;gap:2px;background:var(--line);}
+.tf-card{
+  background:var(--ivory);display:grid;grid-template-columns:1fr 1fr 1.1fr;gap:0;
+  cursor:pointer;transition:background .35s ease;text-align:left;border:none;width:100%;
+  font-family:var(--sans);
+}
+.tf-card:hover{background:var(--beige);}
+@media(max-width:900px){.tf-card{grid-template-columns:1fr 1fr;}}
+.tf-card-photo{position:relative;aspect-ratio:4/5;overflow:hidden;}
+.tf-card-photo img{width:100%;height:100%;object-fit:cover;display:block;}
+.tf-card-photo .tf-tag{
+  position:absolute;top:16px;left:16px;font-size:9.5px;letter-spacing:0.14em;text-transform:uppercase;
+  color:var(--ivory);background:rgba(43,38,34,0.55);padding:5px 11px;border-radius:2px;
+}
+.tf-card-body{padding:38px 34px;display:flex;flex-direction:column;justify-content:center;}
+@media(max-width:900px){.tf-card-body{grid-column:span 2;padding:28px 6vw 40px;}}
+.tf-card-body .sys{font-size:10.5px;letter-spacing:0.14em;text-transform:uppercase;color:var(--burgundy);margin-bottom:10px;}
+.tf-card-body h3{font-family:var(--serif);font-weight:500;font-size:25px;margin-bottom:14px;line-height:1.2;}
+.tf-card-body p{font-size:14.5px;color:#4a443d;line-height:1.65;margin-bottom:22px;}
+.tf-card-body .view{font-size:11px;letter-spacing:0.12em;text-transform:uppercase;color:var(--charcoal);display:inline-flex;align-items:center;gap:8px;}
+.tf-card-body .view span{transition:transform .3s ease;}
+.tf-card:hover .view span{transform:translateX(4px);}
+
+/* Coming soon */
+.tf-coming{max-width:560px;margin:0 auto;padding:110px 8vw 150px;text-align:center;}
+.tf-coming .kicker-line{margin:0 auto 28px;}
+.tf-coming h2{font-family:var(--serif);font-weight:400;font-style:italic;font-size:clamp(26px,3.4vw,36px);color:var(--charcoal);margin-bottom:22px;}
+.tf-coming p{font-size:15px;color:#4a443d;line-height:1.8;margin-bottom:36px;}
+.tf-coming-mark{
+  display:inline-flex;align-items:center;gap:14px;padding:16px 30px;border:1px solid var(--line);
+  font-size:11px;letter-spacing:0.16em;text-transform:uppercase;color:var(--mocha);
+}
+.tf-coming-mark .dot{width:5px;height:5px;border-radius:50%;background:var(--mocha);}
+
+/* Modal */
+.tf-modal-overlay{
+  position:fixed;inset:0;background:rgba(28,25,23,0.72);z-index:200;
+  display:flex;align-items:center;justify-content:center;padding:4vh 4vw;
+  animation:tfFadeIn .3s ease;
+}
+@keyframes tfFadeIn{from{opacity:0;}to{opacity:1;}}
+.tf-modal{
+  background:var(--ivory);max-width:920px;width:100%;max-height:92vh;overflow-y:auto;
+  position:relative;border-radius:2px;
+}
+.tf-modal-close{
+  position:absolute;top:18px;right:18px;z-index:2;width:38px;height:38px;border-radius:50%;
+  background:var(--ivory);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;
+  cursor:pointer;font-size:16px;color:var(--charcoal);
+}
+.tf-modal-photos{display:grid;grid-template-columns:1fr 1fr;gap:2px;background:var(--line);}
+.tf-modal-photos .ph{position:relative;aspect-ratio:4/5;overflow:hidden;}
+.tf-modal-photos .ph img{width:100%;height:100%;object-fit:cover;display:block;}
+.tf-modal-photos .ph .lbl{
+  position:absolute;bottom:14px;left:14px;font-size:10px;letter-spacing:0.14em;text-transform:uppercase;
+  color:var(--ivory);background:rgba(43,38,34,0.55);padding:5px 11px;
+}
+.tf-modal-body{padding:40px 6vw 50px;}
+.tf-modal-body .sys{font-size:10.5px;letter-spacing:0.14em;text-transform:uppercase;color:var(--burgundy);margin-bottom:10px;}
+.tf-modal-body h3{font-family:var(--serif);font-weight:500;font-size:28px;margin-bottom:22px;}
+.tf-modal-facts{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-bottom:28px;padding-bottom:28px;border-bottom:1px solid var(--line);}
+@media(max-width:640px){.tf-modal-facts{grid-template-columns:1fr 1fr;}}
+.tf-modal-facts .f-label{font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:var(--taupe);margin-bottom:6px;}
+.tf-modal-facts .f-val{font-size:14px;color:var(--charcoal);font-weight:500;}
+.tf-modal-body .tech-tags{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:28px;}
+.tf-modal-body .tech-tag{font-size:12px;padding:8px 15px;border:1px solid var(--line);color:var(--charcoal);}
+.tf-modal-body .notes{font-size:14.5px;color:#4a443d;line-height:1.75;}
