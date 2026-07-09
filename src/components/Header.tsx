@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { NAV_ITEMS } from "@/lib/nav";
+import BrandOverlay from "@/components/BrandOverlay";
 
 export default function Header() {
   const pathname = usePathname();
@@ -32,9 +33,13 @@ export default function Header() {
         onClick={() => setOpen(false)}
       />
       <nav className={`menu${open ? " open" : ""}`} id="siteMenu">
-        <svg className="menu-overlay" aria-hidden="true" focusable="false">
-          <use href="#bss-brand-overlay-pattern" />
-        </svg>
+        <BrandOverlay
+          motifs={["grid", "target", "ring", "nodes", "contour", "dotgrid", "ticks"]}
+          opacity={0.05}
+          tone="ink"
+          position="absolute"
+          className="menu-overlay"
+        />
         {NAV_ITEMS.map((item) => {
           const active = pathname === item.href;
           return (
