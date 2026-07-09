@@ -12,7 +12,7 @@ export default function Header() {
   return (
     <header id="siteHeader" className="scrolled">
       <Link href="/" className="logo" style={{ color: "var(--charcoal)" }}>
-        body shaper system
+        body shaper system.
         <sup style={{ fontSize: 10 }}>™</sup>
       </Link>
       <nav className={`menu${open ? " open" : ""}`} id="siteMenu">
