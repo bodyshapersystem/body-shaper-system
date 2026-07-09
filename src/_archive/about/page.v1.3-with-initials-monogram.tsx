@@ -12,6 +12,12 @@ export default function AboutPage() {
     <>
       {/* TOP — WORDMARK */}
       <section className="about-top">
+        <div className="about-monogram reveal in" aria-hidden="true">
+          <span>B</span>
+          <span>S</span>
+          <span>S</span>
+        </div>
+        <div className="about-monogram-rule" />
         <div className="about-wordmark reveal in">
           <img
             src="/images/bss-wordmark.png"

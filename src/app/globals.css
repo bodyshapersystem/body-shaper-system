@@ -1097,18 +1097,7 @@
 .home-hero-deco-arc{bottom:-80px;left:-80px;width:320px;height:320px;}
 @media(max-width:768px){.home-hero-deco{display:none;}}
 
-/* ---------- About page: BSS stacked initials monogram ---------- */
-.about-monogram{
-  font-family:var(--serif);
-  font-weight:400;
-  line-height:1.05;
-  font-size:clamp(30px,4.2vw,46px);
-  color:var(--mocha);
-  letter-spacing:0.02em;
-}
-.about-monogram span{display:block;margin:6px 0;}
-.about-monogram-rule{width:36px;height:1px;background:var(--mocha);margin:26px auto 0;opacity:0.7;}
-
-/* tighten the gap between the new monogram block and the wordmark headline below it */
-.about-top{padding-top:120px;}
-.about-top .about-wordmark{margin-top:34px;}
+/* ---------- About page: BSS stacked initials monogram ----------
+   (monogram removed per request; rule kept only as historical note,
+   no longer referenced in markup) */
+.about-top{padding-top:150px;}
