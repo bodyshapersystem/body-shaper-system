@@ -995,3 +995,73 @@
 /* Promise block (mini, before final-cta) */
 .about-promise{max-width:600px;margin:0 auto;padding:0 8vw 130px;text-align:center;}
 .about-promise p{font-size:16px;color:#4a443d;line-height:1.9;margin-bottom:10px;}
+
+/* ================================================================
+   SYSTEMS PAGE — v1.1 visual enhancement (additive only)
+   Every rule below is scoped under a unique wrapper class so it can
+   never affect .page-hero / .timeline / .final-cta / .system-card
+   on this or any other page. Nothing above this block was modified.
+   ================================================================ */
+
+/* ---------- Reusable subtle decoration primitives ---------- */
+.sys-deco{position:absolute;pointer-events:none;z-index:0;}
+.sys-deco svg{display:block;}
+
+/* ---------- Hero ---------- */
+.sys-hero-wrap{position:relative;overflow:hidden;}
+.sys-hero-wrap .page-hero{position:relative;z-index:1;}
+.sys-hero-wrap .page-hero .reveal:not(.photo){padding-right:1vw;}
+
+/* generous breathing room + refined scale, higher specificity than .page-hero */
+.sys-hero-wrap .page-hero{padding-top:190px;padding-bottom:130px;}
+@media(max-width:900px){.sys-hero-wrap .page-hero{padding-top:150px;padding-bottom:80px;}}
+.sys-hero-wrap .page-hero h1{font-size:clamp(38px,5vw,64px);letter-spacing:-0.01em;}
+.sys-hero-wrap .page-hero .eyebrow{position:relative;padding-left:30px;}
+.sys-hero-wrap .page-hero .eyebrow::before{
+  content:"";position:absolute;left:0;top:50%;transform:translateY(-50%);
+  width:18px;height:1px;background:var(--mocha);
+}
+
+.sys-hero-arc{top:-60px;left:-90px;width:340px;height:340px;opacity:0.5;}
+.sys-hero-ring{top:100px;left:2vw;width:76px;height:76px;opacity:0.4;}
+.sys-hero-dots{bottom:30px;right:4vw;width:120px;height:120px;opacity:0.4;}
+
+/* ---------- Systems grid header (labels row) ---------- */
+.sys-grid-header{position:relative;padding-top:10px;padding-bottom:10px;}
+.sys-grid-header .sys-deco-crosshair{top:-30px;right:6vw;width:150px;height:150px;opacity:0.35;}
+.sys-grid-header .sys-deco-grid{top:10px;left:4vw;width:90px;height:90px;opacity:0.3;}
+.sys-grid-header .section-labels{gap:0;}
+.sys-grid-header .section-labels span{
+  padding:0 26px;position:relative;
+}
+.sys-grid-header .section-labels span:not(:last-child)::after{
+  content:"";position:absolute;right:0;top:2px;bottom:8px;width:1px;background:var(--line);
+}
+.sys-grid-header .section-labels span::before{
+  content:"";display:inline-block;width:4px;height:4px;border-radius:50%;
+  background:var(--mocha);margin-right:8px;vertical-align:middle;
+}
+
+/* ---------- Blueprint Journey (timeline) ---------- */
+.sys-timeline-wrap{position:relative;overflow:hidden;}
+.sys-timeline-wrap .sys-deco-arc-2{top:-40px;left:-60px;width:280px;height:280px;opacity:0.3;}
+.sys-timeline-wrap .sys-deco-dots-2{bottom:-20px;right:-30px;width:220px;height:220px;opacity:0.3;}
+.sys-timeline-wrap .eyebrow{position:relative;display:inline-flex;align-items:center;gap:10px;}
+.sys-timeline-wrap .eyebrow::before,.sys-timeline-wrap .eyebrow::after{
+  content:"";width:26px;height:1px;background:var(--mocha);display:inline-block;
+}
+.sys-timeline-wrap .timeline{margin-top:36px;}
+
+/* ---------- Bottom CTA ---------- */
+.sys-cta-wrap{position:relative;overflow:hidden;}
+.sys-cta-wrap .sys-deco-ring-2{top:20px;left:6vw;width:100px;height:100px;opacity:0.3;}
+.sys-cta-wrap .sys-deco-arc-3{bottom:-80px;right:-70px;width:320px;height:320px;opacity:0.3;}
+.sys-cta-wrap .deposit-box{position:relative;}
+.sys-cta-wrap .deposit-box::before{
+  content:"";position:absolute;top:14px;left:14px;width:18px;height:18px;
+  border-top:1px solid var(--mocha);border-left:1px solid var(--mocha);opacity:0.5;
+}
+.sys-cta-wrap .deposit-box::after{
+  content:"";position:absolute;bottom:14px;right:14px;width:18px;height:18px;
+  border-bottom:1px solid var(--mocha);border-right:1px solid var(--mocha);opacity:0.5;
+}
