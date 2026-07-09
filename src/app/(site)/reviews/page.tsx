@@ -12,7 +12,7 @@ export default function ReviewsPage() {
 
 
 {/* HERO */}
-<section className="hero" style={{minHeight: '64vh'}}>
+<section className="hero reviews-hero" style={{minHeight: '64vh'}}>
   <div className="hero-bg"></div>
   <div className="hero-content">
     <span className="eyebrow" style={{color: 'var(--rose)'}}>Reviews</span>
@@ -49,7 +49,7 @@ export default function ReviewsPage() {
   <div className="testimonial-grid reveal">
     <div className="testimonial-card">
       <div className="stars">★★★★★</div>
-      <p className="quote">"(Insert Review) — From the very first Body Blueprint™ appointment, everything felt considered. This was never a generic treatment plan."</p>
+      <p className="quote">"From the very first Body Blueprint™ appointment, everything felt considered. This was never a generic treatment plan."</p>
       <div className="who">
         <div className="avatar"></div>
         <div>
@@ -60,7 +60,7 @@ export default function ReviewsPage() {
     </div>
     <div className="testimonial-card">
       <div className="stars">★★★★★</div>
-      <p className="quote">"(Insert Review) — The in-home experience alone made this worth it. Professional, private, and completely tailored to my schedule."</p>
+      <p className="quote">"The in-home experience alone made this worth it. Professional, private, and completely tailored to my schedule."</p>
       <div className="who">
         <div className="avatar"></div>
         <div>

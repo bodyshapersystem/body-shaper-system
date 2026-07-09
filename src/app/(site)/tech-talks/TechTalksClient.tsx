@@ -2,6 +2,38 @@
 
 import { useState } from "react";
 
+function TTDecoArc({ className }: { className: string }) {
+  return (
+    <div className={`tt-deco ${className}`} aria-hidden="true">
+      <svg viewBox="0 0 200 200" width="100%" height="100%" fill="none">
+        <circle cx="100" cy="100" r="98" stroke="#F5EEE4" strokeWidth="0.7" />
+        <circle cx="100" cy="100" r="80" stroke="#F5EEE4" strokeWidth="0.7" strokeDasharray="1 7" />
+      </svg>
+    </div>
+  );
+}
+
+function TTDecoRing({ className }: { className: string }) {
+  return (
+    <div className={`tt-deco ${className}`} aria-hidden="true">
+      <svg viewBox="0 0 100 100" width="100%" height="100%" fill="none">
+        <circle cx="50" cy="50" r="48" stroke="#C79E93" strokeWidth="0.7" />
+        <circle cx="50" cy="50" r="30" stroke="#C79E93" strokeWidth="0.7" />
+      </svg>
+    </div>
+  );
+}
+
+function TTDecoContour({ className }: { className: string }) {
+  return (
+    <div className={`tt-deco ${className}`} aria-hidden="true">
+      <svg viewBox="0 0 140 60" width="100%" height="100%" fill="none">
+        <path d="M0 30C20 10 40 10 60 30C80 50 100 50 120 30C130 20 135 15 140 10" stroke="#6B5240" strokeWidth="0.6" />
+      </svg>
+    </div>
+  );
+}
+
 type EduCategory =
   | "all" | "skin" | "body" | "fluid" | "recovery" | "nutrition" | "frequency" | "myths";
 
@@ -52,14 +84,18 @@ export default function TechTalksClient() {
 
 
 {/* HERO */}
-<section className="hero" style={{minHeight: '60vh'}}>
-  <div className="hero-bg"></div>
-  <div className="hero-content">
-    <span className="eyebrow" style={{color: 'var(--rose)'}}>Tech Talks™</span>
-    <h1>Understand the Technology.<br /><em>Trust the Strategy.</em></h1>
-    <p>Learn the science behind every transformation. Every treatment begins with understanding how your body works. At Body Shaper System™, we don't sell individual sessions — we create Personalized Systems™ based on your unique Body Blueprint™.</p>
-  </div>
-</section>
+<div className="tt-hero-wrap">
+  <TTDecoArc className="tt-hero-arc" />
+  <TTDecoRing className="tt-hero-ring" />
+  <section className="hero" style={{minHeight: '60vh'}}>
+    <div className="hero-bg"></div>
+    <div className="hero-content">
+      <span className="eyebrow" style={{color: 'var(--rose)'}}>Tech Talks™</span>
+      <h1>Understand the Technology.<br /><em>Trust the Strategy.</em></h1>
+      <p>Learn the science behind every transformation. Every treatment begins with understanding how your body works. At Body Shaper System™, we don't sell individual sessions — we create Personalized Systems™ based on your unique Body Blueprint™.</p>
+    </div>
+  </section>
+</div>
 
 <div className="wave-divider">
   <svg viewBox="0 0 180 40" fill="none"><path d="M0 20C20 5 40 5 60 20C80 35 100 35 120 20C140 5 160 5 180 20" stroke="#6B5240" strokeWidth="1"/></svg>
@@ -74,7 +110,8 @@ export default function TechTalksClient() {
 {/* PANEL: TECHNOLOGIES */}
 <div id="panel-technologies" className={`tt-panel${mainTab === "technologies" ? " active" : ""}`}>
 
-  <div className="tech-subtabs reveal">
+  <div className="tech-subtabs reveal tt-subtabs-wrap">
+    <TTDecoContour className="tt-deco-line" />
     <button className={`tech-subtab${subTab === "exilis" ? " active" : ""}`} onClick={() => setSubTab("exilis")}>Exilis®</button>
     <button className={`tech-subtab${subTab === "endospheres" ? " active" : ""}`} onClick={() => setSubTab("endospheres")}>Endospheres®</button>
     <button className={`tech-subtab${subTab === "ems" ? " active" : ""}`} onClick={() => setSubTab("ems")}>EMS®</button>
