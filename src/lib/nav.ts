@@ -5,13 +5,13 @@ export type NavItem = {
 
 export const NAV_ITEMS: NavItem[] = [
   { label: "Home", href: "/" },
-  { label: "The Body Blueprint™", href: "/body-blueprint" },
-  { label: "Systems", href: "/systems" },
   { label: "The In-Home Experience™", href: "/in-home-experience" },
+  { label: "The Body Blueprint™", href: "/body-blueprint" },
+  { label: "Our Systems", href: "/systems" },
   { label: "Transformations", href: "/transformations" },
-  { label: "About", href: "/about" },
   { label: "Tech Talks™", href: "/tech-talks" },
   { label: "Reviews", href: "/reviews" },
+  { label: "About Us", href: "/about" },
   { label: "FAQ", href: "/faq" },
 ];
 

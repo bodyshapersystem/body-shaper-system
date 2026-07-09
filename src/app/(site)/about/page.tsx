@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { WHATSAPP_URL, JOTFORM_BLUEPRINT_URL } from "@/lib/nav";
 
 export const metadata: Metadata = {
-  title: "About",
+  title: "About Us",
   description:
     "The story behind Body Shaper System™ — how a private treatment suite in Coconut Grove became a personalized body optimization methodology, founded by Emmy Branger in Miami.",
 };

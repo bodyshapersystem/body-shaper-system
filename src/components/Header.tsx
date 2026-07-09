@@ -29,7 +29,7 @@ export default function Header() {
             </Link>
           );
         })}
-        <Link href="#build" className="cta btn btn-dark-outline" style={{ padding: "10px 20px" }} onClick={() => setOpen(false)}>
+        <Link href="#build" className="cta btn btn-primary" style={{ padding: "10px 20px" }} onClick={() => setOpen(false)}>
           Build My Blueprint™
         </Link>
       </nav>
