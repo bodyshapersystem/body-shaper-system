@@ -71,6 +71,17 @@ export default function HomePage() {
           Since 2017, our mission has remained the same — every body deserves
           its own strategy.
         </p>
+
+        <div className="video-frame portrait reveal">
+          <video
+            controls
+            preload="metadata"
+            poster="/images/poster-home-what-is.jpg"
+            aria-label="What is Body Shaper System? — Emmy Branger, Founder"
+          >
+            <source src="/videos/home-what-is.mp4" type="video/mp4" />
+          </video>
+        </div>
       </section>
       </div>
 
@@ -134,14 +145,19 @@ export default function HomePage() {
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" className="home-star"><path d="M12 2l1.8 6.2L20 10l-6.2 1.8L12 18l-1.8-6.2L4 10l6.2-1.8L12 2Z" fill="currentColor"/></svg>
         </div>
       <section className="inhome" id="inhome">
-        <div className="inhome-media reveal">
+        <Link href="/in-home-experience" className="inhome-media reveal" style={{ display: "block" }}>
+          <img
+            src="/images/inhome-lifestyle.jpeg"
+            alt="The Body Shaper System In-Home Experience"
+            style={{ width: "100%", height: "100%", objectFit: "cover", position: "absolute", inset: 0 }}
+          />
           <div className="frame-inner" />
           <div className="play-ring">
             <svg width="16" height="18" viewBox="0 0 16 18" fill="none">
               <path d="M1 1L15 9L1 17V1Z" fill="#F5EEE4" />
             </svg>
           </div>
-        </div>
+        </Link>
         <div className="inhome-copy reveal">
           <span className="eyebrow" style={{ color: "#C79E93" }}>
             The In-Home Experience™
