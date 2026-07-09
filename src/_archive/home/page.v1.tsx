@@ -14,23 +14,6 @@ export default function HomePage() {
     <>
       <section className="hero" id="top">
         <div className="hero-bg" />
-        <div className="home-hero-monogram" aria-hidden="true">
-          <span>B</span>
-          <span>S</span>
-          <span>S</span>
-        </div>
-        <div className="home-hero-deco home-hero-deco-ring" aria-hidden="true">
-          <svg viewBox="0 0 100 100" width="100%" height="100%" fill="none">
-            <circle cx="50" cy="50" r="48" stroke="#C79E93" strokeWidth="0.6" />
-            <circle cx="50" cy="50" r="32" stroke="#C79E93" strokeWidth="0.6" />
-          </svg>
-        </div>
-        <div className="home-hero-deco home-hero-deco-arc" aria-hidden="true">
-          <svg viewBox="0 0 200 200" width="100%" height="100%" fill="none">
-            <circle cx="100" cy="100" r="98" stroke="#C79E93" strokeWidth="0.6" />
-            <circle cx="100" cy="100" r="80" stroke="#C79E93" strokeWidth="0.6" strokeDasharray="1 7" />
-          </svg>
-        </div>
         <div className="hero-tag">Since 2017 — Miami, Florida</div>
         <div className="hero-content reveal">
           <h1>

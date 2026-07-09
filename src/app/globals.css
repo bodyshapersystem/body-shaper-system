@@ -1065,3 +1065,50 @@
   content:"";position:absolute;bottom:14px;right:14px;width:18px;height:18px;
   border-bottom:1px solid var(--mocha);border-right:1px solid var(--mocha);opacity:0.5;
 }
+
+/* ================================================================
+   BRAND IDENTITY REFINEMENTS — v1.1
+   Additive only. Nothing above this block was modified.
+   ================================================================ */
+
+/* ---------- Homepage hero: BSS monogram watermark ---------- */
+.home-hero-monogram{
+  position:absolute;
+  top:50%;right:-6vw;
+  transform:translateY(-50%);
+  z-index:1;
+  line-height:0.78;
+  font-family:var(--serif);
+  font-weight:400;
+  font-size:34vw;
+  color:rgba(245,238,228,0.06);
+  filter:blur(3px);
+  pointer-events:none;
+  user-select:none;
+  white-space:nowrap;
+}
+.home-hero-monogram span{display:block;}
+@media(max-width:768px){
+  .home-hero-monogram{font-size:56vw;right:-18vw;opacity:0.8;}
+}
+
+.home-hero-deco{position:absolute;z-index:1;pointer-events:none;opacity:0.35;}
+.home-hero-deco-ring{top:12%;left:6vw;width:130px;height:130px;}
+.home-hero-deco-arc{bottom:-80px;left:-80px;width:320px;height:320px;}
+@media(max-width:768px){.home-hero-deco{display:none;}}
+
+/* ---------- About page: BSS stacked initials monogram ---------- */
+.about-monogram{
+  font-family:var(--serif);
+  font-weight:400;
+  line-height:1.05;
+  font-size:clamp(30px,4.2vw,46px);
+  color:var(--mocha);
+  letter-spacing:0.02em;
+}
+.about-monogram span{display:block;margin:6px 0;}
+.about-monogram-rule{width:36px;height:1px;background:var(--mocha);margin:26px auto 0;opacity:0.7;}
+
+/* tighten the gap between the new monogram block and the wordmark headline below it */
+.about-top{padding-top:120px;}
+.about-top .about-wordmark{margin-top:34px;}
