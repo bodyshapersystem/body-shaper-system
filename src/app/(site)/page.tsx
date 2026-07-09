@@ -71,17 +71,6 @@ export default function HomePage() {
           Since 2017, our mission has remained the same — every body deserves
           its own strategy.
         </p>
-
-        <div className="video-frame portrait reveal">
-          <video
-            controls
-            preload="metadata"
-            poster="/images/poster-home-what-is.jpg"
-            aria-label="What is Body Shaper System? — Emmy Branger, Founder"
-          >
-            <source src="/videos/home-what-is.mp4" type="video/mp4" />
-          </video>
-        </div>
       </section>
       </div>
 
