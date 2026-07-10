@@ -218,7 +218,7 @@
        the container is intentionally full-width. */
     .menu-waves{
       display:block;position:absolute;top:0;right:0;height:100%;width:100%;
-      opacity:0.28;pointer-events:none;z-index:0;
+      opacity:0.45;pointer-events:none;z-index:0;
     }
     .menu-close-x{
       display:flex;position:absolute;top:22px;right:22px;z-index:2;
@@ -2026,7 +2026,7 @@
 }
 .psb-waves{
   position:absolute; top:0; right:0; height:100%; width:100%;
-  opacity:0.28; pointer-events:none; z-index:0;
+  opacity:0.45; pointer-events:none; z-index:0;
 }
 .psb-inner{ position:relative; z-index:1; padding:21px 18px 15px; display:flex; flex-direction:column; height:100%; }
 .psb-word{
