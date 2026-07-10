@@ -252,8 +252,8 @@ export default function MasterEcosystemArchitecturePage() {
     <div className="arch-page me2-page">
       <BrandOverlay
         motifs={["grid", "target", "ring", "nodes", "contour", "dotgrid", "ticks"]}
-        opacity={0.03}
-        tone="ink"
+        opacity={0.09}
+        tone="gold"
         position="absolute"
         className="arch-overlay"
       />

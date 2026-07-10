@@ -119,9 +119,10 @@ export default function RootLayout({
       </head>
       <body>
         {/* Body Shaper System™ Brand Overlay — now a single reusable
-            component (src/components/BrandOverlay.tsx). Same geometry,
-            same 3% site-wide opacity, just no longer duplicated inline. */}
-        <BrandOverlay motifs={ALL_MOTIFS} opacity={0.03} tone="ink" position="fixed" />
+            component (src/components/BrandOverlay.tsx). Increased to a
+            warm gold/champagne foil at ~10% opacity so the brand
+            graphics read as intentional design, not a faint watermark. */}
+        <BrandOverlay motifs={ALL_MOTIFS} opacity={0.1} tone="gold" position="fixed" />
         {children}
       </body>
     </html>

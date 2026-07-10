@@ -37,7 +37,7 @@ export type BrandOverlayMotif =
   | "dotgrid"
   | "ticks";
 
-export type BrandOverlayTone = "ink" | "ivory";
+export type BrandOverlayTone = "ink" | "ivory" | "gold";
 
 const ALL_MOTIFS: BrandOverlayMotif[] = [
   "grid",
@@ -53,14 +53,17 @@ export interface BrandOverlayProps {
   /** Which motifs to render. Defaults to all (exact current look). */
   motifs?: BrandOverlayMotif[];
   /**
-   * Opacity of the watermark. Clamped to the approved 2–5% range so no
-   * page can accidentally make the overlay loud enough to interfere
-   * with readability.
+   * Opacity of the watermark. Clamped to a range that keeps it from
+   * ever fighting with text legibility, but wide enough for the
+   * overlay to read as an intentional editorial design element rather
+   * than a barely-visible watermark (approved range: 5–22%).
    */
   opacity?: number;
   /**
    * "ink"   — dark line color for light backgrounds (white/ivory).
    * "ivory" — light line color for dark backgrounds (mocha/burgundy/olive).
+   * "gold"  — warm metallic gold / champagne foil, for the more present
+   *           editorial treatment (default for the current brand pass).
    */
   tone?: BrandOverlayTone;
   /** "fixed" tiles the whole viewport (site-wide use). "absolute" fills
@@ -73,18 +76,19 @@ export interface BrandOverlayProps {
 const TONE_COLOR: Record<BrandOverlayTone, string> = {
   ink: "var(--mocha)",
   ivory: "var(--ivory)",
+  gold: "var(--gold)",
 };
 
 export default function BrandOverlay({
   motifs = ALL_MOTIFS,
-  opacity = 0.03,
-  tone = "ink",
+  opacity = 0.1,
+  tone = "gold",
   position = "fixed",
   className = "",
 }: BrandOverlayProps) {
   const rawId = useId();
   const patternId = `bss-overlay-${rawId.replace(/[^a-zA-Z0-9]/g, "")}`;
-  const clampedOpacity = Math.min(0.05, Math.max(0.02, opacity));
+  const clampedOpacity = Math.min(0.22, Math.max(0.05, opacity));
   const has = (m: BrandOverlayMotif) => motifs.includes(m);
 
   return (

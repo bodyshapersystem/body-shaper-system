@@ -2,13 +2,16 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { NAV_ITEMS } from "@/lib/nav";
 import BrandOverlay from "@/components/BrandOverlay";
 
 export default function Header() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
+  const [dragging, setDragging] = useState(false);
+  const [dragX, setDragX] = useState(0);
+  const touchStartX = useRef<number | null>(null);
 
   // Lock background scroll while the mobile menu is open — standard for a
   // premium mobile menu, and avoids the page scrolling behind the backdrop.
@@ -18,6 +21,28 @@ export default function Header() {
       document.body.style.overflow = "";
     };
   }, [open]);
+
+  // Swipe-to-close: the menu slides in from the right, so a rightward drag
+  // (positive deltaX) is a "close" gesture. Track the finger 1:1 while
+  // dragging, then either snap closed (past threshold / fast flick) or
+  // snap back open.
+  function handleTouchStart(e: React.TouchEvent) {
+    touchStartX.current = e.touches[0].clientX;
+    setDragging(true);
+  }
+  function handleTouchMove(e: React.TouchEvent) {
+    if (touchStartX.current === null) return;
+    const delta = e.touches[0].clientX - touchStartX.current;
+    if (delta > 0) setDragX(delta);
+  }
+  function handleTouchEnd() {
+    if (dragX > 70) {
+      setOpen(false);
+    }
+    setDragging(false);
+    setDragX(0);
+    touchStartX.current = null;
+  }
 
   return (
     <header id="siteHeader" className="scrolled">
@@ -32,11 +57,18 @@ export default function Header() {
         aria-hidden="true"
         onClick={() => setOpen(false)}
       />
-      <nav className={`menu${open ? " open" : ""}`} id="siteMenu">
+      <nav
+        className={`menu${open ? " open" : ""}${dragging ? " dragging" : ""}`}
+        id="siteMenu"
+        style={dragging ? { transform: `translateX(${dragX}px)` } : undefined}
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+      >
         <BrandOverlay
           motifs={["grid", "target", "ring", "nodes", "contour", "dotgrid", "ticks"]}
-          opacity={0.05}
-          tone="ink"
+          opacity={0.14}
+          tone="gold"
           position="absolute"
           className="menu-overlay"
         />
@@ -67,3 +99,4 @@ export default function Header() {
     </header>
   );
 }
+

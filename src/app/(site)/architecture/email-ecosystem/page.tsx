@@ -188,8 +188,8 @@ export default function EmailEcosystemPage() {
     <div className="arch-page cat-technology">
       <BrandOverlay
         motifs={["grid", "target", "contour", "dotgrid"]}
-        opacity={0.025}
-        tone="ink"
+        opacity={0.08}
+        tone="gold"
         position="absolute"
         className="arch-overlay"
       />

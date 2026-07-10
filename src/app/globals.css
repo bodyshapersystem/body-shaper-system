@@ -39,10 +39,13 @@
   }
 
   /* ---------- Body Shaper System™ Brand Overlay ---------- */
-  /* Reusable, low-opacity blueprint watermark — contour/target/precision
-     marks tiled behind all page content. Kept at 3% per brand spec so it
-     reads as texture, never as content. Same pattern is reused inside the
-     mobile menu (globals.css .menu-overlay rule) at a slightly higher 5%. */
+  /* NOTE: this .brand-overlay class is legacy/unused — the overlay is now
+     rendered via the BrandOverlay component (src/components/BrandOverlay.tsx)
+     with inline styles, not this class. Left here only because other rules
+     in this file may still reference .menu-overlay below. As of the brand
+     visibility pass, the overlay runs at 8–14% opacity in a warm gold/
+     champagne tone (not 3% mocha) so it reads as an intentional design
+     element rather than a barely-visible watermark. */
   .brand-overlay{
     position:fixed;inset:0;width:100%;height:100%;
     color:var(--mocha);opacity:0.03;pointer-events:none;z-index:0;
@@ -134,20 +137,22 @@
     nav.menu{
       position:fixed;top:0;right:-100%;height:100vh;width:78%;max-width:360px;
       background:var(--ivory);flex-direction:column;justify-content:center;
-      gap:30px;padding:40px;transition:right .28s ease;box-shadow:-10px 0 40px rgba(0,0,0,0.08);
-      z-index:101;overflow:hidden;
+      gap:30px;padding:40px;transition:right .28s ease, transform .22s ease;box-shadow:-10px 0 40px rgba(0,0,0,0.08);
+      z-index:101;overflow:hidden;touch-action:pan-y;
     }
     nav.menu.open{right:0;}
+    nav.menu.dragging{transition:right .28s ease;}
     nav.menu a:not(.cta){color:var(--charcoal)!important;}
     nav.menu a.cta.btn-primary{background:var(--charcoal);color:var(--ivory)!important;border:none;}
     .menu-toggle{display:block;}
 
-    /* Tap-outside-to-close backdrop */
+    /* Tap-outside-to-close backdrop, with a soft blur for a native feel */
     .menu-backdrop{
-      position:fixed;inset:0;background:rgba(0,0,0,0.35);
-      opacity:0;pointer-events:none;transition:opacity .28s ease;z-index:99;
+      position:fixed;inset:0;background:rgba(30,26,22,0.32);
+      opacity:0;pointer-events:none;transition:opacity .28s ease, backdrop-filter .28s ease;z-index:99;
+      backdrop-filter:blur(0px);-webkit-backdrop-filter:blur(0px);
     }
-    .menu-backdrop.open{opacity:1;pointer-events:auto;}
+    .menu-backdrop.open{opacity:1;pointer-events:auto;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);}
 
     /* Subtle brand overlay watermark inside the menu panel — barely visible,
        reuses the same pattern defined once in layout.tsx */
