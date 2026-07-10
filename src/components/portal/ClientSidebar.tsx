@@ -1,8 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import BlueprintWaves from "@/components/BlueprintWaves";
+import ProfileLogout from "@/components/ProfileLogout";
 
 const NAV = [
   { href: "/portal/dashboard", label: "Dashboard", icon: "grid" },
@@ -88,17 +89,6 @@ function NavIcon({ name }: { name: string }) {
 
 export default function ClientSidebar() {
   const pathname = usePathname();
-  const router = useRouter();
-
-  function handleLogout() {
-    if (typeof window !== "undefined") {
-      window.sessionStorage.removeItem("bss_portal_demo_auth");
-    }
-    // Per the approved UX flow: logging out exits the portal entirely and
-    // returns to the public Body Shaper System home page — not back to a
-    // portal sign-in screen.
-    router.push("/");
-  }
 
   return (
     <nav className="psb">
@@ -124,19 +114,7 @@ export default function ClientSidebar() {
             </li>
           ))}
         </ul>
-        <button type="button" className="psb-profile" onClick={handleLogout} aria-label="Log out">
-          <span className="psb-profile-avatar">EM</span>
-          <span className="psb-profile-text">
-            Emmy Murillo
-            <small>Gold Member</small>
-          </span>
-          <span className="psb-profile-logout" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none">
-              <path d="M9 20H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h3" stroke="currentColor" strokeWidth="1.2" />
-              <path d="M16 16l4-4-4-4M20 12H9" stroke="currentColor" strokeWidth="1.2" />
-            </svg>
-          </span>
-        </button>
+        <ProfileLogout className="psb-profile" />
       </div>
     </nav>
   );

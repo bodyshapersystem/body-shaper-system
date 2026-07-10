@@ -138,6 +138,30 @@
   .menu-toggle{display:none;color:var(--ivory);font-size:24px;background:none;border:none;cursor:pointer;line-height:1;-webkit-tap-highlight-color:transparent;outline:none;}
   header.scrolled .menu-toggle{color:var(--charcoal);}
 
+  /* ---------- Shared ProfileLogout component ----------
+     One official compact profile+logout block, identical wherever it
+     appears (public site drawer, Client Portal sidebar). Modifier
+     classes (.menu-profile, .psb-profile) only adjust spacing for
+     their context — never the visual design itself. */
+  .profile-logout{
+    display:flex;align-items:center;gap:10px;padding:10px 12px;flex-shrink:0;
+    background:rgba(107,82,64,0.06);border:none;border-radius:8px;cursor:pointer;width:100%;
+    -webkit-tap-highlight-color:transparent;outline:none;transition:background .18s ease;
+  }
+  .profile-logout:hover{background:rgba(107,82,64,0.1);}
+  .profile-logout-avatar{
+    width:30px;height:30px;border-radius:50%;background:var(--burgundy);color:#F6F3EE;
+    display:flex;align-items:center;justify-content:center;font-family:var(--sans);font-size:10.5px;
+    font-weight:600;flex-shrink:0;
+  }
+  .profile-logout-text{
+    display:flex;flex-direction:column;font-family:var(--sans);font-size:11.5px;color:var(--charcoal);
+    font-weight:600;flex:1;line-height:1.3;text-align:left;
+  }
+  .profile-logout-text small{font-size:10px;font-weight:400;opacity:.6;text-transform:uppercase;letter-spacing:.06em;}
+  .profile-logout-icon{color:var(--mocha);flex-shrink:0;display:flex;}
+  .profile-logout-icon svg{width:17px;height:17px;}
+
   /* Client Portal entry point — rounded-rectangle outline, per mockup
      (not a full pill), visible on every page */
   .client-portal-btn{
@@ -194,7 +218,7 @@
        the container is intentionally full-width. */
     .menu-waves{
       display:block;position:absolute;top:0;right:0;height:100%;width:100%;
-      opacity:0.5;pointer-events:none;z-index:0;
+      opacity:0.28;pointer-events:none;z-index:0;
     }
     .menu-close-x{
       display:flex;position:absolute;top:22px;right:22px;z-index:2;
@@ -203,58 +227,41 @@
     }
 
     .menu-inner{
-      position:relative;z-index:1;padding:22px 22px 16px;display:flex;flex-direction:column;
+      position:relative;z-index:1;padding:18px 18px 14px;display:flex;flex-direction:column;
       height:100%;overflow:hidden;
     }
     .menu-top-row{
       display:flex;justify-content:space-between;align-items:flex-start;
-      margin-bottom:22px;gap:14px;flex-shrink:0;
+      margin-bottom:18px;gap:12px;flex-shrink:0;
     }
     .menu-wordmark{
-      font-family:var(--serif);font-weight:500;font-size:20px;line-height:1.15;color:var(--mocha);
+      font-family:var(--serif);font-weight:500;font-size:18px;line-height:1.15;color:var(--mocha);
     }
     .menu-links{
       display:flex;flex-direction:column;flex:1;overflow:hidden;justify-content:space-evenly;
       min-height:0;
     }
     nav.menu a:not(.cta){
-      padding:6px 0;border-bottom:1px solid rgba(107,82,64,0.08);
-      font-size:11.5px;letter-spacing:0.09em;gap:13px;
+      padding:5px 0;border-bottom:1px solid rgba(107,82,64,0.08);
+      font-size:11px;letter-spacing:0.08em;gap:11px;
     }
     nav.menu a:not(.cta)::after{display:none;}
     nav.menu a.active{ color:var(--charcoal)!important; font-weight:600; opacity:1; }
     nav.menu a.active .menu-link-icon{ color:var(--mocha); opacity:1; }
     nav.menu a:not(.cta):focus-visible{ outline:1.5px solid var(--mocha); outline-offset:2px; }
-    .menu-link-icon{ display:flex; width:19px; height:19px; flex-shrink:0; color:var(--mocha); opacity:.9; }
+    .menu-link-icon{ display:flex; width:17px; height:17px; flex-shrink:0; color:var(--mocha); opacity:.9; }
     .menu-link-icon svg{width:100%;height:100%;}
 
     nav.menu a.cta.menu-cta{
-      margin-top:14px;justify-content:center;flex-shrink:0;padding-top:10px;padding-bottom:10px;
+      margin-top:11px;justify-content:center;flex-shrink:0;padding-top:9px;padding-bottom:9px;
       border:1px solid var(--mocha);color:var(--mocha);background:transparent;
     }
     nav.menu a.cta.menu-cta:hover{background:var(--mocha);color:var(--ivory);}
 
-    /* Compact profile + logout block — one row, minimal height, per
-       the approved mockup (never a large logout rectangle). */
-    .menu-profile{
-      display:flex;align-items:center;gap:10px;margin-top:12px;padding:10px 12px;flex-shrink:0;
-      background:rgba(107,82,64,0.06);border-radius:8px;
-    }
-    .menu-profile-avatar{
-      width:30px;height:30px;border-radius:50%;background:var(--burgundy);color:#F6F3EE;
-      display:flex;align-items:center;justify-content:center;font-family:var(--sans);font-size:10.5px;
-      font-weight:600;flex-shrink:0;
-    }
-    .menu-profile-text{
-      display:flex;flex-direction:column;font-family:var(--sans);font-size:11.5px;color:var(--charcoal);
-      font-weight:600;flex:1;line-height:1.3;
-    }
-    .menu-profile-text small{font-size:10px;font-weight:400;opacity:.6;text-transform:uppercase;letter-spacing:.06em;}
-    .menu-profile-logout{
-      background:none;border:none;color:var(--mocha);cursor:pointer;padding:4px;flex-shrink:0;
-      -webkit-tap-highlight-color:transparent;outline:none;
-    }
-    .menu-profile-logout svg{width:18px;height:18px;}
+    /* Shared .profile-logout component styles — one row, minimal
+       height (never a large logout rectangle). .menu-profile here is
+       only a spacing modifier, not a separate visual variant. */
+    .menu-profile{ margin-top:12px; width:100%; }
 
     /* Tap-outside-to-close backdrop, with a soft blur for a native feel */
     .menu-backdrop{
@@ -2019,18 +2026,18 @@
 }
 .psb-waves{
   position:absolute; top:0; right:0; height:100%; width:100%;
-  opacity:0.5; pointer-events:none; z-index:0;
+  opacity:0.28; pointer-events:none; z-index:0;
 }
-.psb-inner{ position:relative; z-index:1; padding:26px 22px 18px; display:flex; flex-direction:column; height:100%; }
+.psb-inner{ position:relative; z-index:1; padding:21px 18px 15px; display:flex; flex-direction:column; height:100%; }
 .psb-word{
-  font-family:var(--serif,'Cormorant Garamond',serif); font-weight:500; font-size:21px; line-height:1.15;
-  color:#6B5240; margin-bottom:22px; flex-shrink:0;
+  font-family:var(--serif,'Cormorant Garamond',serif); font-weight:500; font-size:19px; line-height:1.15;
+  color:#6B5240; margin-bottom:18px; flex-shrink:0;
 }
 .psb-rule{ display:none; }
 .psb-nav{ list-style:none; flex:1; display:flex; flex-direction:column; gap:1px; justify-content:space-evenly; min-height:0; }
 .psb-nav a{
-  display:flex; align-items:center; gap:14px; padding:10px 12px; color:#2B2622; opacity:.85;
-  font-family:var(--sans,'Jost',sans-serif); font-size:12.5px; text-decoration:none;
+  display:flex; align-items:center; gap:12px; padding:8px 10px; color:#2B2622; opacity:.85;
+  font-family:var(--sans,'Jost',sans-serif); font-size:12px; text-decoration:none;
   transition:color .18s ease, background .18s ease; border-radius:6px;
   -webkit-tap-highlight-color:transparent;outline:none;
 }
@@ -2038,30 +2045,14 @@
 .psb-nav a:focus-visible{outline:1.5px solid #6B5240;outline-offset:2px;}
 .psb-nav a:hover{ opacity:1; background:rgba(107,82,64,0.06); }
 .psb-nav a.active{ opacity:1; background:#5C1A1F; color:#F6F3EE; font-weight:600; }
-.psb-icon{ width:20px; height:20px; flex-shrink:0; color:#6B5240; }
+.psb-icon{ width:18px; height:18px; flex-shrink:0; color:#6B5240; }
 .psb-nav a.active .psb-icon{ color:#F6F3EE; opacity:1; }
 .psb-icon svg{ width:100%; height:100%; }
 
-/* Compact profile + logout — one row, minimal height (never a large
-   logout rectangle), matching the approved mockup. */
-.psb-profile{
-  display:flex; align-items:center; gap:10px; margin-top:12px; padding:10px 12px; flex-shrink:0;
-  background:rgba(107,82,64,0.06); border:none; border-radius:8px; cursor:pointer; width:100%;
-  -webkit-tap-highlight-color:transparent; outline:none;
-}
-.psb-profile:hover{ background:rgba(107,82,64,0.1); }
-.psb-profile-avatar{
-  width:30px; height:30px; border-radius:50%; background:#5C1A1F; color:#F6F3EE;
-  display:flex; align-items:center; justify-content:center; font-family:var(--sans); font-size:10.5px;
-  font-weight:600; flex-shrink:0;
-}
-.psb-profile-text{
-  display:flex; flex-direction:column; font-family:var(--sans); font-size:12px; color:#2B2622;
-  font-weight:600; flex:1; line-height:1.3; text-align:left;
-}
-.psb-profile-text small{ font-size:10px; font-weight:400; opacity:.6; text-transform:uppercase; letter-spacing:.06em; }
-.psb-profile-logout{ color:#6B5240; flex-shrink:0; display:flex; }
-.psb-profile-logout svg{ width:17px; height:17px; }
+/* .psb-profile is only a spacing modifier over the shared
+   .profile-logout component (src/components/ProfileLogout.tsx) —
+   same visual design as the public site drawer's version. */
+.psb-profile{ margin-top:12px; }
 
 .portal-main{ flex:1; padding:44px 48px 80px; max-width:1180px; }
 .portal-page-head{ margin-bottom:36px; }
