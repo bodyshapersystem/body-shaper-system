@@ -132,7 +132,7 @@ export default function ServiceAreaMap() {
           {/* Pin marker */}
           <g className="sam-pin" onClick={() => selectRegion("miami-dade")}>
             <circle cx="182" cy="345" r="6" className="sam-pin-dot" />
-            <circle cx="182" cy="345" r="12" fill="none" stroke="#8B2E3A" strokeWidth="1" opacity="0.5" />
+            <circle cx="182" cy="345" r="12" fill="none" stroke="#5C1A1F" strokeWidth="1" opacity="0.5" />
             <text x="182" y="318" textAnchor="middle" className="sam-pin-label">
               We come to you.
             </text>

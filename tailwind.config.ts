@@ -15,7 +15,7 @@ const config: Config = {
         charcoal: "#2B2622",
         olive: "#8A8B6C",
         rose: "#C79E93",
-        burgundy: "#8B2E3A",
+        burgundy: "#5C1A1F",
         line: "rgba(43,38,34,0.14)",
       },
       fontFamily: {
