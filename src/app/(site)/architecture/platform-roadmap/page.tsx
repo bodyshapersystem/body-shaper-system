@@ -57,7 +57,7 @@ export default function PlatformRoadmapPage() {
   return (
     <div className="arch-page road-page">
       <BrandOverlay
-        motifs={["grid", "target", "ring", "contour", "dotgrid"]}
+        motifs={["target", "dotgrid"]}
         opacity={0.08}
         tone="gold"
         position="absolute"

@@ -2,15 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import BrandOverlay, { type BrandOverlayMotif } from "@/components/BrandOverlay";
 
-const ALL_MOTIFS: BrandOverlayMotif[] = [
-  "grid",
-  "target",
-  "ring",
-  "nodes",
-  "contour",
-  "dotgrid",
-  "ticks",
-];
+const ALL_MOTIFS: BrandOverlayMotif[] = ["target", "dotgrid"];
 
 const businessJsonLd = {
   "@context": "https://schema.org",
