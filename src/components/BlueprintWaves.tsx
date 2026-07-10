@@ -1,10 +1,11 @@
 /**
  * BlueprintWaves — the official "Body Blueprint Waves™" graphic.
  *
- * This PNG was delivered with genuine alpha transparency (not a
- * screenshot, not a checkerboard-baked flat image) and is used here
- * completely unmodified — no extraction, no re-coloring, no cropping
- * of the file itself. Do not redraw, simplify, or replace it.
+ * Source delivered on a solid white background (not a checkerboard,
+ * not pre-existing alpha) — converted to transparency by treating
+ * white as fully transparent, while preserving each pixel's original
+ * color exactly (no re-coloring). Do not redraw, simplify, or replace
+ * this asset.
  */
 export default function BlueprintWaves({ className = "" }: { className?: string }) {
   return (
