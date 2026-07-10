@@ -1,10 +1,10 @@
 /**
  * BlueprintWaves — the official "Body Blueprint Waves™" graphic.
  *
- * Sourced directly from the official BSS Design System vertical asset
- * export (a dedicated portrait-orientation transparent PNG, purpose-
- * built for this exact placement — not a screenshot, not a landscape
- * crop). Do not redraw, simplify, or replace this asset.
+ * This PNG was delivered with genuine alpha transparency (not a
+ * screenshot, not a checkerboard-baked flat image) and is used here
+ * completely unmodified — no extraction, no re-coloring, no cropping
+ * of the file itself. Do not redraw, simplify, or replace it.
  */
 export default function BlueprintWaves({ className = "" }: { className?: string }) {
   return (

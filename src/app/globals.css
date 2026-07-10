@@ -202,7 +202,7 @@
     .client-portal-btn-desktop{display:none;}
     nav.menu{
       position:fixed;top:0;right:-100%;height:100dvh;width:82%;max-width:380px;
-      background:#E8DFD4;flex-direction:column;justify-content:flex-start;
+      background:#E7DED2;flex-direction:column;justify-content:flex-start;
       gap:0;padding:0;transition:right .28s ease, transform .22s ease;box-shadow:-10px 0 40px rgba(0,0,0,0.1);
       z-index:101;overflow:hidden;touch-action:pan-y;
     }
@@ -216,12 +216,17 @@
        drawer itself, so it never reads as a separate panel/column).
        The image's own transparency handles the fade toward the left;
        the container is intentionally full-width. */
-    /* Body Blueprint Waves™ — official vertical asset, confined to a
-       right-inset strip so it can never touch the logo, Client Portal
-       button, nav items, dividers, or text. Purely decorative,
-       subtle, behind all content (z-index 0). */
+    /* Body Blueprint Waves™ — official transparent asset, used exactly
+       as delivered (unmodified). Confined to a right-inset strip so
+       it can never touch the logo, Client Portal button, nav items,
+       dividers, or text. Purely decorative, subtle, behind all
+       content (z-index 0). Container width is deliberately narrower
+       than the asset's full rendered width — the image's own
+       transparency means only its right portion has visible pixels,
+       so this crops empty space, not artwork, while guaranteeing
+       clearance from the longest nav label. */
     .menu-waves{
-      display:block;position:absolute;top:0;right:24px;height:100%;width:100px;
+      display:block;position:absolute;top:0;right:32px;height:100%;width:110px;
       opacity:0.48;pointer-events:none;z-index:0;
     }
     .menu-close-x{
@@ -2011,7 +2016,7 @@
 /* =====================================================================
    Client Portal — navigable app shell (Phase 1, mock data)
 ===================================================================== */
-.portal-shell{ display:flex; min-height:100vh; background:#E8DFD4; }
+.portal-shell{ display:flex; min-height:100vh; background:#E7DED2; }
 .portal-loading{
   min-height:100vh; display:flex; align-items:center; justify-content:center;
   font-family:var(--sans); color:var(--charcoal); background:#F5EEE4;
@@ -2024,12 +2029,12 @@
    panel. "Opening the drawer should feel like opening the inside
    cover of a luxury brand book." */
 .psb{
-  width:250px; flex-shrink:0; background:#E8DFD4; color:#2B2622; padding:0;
+  width:250px; flex-shrink:0; background:#E7DED2; color:#2B2622; padding:0;
   display:flex; flex-direction:column; position:sticky; top:0; height:100dvh;
   border-right:1px solid rgba(43,38,34,0.08); overflow:hidden;
 }
 .psb-waves{
-  position:absolute; top:0; right:14px; height:100%; width:70px;
+  position:absolute; top:0; right:32px; height:100%; width:45px;
   opacity:0.48; pointer-events:none; z-index:0;
 }
 .psb-inner{ position:relative; z-index:1; padding:21px 18px 15px; display:flex; flex-direction:column; height:100%; }
@@ -2080,7 +2085,7 @@
 .auth-tagline{ font-family:var(--serif); font-weight:500; font-style:italic; font-size:22px; line-height:1.4; opacity:.92; }
 .auth-spark{ display:block; margin-top:36px; font-size:20px; opacity:.8; }
 
-.auth-form-side{ flex:1; display:flex; align-items:center; justify-content:center; background:#E8DFD4; padding:40px; }
+.auth-form-side{ flex:1; display:flex; align-items:center; justify-content:center; background:#E7DED2; padding:40px; }
 .auth-form-card{ width:100%; max-width:400px; }
 .auth-form-card h1{ font-family:var(--serif); font-weight:500; font-size:32px; color:var(--charcoal); margin-bottom:10px; }
 .auth-form-sub{ font-family:var(--sans); font-size:13px; color:var(--charcoal); opacity:.65; line-height:1.5; margin-bottom:32px; }
