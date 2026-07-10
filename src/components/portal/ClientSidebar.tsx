@@ -102,6 +102,7 @@ export default function ClientSidebar() {
           system™
         </div>
         <span className="psb-rule" aria-hidden="true" />
+        <ProfileLogout className="psb-profile psb-profile-top" />
         <ul className="psb-nav">
           {NAV.map((item) => (
             <li key={item.href}>
@@ -114,7 +115,6 @@ export default function ClientSidebar() {
             </li>
           ))}
         </ul>
-        <ProfileLogout className="psb-profile" />
       </div>
     </nav>
   );

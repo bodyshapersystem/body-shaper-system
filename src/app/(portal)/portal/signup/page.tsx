@@ -5,15 +5,23 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import BlueprintWaves from "@/components/BlueprintWaves";
 
-export default function PortalLoginPage() {
+export default function PortalSignupPage() {
   const router = useRouter();
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirm, setConfirm] = useState("");
+  const [error, setError] = useState("");
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if (password && confirm && password !== confirm) {
+      setError("Passwords don't match.");
+      return;
+    }
     // Phase 1 demo gate — any credentials are accepted. Production
-    // authentication (real accounts, password checks) is Phase 2.
+    // account creation is Phase 2.
     window.sessionStorage.setItem("bss_portal_demo_auth", "1");
     router.push("/portal/dashboard");
   }
@@ -45,47 +53,69 @@ export default function PortalLoginPage() {
 
       <div className="auth-form-side">
         <div className="auth-form-card">
-          <h1>welcome back.</h1>
-          <p className="auth-form-sub">
-            Sign in to continue your personalized Body Blueprint™ journey.
-          </p>
+          <h1>create your account.</h1>
+          <p className="auth-form-sub">Begin your personalized transformation.</p>
 
           <form onSubmit={handleSubmit}>
-            <label htmlFor="login-email">Email Address</label>
+            <div className="auth-two-col">
+              <div>
+                <label htmlFor="signup-first">First Name</label>
+                <input
+                  id="signup-first"
+                  type="text"
+                  placeholder="First name"
+                  value={firstName}
+                  onChange={(e) => setFirstName(e.target.value)}
+                />
+              </div>
+              <div>
+                <label htmlFor="signup-last">Last Name</label>
+                <input
+                  id="signup-last"
+                  type="text"
+                  placeholder="Last name"
+                  value={lastName}
+                  onChange={(e) => setLastName(e.target.value)}
+                />
+              </div>
+            </div>
+
+            <label htmlFor="signup-email">Email Address</label>
             <input
-              id="login-email"
+              id="signup-email"
               type="email"
               placeholder="youremail@email.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
             />
 
-            <div className="auth-label-row">
-              <label htmlFor="login-password">Password</label>
-              <Link href="#" className="auth-forgot">
-                Forgot password?
-              </Link>
-            </div>
+            <label htmlFor="signup-password">Password</label>
             <input
-              id="login-password"
+              id="signup-password"
               type="password"
               placeholder="••••••••"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
             />
 
-            <label className="auth-checkbox">
-              <input type="checkbox" />
-              Remember me
-            </label>
+            <label htmlFor="signup-confirm">Confirm Password</label>
+            <input
+              id="signup-confirm"
+              type="password"
+              placeholder="••••••••"
+              value={confirm}
+              onChange={(e) => setConfirm(e.target.value)}
+            />
+
+            {error && <p className="auth-error">{error}</p>}
 
             <button type="submit" className="auth-submit">
-              Sign In
+              Create Account
             </button>
           </form>
 
           <p className="auth-switch">
-            New here? <Link href="/portal/signup">Create your account →</Link>
+            Already have an account? <Link href="/portal/login">Sign In →</Link>
           </p>
 
           <p className="auth-help">

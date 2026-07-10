@@ -8,10 +8,10 @@ export default function PortalLayout({ children }: { children: React.ReactNode }
   const pathname = usePathname();
   const router = useRouter();
   const [ready, setReady] = useState(false);
-  const isLogin = pathname === "/portal/login";
+  const isAuthPage = pathname === "/portal/login" || pathname === "/portal/signup";
 
   useEffect(() => {
-    if (isLogin) {
+    if (isAuthPage) {
       setReady(true);
       return;
     }
@@ -21,9 +21,9 @@ export default function PortalLayout({ children }: { children: React.ReactNode }
       return;
     }
     setReady(true);
-  }, [isLogin, pathname, router]);
+  }, [isAuthPage, pathname, router]);
 
-  if (isLogin) {
+  if (isAuthPage) {
     return <>{children}</>;
   }
 
