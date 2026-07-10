@@ -175,10 +175,10 @@ export default function Header() {
         </Link>
         <button
           className="menu-toggle"
-          aria-label={open ? "Close menu" : "Menu"}
+          aria-label="Menu"
           onClick={() => setOpen((v) => !v)}
         >
-          {open ? "×" : "☰"}
+          ☰
         </button>
       </header>
 
@@ -202,6 +202,9 @@ export default function Header() {
         onTouchEnd={handleTouchEnd}
       >
         <BlueprintWaves className="menu-waves" />
+        <button className="menu-close-x" aria-label="Close menu" onClick={() => setOpen(false)}>
+          ×
+        </button>
         <div className="menu-top-row">
           <span className="menu-wordmark">
             body
