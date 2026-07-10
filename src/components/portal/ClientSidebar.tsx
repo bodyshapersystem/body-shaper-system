@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+import BlueprintWaves from "@/components/BlueprintWaves";
 
 const NAV = [
   { href: "/portal/dashboard", label: "Dashboard", icon: "grid" },
@@ -98,28 +99,32 @@ export default function ClientSidebar() {
 
   return (
     <nav className="psb">
-      <div className="psb-word">
-        body
-        <br />
-        shaper
-        <br />
-        system™
+      <BlueprintWaves className="psb-waves" />
+      <div className="psb-inner">
+        <div className="psb-word">
+          body
+          <br />
+          shaper
+          <br />
+          system™
+        </div>
+        <span className="psb-rule" aria-hidden="true" />
+        <ul className="psb-nav">
+          {NAV.map((item) => (
+            <li key={item.href}>
+              <Link href={item.href} className={pathname === item.href ? "active" : ""}>
+                <span className="psb-icon">
+                  <NavIcon name={item.icon} />
+                </span>
+                {item.label}
+              </Link>
+            </li>
+          ))}
+        </ul>
+        <button type="button" className="psb-logout" onClick={handleLogout}>
+          Log out (demo)
+        </button>
       </div>
-      <ul className="psb-nav">
-        {NAV.map((item) => (
-          <li key={item.href}>
-            <Link href={item.href} className={pathname === item.href ? "active" : ""}>
-              <span className="psb-icon">
-                <NavIcon name={item.icon} />
-              </span>
-              {item.label}
-            </Link>
-          </li>
-        ))}
-      </ul>
-      <button type="button" className="psb-logout" onClick={handleLogout}>
-        Log out (demo)
-      </button>
     </nav>
   );
 }

@@ -100,7 +100,7 @@
   /* ---------- Nav ---------- */
   header{
     position:fixed;top:0;left:0;width:100%;z-index:100;
-    display:flex;align-items:center;justify-content:space-between;
+    display:flex;align-items:center;justify-content:space-between;gap:18px;
     padding:26px 4vw;
     transition:background .5s ease, padding .5s ease, backdrop-filter .5s ease;
   }
@@ -116,6 +116,7 @@
     letter-spacing:0.04em;
     color:var(--ivory);
     transition:color .5s ease;
+    margin-right:auto;
   }
   header.scrolled .logo{color:var(--charcoal);}
   nav.menu{display:flex;gap:34px;align-items:center;}
@@ -123,6 +124,7 @@
     font-size:11.5px;letter-spacing:0.12em;text-transform:uppercase;
     color:rgba(245,238,228,0.85);font-weight:400;
     transition:color .5s ease;position:relative;
+    display:flex;align-items:center;gap:10px;
   }
   header.scrolled nav.menu a{color:var(--charcoal);}
   nav.menu a:not(.cta)::after{
@@ -130,21 +132,81 @@
     transition:width .35s ease;
   }
   nav.menu a:not(.cta):hover::after{width:100%;}
-  .menu-toggle{display:none;color:var(--ivory);font-size:22px;background:none;border:none;cursor:pointer;}
+  nav.menu a.active{color:var(--burgundy)!important;}
+  .menu-toggle{display:none;color:var(--ivory);font-size:24px;background:none;border:none;cursor:pointer;line-height:1;}
   header.scrolled .menu-toggle{color:var(--charcoal);}
 
+  /* Client Portal entry point — thin outline pill, visible on every page */
+  .client-portal-btn{
+    display:inline-flex;align-items:center;gap:8px;padding:9px 18px;border-radius:20px;
+    border:1px solid var(--mocha);color:var(--mocha);background:transparent;
+    font-family:var(--sans);font-size:11px;letter-spacing:0.1em;text-transform:uppercase;font-weight:500;
+    transition:background .25s ease, color .25s ease;
+  }
+  .client-portal-btn:hover{background:var(--mocha);color:var(--ivory);}
+  .client-portal-btn .cp-icon{width:14px;height:14px;flex-shrink:0;}
+  .client-portal-btn .cp-icon svg{width:100%;height:100%;}
+  .client-portal-btn-desktop{ border-color:rgba(245,238,228,0.55); color:var(--ivory); }
+  header.scrolled .client-portal-btn-desktop{ border-color:var(--mocha); color:var(--mocha); }
+  header.scrolled .client-portal-btn-desktop:hover{ background:var(--mocha); color:var(--ivory); }
+  .client-portal-btn-desktop:hover{ background:rgba(245,238,228,0.15); }
+
+  /* On desktop the drawer's internal top row / icons / waves are unused —
+     the inline nav + header's own Client Portal button already cover it. */
+  .menu-top-row{display:none;}
+  .menu-links{display:contents;}
+  .menu-link-icon{display:none;}
+  .menu-waves{display:none;}
+  .menu-cta{
+    border:1px solid var(--charcoal);color:var(--charcoal);background:transparent;
+  }
+  .menu-cta:hover{background:var(--charcoal);color:var(--ivory);}
+  header:not(.scrolled) .menu-cta{border-color:rgba(245,238,228,0.6);color:var(--ivory);}
+
   @media(max-width:1100px){
+    .client-portal-btn-desktop{display:none;}
     nav.menu{
-      position:fixed;top:0;right:-100%;height:100vh;width:78%;max-width:360px;
-      background:var(--ivory);flex-direction:column;justify-content:center;
-      gap:30px;padding:40px;transition:right .28s ease, transform .22s ease;box-shadow:-10px 0 40px rgba(0,0,0,0.08);
+      position:fixed;top:0;right:-100%;height:100vh;width:82%;max-width:380px;
+      background:var(--beige);flex-direction:column;justify-content:flex-start;
+      gap:0;padding:36px 30px;transition:right .28s ease, transform .22s ease;box-shadow:-10px 0 40px rgba(0,0,0,0.1);
       z-index:101;overflow:hidden;touch-action:pan-y;
     }
     nav.menu.open{right:0;}
     nav.menu.dragging{transition:right .28s ease;}
-    nav.menu a:not(.cta){color:var(--charcoal)!important;}
-    nav.menu a.cta.btn-primary{background:var(--charcoal);color:var(--ivory)!important;border:none;}
+    nav.menu a:not(.cta){color:var(--mocha)!important;}
     .menu-toggle{display:block;}
+
+    /* Body Blueprint Waves™ — embossed foil, running the full height of
+       the drawer along its right edge, behind the nav content. */
+    .menu-waves{
+      display:block;position:absolute;top:0;right:-30px;height:100%;width:65%;
+      color:var(--mocha);opacity:0.6;pointer-events:none;z-index:0;
+    }
+
+    .menu-top-row{
+      display:flex;justify-content:space-between;align-items:flex-start;
+      position:relative;z-index:1;margin-bottom:38px;gap:14px;
+    }
+    .menu-wordmark{
+      font-family:var(--serif);font-weight:500;font-size:19px;line-height:1.22;color:var(--mocha);
+    }
+    .menu-links{
+      display:flex;flex-direction:column;position:relative;z-index:1;flex:1;overflow-y:auto;
+    }
+    nav.menu a:not(.cta){
+      padding:13px 0;border-bottom:1px solid rgba(107,82,64,0.16);
+      font-size:12px;letter-spacing:0.1em;gap:14px;
+    }
+    nav.menu a:not(.cta):first-child{ }
+    nav.menu a:not(.cta)::after{display:none;}
+    .menu-link-icon{ display:flex; width:19px; height:19px; flex-shrink:0; color:var(--mocha); opacity:.85; }
+    .menu-link-icon svg{width:100%;height:100%;}
+
+    nav.menu a.cta.menu-cta{
+      position:relative;z-index:1;margin-top:24px;justify-content:center;
+      border:1px solid var(--mocha);color:var(--mocha);background:transparent;
+    }
+    nav.menu a.cta.menu-cta:hover{background:var(--mocha);color:var(--ivory);}
 
     /* Tap-outside-to-close backdrop, with a soft blur for a native feel */
     .menu-backdrop{
@@ -153,14 +215,6 @@
       backdrop-filter:blur(0px);-webkit-backdrop-filter:blur(0px);
     }
     .menu-backdrop.open{opacity:1;pointer-events:auto;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);}
-
-    /* Subtle brand overlay watermark inside the menu panel — barely visible,
-       reuses the same pattern defined once in layout.tsx */
-    nav.menu .menu-overlay{
-      position:absolute;inset:0;width:100%;height:100%;
-      color:var(--mocha);opacity:0.05;pointer-events:none;
-    }
-    nav.menu > a, nav.menu > .cta{position:relative;z-index:1;}
   }
 
   /* ---------- Hero ---------- */
@@ -1904,26 +1958,42 @@
   font-family:var(--sans); color:var(--charcoal); background:#F5EEE4;
 }
 
-/* Sidebar */
+/* Sidebar — reuses the public site's visual language: cream/ivory
+   background, foil-gold blueprint overlay, generous whitespace.
+   Burgundy is reserved for the active nav item only — this should
+   feel like an extension of the brand universe, not a separate admin
+   panel. "Opening the drawer should feel like opening the inside
+   cover of a luxury brand book." */
 .psb{
-  width:230px; flex-shrink:0; background:#5C1A1F; color:#F6F3EE; padding:32px 22px;
+  width:250px; flex-shrink:0; background:var(--beige,#EDE2D0); color:#2B2622; padding:0;
   display:flex; flex-direction:column; position:sticky; top:0; height:100vh;
+  border-right:1px solid rgba(43,38,34,0.08); overflow:hidden;
 }
-.psb-word{ font-family:var(--serif,'Cormorant Garamond',serif); font-size:20px; line-height:1.2; margin-bottom:34px; }
-.psb-nav{ list-style:none; flex:1; }
-.psb-nav li{ margin-bottom:2px; }
+.psb-waves{
+  position:absolute; top:0; right:-30px; height:100%; width:65%;
+  color:#6B5240; opacity:0.6; pointer-events:none; z-index:0;
+}
+.psb-inner{ position:relative; z-index:1; padding:38px 26px; display:flex; flex-direction:column; height:100%; }
+.psb-word{
+  font-family:var(--serif,'Cormorant Garamond',serif); font-weight:500; font-size:19px; line-height:1.25;
+  color:#6B5240; margin-bottom:20px;
+}
+.psb-rule{ display:block; width:34px; height:1px; background:#C8B28A; margin-bottom:30px; }
+.psb-nav{ list-style:none; flex:1; display:flex; flex-direction:column; gap:4px; }
 .psb-nav a{
-  display:flex; align-items:center; gap:12px; padding:10px 10px; border-radius:4px; color:#F6F3EE; opacity:.75;
-  font-family:var(--sans,'Jost',sans-serif); font-size:13px; text-decoration:none;
+  display:flex; align-items:center; gap:13px; padding:11px 12px; border-radius:5px; color:#5C4633; opacity:.78;
+  font-family:var(--sans,'Jost',sans-serif); font-size:13px; text-decoration:none; transition:opacity .15s ease, background .15s ease;
 }
-.psb-nav a:hover{ opacity:1; background:rgba(255,255,255,0.06); }
-.psb-nav a.active{ opacity:1; background:rgba(255,255,255,0.12); }
-.psb-icon{ width:17px; height:17px; flex-shrink:0; }
+.psb-nav a:hover{ opacity:1; background:rgba(107,82,64,0.06); }
+.psb-nav a.active{ opacity:1; background:#5C1A1F; color:#F6F3EE; }
+.psb-icon{ width:17px; height:17px; flex-shrink:0; color:#6B5240; }
+.psb-nav a.active .psb-icon{ color:#F6F3EE; }
 .psb-icon svg{ width:100%; height:100%; }
 .psb-logout{
-  background:none; border:1px solid rgba(255,255,255,0.25); color:#F6F3EE; opacity:.7; border-radius:4px;
+  background:none; border:1px solid rgba(107,82,64,0.25); color:#6B5240; opacity:.75; border-radius:4px;
   font-family:var(--sans); font-size:12px; padding:10px; cursor:pointer; margin-top:16px;
 }
+.psb-logout:hover{ opacity:1; }
 
 .portal-main{ flex:1; padding:44px 48px 80px; max-width:1180px; }
 .portal-page-head{ margin-bottom:36px; }
@@ -2079,8 +2149,10 @@
 }
 @media (max-width:760px){
   .portal-shell{ flex-direction:column; }
-  .psb{ width:100%; height:auto; position:static; flex-direction:row; flex-wrap:wrap; padding:18px; gap:6px 14px; }
-  .psb-word{ width:100%; margin-bottom:10px; }
+  .psb{ width:100%; height:auto; position:static; border-right:none; border-bottom:1px solid rgba(43,38,34,0.08); }
+  .psb-inner{ flex-direction:row; flex-wrap:wrap; padding:18px; gap:6px 14px; }
+  .psb-word{ width:100%; margin-bottom:6px; }
+  .psb-rule{ display:none; }
   .psb-nav{ display:flex; flex-wrap:wrap; gap:4px; width:100%; }
   .psb-nav li{ margin-bottom:0; }
   .psb-logout{ margin-top:10px; }
