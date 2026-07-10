@@ -124,8 +124,18 @@ export default function ClientSidebar() {
             </li>
           ))}
         </ul>
-        <button type="button" className="psb-logout" onClick={handleLogout}>
-          Log out (demo)
+        <button type="button" className="psb-profile" onClick={handleLogout} aria-label="Log out">
+          <span className="psb-profile-avatar">EM</span>
+          <span className="psb-profile-text">
+            Emmy Murillo
+            <small>Gold Member</small>
+          </span>
+          <span className="psb-profile-logout" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none">
+              <path d="M9 20H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h3" stroke="currentColor" strokeWidth="1.2" />
+              <path d="M16 16l4-4-4-4M20 12H9" stroke="currentColor" strokeWidth="1.2" />
+            </svg>
+          </span>
         </button>
       </div>
     </nav>

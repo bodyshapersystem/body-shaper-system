@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { NAV_ITEMS } from "@/lib/nav";
 import BlueprintWaves from "@/components/BlueprintWaves";
@@ -100,6 +100,15 @@ function IconShield() {
   );
 }
 
+function IconLogout() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path d="M9 20H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h3" stroke="currentColor" strokeWidth="1.2" />
+      <path d="M16 16l4-4-4-4M20 12H9" stroke="currentColor" strokeWidth="1.2" />
+    </svg>
+  );
+}
+
 const NAV_ICONS: Record<string, () => React.ReactElement> = {
   "/": IconTarget,
   "/in-home-experience": IconPersonStand,
@@ -115,10 +124,26 @@ const NAV_ICONS: Record<string, () => React.ReactElement> = {
 
 export default function Header() {
   const pathname = usePathname();
+  const router = useRouter();
   const [open, setOpen] = useState(false);
   const [dragging, setDragging] = useState(false);
   const [dragX, setDragX] = useState(0);
+  const [demoAuthed, setDemoAuthed] = useState(false);
   const touchStartX = useRef<number | null>(null);
+
+  // Check for an active demo portal session so the compact profile/logout
+  // block only appears for someone who's actually "signed in" to the demo.
+  useEffect(() => {
+    if (open) {
+      setDemoAuthed(window.sessionStorage.getItem("bss_portal_demo_auth") === "1");
+    }
+  }, [open]);
+
+  function handleLogout() {
+    window.sessionStorage.removeItem("bss_portal_demo_auth");
+    setOpen(false);
+    router.push("/");
+  }
 
   // Lock background scroll while the mobile menu is open.
   useEffect(() => {
@@ -241,6 +266,18 @@ export default function Header() {
           <Link href="#build" className="cta btn menu-cta" onClick={() => setOpen(false)}>
             Build My Blueprint™
           </Link>
+          {demoAuthed && (
+            <div className="menu-profile">
+              <span className="menu-profile-avatar">EM</span>
+              <span className="menu-profile-text">
+                Emmy Murillo
+                <small>Gold Member</small>
+              </span>
+              <button type="button" className="menu-profile-logout" aria-label="Log out" onClick={handleLogout}>
+                <IconLogout />
+              </button>
+            </div>
+          )}
         </div>
       </nav>
     </>
