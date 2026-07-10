@@ -216,9 +216,13 @@
        drawer itself, so it never reads as a separate panel/column).
        The image's own transparency handles the fade toward the left;
        the container is intentionally full-width. */
+    /* Body Blueprint Waves™ — official vertical asset, confined to a
+       right-inset strip so it can never touch the logo, Client Portal
+       button, nav items, dividers, or text. Purely decorative,
+       subtle, behind all content (z-index 0). */
     .menu-waves{
-      display:block;position:absolute;top:0;right:0;height:100%;width:100%;
-      opacity:0.45;pointer-events:none;z-index:0;
+      display:block;position:absolute;top:0;right:24px;height:100%;width:100px;
+      opacity:0.48;pointer-events:none;z-index:0;
     }
     .menu-close-x{
       display:flex;position:absolute;top:22px;right:22px;z-index:2;
@@ -2025,8 +2029,8 @@
   border-right:1px solid rgba(43,38,34,0.08); overflow:hidden;
 }
 .psb-waves{
-  position:absolute; top:0; right:0; height:100%; width:100%;
-  opacity:0.45; pointer-events:none; z-index:0;
+  position:absolute; top:0; right:14px; height:100%; width:70px;
+  opacity:0.48; pointer-events:none; z-index:0;
 }
 .psb-inner{ position:relative; z-index:1; padding:21px 18px 15px; display:flex; flex-direction:column; height:100%; }
 .psb-word{
