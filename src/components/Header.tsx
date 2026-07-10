@@ -205,41 +205,43 @@ export default function Header() {
         <button className="menu-close-x" aria-label="Close menu" onClick={() => setOpen(false)}>
           ×
         </button>
-        <div className="menu-top-row">
-          <span className="menu-wordmark">
-            body
-            <br />
-            shaper
-            <br />
-            system™
-          </span>
-          <Link href="/portal/login" className="client-portal-btn" onClick={() => setOpen(false)}>
-            <span className="cp-icon">
-              <IconUser />
+        <div className="menu-inner">
+          <div className="menu-top-row">
+            <span className="menu-wordmark">
+              body
+              <br />
+              shaper
+              <br />
+              system™
             </span>
-            Client Portal
+            <Link href="/portal/login" className="client-portal-btn" onClick={() => setOpen(false)}>
+              <span className="cp-icon">
+                <IconUser />
+              </span>
+              Client Portal
+            </Link>
+          </div>
+          <div className="menu-links">
+            {NAV_ITEMS.map((item) => {
+              const active = pathname === item.href;
+              const Icon = NAV_ICONS[item.href];
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  onClick={() => setOpen(false)}
+                  className={active ? "active" : ""}
+                >
+                  <span className="menu-link-icon">{Icon && <Icon />}</span>
+                  {item.label}
+                </Link>
+              );
+            })}
+          </div>
+          <Link href="#build" className="cta btn menu-cta" onClick={() => setOpen(false)}>
+            Build My Blueprint™
           </Link>
         </div>
-        <div className="menu-links">
-          {NAV_ITEMS.map((item) => {
-            const active = pathname === item.href;
-            const Icon = NAV_ICONS[item.href];
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                onClick={() => setOpen(false)}
-                className={active ? "active" : ""}
-              >
-                <span className="menu-link-icon">{Icon && <Icon />}</span>
-                {item.label}
-              </Link>
-            );
-          })}
-        </div>
-        <Link href="#build" className="cta btn menu-cta" onClick={() => setOpen(false)}>
-          Build My Blueprint™
-        </Link>
       </nav>
     </>
   );
