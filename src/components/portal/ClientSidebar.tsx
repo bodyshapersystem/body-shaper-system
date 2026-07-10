@@ -94,7 +94,10 @@ export default function ClientSidebar() {
     if (typeof window !== "undefined") {
       window.sessionStorage.removeItem("bss_portal_demo_auth");
     }
-    router.push("/portal/login");
+    // Per the approved UX flow: logging out exits the portal entirely and
+    // returns to the public Body Shaper System home page — not back to a
+    // portal sign-in screen.
+    router.push("/");
   }
 
   return (
