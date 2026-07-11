@@ -1,23 +1,26 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { sendBlueprintReceivedEmail } from "@/lib/email/service";
+import { createOrUpdateDraftAssessment } from "@/lib/blueprint-assessments";
 import type { Prisma } from "@prisma/client";
 
 /**
  * Receives Body Blueprint™ submissions from Jotform ("Let's Build
- * Your Blueprint™" form) and creates or updates a Lead. This is
+ * Your Blueprint™" form) and creates or updates a Lead, plus its
+ * Blueprint Assessment™ (Stage 1 of the client journey). This is
  * intake only:
  *   - creates a Lead if the email doesn't match an existing one
  *   - updates the existing Lead if it does (never a duplicate person)
- *   - attaches the raw submission as the Lead's bodyBlueprint
- *   - sets status = BLUEPRINT_COMPLETED
+ *   - creates or updates the Lead's draft BlueprintAssessment (never
+ *     duplicated pre-activation — see createOrUpdateDraftAssessment)
+ *   - sets Lead status = BLUEPRINT_COMPLETED
  *   - sends the Blueprint Received confirmation email (blueprint@)
  *
  * This endpoint NEVER converts a Lead to a Client, never creates a
  * Portal account, and never sends the Welcome/Activation email —
  * that only happens when the Owner clicks "Convert Lead to Client"
  * (a.k.a. "Activate Client") in the Hub, reviewing the Blueprint
- * first.
+ * first (Stage 2).
  *
  * AUTH: protected by a shared-secret query param, since Jotform
  * webhooks aren't signed. Configure the webhook URL in Jotform as:
@@ -28,9 +31,9 @@ import type { Prisma } from "@prisma/client";
  * form and aren't known ahead of time. This parser tries several
  * common patterns (see extractContactField/extractName below) to
  * find email/name/phone/city, but the FULL raw submission is always
- * stored in bodyBlueprint regardless of whether auto-detection
- * succeeds — no data is ever lost, even if the heuristics need
- * tuning once real submissions are seen.
+ * stored in the assessment's jotformRawData regardless of whether
+ * auto-detection succeeds — no data is ever lost, even if the
+ * heuristics need tuning once real submissions are seen.
  */
 
 export async function POST(request: NextRequest) {
@@ -58,6 +61,7 @@ export async function POST(request: NextRequest) {
   const phone = extractContactField(raw, ["phone"]);
   const city = extractContactField(raw, ["city"]);
   const goals = extractContactField(raw, ["goal", "concern", "describe", "tellus", "message"]);
+  const jotformSubmissionId = extractContactField(raw, ["submissionid", "submission_id"]);
 
   const existing = await prisma.lead.findFirst({
     where: { email, archivedAt: null },
@@ -74,7 +78,6 @@ export async function POST(request: NextRequest) {
         phone: phone ?? existing.phone,
         city: city ?? existing.city,
         goals: goals ?? existing.goals,
-        bodyBlueprint: raw as Prisma.InputJsonValue,
         status: "BLUEPRINT_COMPLETED",
         source: existing.source ?? "jotform:lets-build-your-blueprint",
       },
@@ -88,19 +91,26 @@ export async function POST(request: NextRequest) {
         phone,
         city,
         goals,
-        bodyBlueprint: raw as Prisma.InputJsonValue,
         status: "BLUEPRINT_COMPLETED",
         source: "jotform:lets-build-your-blueprint",
       },
     });
   }
 
+  await createOrUpdateDraftAssessment(lead.id, {
+    jotformSubmissionId,
+    jotformRawData: raw as Prisma.InputJsonValue,
+    goals,
+  });
+
   await prisma.leadStatusHistory.create({
     data: {
       leadId: lead.id,
       fromStatus: existing?.status,
       toStatus: "BLUEPRINT_COMPLETED",
-      note: existing ? "Body Blueprint™ updated via Jotform" : "Lead created from Body Blueprint™ submission (Jotform)",
+      note: existing
+        ? "Blueprint Assessment™ updated via Jotform"
+        : "Lead created from Blueprint Assessment™ submission (Jotform)",
     },
   });
 

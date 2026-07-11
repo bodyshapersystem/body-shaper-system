@@ -7,8 +7,9 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { randomUUID } from "crypto";
 import { z } from "zod";
-import type { LeadStatus, PaymentStatus, Prisma } from "@prisma/client";
+import type { LeadStatus, PaymentStatus } from "@prisma/client";
 import { sendWelcomeActivationEmail } from "@/lib/email/service";
+import { linkAssessmentToClient } from "@/lib/blueprint-assessments";
 
 const createLeadSchema = z.object({
   firstName: z.string().min(1, "First name is required"),
@@ -168,7 +169,7 @@ export async function convertLeadToClient(leadId: string): Promise<ConversionRes
 }
 
 async function finishConversion(
-  lead: { id: string; firstName: string; lastName: string; email: string; phone: string | null; city: string | null; bodyBlueprint: unknown },
+  lead: { id: string; firstName: string; lastName: string; email: string; phone: string | null; city: string | null },
   authUserId: string,
   convertedById: string
 ): Promise<ConversionResult> {
@@ -205,18 +206,6 @@ async function finishConversion(
       },
     });
 
-    // Attach the existing Body Blueprint (if the lead had one) as
-    // version 1 — preserved, not re-entered.
-    const bp = lead.bodyBlueprint as Record<string, unknown> | null;
-    await tx.bodyBlueprint.create({
-      data: {
-        clientId: client.id,
-        version: 1,
-        formAnswers: (bp ?? undefined) as Prisma.InputJsonValue | undefined,
-        goals: typeof bp?.goals === "string" ? bp.goals : undefined,
-      },
-    });
-
     await tx.rewardsAccount.create({ data: { clientId: client.id, pointsBalance: 0 } });
     await tx.messageThread.create({ data: { clientId: client.id } });
     const invite = await tx.portalInvitation.create({
@@ -243,6 +232,12 @@ async function finishConversion(
   revalidatePath("/hub/leads");
   revalidatePath(`/hub/leads/${lead.id}`);
   revalidatePath("/hub/clients");
+
+  // Re-link (never copy) the Lead-stage Blueprint Assessment™ to the
+  // new Client. If the lead was created manually with no Jotform
+  // submission, this creates a blank ACTIVE assessment instead — every
+  // Client always has at least one baseline assessment.
+  await linkAssessmentToClient(lead.id, result.client.id, convertedById);
 
   const activationUrl = `${SITE_URL}/portal/activate?token=${result.invite.token}`;
 

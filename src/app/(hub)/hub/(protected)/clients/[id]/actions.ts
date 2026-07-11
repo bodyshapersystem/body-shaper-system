@@ -6,6 +6,12 @@ import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { revalidatePath } from "next/cache";
 import { sendWelcomeActivationEmail } from "@/lib/email/service";
 import { randomUUID } from "crypto";
+import {
+  getActiveAssessmentForClient,
+  startReassessment,
+  recordStrategyChange,
+  addSpecialistObservation,
+} from "@/lib/blueprint-assessments";
 
 const SITE_URL = "https://www.bodyshapersystem.com";
 
@@ -54,31 +60,49 @@ export async function addMeasurement(clientId: string, formData: FormData) {
 }
 
 /**
- * Adds a new Body Blueprint version. Never overwrites a prior
- * version — version history is permanent.
+ * Updates the client's active Blueprint Assessment™: goals and
+ * treatment interests update directly; a change to the recommended
+ * system is routed through recordStrategyChange (which only logs an
+ * audit entry when the strategy actually changes); free-text notes
+ * become a new Specialist Observation entry — an append-only log,
+ * never overwritten. This does NOT create a new assessment version —
+ * that's reserved for an intentional future reassessment
+ * (startReassessment), per the Blueprint Assessment™ architecture.
  */
-export async function addBodyBlueprintVersion(clientId: string, formData: FormData) {
+export async function addStrategyUpdate(clientId: string, formData: FormData) {
   const user = await getCurrentHubUser();
   if (!user || !hasPermission(user, "blueprints.manage")) {
-    return { error: "You don't have permission to edit Body Blueprints." };
+    return { error: "You don't have permission to edit the Blueprint Assessment." };
   }
 
-  const latest = await prisma.bodyBlueprint.findFirst({
-    where: { clientId },
-    orderBy: { version: "desc" },
-  });
+  let assessment = await getActiveAssessmentForClient(clientId);
+  if (!assessment) {
+    assessment = await startReassessment(clientId, user.id);
+  }
 
-  await prisma.bodyBlueprint.create({
-    data: {
-      clientId,
-      version: (latest?.version ?? 0) + 1,
-      goals: (formData.get("goals") as string) || undefined,
-      treatmentInterests: (formData.get("treatmentInterests") as string) || undefined,
-      recommendedSystem: (formData.get("recommendedSystem") as string) || undefined,
-      internalNotes: (formData.get("internalNotes") as string) || undefined,
-      createdById: user.id,
-    },
-  });
+  const goals = (formData.get("goals") as string) || undefined;
+  const treatmentInterests = (formData.get("treatmentInterests") as string) || undefined;
+  const recommendedSystem = (formData.get("recommendedSystem") as string) || undefined;
+  const observationNote = (formData.get("internalNotes") as string) || undefined;
+
+  if (goals || treatmentInterests) {
+    await prisma.blueprintAssessment.update({
+      where: { id: assessment.id },
+      data: { goals: goals ?? assessment.goals, treatmentInterests: treatmentInterests ?? assessment.treatmentInterests },
+    });
+  }
+
+  if (recommendedSystem) {
+    await recordStrategyChange({
+      assessmentId: assessment.id,
+      newStrategy: recommendedSystem,
+      changedById: user.id,
+    });
+  }
+
+  if (observationNote) {
+    await addSpecialistObservation({ assessmentId: assessment.id, body: observationNote, authorId: user.id });
+  }
 
   revalidatePath(`/hub/clients/${clientId}`);
   return { success: true };

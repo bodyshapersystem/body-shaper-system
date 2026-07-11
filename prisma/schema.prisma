@@ -139,7 +139,6 @@ model Lead {
   timeline      String? // client's stated timeline/urgency, free text for now
 
   internalNotes String?
-  bodyBlueprint Json? // raw Body Blueprint™ submission data, if submitted as a lead
 
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
@@ -153,6 +152,8 @@ model Lead {
   // convenience reverse-lookup + a timestamp of when it happened.
   convertedClient Client?
   convertedAt     DateTime?
+
+  blueprintAssessment BlueprintAssessment?
 
   statusHistory LeadStatusHistory[]
   emailHistory  LeadEmailLog[]
@@ -213,7 +214,10 @@ model Client {
   createdById String?
   archivedAt  DateTime?
 
-  bodyBlueprints BodyBlueprint[]
+  blueprintAssessments BlueprintAssessment[]
+  bodyMeasurements     BodyMeasurement[]
+  photos               Photo[]
+  formSubmissions      FormSubmission[]
   measurements   Measurement[]
   documents      Document[]
   messageThread  MessageThread?
@@ -226,21 +230,168 @@ model Client {
 
 // ---------- Body Blueprint (versioned, never overwritten) ----------
 
-model BodyBlueprint {
-  id                 String   @id @default(cuid())
-  clientId           String
-  client             Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
-  version            Int
+// ---------- Blueprint Assessment™ (clinical/strategic journey ONLY) ----------
+// This is the exclusive home for: Jotform intake, professional
+// assessment, body measurements, Renpho scans, photos, strategy, and
+// reassessments. Administrative forms (Prepare for Your Experience,
+// Treatment Waiver, etc.) live in FormSubmission instead — never here.
+//
+// A BlueprintAssessment starts at the Lead stage (leadId set,
+// clientId null, status DRAFT) when Jotform's "Let's Build Your
+// Blueprint™" is submitted. It is never duplicated during that
+// pre-activation stage — @@unique([leadId]) means repeat submissions
+// update the same draft row. When the Owner converts the Lead to a
+// Client, this exact row is RE-LINKED (clientId set), never copied.
+// Everything that happens afterward (the first appointment's photos,
+// measurements, Renpho scan, strategy confirmation) enriches this
+// same assessment — it does not restart the sales process or create
+// a new version. A brand new version only gets created for an
+// intentional future reassessment.
+
+enum AssessmentStatus {
+  DRAFT // pre-activation, from Jotform, no Client yet
+  ACTIVE // the client's current assessment
+  SUPERSEDED // an older version, kept for history
+  ARCHIVED
+}
+
+model BlueprintAssessment {
+  id       String            @id @default(cuid())
+  leadId   String?           @unique
+  lead     Lead?             @relation(fields: [leadId], references: [id])
+  clientId String?
+  client   Client?           @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  version  Int               @default(1)
+  status   AssessmentStatus  @default(DRAFT)
+
+  // Jotform intake (Let's Build Your Blueprint™)
+  jotformSubmissionId String?
+  jotformRawData      Json?
+
+  // Strategy (current state — history lives in StrategyChange)
   goals              String?
   treatmentInterests String?
   recommendedSystem  String?
-  formAnswers        Json?
-  internalNotes      String?
-  createdAt          DateTime @default(now())
-  createdById        String?
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  createdById String?
+
+  bodyMeasurements       BodyMeasurement[]
+  renphoScans            Measurement[]
+  photos                 Photo[]
+  specialistObservations SpecialistObservation[]
+  strategyChanges        StrategyChange[]
 
   @@unique([clientId, version])
-  @@map("body_blueprints")
+  @@map("blueprint_assessments")
+}
+
+// ---------- Body measurements (tape/manual — distinct from Renpho) ----------
+
+model BodyMeasurement {
+  id           String              @id @default(cuid())
+  clientId     String
+  client       Client              @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  assessmentId String?
+  assessment   BlueprintAssessment? @relation(fields: [assessmentId], references: [id], onDelete: SetNull)
+  measuredAt   DateTime
+  waistCm      Float?
+  hipsCm       Float?
+  chestCm      Float?
+  thighCm      Float?
+  armCm        Float?
+  notes        String?
+  createdAt    DateTime @default(now())
+  createdById  String?
+
+  @@map("body_measurements")
+}
+
+// ---------- Photos ----------
+
+enum PhotoType {
+  BEFORE
+  AFTER
+  PROGRESS
+}
+
+model Photo {
+  id           String              @id @default(cuid())
+  clientId     String
+  client       Client              @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  assessmentId String?
+  assessment   BlueprintAssessment? @relation(fields: [assessmentId], references: [id], onDelete: SetNull)
+  type         PhotoType
+  storagePath  String
+  takenAt      DateTime?
+  uploadedAt   DateTime  @default(now())
+  uploadedById String?
+  notes        String?
+
+  @@map("photos")
+}
+
+// ---------- Specialist observations (append-only clinical log) ----------
+
+model SpecialistObservation {
+  id           String              @id @default(cuid())
+  assessmentId String
+  assessment   BlueprintAssessment @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
+  authorId     String?
+  body         String
+  createdAt    DateTime @default(now())
+
+  @@map("specialist_observations")
+}
+
+// ---------- Strategy changes (append-only audit trail) ----------
+
+model StrategyChange {
+  id               String              @id @default(cuid())
+  assessmentId     String
+  assessment       BlueprintAssessment @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
+  previousStrategy String?
+  newStrategy      String
+  reason           String?
+  changedById      String?
+  changedAt        DateTime @default(now())
+
+  @@map("strategy_changes")
+}
+
+// ---------- Form Submissions (administrative documentation ONLY) ----------
+// Everything a client fills out AFTER activation that isn't part of
+// the clinical Blueprint journey: waivers, prep guides, consent
+// updates. Deliberately generic (formType is just a string enum) so
+// adding a new form later is one enum value, never a new table.
+
+enum FormType {
+  PREPARE_FOR_YOUR_EXPERIENCE
+  TREATMENT_WAIVER
+  // Reserved for later, per direction — add values here when needed:
+  // MEDICAL_UPDATE, POST_SURGERY_UPDATE, GLP1_UPDATE, PHOTO_RELEASE,
+  // CONSENT_UPDATES
+}
+
+enum FormStatus {
+  PENDING
+  COMPLETED
+}
+
+model FormSubmission {
+  id                  String     @id @default(cuid())
+  clientId            String
+  client              Client     @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  formType            FormType
+  status              FormStatus @default(PENDING)
+  version             Int        @default(1)
+  jotformSubmissionId String?
+  rawData             Json?
+  completedAt         DateTime?
+  createdAt           DateTime   @default(now())
+
+  @@map("form_submissions")
 }
 
 // ---------- Measurements (manual entry, RENPHO-shaped; historical only) ----------
@@ -249,6 +400,8 @@ model Measurement {
   id               String   @id @default(cuid())
   clientId         String
   client           Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  assessmentId     String?
+  assessment       BlueprintAssessment? @relation(fields: [assessmentId], references: [id], onDelete: SetNull)
   scanDate         DateTime
   weightKg         Float?
   bodyFatPercent   Float?

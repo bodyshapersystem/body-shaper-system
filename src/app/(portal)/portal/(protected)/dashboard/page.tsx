@@ -7,7 +7,7 @@ export default async function PortalDashboardPage() {
   const client = await getCurrentPortalClient();
   if (!client) redirect("/portal/login");
 
-  const blueprint = client.bodyBlueprints[0];
+  const blueprint = client.blueprintAssessments[0];
   const measurement = client.measurements[0];
 
   return (

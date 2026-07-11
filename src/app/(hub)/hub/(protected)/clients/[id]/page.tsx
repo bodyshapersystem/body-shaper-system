@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { getCurrentHubUser, hasPermission } from "@/lib/permissions";
 import {
   addMeasurement,
-  addBodyBlueprintVersion,
+  addStrategyUpdate,
   sendOwnerMessage,
   uploadClientDocument,
 } from "./actions";
@@ -44,7 +44,10 @@ export default async function ClientDetailPage({
     include: {
       lead: true,
       user: true,
-      bodyBlueprints: { orderBy: { version: "desc" } },
+      blueprintAssessments: {
+        orderBy: { version: "desc" },
+        include: { specialistObservations: { orderBy: { createdAt: "desc" } } },
+      },
       measurements: { orderBy: { scanDate: "desc" } },
       documents: { orderBy: { uploadedAt: "desc" } },
       messageThread: { include: { messages: { orderBy: { createdAt: "asc" } } } },
@@ -138,34 +141,46 @@ export default async function ClientDetailPage({
             <form
               action={async (formData: FormData) => {
                 "use server";
-                await addBodyBlueprintVersion(client.id, formData);
+                await addStrategyUpdate(client.id, formData);
               }}
               style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 32 }}
             >
               <textarea name="goals" placeholder="Goals" rows={2} style={{ padding: 10 }} />
               <textarea name="treatmentInterests" placeholder="Treatment interests" rows={2} style={{ padding: 10 }} />
               <input name="recommendedSystem" placeholder="Recommended system" style={{ padding: 10 }} />
-              <textarea name="internalNotes" placeholder="Internal notes" rows={2} style={{ padding: 10 }} />
+              <textarea name="internalNotes" placeholder="Specialist observation" rows={2} style={{ padding: 10 }} />
               <button type="submit" className="auth-submit" style={{ width: "auto", padding: "10px 20px" }}>
-                Save New Version
+                Save Update
               </button>
             </form>
           )}
-          {client.bodyBlueprints.length === 0 ? (
-            <p style={{ opacity: 0.6 }}>No Body Blueprint on file yet.</p>
+          {client.blueprintAssessments.length === 0 ? (
+            <p style={{ opacity: 0.6 }}>No Blueprint Assessment™ on file yet.</p>
           ) : (
-            client.bodyBlueprints.map((bp) => (
+            client.blueprintAssessments.map((bp) => (
               <div key={bp.id} style={{ borderTop: "1px solid rgba(0,0,0,0.08)", padding: "16px 0", fontSize: 13.5 }}>
-                <strong>Version {bp.version}</strong> — {bp.createdAt.toLocaleDateString()}
+                <strong>
+                  Version {bp.version} — {bp.status}
+                </strong>{" "}
+                — {bp.createdAt.toLocaleDateString()}
                 <p>Goals: {bp.goals ?? "—"}</p>
                 <p>Treatment interests: {bp.treatmentInterests ?? "—"}</p>
                 <p>Recommended system: {bp.recommendedSystem ?? "—"}</p>
-                {bp.internalNotes && <p style={{ opacity: 0.6 }}>Notes: {bp.internalNotes}</p>}
+                {bp.specialistObservations.length > 0 && (
+                  <div style={{ opacity: 0.7, marginTop: 6 }}>
+                    {bp.specialistObservations.map((obs) => (
+                      <p key={obs.id}>
+                        {obs.createdAt.toLocaleDateString()}: {obs.body}
+                      </p>
+                    ))}
+                  </div>
+                )}
               </div>
             ))
           )}
         </div>
       )}
+
 
       {tab === "measurements" && (
         <div style={{ maxWidth: 720 }}>
@@ -332,8 +347,10 @@ export default async function ClientDetailPage({
         <ul style={{ display: "flex", flexDirection: "column", gap: 10, fontSize: 13.5 }}>
           <li>Lead created — {client.lead.createdAt.toLocaleString()}</li>
           {client.lead.convertedAt && <li>Converted to client — {client.lead.convertedAt.toLocaleString()}</li>}
-          {client.bodyBlueprints.map((bp) => (
-            <li key={bp.id}>Body Blueprint v{bp.version} recorded — {bp.createdAt.toLocaleString()}</li>
+          {client.blueprintAssessments.map((bp) => (
+            <li key={bp.id}>
+              Blueprint Assessment™ v{bp.version} ({bp.status}) — {bp.createdAt.toLocaleString()}
+            </li>
           ))}
           {client.measurements.map((m) => (
             <li key={m.id}>Measurement scan recorded — {m.createdAt.toLocaleString()}</li>
