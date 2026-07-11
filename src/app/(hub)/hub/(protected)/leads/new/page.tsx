@@ -8,7 +8,13 @@ export default function NewLeadPage() {
         <h1>new lead.</h1>
       </div>
 
-      <form action={createLead} style={{ maxWidth: 420, display: "flex", flexDirection: "column", gap: 16 }}>
+      <form
+        action={async (formData: FormData) => {
+          "use server";
+          await createLead(formData);
+        }}
+        style={{ maxWidth: 420, display: "flex", flexDirection: "column", gap: 16 }}
+      >
         <div>
           <label htmlFor="name" style={{ display: "block", fontSize: 11, opacity: 0.6, marginBottom: 6 }}>
             Name *
