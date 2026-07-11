@@ -64,7 +64,11 @@ export async function getCurrentPortalClient() {
   const client = await prisma.client.findUnique({
     where: { userId: portalUser.id },
     include: {
-      blueprintAssessments: { where: { status: "ACTIVE" }, orderBy: { version: "desc" }, take: 1 },
+      blueprintAssessments: {
+        where: { status: { in: ["ACTIVE", "BASELINE_PENDING", "BASELINE_COMPLETED", "VALIDATED", "IN_PROGRESS", "COMPLETED"] } },
+        orderBy: { version: "desc" },
+        take: 1,
+      },
       measurements: { orderBy: { scanDate: "desc" }, take: 1 },
       rewardsAccount: true,
     },

@@ -116,7 +116,10 @@ export async function getClientProgressSnapshots(clientId: string) {
 export async function getClientBodyIntelligence(clientId: string) {
   const [activeAssessment, bodyMeasurements, renphoScans, photos, progressSnapshots] = await Promise.all([
     prisma.blueprintAssessment.findFirst({
-      where: { clientId, status: "ACTIVE" },
+      where: {
+        clientId,
+        status: { in: ["ACTIVE", "BASELINE_PENDING", "BASELINE_COMPLETED", "VALIDATED", "IN_PROGRESS", "COMPLETED"] },
+      },
       orderBy: { version: "desc" },
       include: {
         strategyChanges: { orderBy: { changedAt: "desc" } },

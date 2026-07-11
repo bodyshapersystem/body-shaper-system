@@ -3,11 +3,11 @@ import { prisma } from "@/lib/prisma";
 import { getCurrentHubUser, hasPermission } from "@/lib/permissions";
 import {
   addMeasurement,
-  addStrategyUpdate,
   sendOwnerMessage,
   uploadClientDocument,
 } from "./actions";
 import InvitationPanel from "./InvitationPanel";
+import BlueprintAssessmentTab from "./BlueprintAssessmentTab";
 
 export const dynamic = "force-dynamic";
 
@@ -46,7 +46,13 @@ export default async function ClientDetailPage({
       user: true,
       blueprintAssessments: {
         orderBy: { version: "desc" },
-        include: { specialistObservations: { orderBy: { createdAt: "desc" } } },
+        include: {
+          bodyMeasurements: { orderBy: { measuredAt: "desc" } },
+          renphoScans: { orderBy: { scanDate: "desc" } },
+          photos: { orderBy: { uploadedAt: "desc" } },
+          specialistObservations: { orderBy: { createdAt: "desc" } },
+          strategyChanges: { orderBy: { changedAt: "desc" } },
+        },
       },
       measurements: { orderBy: { scanDate: "desc" } },
       documents: { orderBy: { uploadedAt: "desc" } },
@@ -136,49 +142,7 @@ export default async function ClientDetailPage({
       )}
 
       {tab === "blueprint" && (
-        <div style={{ maxWidth: 640 }}>
-          {hasPermission(user, "blueprints.manage") && (
-            <form
-              action={async (formData: FormData) => {
-                "use server";
-                await addStrategyUpdate(client.id, formData);
-              }}
-              style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 32 }}
-            >
-              <textarea name="goals" placeholder="Goals" rows={2} style={{ padding: 10 }} />
-              <textarea name="treatmentInterests" placeholder="Treatment interests" rows={2} style={{ padding: 10 }} />
-              <input name="recommendedSystem" placeholder="Recommended system" style={{ padding: 10 }} />
-              <textarea name="internalNotes" placeholder="Specialist observation" rows={2} style={{ padding: 10 }} />
-              <button type="submit" className="auth-submit" style={{ width: "auto", padding: "10px 20px" }}>
-                Save Update
-              </button>
-            </form>
-          )}
-          {client.blueprintAssessments.length === 0 ? (
-            <p style={{ opacity: 0.6 }}>No Blueprint Assessment™ on file yet.</p>
-          ) : (
-            client.blueprintAssessments.map((bp) => (
-              <div key={bp.id} style={{ borderTop: "1px solid rgba(0,0,0,0.08)", padding: "16px 0", fontSize: 13.5 }}>
-                <strong>
-                  Version {bp.version} — {bp.status}
-                </strong>{" "}
-                — {bp.createdAt.toLocaleDateString()}
-                <p>Goals: {bp.goals ?? "—"}</p>
-                <p>Treatment interests: {bp.treatmentInterests ?? "—"}</p>
-                <p>Recommended system: {bp.recommendedSystem ?? "—"}</p>
-                {bp.specialistObservations.length > 0 && (
-                  <div style={{ opacity: 0.7, marginTop: 6 }}>
-                    {bp.specialistObservations.map((obs) => (
-                      <p key={obs.id}>
-                        {obs.createdAt.toLocaleDateString()}: {obs.body}
-                      </p>
-                    ))}
-                  </div>
-                )}
-              </div>
-            ))
-          )}
-        </div>
+        <BlueprintAssessmentTab client={client} canManage={hasPermission(user, "blueprints.manage")} />
       )}
 
 
@@ -352,6 +316,11 @@ export default async function ClientDetailPage({
               Blueprint Assessment™ v{bp.version} ({bp.status}) — {bp.createdAt.toLocaleString()}
             </li>
           ))}
+          {client.blueprintAssessments
+            .filter((bp) => bp.validatedAt)
+            .map((bp) => (
+              <li key={`${bp.id}-validated`}>Blueprint Validated (v{bp.version}) — {bp.validatedAt!.toLocaleString()}</li>
+            ))}
           {client.measurements.map((m) => (
             <li key={m.id}>Measurement scan recorded — {m.createdAt.toLocaleString()}</li>
           ))}

@@ -250,10 +250,21 @@ model Client {
 // intentional future reassessment.
 
 enum AssessmentStatus {
-  DRAFT // pre-activation, from Jotform, no Client yet
-  ACTIVE // the client's current assessment
-  SUPERSEDED // an older version, kept for history
+  DRAFT // legacy — pre-migration value, mapped to INTAKE_SUBMITTED
+  ACTIVE // legacy — pre-migration value, mapped to BASELINE_PENDING
+  INTAKE_SUBMITTED // Jotform received, no Client yet
+  BASELINE_PENDING // Client activated, first appointment not yet done
+  BASELINE_COMPLETED // measurements/composition/photos recorded
+  VALIDATED // Owner/specialist confirmed the strategy
+  IN_PROGRESS // active treatment underway
+  COMPLETED
+  SUPERSEDED // an older reassessment version, kept for history
   ARCHIVED
+}
+
+enum Visibility {
+  INTERNAL_ONLY
+  CLIENT_VISIBLE
 }
 
 model BlueprintAssessment {
@@ -263,16 +274,35 @@ model BlueprintAssessment {
   clientId String?
   client   Client?           @relation(fields: [clientId], references: [id], onDelete: Cascade)
   version  Int               @default(1)
-  status   AssessmentStatus  @default(DRAFT)
+  status   AssessmentStatus  @default(INTAKE_SUBMITTED)
 
   // Jotform intake (Let's Build Your Blueprint™)
   jotformSubmissionId String?
   jotformRawData      Json?
+  intakeSubmissionDate DateTime?
+  baselineAppointmentDate DateTime?
 
-  // Strategy (current state — history lives in StrategyChange)
-  goals              String?
-  treatmentInterests String?
-  recommendedSystem  String?
+  // Strategy — original recommendation is frozen once set; validated
+  // fields are what the specialist confirms/adjusts at the first
+  // appointment. `recommendedSystem`/`treatmentInterests` remain the
+  // live current values (unchanged mechanism from before — updated by
+  // recordStrategyChange when they actually change).
+  goals                    String?
+  treatmentInterests       String?
+  recommendedSystem        String?
+  originalRecommendedSystem String? // frozen at intake — never overwritten
+
+  initialFrequency      String?
+  validatedFrequency     String?
+  initialSessionCount    Int?
+  validatedSessionCount  Int?
+  complementarySessions  String?
+  homeCareGuidance       String?
+  optimizationNotes      String?
+
+  validationNotes String?
+  validatedById   String?
+  validatedAt     DateTime?
 
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
@@ -336,6 +366,7 @@ model Photo {
   uploadedAt   DateTime  @default(now())
   specialistId String?
   notes        String?
+  visibility   Visibility @default(INTERNAL_ONLY)
 
   @@map("photos")
 }
@@ -348,6 +379,7 @@ model SpecialistObservation {
   assessment   BlueprintAssessment @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
   authorId     String?
   body         String
+  visibility   Visibility @default(INTERNAL_ONLY)
   createdAt    DateTime @default(now())
 
   @@map("specialist_observations")

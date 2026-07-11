@@ -37,12 +37,14 @@ export async function createOrUpdateDraftAssessment(
     where: { leadId },
     create: {
       leadId,
-      status: "DRAFT",
+      status: "INTAKE_SUBMITTED",
+      intakeSubmissionDate: new Date(),
       jotformSubmissionId: data.jotformSubmissionId,
       jotformRawData: data.jotformRawData,
       goals: data.goals,
       treatmentInterests: data.treatmentInterests,
       recommendedSystem: data.recommendedSystem,
+      originalRecommendedSystem: data.recommendedSystem,
     },
     update: {
       jotformSubmissionId: data.jotformSubmissionId,
@@ -56,12 +58,13 @@ export async function createOrUpdateDraftAssessment(
 
 /**
  * Re-links the Lead-stage draft assessment to the newly-created
- * Client, marking it ACTIVE. This is a RE-LINK, never a copy — same
- * row, same id, same history. If no draft assessment exists (e.g. a
- * Lead created manually in the Hub with no Jotform submission), a
- * blank ACTIVE assessment is created so every Client always has at
- * least one — the "professional baseline" the first appointment
- * enriches.
+ * Client, marking it BASELINE_PENDING — the client is activated but
+ * hasn't had their first appointment yet. This is a RE-LINK, never a
+ * copy — same row, same id, same history. If no draft assessment
+ * exists (e.g. a Lead created manually in the Hub with no Jotform
+ * submission), a blank BASELINE_PENDING assessment is created so
+ * every Client always has at least one — the "professional baseline"
+ * the first appointment enriches.
  */
 export async function linkAssessmentToClient(leadId: string, clientId: string, createdById?: string) {
   const existing = await prisma.blueprintAssessment.findUnique({ where: { leadId } });
@@ -69,18 +72,30 @@ export async function linkAssessmentToClient(leadId: string, clientId: string, c
   if (existing) {
     return prisma.blueprintAssessment.update({
       where: { id: existing.id },
-      data: { clientId, status: "ACTIVE" },
+      data: {
+        clientId,
+        status: "BASELINE_PENDING",
+        originalRecommendedSystem: existing.originalRecommendedSystem ?? existing.recommendedSystem,
+      },
     });
   }
 
   return prisma.blueprintAssessment.create({
-    data: { leadId, clientId, status: "ACTIVE", createdById },
+    data: { leadId, clientId, status: "BASELINE_PENDING", createdById },
   });
 }
 
+/**
+ * The client's current live assessment — anything past intake and
+ * not superseded/archived. Ordered so the highest version wins if
+ * more than one somehow qualifies.
+ */
 export async function getActiveAssessmentForClient(clientId: string) {
   return prisma.blueprintAssessment.findFirst({
-    where: { clientId, status: "ACTIVE" },
+    where: {
+      clientId,
+      status: { in: ["ACTIVE", "BASELINE_PENDING", "BASELINE_COMPLETED", "VALIDATED", "IN_PROGRESS", "COMPLETED"] },
+    },
     orderBy: { version: "desc" },
   });
 }
@@ -130,10 +145,11 @@ export async function startReassessment(clientId: string, createdById?: string) 
     data: {
       clientId,
       version: nextVersion,
-      status: "ACTIVE",
+      status: "BASELINE_PENDING",
       goals: current?.goals,
       treatmentInterests: current?.treatmentInterests,
       recommendedSystem: current?.recommendedSystem,
+      originalRecommendedSystem: current?.recommendedSystem,
       createdById,
     },
   });
