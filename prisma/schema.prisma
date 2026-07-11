@@ -69,9 +69,13 @@ enum UserStatus {
 
 // Only meaningful for Client-role users (Hub staff leave this null).
 enum PortalStatus {
+  NOT_CREATED
   INVITATION_PENDING
+  INVITATION_SENT
   ACTIVE
+  INVITATION_EXPIRED
   SUSPENDED
+  FAILED
 }
 
 model User {
@@ -213,6 +217,7 @@ model Client {
   messageThread  MessageThread?
   rewardsAccount RewardsAccount?
   portalInvite   PortalInvitation?
+  emailEvents    EmailEvent[]
 
   @@map("clients")
 }
@@ -331,6 +336,48 @@ model PortalInvitation {
   acceptedAt DateTime?
   createdAt  DateTime  @default(now())
 
+  // Delivery tracking — lets the Hub show invite status and safely
+  // support "Resend Invitation" without ever creating a duplicate
+  // Auth user or Client record.
+  lastSentAt    DateTime?
+  attemptCount  Int       @default(0)
+
   @@map("portal_invitations")
+}
+
+// ---------- Email delivery log (Resend) ----------
+// One row per send attempt, regardless of outcome. This is the
+// permanent audit trail the Hub's "View Email Log" reads from — never
+// deleted, even on failure, so support can always see what happened.
+
+enum EmailTemplate {
+  WELCOME_ACTIVATION
+  BODY_BLUEPRINT_COMPLETED
+  PAYMENT_CONFIRMATION
+}
+
+enum EmailStatus {
+  QUEUED
+  SENT
+  DELIVERED
+  FAILED
+}
+
+model EmailEvent {
+  id                String        @id @default(cuid())
+  clientId          String
+  client            Client        @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  template          EmailTemplate
+  recipient         String
+  provider          String        @default("resend")
+  providerMessageId String?
+  status            EmailStatus   @default(QUEUED)
+  sentAt            DateTime?
+  deliveredAt       DateTime?
+  failedAt          DateTime?
+  errorMessage      String?
+  createdAt         DateTime      @default(now())
+
+  @@map("email_events")
 }
 

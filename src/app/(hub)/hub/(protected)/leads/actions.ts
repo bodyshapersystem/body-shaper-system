@@ -8,6 +8,7 @@ import { revalidatePath } from "next/cache";
 import { randomUUID } from "crypto";
 import { z } from "zod";
 import type { LeadStatus, PaymentStatus, Prisma } from "@prisma/client";
+import { sendWelcomeActivationEmail } from "@/lib/email/service";
 
 const createLeadSchema = z.object({
   firstName: z.string().min(1, "First name is required"),
@@ -119,7 +120,11 @@ type ConversionResult = {
   clientId?: string;
   alreadyConverted?: boolean;
   activationUrl?: string;
+  emailSent?: boolean;
+  emailError?: string;
 };
+
+const SITE_URL = "https://www.bodyshapersystem.com";
 
 export async function convertLeadToClient(leadId: string): Promise<ConversionResult> {
   const user = await getCurrentHubUser();
@@ -239,10 +244,30 @@ async function finishConversion(
   revalidatePath(`/hub/leads/${lead.id}`);
   revalidatePath("/hub/clients");
 
+  const activationUrl = `${SITE_URL}/portal/activate?token=${result.invite.token}`;
+
+  // Send the Welcome + Activation email automatically — the Owner
+  // should never need to copy this link by hand. Runs after the DB
+  // transaction commits (email delivery is external I/O and shouldn't
+  // hold a database transaction open). If sending fails, the client
+  // and invitation still exist untouched — the Hub shows the failure
+  // and offers "Resend Invitation", per the no-silent-failure rule.
+  const emailResult = await sendWelcomeActivationEmail({
+    clientId: result.client.id,
+    firstName: lead.firstName,
+    email: lead.email,
+    activationUrl,
+    invitationId: result.invite.id,
+  });
+
+  revalidatePath(`/hub/clients/${result.client.id}`);
+
   return {
     success: true,
     clientId: result.client.id,
-    activationUrl: `/portal/activate?token=${result.invite.token}`,
+    activationUrl,
+    emailSent: emailResult.success,
+    emailError: emailResult.success ? undefined : emailResult.error,
   };
 }
 

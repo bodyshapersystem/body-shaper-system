@@ -23,6 +23,8 @@ export default function LeadConversionPanel({
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [activationUrl, setActivationUrl] = useState<string | null>(null);
+  const [emailSent, setEmailSent] = useState<boolean | null>(null);
+  const [emailError, setEmailError] = useState<string | null>(null);
   const [error, setError] = useState("");
 
   function handlePaymentChange(e: React.ChangeEvent<HTMLSelectElement>) {
@@ -41,6 +43,8 @@ export default function LeadConversionPanel({
         return;
       }
       if (result?.activationUrl) setActivationUrl(result.activationUrl);
+      setEmailSent(result?.emailSent ?? null);
+      setEmailError(result?.emailError ?? null);
       if (result?.clientId) router.refresh();
     });
   }
@@ -90,10 +94,20 @@ export default function LeadConversionPanel({
           </button>
           {error && <p className="auth-error">{error}</p>}
           {activationUrl && (
-            <p style={{ fontSize: 13, marginTop: 10 }}>
-              Client created. Portal activation link:{" "}
-              <code style={{ wordBreak: "break-all" }}>{activationUrl}</code>
-            </p>
+            <div style={{ fontSize: 13, marginTop: 10 }}>
+              {emailSent === true && (
+                <p style={{ color: "#2f6b3a" }}>✓ Client created — welcome email sent automatically.</p>
+              )}
+              {emailSent === false && (
+                <p className="auth-error">
+                  Client created, but the welcome email failed to send{emailError ? `: ${emailError}` : "."} Use
+                  "Resend Invitation" on the client's page, or share this link directly:
+                </p>
+              )}
+              <p style={{ opacity: 0.65 }}>
+                Portal login link (backup): <code style={{ wordBreak: "break-all" }}>{activationUrl}</code>
+              </p>
+            </div>
           )}
         </div>
       )}

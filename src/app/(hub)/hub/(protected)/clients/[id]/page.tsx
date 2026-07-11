@@ -7,6 +7,7 @@ import {
   sendOwnerMessage,
   uploadClientDocument,
 } from "./actions";
+import InvitationPanel from "./InvitationPanel";
 
 export const dynamic = "force-dynamic";
 
@@ -49,6 +50,7 @@ export default async function ClientDetailPage({
       messageThread: { include: { messages: { orderBy: { createdAt: "asc" } } } },
       rewardsAccount: true,
       portalInvite: true,
+      emailEvents: { orderBy: { createdAt: "desc" } },
     },
   });
 
@@ -64,15 +66,27 @@ export default async function ClientDetailPage({
         <h1>
           {client.firstName} {client.lastName}
         </h1>
-        <p style={{ fontSize: 13, opacity: 0.65 }}>
-          Portal: {(client.user.portalStatus ?? "—").replace(/_/g, " ")}
-          {client.portalInvite && !client.portalInvite.acceptedAt && (
-            <>
-              {" "}
-              — activation link: <code>/portal/activate?token={client.portalInvite.token}</code>
-            </>
-          )}
-        </p>
+        <p style={{ fontSize: 13, opacity: 0.65 }}>Portal: {(client.user.portalStatus ?? "—").replace(/_/g, " ")}</p>
+      </div>
+
+      <div style={{ marginBottom: 28 }}>
+        <InvitationPanel
+          clientId={client.id}
+          portalStatus={client.user.portalStatus}
+          invitedAt={client.portalInvite?.createdAt ?? null}
+          lastSentAt={client.portalInvite?.lastSentAt ?? null}
+          activatedAt={client.portalInvite?.acceptedAt ?? null}
+          attemptCount={client.portalInvite?.attemptCount ?? 0}
+          activationToken={client.portalInvite?.token ?? null}
+          emailEvents={client.emailEvents.map((e) => ({
+            id: e.id,
+            template: e.template,
+            status: e.status,
+            createdAt: e.createdAt.toISOString(),
+            errorMessage: e.errorMessage,
+          }))}
+          canResend={hasPermission(user, "clients.convert")}
+        />
       </div>
 
       <nav style={{ display: "flex", flexWrap: "wrap", gap: 4, marginBottom: 28, borderBottom: "1px solid rgba(0,0,0,0.1)" }}>

@@ -4,6 +4,10 @@ import { prisma } from "@/lib/prisma";
 import { getCurrentHubUser, hasPermission } from "@/lib/permissions";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { revalidatePath } from "next/cache";
+import { sendWelcomeActivationEmail } from "@/lib/email/service";
+import { randomUUID } from "crypto";
+
+const SITE_URL = "https://www.bodyshapersystem.com";
 
 function num(formData: FormData, key: string): number | undefined {
   const v = formData.get(key);
@@ -157,4 +161,51 @@ export async function uploadClientDocument(clientId: string, formData: FormData)
 
   revalidatePath(`/hub/clients/${clientId}`);
   return { success: true };
+}
+
+/**
+ * Resends the portal activation invitation. Safe to click any number
+ * of times — never creates a duplicate Auth user or Client record
+ * (those already exist), and refuses outright if the client has
+ * already activated. If the existing token expired, issues a fresh
+ * one rather than reusing an expired link.
+ */
+export async function resendInvitation(clientId: string) {
+  const user = await getCurrentHubUser();
+  if (!user || !hasPermission(user, "clients.convert")) {
+    return { error: "You don't have permission to resend invitations." };
+  }
+
+  const client = await prisma.client.findUnique({
+    where: { id: clientId },
+    include: { user: true, portalInvite: true },
+  });
+
+  if (!client) return { error: "Client not found." };
+  if (client.user.portalStatus === "ACTIVE") {
+    return { error: "This client has already activated their account." };
+  }
+  if (!client.portalInvite) return { error: "No invitation found for this client." };
+
+  let { token, expiresAt } = client.portalInvite;
+  if (expiresAt < new Date()) {
+    token = randomUUID();
+    expiresAt = new Date(Date.now() + 1000 * 60 * 60 * 24 * 14);
+    await prisma.portalInvitation.update({
+      where: { id: client.portalInvite.id },
+      data: { token, expiresAt },
+    });
+  }
+
+  const activationUrl = `${SITE_URL}/portal/activate?token=${token}`;
+  const result = await sendWelcomeActivationEmail({
+    clientId: client.id,
+    firstName: client.firstName,
+    email: client.email,
+    activationUrl,
+    invitationId: client.portalInvite.id,
+  });
+
+  revalidatePath(`/hub/clients/${clientId}`);
+  return { success: true, emailSent: result.success, emailError: result.success ? undefined : result.error };
 }
