@@ -113,7 +113,15 @@ export async function archiveLead(leadId: string) {
  * BSS `users` row is created to own portal login, since a lead never
  * had one before.
  */
-export async function convertLeadToClient(leadId: string) {
+type ConversionResult = {
+  error?: string;
+  success?: boolean;
+  clientId?: string;
+  alreadyConverted?: boolean;
+  activationUrl?: string;
+};
+
+export async function convertLeadToClient(leadId: string): Promise<ConversionResult> {
   const user = await getCurrentHubUser();
   if (!user || !hasPermission(user, "clients.convert")) {
     return { error: "You don't have permission to convert leads." };
@@ -158,7 +166,7 @@ async function finishConversion(
   lead: { id: string; firstName: string; lastName: string; email: string; phone: string | null; city: string | null; bodyBlueprint: unknown },
   authUserId: string,
   convertedById: string
-) {
+): Promise<ConversionResult> {
   const token = randomUUID();
   const expiresAt = new Date(Date.now() + 1000 * 60 * 60 * 24 * 14); // 14 days
 
