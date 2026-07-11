@@ -448,12 +448,21 @@ model ProgressSnapshot {
   assessment             BlueprintAssessment? @relation(fields: [assessmentId], references: [id], onDelete: SetNull)
   baselineMeasurementId  String?
   latestMeasurementId    String?
-  calculatedAt           DateTime  @default(now())
-  weightLostKg           Float?
-  bodyFatReducedPercent  Float?
-  muscleGainedKg         Float?
-  waistCmLost            Float?
-  metrics                Json?
+
+  date                   DateTime // the point in time this snapshot represents
+  weightDeltaKg          Float?
+  bodyFatDeltaPercent    Float?
+  visceralFatDelta       Float?
+  skeletalMuscleDeltaKg  Float?
+  inchesLost             Float?
+  estimatedFatLossKg     Float?
+  estimatedMuscleGainKg  Float?
+  adherenceScore         Float? // e.g. 0-100, future adherence-tracking input
+  specialistSummary      String?
+  aiSummary              String? // reserved for future AI-generated summary
+  metrics                Json?   // escape hatch for future delta types
+
+  generatedAt            DateTime  @default(now()) // when this snapshot record was produced
   notes                  String?
 
   @@map("progress_snapshots")

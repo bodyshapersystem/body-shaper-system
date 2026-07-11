@@ -65,20 +65,30 @@ export async function getClientPhotos(clientId: string, type?: PhotoType) {
 /**
  * Manually records a progress snapshot. No automatic calculation job
  * exists yet — this just gives a future job/report generator
- * somewhere to write results (weight lost, inches lost, body fat
- * reduced, muscle gained), using well-known columns for the metrics
- * named today and a JSON `metrics` field for whatever gets added
- * later without another migration.
+ * somewhere to write results. `date` is the point in time the
+ * snapshot represents; `generatedAt` (defaulted) is when the record
+ * itself was produced — these can differ (e.g. a snapshot generated
+ * today for last week's data). `aiSummary` is reserved for a future
+ * AI-generated narrative; nothing writes to it yet. `metrics` is a
+ * JSON escape hatch for any future delta type not listed as its own
+ * column.
  */
 export async function createProgressSnapshot(params: {
   clientId: string;
   assessmentId?: string;
   baselineMeasurementId?: string;
   latestMeasurementId?: string;
-  weightLostKg?: number;
-  bodyFatReducedPercent?: number;
-  muscleGainedKg?: number;
-  waistCmLost?: number;
+  date: Date;
+  weightDeltaKg?: number;
+  bodyFatDeltaPercent?: number;
+  visceralFatDelta?: number;
+  skeletalMuscleDeltaKg?: number;
+  inchesLost?: number;
+  estimatedFatLossKg?: number;
+  estimatedMuscleGainKg?: number;
+  adherenceScore?: number;
+  specialistSummary?: string;
+  aiSummary?: string;
   metrics?: Prisma.InputJsonValue;
   notes?: string;
 }) {
@@ -90,13 +100,18 @@ export async function getClientProgressSnapshots(clientId: string) {
 }
 
 /**
- * Assembles everything a future Body Intelligence Report™ (or any
- * dashboard) would need for one client: the active Blueprint
- * Assessment™ (strategy), full measurement/scan/photo history
- * (results), strategy change history (evolution), and any recorded
- * progress snapshots (timeline). No PDF/report generation exists yet
- * — this is the single data-assembly point a future generator would
- * call instead of re-querying all of this itself.
+ * The single source of truth for a client's full Body Intelligence™
+ * picture — Blueprint (strategy), Professional Measurements, Renpho,
+ * Photos, Progress Snapshots (timeline), Strategy History, and the
+ * Active Treatment Plan. Every future report or dashboard should call
+ * this instead of querying individual modules directly, so adding a
+ * new module later means updating this one function, not every
+ * caller.
+ *
+ * `aiRecommendations` is a reserved placeholder — always null today.
+ * No AI generation exists yet; this just fixes the shape of the
+ * return value now so a future AI layer can populate it without
+ * changing what callers already depend on.
  */
 export async function getClientBodyIntelligence(clientId: string) {
   const [activeAssessment, bodyMeasurements, renphoScans, photos, progressSnapshots] = await Promise.all([
@@ -116,10 +131,14 @@ export async function getClientBodyIntelligence(clientId: string) {
 
   return {
     blueprintSummary: activeAssessment,
+    activeTreatmentPlan: activeAssessment
+      ? { recommendedSystem: activeAssessment.recommendedSystem, treatmentInterests: activeAssessment.treatmentInterests }
+      : null,
     professionalMeasurements: bodyMeasurements,
     renphoAnalysis: renphoScans,
     progressPhotos: photos,
     strategyEvolution: activeAssessment?.strategyChanges ?? [],
     resultsTimeline: progressSnapshots,
+    aiRecommendations: null as null, // reserved for future use
   };
 }
