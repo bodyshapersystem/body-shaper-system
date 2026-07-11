@@ -18,4 +18,24 @@ export function getResendClient(): Resend {
   return client;
 }
 
-export const EMAIL_FROM = "Body Shaper System <hello@bodyshapersystem.com>";
+/**
+ * The three transactional sender identities for Body Shaper System™.
+ * Each is a distinct mailbox with its own purpose — clients should be
+ * able to tell at a glance what kind of communication they're
+ * getting just from who it's "from". All three send from the same
+ * verified domain (bodyshapersystem.com), so only one domain
+ * verification in Resend covers all of them.
+ *
+ *   owner      — hello@      — Owner/Hub/admin/support/system alerts.
+ *                              Never used for routine client comms.
+ *   blueprint  — blueprint@  — Body Blueprint™ intake/confirmation
+ *                              only. Never sends portal invitations.
+ *   concierge  — concierge@  — The client's day-to-day communication
+ *                              channel throughout their journey
+ *                              (welcome, portal, appointments, etc).
+ */
+export const SENDERS = {
+  owner: "Body Shaper System™ <hello@bodyshapersystem.com>",
+  blueprint: "Body Blueprint™ <blueprint@bodyshapersystem.com>",
+  concierge: "The Body Shaper Concierge <concierge@bodyshapersystem.com>",
+} as const;

@@ -128,6 +128,25 @@ export function buildBodyBlueprintCompletedEmail(params: {
   return { subject: "Your Body Blueprint™ is ready", html: emailShell(body) };
 }
 
+export function buildBlueprintReceivedEmail(params: { firstName: string }): { subject: string; html: string } {
+  const { firstName } = params;
+  const body = `
+    <h1 style="font-family:Georgia,'Times New Roman',serif;font-size:26px;color:${COLORS.charcoal};margin:0 0 20px;">
+      Hi ${firstName},
+    </h1>
+    <p style="font-family:Arial,sans-serif;font-size:15px;line-height:1.6;color:${COLORS.charcoal};margin:0 0 16px;">
+      We've received your Body Blueprint&trade; submission — thank you for taking the time to share your goals with us.
+    </p>
+    <p style="font-family:Arial,sans-serif;font-size:15px;line-height:1.6;color:${COLORS.charcoal};margin:0 0 16px;">
+      A Body Shaper System&trade; specialist will personally review your Blueprint shortly and reach out with your
+      next steps.
+    </p>
+    <p style="font-family:Arial,sans-serif;font-size:14px;color:${COLORS.mocha};margin:24px 0 0;">
+      Questions in the meantime? We're here.
+    </p>
+  `;
+  return { subject: "We've received your Body Blueprint™", html: emailShell(body) };
+}
 export function buildPaymentConfirmationEmail(params: {
   firstName: string;
   amountLabel: string;
