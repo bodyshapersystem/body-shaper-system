@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { sendBlueprintReceivedEmail } from "@/lib/email/service";
+import type { Prisma } from "@prisma/client";
 
 /**
  * Receives Body Blueprint™ submissions from Jotform ("Let's Build
@@ -73,7 +74,7 @@ export async function POST(request: NextRequest) {
         phone: phone ?? existing.phone,
         city: city ?? existing.city,
         goals: goals ?? existing.goals,
-        bodyBlueprint: raw,
+        bodyBlueprint: raw as Prisma.InputJsonValue,
         status: "BLUEPRINT_COMPLETED",
         source: existing.source ?? "jotform:lets-build-your-blueprint",
       },
@@ -87,7 +88,7 @@ export async function POST(request: NextRequest) {
         phone,
         city,
         goals,
-        bodyBlueprint: raw,
+        bodyBlueprint: raw as Prisma.InputJsonValue,
         status: "BLUEPRINT_COMPLETED",
         source: "jotform:lets-build-your-blueprint",
       },
