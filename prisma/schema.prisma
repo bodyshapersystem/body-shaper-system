@@ -1,0 +1,23 @@
+// Prisma schema — Body Shaper System™ BSS Hub
+//
+// This is scaffolding only. Models for Milestone 1 (users, roles,
+// permissions, leads, lead_status_history) will be added once the
+// Supabase project exists and DATABASE_URL / DIRECT_URL are available.
+//
+// Connection strategy (Supabase + Prisma + Vercel serverless):
+// - DATABASE_URL  -> Supabase's pooled "Transaction" connection string
+//                    (port 6543, via PgBouncer) — used at runtime.
+// - DIRECT_URL    -> Supabase's direct connection string (port 5432)
+//                    — used only for running migrations, since
+//                    PgBouncer's transaction mode doesn't support the
+//                    prepared statements Prisma Migrate needs.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
