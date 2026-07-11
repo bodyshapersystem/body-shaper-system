@@ -148,37 +148,48 @@ export async function markMessagesRead(clientId: string) {
 }
 
 /**
- * Uploads a document to Supabase Storage (bucket: "client-documents")
- * and records its metadata. Uses the admin client since this is a
- * privileged Hub-only write, gated by the permission check above.
+ * Documents upload, part 1: signed upload URL — same fix as photos
+ * (see blueprint-actions.ts createSignedPhotoUploadUrl for why: a
+ * known Next.js/Vercel issue where the Server Action body size limit
+ * doesn't reliably apply in production, even after raising it in
+ * next.config.mjs). No file bytes pass through this function.
  */
-export async function uploadClientDocument(clientId: string, formData: FormData) {
+export async function createSignedDocumentUploadUrl(clientId: string, fileName: string) {
   const user = await getCurrentHubUser();
   if (!user || !hasPermission(user, "documents.manage")) {
     return { error: "You don't have permission to upload documents." };
   }
 
-  const file = formData.get("file") as File | null;
-  const title = String(formData.get("title") || file?.name || "Document");
-  if (!file || file.size === 0) return { error: "Choose a file to upload." };
-
   const admin = createSupabaseAdminClient();
-  const path = `${clientId}/${Date.now()}-${file.name}`;
-  const arrayBuffer = await file.arrayBuffer();
+  const path = `${clientId}/${Date.now()}-${fileName}`;
 
-  const { error: uploadError } = await admin.storage
-    .from("client-documents")
-    .upload(path, Buffer.from(arrayBuffer), { contentType: file.type || undefined });
+  const { data, error } = await admin.storage.from("client-documents").createSignedUploadUrl(path);
+  if (error || !data) return { error: error?.message ?? "Could not create upload URL." };
 
-  if (uploadError) return { error: uploadError.message };
+  return { success: true, path, token: data.token };
+}
+
+/**
+ * Documents upload, part 2: records the Document row once the browser
+ * has already uploaded the file directly to Storage via the signed
+ * URL. No file bytes here.
+ */
+export async function recordClientDocument(
+  clientId: string,
+  data: { storagePath: string; title: string; fileType?: string; sizeBytes?: number }
+) {
+  const user = await getCurrentHubUser();
+  if (!user || !hasPermission(user, "documents.manage")) {
+    return { error: "You don't have permission to upload documents." };
+  }
 
   await prisma.document.create({
     data: {
       clientId,
-      title,
-      storagePath: path,
-      fileType: file.type || undefined,
-      sizeBytes: file.size,
+      title: data.title,
+      storagePath: data.storagePath,
+      fileType: data.fileType,
+      sizeBytes: data.sizeBytes,
       uploadedById: user.id,
     },
   });

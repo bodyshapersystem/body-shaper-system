@@ -1,10 +1,10 @@
 import {
   addProfessionalMeasurement,
   addBodyComposition,
-  uploadProgressPhoto,
   addObservation,
   validateAssessment,
 } from "./blueprint-actions";
+import PhotoUploadForm from "./PhotoUploadForm";
 import type { Prisma } from "@prisma/client";
 
 type ClientWithBlueprint = Prisma.ClientGetPayload<{
@@ -179,33 +179,7 @@ export default function BlueprintAssessmentTab({
 
       {/* ---------- Section 3: Progress Photos ---------- */}
       <Section title="3. Progress Photos">
-        {canManage && (
-          <form
-            action={async (formData: FormData) => {
-              "use server";
-              await uploadProgressPhoto(client.id, formData);
-            }}
-            style={{ display: "flex", flexWrap: "wrap", gap: 10, marginBottom: 20, alignItems: "center" }}
-          >
-            <select name="type" required style={inputStyle}>
-              {PHOTO_TYPES.map((t) => (
-                <option key={t} value={t}>
-                  {t}
-                </option>
-              ))}
-            </select>
-            <input name="takenAt" type="date" style={inputStyle} />
-            <select name="visibility" defaultValue="INTERNAL_ONLY" style={inputStyle}>
-              <option value="INTERNAL_ONLY">Internal Only</option>
-              <option value="CLIENT_VISIBLE">Client Visible</option>
-            </select>
-            <input name="file" type="file" accept="image/*" required />
-            <input name="notes" placeholder="Notes" style={inputStyle} />
-            <button type="submit" className="auth-submit" style={{ width: "auto", padding: "10px 20px" }}>
-              Upload
-            </button>
-          </form>
-        )}
+        {canManage && <PhotoUploadForm clientId={client.id} />}
         <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 12, fontSize: 12.5 }}>
           {photosByType.map(({ type, photos }) => (
             <div key={type}>

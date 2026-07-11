@@ -4,10 +4,10 @@ import { getCurrentHubUser, hasPermission } from "@/lib/permissions";
 import {
   addMeasurement,
   sendOwnerMessage,
-  uploadClientDocument,
 } from "./actions";
 import InvitationPanel from "./InvitationPanel";
 import BlueprintAssessmentTab from "./BlueprintAssessmentTab";
+import DocumentUploadForm from "./DocumentUploadForm";
 
 export const dynamic = "force-dynamic";
 
@@ -227,21 +227,7 @@ export default async function ClientDetailPage({
 
       {tab === "documents" && (
         <div style={{ maxWidth: 560 }}>
-          {hasPermission(user, "documents.manage") && (
-            <form
-              action={async (formData: FormData) => {
-                "use server";
-                await uploadClientDocument(client.id, formData);
-              }}
-              style={{ display: "flex", gap: 12, marginBottom: 24 }}
-            >
-              <input name="title" placeholder="Title" style={{ padding: 10, flex: 1 }} />
-              <input name="file" type="file" required />
-              <button type="submit" className="auth-submit" style={{ width: "auto", padding: "10px 20px" }}>
-                Upload
-              </button>
-            </form>
-          )}
+          {hasPermission(user, "documents.manage") && <DocumentUploadForm clientId={client.id} />}
           {client.documents.length === 0 ? (
             <p style={{ opacity: 0.6 }}>No documents uploaded yet.</p>
           ) : (

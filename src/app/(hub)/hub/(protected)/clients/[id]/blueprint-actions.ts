@@ -112,48 +112,63 @@ async function maybeAdvanceToBaselineCompleted(clientId: string) {
 }
 
 /**
- * Section 3 — Progress Photos. Stored in the existing private
- * "client-documents" Storage bucket under a photos/ prefix (no new
- * bucket/RLS setup needed for this milestone). Default visibility is
- * INTERNAL_ONLY per direction — nothing here exposes photos to the
- * Portal yet.
+ * Section 3 — Progress Photos, part 1: generates a short-lived signed
+ * upload URL so the browser can upload the file BYTES directly to
+ * Supabase Storage, bypassing our server entirely. This works around
+ * a known Next.js/Vercel issue where the Server Action body size
+ * limit (meant to be raised via next.config.mjs) doesn't reliably
+ * apply in production, causing real phone photos to fail with a 413
+ * even after raising the configured limit. No file data passes
+ * through this function — just a path/token.
  */
-export async function uploadProgressPhoto(clientId: string, formData: FormData) {
+export async function createSignedPhotoUploadUrl(clientId: string, fileName: string) {
   const user = await getCurrentHubUser();
   if (!user || !hasPermission(user, "documents.manage")) {
     return { error: "You don't have permission to upload photos." };
   }
 
-  const file = formData.get("file") as File | null;
-  if (!file || file.size === 0) return { error: "Choose a photo to upload." };
+  const admin = createSupabaseAdminClient();
+  const path = `photos/${clientId}/${Date.now()}-${fileName}`;
 
-  const type = formData.get("type") as PhotoType;
-  const visibility = (formData.get("visibility") as Visibility) || "INTERNAL_ONLY";
-  const takenAtRaw = formData.get("takenAt");
-  const notes = (formData.get("notes") as string) || undefined;
+  const { data, error } = await admin.storage.from("client-documents").createSignedUploadUrl(path);
+  if (error || !data) return { error: error?.message ?? "Could not create upload URL." };
+
+  return { success: true, path, token: data.token };
+}
+
+/**
+ * Section 3 — Progress Photos, part 2: records the Photo row once the
+ * browser has already uploaded the file directly to Storage using the
+ * signed URL from createSignedPhotoUploadUrl. No file bytes here —
+ * this is a small, fast DB write.
+ */
+export async function recordProgressPhoto(
+  clientId: string,
+  data: {
+    storagePath: string;
+    type: PhotoType;
+    visibility?: Visibility;
+    takenAt?: string;
+    notes?: string;
+  }
+) {
+  const user = await getCurrentHubUser();
+  if (!user || !hasPermission(user, "documents.manage")) {
+    return { error: "You don't have permission to upload photos." };
+  }
 
   const assessment = await getActiveAssessmentForClient(clientId);
-
-  const admin = createSupabaseAdminClient();
-  const path = `photos/${clientId}/${Date.now()}-${file.name}`;
-  const arrayBuffer = await file.arrayBuffer();
-
-  const { error: uploadError } = await admin.storage
-    .from("client-documents")
-    .upload(path, Buffer.from(arrayBuffer), { contentType: file.type || undefined });
-
-  if (uploadError) return { error: uploadError.message };
 
   await prisma.photo.create({
     data: {
       clientId,
       assessmentId: assessment?.id,
-      type,
-      storagePath: path,
-      takenAt: takenAtRaw ? new Date(String(takenAtRaw)) : undefined,
+      type: data.type,
+      storagePath: data.storagePath,
+      takenAt: data.takenAt ? new Date(data.takenAt) : undefined,
       specialistId: user.id,
-      notes,
-      visibility,
+      notes: data.notes,
+      visibility: data.visibility ?? "INTERNAL_ONLY",
     },
   });
 
