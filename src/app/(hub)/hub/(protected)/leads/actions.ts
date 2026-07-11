@@ -7,7 +7,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { randomUUID } from "crypto";
 import { z } from "zod";
-import type { LeadStatus, PaymentStatus } from "@prisma/client";
+import type { LeadStatus, PaymentStatus, Prisma } from "@prisma/client";
 
 const createLeadSchema = z.object({
   firstName: z.string().min(1, "First name is required"),
@@ -207,7 +207,7 @@ async function finishConversion(
       data: {
         clientId: client.id,
         version: 1,
-        formAnswers: bp ?? undefined,
+        formAnswers: (bp ?? undefined) as Prisma.InputJsonValue | undefined,
         goals: typeof bp?.goals === "string" ? bp.goals : undefined,
       },
     });
