@@ -24,17 +24,36 @@ export async function activatePortalAccount(token: string, formData: FormData) {
   if (invite.acceptedAt) return { error: "This activation link has already been used. Please sign in." };
   if (invite.expiresAt < new Date()) return { error: "This activation link has expired. Contact hello@bodyshapersystem.com for a new one." };
 
+  // Atomic single-use claim: only succeeds if no one else has already
+  // claimed this exact invitation (acceptedAt still null) and it
+  // hasn't expired in the moment between the read above and now.
+  // This closes the race where a client double-clicks "Activate" or
+  // opens the link in two tabs — only one request can ever win.
+  const now = new Date();
+  const claim = await prisma.portalInvitation.updateMany({
+    where: { id: invite.id, acceptedAt: null, expiresAt: { gt: now } },
+    data: { acceptedAt: now },
+  });
+
+  if (claim.count !== 1) {
+    return { error: "This activation link is no longer valid. Please sign in, or ask for a new invitation." };
+  }
+
   const admin = createSupabaseAdminClient();
   const { error: authError } = await admin.auth.admin.updateUserById(invite.client.user.authUserId, {
     password,
   });
 
-  if (authError) return { error: authError.message };
+  if (authError) {
+    // The claim above already invalidated the link, but the password
+    // set itself failed (e.g. a transient Supabase error) — roll the
+    // claim back so the client's only activation link isn't burned by
+    // something that wasn't their fault.
+    await prisma.portalInvitation.update({ where: { id: invite.id }, data: { acceptedAt: null } });
+    return { error: authError.message };
+  }
 
-  await prisma.$transaction([
-    prisma.portalInvitation.update({ where: { id: invite.id }, data: { acceptedAt: new Date() } }),
-    prisma.user.update({ where: { id: invite.client.user.id }, data: { portalStatus: "ACTIVE" } }),
-  ]);
+  await prisma.user.update({ where: { id: invite.client.user.id }, data: { portalStatus: "ACTIVE" } });
 
   redirect("/portal/login?activated=1");
 }

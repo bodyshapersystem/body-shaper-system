@@ -190,7 +190,7 @@ export async function resendInvitation(clientId: string) {
   let { token, expiresAt } = client.portalInvite;
   if (expiresAt < new Date()) {
     token = randomUUID();
-    expiresAt = new Date(Date.now() + 1000 * 60 * 60 * 24 * 14);
+    expiresAt = new Date(Date.now() + 1000 * 60 * 60 * 24); // 24 hours
     await prisma.portalInvitation.update({
       where: { id: client.portalInvite.id },
       data: { token, expiresAt },

@@ -173,7 +173,7 @@ async function finishConversion(
   convertedById: string
 ): Promise<ConversionResult> {
   const token = randomUUID();
-  const expiresAt = new Date(Date.now() + 1000 * 60 * 60 * 24 * 14); // 14 days
+  const expiresAt = new Date(Date.now() + 1000 * 60 * 60 * 24); // 24 hours
 
   const result = await prisma.$transaction(async (tx) => {
     // Reuse a matching users row if one already exists for this
