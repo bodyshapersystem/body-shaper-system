@@ -4,7 +4,6 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { NAV_ITEMS } from "@/lib/nav";
-import BlueprintWaves from "@/components/BlueprintWaves";
 import ClientPortalButton from "@/components/ClientPortalButton";
 import ProfileLogout from "@/components/ProfileLogout";
 
@@ -200,7 +199,6 @@ export default function Header() {
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
       >
-        <BlueprintWaves className="menu-waves" />
         <button className="menu-close-x" aria-label="Close menu" onClick={() => setOpen(false)}>
           ×
         </button>

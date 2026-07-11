@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import BlueprintWaves from "@/components/BlueprintWaves";
 import ProfileLogout from "@/components/ProfileLogout";
 
 const NAV = [
@@ -92,7 +91,6 @@ export default function ClientSidebar() {
 
   return (
     <nav className="psb">
-      <BlueprintWaves className="psb-waves" />
       <div className="psb-inner">
         <div className="psb-word">
           body
