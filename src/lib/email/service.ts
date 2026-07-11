@@ -1,6 +1,6 @@
 import "server-only";
 import { prisma } from "@/lib/prisma";
-import { resend, EMAIL_FROM } from "./resend";
+import { getResendClient, EMAIL_FROM } from "./resend";
 import {
   buildWelcomeActivationEmail,
   buildBodyBlueprintCompletedEmail,
@@ -35,7 +35,7 @@ async function logAndSend(params: {
   });
 
   try {
-    const { data, error } = await resend.emails.send({
+    const { data, error } = await getResendClient().emails.send({
       from: EMAIL_FROM,
       to: recipient,
       subject,

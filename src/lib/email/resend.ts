@@ -1,12 +1,21 @@
 import { Resend } from "resend";
 
 /**
- * Resend client singleton. Server-only — never import this into a
- * "use client" file. RESEND_API_KEY must never be exposed to the
- * browser (it isn't NEXT_PUBLIC_-prefixed, so Next.js already keeps
- * it server-side, but this file is an extra guard: nothing here
- * touches the client bundle).
+ * Resend client — created lazily on first use, not at module load.
+ * Constructing `new Resend(...)` eagerly at import time throws if
+ * RESEND_API_KEY is unset, which crashes Next.js's build-time page
+ * data collection for every route that imports this file (even ones
+ * that never actually send an email). Lazy init means the app still
+ * builds and runs fine before the key exists; sends will fail
+ * gracefully (and get logged) until it's set.
  */
-export const resend = new Resend(process.env.RESEND_API_KEY);
+let client: Resend | null = null;
+
+export function getResendClient(): Resend {
+  if (!client) {
+    client = new Resend(process.env.RESEND_API_KEY || "re_missing_key");
+  }
+  return client;
+}
 
 export const EMAIL_FROM = "Body Shaper System <hello@bodyshapersystem.com>";
