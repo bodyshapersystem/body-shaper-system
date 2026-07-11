@@ -218,6 +218,7 @@ model Client {
   bodyMeasurements     BodyMeasurement[]
   photos               Photo[]
   formSubmissions      FormSubmission[]
+  progressSnapshots    ProgressSnapshot[]
   measurements   Measurement[]
   documents      Document[]
   messageThread  MessageThread?
@@ -282,6 +283,7 @@ model BlueprintAssessment {
   photos                 Photo[]
   specialistObservations SpecialistObservation[]
   strategyChanges        StrategyChange[]
+  progressSnapshots      ProgressSnapshot[]
 
   @@unique([clientId, version])
   @@map("blueprint_assessments")
@@ -290,20 +292,24 @@ model BlueprintAssessment {
 // ---------- Body measurements (tape/manual — distinct from Renpho) ----------
 
 model BodyMeasurement {
-  id           String              @id @default(cuid())
-  clientId     String
-  client       Client              @relation(fields: [clientId], references: [id], onDelete: Cascade)
-  assessmentId String?
-  assessment   BlueprintAssessment? @relation(fields: [assessmentId], references: [id], onDelete: SetNull)
-  measuredAt   DateTime
-  waistCm      Float?
-  hipsCm       Float?
-  chestCm      Float?
-  thighCm      Float?
-  armCm        Float?
-  notes        String?
-  createdAt    DateTime @default(now())
-  createdById  String?
+  id             String               @id @default(cuid())
+  clientId       String
+  client         Client               @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  assessmentId   String?
+  assessment     BlueprintAssessment? @relation(fields: [assessmentId], references: [id], onDelete: SetNull)
+  measuredAt     DateTime
+  waistCm        Float?
+  highWaistCm    Float?
+  lowerAbdomenCm Float?
+  hipsCm         Float?
+  chestCm        Float?
+  rightArmCm     Float?
+  leftArmCm      Float?
+  rightThighCm   Float?
+  leftThighCm    Float?
+  notes          String?
+  createdAt      DateTime @default(now())
+  specialistId   String?
 
   @@map("body_measurements")
 }
@@ -311,9 +317,11 @@ model BodyMeasurement {
 // ---------- Photos ----------
 
 enum PhotoType {
-  BEFORE
-  AFTER
-  PROGRESS
+  FRONT
+  LEFT
+  RIGHT
+  BACK
+  DETAIL
 }
 
 model Photo {
@@ -326,7 +334,7 @@ model Photo {
   storagePath  String
   takenAt      DateTime?
   uploadedAt   DateTime  @default(now())
-  uploadedById String?
+  specialistId String?
   notes        String?
 
   @@map("photos")
@@ -397,27 +405,58 @@ model FormSubmission {
 // ---------- Measurements (manual entry, RENPHO-shaped; historical only) ----------
 
 model Measurement {
-  id               String   @id @default(cuid())
-  clientId         String
-  client           Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
-  assessmentId     String?
-  assessment       BlueprintAssessment? @relation(fields: [assessmentId], references: [id], onDelete: SetNull)
-  scanDate         DateTime
-  weightKg         Float?
-  bodyFatPercent   Float?
-  muscleMassKg     Float?
-  bodyWaterPercent Float?
-  bmi              Float?
-  visceralFat      Float?
-  boneMassKg       Float?
-  bmr              Int?
-  bodyAge          Int?
+  id                     String   @id @default(cuid())
+  clientId               String
+  client                 Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  assessmentId           String?
+  assessment             BlueprintAssessment? @relation(fields: [assessmentId], references: [id], onDelete: SetNull)
+  scanDate               DateTime
+  weightKg               Float?
+  bodyFatPercent         Float?
+  muscleMassKg           Float?
+  skeletalMuscleKg       Float?
+  bodyWaterPercent       Float?
+  proteinPercent         Float?
+  bmi                    Float?
+  visceralFat            Float?
+  subcutaneousFatPercent Float?
+  boneMassKg             Float?
+  bmr                    Int?
+  bodyAge                Int?
+  fatFreeWeightKg        Float?
   deviceSource     String   @default("RENPHO Health")
   notes            String?
   createdAt        DateTime @default(now())
   createdById      String?
 
   @@map("measurements")
+}
+
+// ---------- Progress Timeline (architecture only — no UI, no calculation job yet) ----------
+// A snapshot comparing two points in a client's Body Intelligence™
+// history (typically baseline vs. latest). Concrete well-known deltas
+// get their own columns; `metrics` is a JSON escape hatch for future
+// delta types without another migration — same pattern as FormType.
+// Nothing computes these automatically yet; this just gives a future
+// job/report generator somewhere to write results.
+
+model ProgressSnapshot {
+  id                     String    @id @default(cuid())
+  clientId               String
+  client                 Client    @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  assessmentId           String?
+  assessment             BlueprintAssessment? @relation(fields: [assessmentId], references: [id], onDelete: SetNull)
+  baselineMeasurementId  String?
+  latestMeasurementId    String?
+  calculatedAt           DateTime  @default(now())
+  weightLostKg           Float?
+  bodyFatReducedPercent  Float?
+  muscleGainedKg         Float?
+  waistCmLost            Float?
+  metrics                Json?
+  notes                  String?
+
+  @@map("progress_snapshots")
 }
 
 // ---------- Documents (Supabase Storage metadata) ----------

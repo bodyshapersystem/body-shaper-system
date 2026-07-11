@@ -144,12 +144,16 @@ export async function addBodyMeasurement(params: {
   assessmentId?: string;
   measuredAt: Date;
   waistCm?: number;
+  highWaistCm?: number;
+  lowerAbdomenCm?: number;
   hipsCm?: number;
   chestCm?: number;
-  thighCm?: number;
-  armCm?: number;
+  rightArmCm?: number;
+  leftArmCm?: number;
+  rightThighCm?: number;
+  leftThighCm?: number;
   notes?: string;
-  createdById?: string;
+  specialistId?: string;
 }) {
   return prisma.bodyMeasurement.create({ data: params });
 }
@@ -161,7 +165,7 @@ export async function addPhoto(params: {
   storagePath: string;
   takenAt?: Date;
   notes?: string;
-  uploadedById?: string;
+  specialistId?: string;
 }) {
   return prisma.photo.create({ data: params });
 }
