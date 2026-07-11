@@ -96,7 +96,7 @@ export async function createProgressSnapshot(params: {
 }
 
 export async function getClientProgressSnapshots(clientId: string) {
-  return prisma.progressSnapshot.findMany({ where: { clientId }, orderBy: { calculatedAt: "desc" } });
+  return prisma.progressSnapshot.findMany({ where: { clientId }, orderBy: { generatedAt: "desc" } });
 }
 
 /**
