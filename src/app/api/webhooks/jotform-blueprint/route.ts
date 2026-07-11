@@ -1,0 +1,182 @@
+import { NextRequest, NextResponse } from "next/server";
+import { prisma } from "@/lib/prisma";
+import { sendBlueprintReceivedEmail } from "@/lib/email/service";
+
+/**
+ * Receives Body Blueprint™ submissions from Jotform ("Let's Build
+ * Your Blueprint™" form) and creates or updates a Lead. This is
+ * intake only:
+ *   - creates a Lead if the email doesn't match an existing one
+ *   - updates the existing Lead if it does (never a duplicate person)
+ *   - attaches the raw submission as the Lead's bodyBlueprint
+ *   - sets status = BLUEPRINT_COMPLETED
+ *   - sends the Blueprint Received confirmation email (blueprint@)
+ *
+ * This endpoint NEVER converts a Lead to a Client, never creates a
+ * Portal account, and never sends the Welcome/Activation email —
+ * that only happens when the Owner clicks "Convert Lead to Client"
+ * (a.k.a. "Activate Client") in the Hub, reviewing the Blueprint
+ * first.
+ *
+ * AUTH: protected by a shared-secret query param, since Jotform
+ * webhooks aren't signed. Configure the webhook URL in Jotform as:
+ *   https://www.bodyshapersystem.com/api/webhooks/jotform-blueprint?token=YOUR_SECRET
+ * and set JOTFORM_WEBHOOK_SECRET to the same value in Vercel.
+ *
+ * FIELD MAPPING: Jotform's exact field names/IDs are unique to each
+ * form and aren't known ahead of time. This parser tries several
+ * common patterns (see extractContactField/extractName below) to
+ * find email/name/phone/city, but the FULL raw submission is always
+ * stored in bodyBlueprint regardless of whether auto-detection
+ * succeeds — no data is ever lost, even if the heuristics need
+ * tuning once real submissions are seen.
+ */
+
+export async function POST(request: NextRequest) {
+  const token = request.nextUrl.searchParams.get("token");
+  if (!process.env.JOTFORM_WEBHOOK_SECRET || token !== process.env.JOTFORM_WEBHOOK_SECRET) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  let raw: Record<string, unknown>;
+  try {
+    raw = await parseJotformPayload(request);
+  } catch (err) {
+    return NextResponse.json(
+      { error: "Could not parse submission payload", detail: err instanceof Error ? err.message : String(err) },
+      { status: 400 }
+    );
+  }
+
+  const email = extractContactField(raw, ["email"]);
+  if (!email) {
+    return NextResponse.json({ error: "No email field found in submission — cannot create/update a Lead." }, { status: 400 });
+  }
+
+  const { firstName, lastName } = extractName(raw);
+  const phone = extractContactField(raw, ["phone"]);
+  const city = extractContactField(raw, ["city"]);
+  const goals = extractContactField(raw, ["goal", "concern", "describe", "tellus", "message"]);
+
+  const existing = await prisma.lead.findFirst({
+    where: { email, archivedAt: null },
+    orderBy: { createdAt: "desc" },
+  });
+
+  let lead;
+  if (existing) {
+    lead = await prisma.lead.update({
+      where: { id: existing.id },
+      data: {
+        firstName: firstName || existing.firstName,
+        lastName: lastName || existing.lastName,
+        phone: phone ?? existing.phone,
+        city: city ?? existing.city,
+        goals: goals ?? existing.goals,
+        bodyBlueprint: raw,
+        status: "BLUEPRINT_COMPLETED",
+        source: existing.source ?? "jotform:lets-build-your-blueprint",
+      },
+    });
+  } else {
+    lead = await prisma.lead.create({
+      data: {
+        firstName: firstName || "Unknown",
+        lastName: lastName || "",
+        email,
+        phone,
+        city,
+        goals,
+        bodyBlueprint: raw,
+        status: "BLUEPRINT_COMPLETED",
+        source: "jotform:lets-build-your-blueprint",
+      },
+    });
+  }
+
+  await prisma.leadStatusHistory.create({
+    data: {
+      leadId: lead.id,
+      fromStatus: existing?.status,
+      toStatus: "BLUEPRINT_COMPLETED",
+      note: existing ? "Body Blueprint™ updated via Jotform" : "Lead created from Body Blueprint™ submission (Jotform)",
+    },
+  });
+
+  // Confirmation email only — never a portal invitation, never a
+  // Client. Failure here doesn't fail the webhook: the Lead/Blueprint
+  // data is already safely saved either way, and Resend's own log
+  // captures the failure for review.
+  await sendBlueprintReceivedEmail({
+    leadId: lead.id,
+    firstName: lead.firstName || "there",
+    email: lead.email,
+  });
+
+  return NextResponse.json({ success: true, leadId: lead.id, created: !existing });
+}
+
+/**
+ * Jotform webhooks POST as multipart/form-data (or urlencoded),
+ * with a `rawRequest` field containing the JSON-stringified answers
+ * object. Falls back to treating the whole form/body as the payload
+ * if `rawRequest` isn't present (e.g. a custom/test payload).
+ */
+async function parseJotformPayload(request: NextRequest): Promise<Record<string, unknown>> {
+  const contentType = request.headers.get("content-type") || "";
+
+  if (contentType.includes("application/json")) {
+    return await request.json();
+  }
+
+  const formData = await request.formData();
+  const rawRequest = formData.get("rawRequest");
+  if (typeof rawRequest === "string") {
+    return JSON.parse(rawRequest);
+  }
+
+  const fallback: Record<string, unknown> = {};
+  formData.forEach((value, key) => {
+    fallback[key] = typeof value === "string" ? value : "[file]";
+  });
+  return fallback;
+}
+
+function extractContactField(raw: Record<string, unknown>, patterns: string[]): string | undefined {
+  for (const [key, value] of Object.entries(raw)) {
+    const lowerKey = key.toLowerCase();
+    if (!patterns.some((p) => lowerKey.includes(p))) continue;
+
+    if (typeof value === "string" && value.trim()) return value.trim();
+
+    if (value && typeof value === "object") {
+      const obj = value as Record<string, unknown>;
+      const joined = Object.values(obj)
+        .filter((v): v is string => typeof v === "string" && v.trim().length > 0)
+        .join(" ");
+      if (joined.trim()) return joined.trim();
+    }
+  }
+  return undefined;
+}
+
+function extractName(raw: Record<string, unknown>): { firstName: string; lastName: string } {
+  for (const [key, value] of Object.entries(raw)) {
+    if (!key.toLowerCase().includes("name")) continue;
+
+    if (value && typeof value === "object") {
+      const obj = value as Record<string, unknown>;
+      const first = (obj.first ?? obj.firstName ?? obj.fname) as string | undefined;
+      const last = (obj.last ?? obj.lastName ?? obj.lname) as string | undefined;
+      if (first || last) {
+        return { firstName: (first ?? "").trim(), lastName: (last ?? "").trim() };
+      }
+    }
+
+    if (typeof value === "string" && value.trim()) {
+      const parts = value.trim().split(/\s+/);
+      return { firstName: parts[0] ?? "", lastName: parts.slice(1).join(" ") };
+    }
+  }
+  return { firstName: "", lastName: "" };
+}
