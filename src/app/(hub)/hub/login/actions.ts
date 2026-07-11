@@ -16,6 +16,7 @@ export async function loginHubUser(formData: FormData) {
   const { data, error } = await supabase.auth.signInWithPassword({ email, password });
 
   if (error || !data.user) {
+    console.error("[DEBUG loginHubUser] Supabase auth error:", error?.message, error?.status, error?.code);
     return { error: "Incorrect email or password." };
   }
 
