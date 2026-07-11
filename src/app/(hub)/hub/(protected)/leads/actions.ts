@@ -2,13 +2,16 @@
 
 import { prisma } from "@/lib/prisma";
 import { getCurrentHubUser, hasPermission } from "@/lib/permissions";
+import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
+import { randomUUID } from "crypto";
 import { z } from "zod";
-import type { LeadStatus } from "@prisma/client";
+import type { LeadStatus, PaymentStatus } from "@prisma/client";
 
 const createLeadSchema = z.object({
-  name: z.string().min(1, "Name is required"),
+  firstName: z.string().min(1, "First name is required"),
+  lastName: z.string().min(1, "Last name is required"),
   email: z.string().email("Valid email is required"),
   phone: z.string().optional(),
   city: z.string().optional(),
@@ -23,7 +26,8 @@ export async function createLead(formData: FormData) {
   }
 
   const parsed = createLeadSchema.safeParse({
-    name: formData.get("name"),
+    firstName: formData.get("firstName"),
+    lastName: formData.get("lastName"),
     email: formData.get("email"),
     phone: formData.get("phone") || undefined,
     city: formData.get("city") || undefined,
@@ -74,6 +78,18 @@ export async function updateLeadStatus(leadId: string, newStatus: LeadStatus, no
   return { success: true };
 }
 
+export async function recordLeadPayment(leadId: string, paymentStatus: PaymentStatus) {
+  const user = await getCurrentHubUser();
+  if (!user || !hasPermission(user, "leads.edit")) {
+    return { error: "You don't have permission to edit leads." };
+  }
+
+  await prisma.lead.update({ where: { id: leadId }, data: { paymentStatus } });
+
+  revalidatePath(`/hub/leads/${leadId}`);
+  return { success: true };
+}
+
 export async function archiveLead(leadId: string) {
   const user = await getCurrentHubUser();
   if (!user || !hasPermission(user, "leads.archive")) {
@@ -85,3 +101,140 @@ export async function archiveLead(leadId: string) {
   revalidatePath("/hub/leads");
   return { success: true };
 }
+
+/**
+ * Converts a Lead into a permanent Client record. Idempotent: if this
+ * lead has already converted, returns the existing client instead of
+ * creating a second one — safe to click twice, safe to retry after a
+ * partial failure on a prior attempt (checked BEFORE any writes).
+ *
+ * Same person, never duplicated: the Lead row is preserved as-is and
+ * linked via clients.leadId (unique); a brand new Supabase Auth user +
+ * BSS `users` row is created to own portal login, since a lead never
+ * had one before.
+ */
+export async function convertLeadToClient(leadId: string) {
+  const user = await getCurrentHubUser();
+  if (!user || !hasPermission(user, "clients.convert")) {
+    return { error: "You don't have permission to convert leads." };
+  }
+
+  const existing = await prisma.client.findUnique({ where: { leadId } });
+  if (existing) {
+    return { success: true, clientId: existing.id, alreadyConverted: true };
+  }
+
+  const lead = await prisma.lead.findUnique({ where: { id: leadId } });
+  if (!lead) return { error: "Lead not found." };
+  if (lead.archivedAt) return { error: "Cannot convert an archived lead." };
+
+  const clientRoleId = "role_client";
+
+  const admin = createSupabaseAdminClient();
+
+  // Create the Supabase Auth identity first — no password set here;
+  // the person sets their own password via the portal activation link.
+  const { data: authData, error: authError } = await admin.auth.admin.createUser({
+    email: lead.email,
+    email_confirm: true,
+  });
+
+  if (authError || !authData.user) {
+    // If this email already has a Supabase Auth account (e.g. retried
+    // after a partial failure), look it up instead of failing.
+    if (authError?.message?.toLowerCase().includes("already")) {
+      const { data: list } = await admin.auth.admin.listUsers();
+      const found = list?.users.find((u) => u.email?.toLowerCase() === lead.email.toLowerCase());
+      if (!found) return { error: `Auth account exists for ${lead.email} but could not be found.` };
+      return await finishConversion(lead, found.id, user.id);
+    }
+    return { error: authError?.message ?? "Failed to create portal auth account." };
+  }
+
+  return await finishConversion(lead, authData.user.id, user.id);
+}
+
+async function finishConversion(
+  lead: { id: string; firstName: string; lastName: string; email: string; phone: string | null; city: string | null; bodyBlueprint: unknown },
+  authUserId: string,
+  convertedById: string
+) {
+  const token = randomUUID();
+  const expiresAt = new Date(Date.now() + 1000 * 60 * 60 * 24 * 14); // 14 days
+
+  const result = await prisma.$transaction(async (tx) => {
+    // Reuse a matching users row if one already exists for this
+    // authUserId (retry-safety), otherwise create it.
+    let portalUser = await tx.user.findUnique({ where: { authUserId } });
+    if (!portalUser) {
+      portalUser = await tx.user.create({
+        data: {
+          authUserId,
+          email: lead.email,
+          fullName: `${lead.firstName} ${lead.lastName}`,
+          roleId: "role_client",
+          portalStatus: "INVITATION_PENDING",
+          createdById: convertedById,
+        },
+      });
+    }
+
+    const client = await tx.client.create({
+      data: {
+        leadId: lead.id,
+        userId: portalUser.id,
+        firstName: lead.firstName,
+        lastName: lead.lastName,
+        email: lead.email,
+        phone: lead.phone,
+        city: lead.city,
+        createdById: convertedById,
+      },
+    });
+
+    // Attach the existing Body Blueprint (if the lead had one) as
+    // version 1 — preserved, not re-entered.
+    const bp = lead.bodyBlueprint as Record<string, unknown> | null;
+    await tx.bodyBlueprint.create({
+      data: {
+        clientId: client.id,
+        version: 1,
+        formAnswers: bp ?? undefined,
+        goals: typeof bp?.goals === "string" ? bp.goals : undefined,
+      },
+    });
+
+    await tx.rewardsAccount.create({ data: { clientId: client.id, pointsBalance: 0 } });
+    await tx.messageThread.create({ data: { clientId: client.id } });
+    const invite = await tx.portalInvitation.create({
+      data: { clientId: client.id, token, expiresAt },
+    });
+
+    await tx.lead.update({
+      where: { id: lead.id },
+      data: { status: "CONVERTED", convertedAt: new Date() },
+    });
+
+    await tx.leadStatusHistory.create({
+      data: {
+        leadId: lead.id,
+        toStatus: "CONVERTED",
+        changedById: convertedById,
+        note: "Converted to client",
+      },
+    });
+
+    return { client, invite };
+  });
+
+  revalidatePath("/hub/leads");
+  revalidatePath(`/hub/leads/${lead.id}`);
+  revalidatePath("/hub/clients");
+
+  return {
+    success: true,
+    clientId: result.client.id,
+    activationUrl: `/portal/activate?token=${result.invite.token}`,
+  };
+}
+

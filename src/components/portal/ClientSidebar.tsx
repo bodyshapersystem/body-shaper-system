@@ -86,7 +86,15 @@ function NavIcon({ name }: { name: string }) {
   }
 }
 
-export default function ClientSidebar() {
+export default function ClientSidebar({
+  name,
+  tier,
+  logoutAction,
+}: {
+  name?: string;
+  tier?: string;
+  logoutAction?: () => Promise<void>;
+}) {
   const pathname = usePathname();
 
   return (
@@ -100,7 +108,7 @@ export default function ClientSidebar() {
           system™
         </div>
         <span className="psb-rule" aria-hidden="true" />
-        <ProfileLogout className="psb-profile psb-profile-top" />
+        <ProfileLogout className="psb-profile psb-profile-top" name={name} tier={tier} onLogout={logoutAction} />
         <ul className="psb-nav">
           {NAV.map((item) => (
             <li key={item.href}>

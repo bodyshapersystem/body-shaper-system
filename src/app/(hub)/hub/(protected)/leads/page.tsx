@@ -40,6 +40,7 @@ export default async function HubLeadsPage() {
               <th style={{ padding: "10px 8px" }}>Name</th>
               <th style={{ padding: "10px 8px" }}>Email</th>
               <th style={{ padding: "10px 8px" }}>Status</th>
+              <th style={{ padding: "10px 8px" }}>Payment</th>
               <th style={{ padding: "10px 8px" }}>Source</th>
               <th style={{ padding: "10px 8px" }}>Created</th>
             </tr>
@@ -48,10 +49,13 @@ export default async function HubLeadsPage() {
             {leads.map((lead) => (
               <tr key={lead.id} style={{ borderBottom: "1px solid rgba(0,0,0,0.06)" }}>
                 <td style={{ padding: "10px 8px" }}>
-                  <Link href={`/hub/leads/${lead.id}`}>{lead.name}</Link>
+                  <Link href={`/hub/leads/${lead.id}`}>
+                    {lead.firstName} {lead.lastName}
+                  </Link>
                 </td>
                 <td style={{ padding: "10px 8px" }}>{lead.email}</td>
                 <td style={{ padding: "10px 8px" }}>{lead.status.replace(/_/g, " ")}</td>
+                <td style={{ padding: "10px 8px" }}>{lead.paymentStatus.replace(/_/g, " ")}</td>
                 <td style={{ padding: "10px 8px" }}>{lead.source ?? "—"}</td>
                 <td style={{ padding: "10px 8px" }}>{lead.createdAt.toLocaleDateString()}</td>
               </tr>

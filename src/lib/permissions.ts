@@ -35,3 +35,42 @@ export type HubUserWithPermissions = NonNullable<Awaited<ReturnType<typeof getCu
 export function hasPermission(user: HubUserWithPermissions, permissionKey: string): boolean {
   return user.role.rolePermissions.some((rp) => rp.permission.key === permissionKey);
 }
+
+/**
+ * Resolves the currently logged-in Supabase Auth session to a Client
+ * record — for the Client Portal side, mirroring getCurrentHubUser()
+ * above. Only ever returns a client for their OWN session; there is
+ * no way to pass in someone else's id here. Returns null if there's
+ * no session, the session isn't a Client-role user, the portal
+ * account isn't ACTIVE yet, or (defensively) no Client row exists.
+ */
+export async function getCurrentPortalClient() {
+  const supabase = await createSupabaseServerClient();
+  const {
+    data: { user: authUser },
+  } = await supabase.auth.getUser();
+
+  if (!authUser) return null;
+
+  const portalUser = await prisma.user.findUnique({
+    where: { authUserId: authUser.id },
+    include: { role: true },
+  });
+
+  if (!portalUser || portalUser.role.name !== "Client" || portalUser.portalStatus !== "ACTIVE") {
+    return null;
+  }
+
+  const client = await prisma.client.findUnique({
+    where: { userId: portalUser.id },
+    include: {
+      bodyBlueprints: { orderBy: { version: "desc" }, take: 1 },
+      measurements: { orderBy: { scanDate: "desc" }, take: 1 },
+      rewardsAccount: true,
+    },
+  });
+
+  return client;
+}
+
+export type PortalClient = NonNullable<Awaited<ReturnType<typeof getCurrentPortalClient>>>;

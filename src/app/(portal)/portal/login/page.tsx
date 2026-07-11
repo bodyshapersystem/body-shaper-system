@@ -1,21 +1,20 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import BlueprintWaves from "@/components/BlueprintWaves";
+import { loginPortalClient } from "./actions";
 
 export default function PortalLoginPage() {
-  const router = useRouter();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [isPending, startTransition] = useTransition();
 
-  function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    // Phase 1 demo gate — any credentials are accepted. Production
-    // authentication (real accounts, password checks) is Phase 2.
-    window.sessionStorage.setItem("bss_portal_demo_auth", "1");
-    router.push("/portal/dashboard");
+  function handleSubmit(formData: FormData) {
+    setError("");
+    startTransition(async () => {
+      const result = await loginPortalClient(formData);
+      if (result?.error) setError(result.error);
+    });
   }
 
   return (
@@ -50,15 +49,9 @@ export default function PortalLoginPage() {
             Sign in to continue your personalized Body Blueprint™ journey.
           </p>
 
-          <form onSubmit={handleSubmit}>
+          <form action={handleSubmit}>
             <label htmlFor="login-email">Email Address</label>
-            <input
-              id="login-email"
-              type="email"
-              placeholder="youremail@email.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-            />
+            <input id="login-email" name="email" type="email" placeholder="youremail@email.com" required />
 
             <div className="auth-label-row">
               <label htmlFor="login-password">Password</label>
@@ -66,21 +59,17 @@ export default function PortalLoginPage() {
                 Forgot password?
               </Link>
             </div>
-            <input
-              id="login-password"
-              type="password"
-              placeholder="••••••••"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
+            <input id="login-password" name="password" type="password" placeholder="••••••••" required />
 
             <label className="auth-checkbox">
               <input type="checkbox" />
               Remember me
             </label>
 
-            <button type="submit" className="auth-submit">
-              Sign In
+            {error && <p className="auth-error">{error}</p>}
+
+            <button type="submit" className="auth-submit" disabled={isPending}>
+              {isPending ? "Signing in…" : "Sign In"}
             </button>
           </form>
 
@@ -96,3 +85,4 @@ export default function PortalLoginPage() {
     </div>
   );
 }
+

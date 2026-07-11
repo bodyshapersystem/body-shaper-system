@@ -23,10 +23,12 @@ export default function ProfileLogout({
   name = "Emmy Murillo",
   tier = "Gold Member",
   className = "",
+  onLogout,
 }: {
   name?: string;
   tier?: string;
   className?: string;
+  onLogout?: () => void | Promise<void>;
 }) {
   const router = useRouter();
   const initials = name
@@ -36,7 +38,13 @@ export default function ProfileLogout({
     .slice(0, 2)
     .toUpperCase();
 
-  function handleLogout() {
+  async function handleLogout() {
+    if (onLogout) {
+      await onLogout();
+      return;
+    }
+    // Default fallback (public-site demo drawer): clear the demo flag
+    // and return to the public Home page.
     window.sessionStorage.removeItem("bss_portal_demo_auth");
     router.push("/");
   }

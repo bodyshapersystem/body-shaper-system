@@ -67,14 +67,22 @@ enum UserStatus {
   INVITED
 }
 
+// Only meaningful for Client-role users (Hub staff leave this null).
+enum PortalStatus {
+  INVITATION_PENDING
+  ACTIVE
+  SUSPENDED
+}
+
 model User {
-  id         String     @id @default(cuid())
-  authUserId String     @unique // Supabase Auth user id (auth.users.id)
-  email      String     @unique
-  fullName   String
-  roleId     String
-  role       Role       @relation(fields: [roleId], references: [id])
-  status     UserStatus @default(ACTIVE)
+  id           String        @id @default(cuid())
+  authUserId   String        @unique // Supabase Auth user id (auth.users.id)
+  email        String        @unique
+  fullName     String
+  roleId       String
+  role         Role          @relation(fields: [roleId], references: [id])
+  status       UserStatus    @default(ACTIVE)
+  portalStatus PortalStatus? // Client-role users only
 
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
@@ -83,6 +91,7 @@ model User {
 
   leadsCreated      Lead[]              @relation("LeadCreatedBy")
   leadStatusChanges LeadStatusHistory[]
+  clientRecord      Client?
 
   @@map("users")
 }
@@ -98,21 +107,31 @@ enum LeadStatus {
   CONSULTATION_SCHEDULED
   PAYMENT_PENDING
   PAYMENT_CONFIRMED
+  CONVERTED
   LOST
   ARCHIVED
 }
 
-model Lead {
-  id     String  @id @default(cuid())
-  name   String
-  email  String
-  phone  String?
-  city   String?
-  goals  String?
-  source String? // e.g. "website", "instagram", "referral", "jotform:lets-build-your-blueprint"
+enum PaymentStatus {
+  NOT_REQUIRED
+  PENDING
+  CONFIRMED
+  REFUNDED
+}
 
-  status   LeadStatus @default(NEW)
-  timeline String? // client's stated timeline/urgency, free text for now
+model Lead {
+  id        String  @id @default(cuid())
+  firstName String
+  lastName  String
+  email     String
+  phone     String?
+  city      String?
+  goals     String?
+  source    String? // e.g. "website", "instagram", "referral", "jotform:lets-build-your-blueprint"
+
+  status        LeadStatus    @default(NEW)
+  paymentStatus PaymentStatus @default(NOT_REQUIRED)
+  timeline      String? // client's stated timeline/urgency, free text for now
 
   internalNotes String?
   bodyBlueprint Json? // raw Body Blueprint™ submission data, if submitted as a lead
@@ -122,6 +141,13 @@ model Lead {
   createdById String?
   createdBy   User?     @relation("LeadCreatedBy", fields: [createdById], references: [id])
   archivedAt  DateTime? // soft delete — never hard-delete lead data
+
+  // Set once, by the idempotent Lead -> Client conversion action.
+  // The FK lives on Client (clients.leadId, unique) — a lead can
+  // never convert into more than one Client record. This is just the
+  // convenience reverse-lookup + a timestamp of when it happened.
+  convertedClient Client?
+  convertedAt     DateTime?
 
   statusHistory LeadStatusHistory[]
   emailHistory  LeadEmailLog[]
@@ -156,3 +182,155 @@ model LeadEmailLog {
 
   @@map("lead_email_log")
 }
+
+// ---------- Clients (Milestone 2) ----------
+// Created exactly once per person via the idempotent Lead -> Client
+// conversion. Never a duplicate person record: leadId and userId are
+// both unique, so a lead can convert at most once, and a portal auth
+// identity backs at most one client.
+
+model Client {
+  id             String  @id @default(cuid())
+  leadId         String  @unique
+  lead           Lead    @relation(fields: [leadId], references: [id])
+  userId         String  @unique
+  user           User    @relation(fields: [userId], references: [id])
+  firstName      String
+  lastName       String
+  email          String
+  phone          String?
+  city           String?
+  membershipTier String  @default("Standard")
+
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  createdById String?
+  archivedAt  DateTime?
+
+  bodyBlueprints BodyBlueprint[]
+  measurements   Measurement[]
+  documents      Document[]
+  messageThread  MessageThread?
+  rewardsAccount RewardsAccount?
+  portalInvite   PortalInvitation?
+
+  @@map("clients")
+}
+
+// ---------- Body Blueprint (versioned, never overwritten) ----------
+
+model BodyBlueprint {
+  id                 String   @id @default(cuid())
+  clientId           String
+  client             Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  version            Int
+  goals              String?
+  treatmentInterests String?
+  recommendedSystem  String?
+  formAnswers        Json?
+  internalNotes      String?
+  createdAt          DateTime @default(now())
+  createdById        String?
+
+  @@unique([clientId, version])
+  @@map("body_blueprints")
+}
+
+// ---------- Measurements (manual entry, RENPHO-shaped; historical only) ----------
+
+model Measurement {
+  id               String   @id @default(cuid())
+  clientId         String
+  client           Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  scanDate         DateTime
+  weightKg         Float?
+  bodyFatPercent   Float?
+  muscleMassKg     Float?
+  bodyWaterPercent Float?
+  bmi              Float?
+  visceralFat      Float?
+  boneMassKg       Float?
+  bmr              Int?
+  bodyAge          Int?
+  deviceSource     String   @default("RENPHO Health")
+  notes            String?
+  createdAt        DateTime @default(now())
+  createdById      String?
+
+  @@map("measurements")
+}
+
+// ---------- Documents (Supabase Storage metadata) ----------
+
+model Document {
+  id           String   @id @default(cuid())
+  clientId     String
+  client       Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  title        String
+  storagePath  String
+  fileType     String?
+  sizeBytes    Int?
+  uploadedAt   DateTime @default(now())
+  uploadedById String?
+
+  @@map("documents")
+}
+
+// ---------- Messages (one thread per client) ----------
+
+enum SenderType {
+  OWNER
+  CLIENT
+}
+
+model MessageThread {
+  id        String    @id @default(cuid())
+  clientId  String    @unique
+  client    Client    @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  createdAt DateTime  @default(now())
+  messages  Message[]
+
+  @@map("message_threads")
+}
+
+model Message {
+  id           String        @id @default(cuid())
+  threadId     String
+  thread       MessageThread @relation(fields: [threadId], references: [id], onDelete: Cascade)
+  senderType   SenderType
+  senderUserId String?
+  body         String
+  createdAt    DateTime      @default(now())
+  readAt       DateTime?
+
+  @@map("messages")
+}
+
+// ---------- Rewards ----------
+
+model RewardsAccount {
+  id            String   @id @default(cuid())
+  clientId      String   @unique
+  client        Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  pointsBalance Int      @default(0)
+  tier          String   @default("Standard")
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@map("rewards_accounts")
+}
+
+// ---------- Portal activation invitations ----------
+
+model PortalInvitation {
+  id         String    @id @default(cuid())
+  clientId   String    @unique
+  client     Client    @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  token      String    @unique
+  expiresAt  DateTime
+  acceptedAt DateTime?
+  createdAt  DateTime  @default(now())
+
+  @@map("portal_invitations")
+}
+

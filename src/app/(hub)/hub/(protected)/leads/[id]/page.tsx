@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { getCurrentHubUser, hasPermission } from "@/lib/permissions";
 import { redirect } from "next/navigation";
 import LeadStatusForm from "./LeadStatusForm";
+import LeadConversionPanel from "./LeadConversionPanel";
 
 export const dynamic = "force-dynamic";
 
@@ -17,6 +18,7 @@ export default async function LeadDetailPage({ params }: { params: Promise<{ id:
     where: { id },
     include: {
       statusHistory: { orderBy: { changedAt: "desc" }, include: { changedBy: true } },
+      convertedClient: true,
     },
   });
 
@@ -26,7 +28,9 @@ export default async function LeadDetailPage({ params }: { params: Promise<{ id:
     <div className="cat-body portal-page">
       <div className="portal-page-head">
         <p className="portal-eyebrow">Leads</p>
-        <h1>{lead.name}</h1>
+        <h1>
+          {lead.firstName} {lead.lastName}
+        </h1>
       </div>
 
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 24, maxWidth: 720, marginBottom: 32 }}>
@@ -53,6 +57,16 @@ export default async function LeadDetailPage({ params }: { params: Promise<{ id:
       </div>
 
       {hasPermission(user, "leads.edit") && <LeadStatusForm leadId={lead.id} currentStatus={lead.status} />}
+
+      <div style={{ marginTop: 32 }}>
+        <LeadConversionPanel
+          leadId={lead.id}
+          currentPaymentStatus={lead.paymentStatus}
+          canEdit={hasPermission(user, "leads.edit")}
+          canConvert={hasPermission(user, "clients.convert")}
+          alreadyConvertedClientId={lead.convertedClient?.id ?? null}
+        />
+      </div>
 
       <h2 style={{ marginTop: 40, fontSize: 16 }}>Timeline</h2>
       <ul style={{ marginTop: 12, display: "flex", flexDirection: "column", gap: 10 }}>

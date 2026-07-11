@@ -15,11 +15,19 @@ export default function NewLeadPage() {
         }}
         style={{ maxWidth: 420, display: "flex", flexDirection: "column", gap: 16 }}
       >
-        <div>
-          <label htmlFor="name" style={{ display: "block", fontSize: 11, opacity: 0.6, marginBottom: 6 }}>
-            Name *
-          </label>
-          <input id="name" name="name" type="text" required style={{ width: "100%", padding: 10 }} />
+        <div style={{ display: "flex", gap: 16 }}>
+          <div style={{ flex: 1 }}>
+            <label htmlFor="firstName" style={{ display: "block", fontSize: 11, opacity: 0.6, marginBottom: 6 }}>
+              First Name *
+            </label>
+            <input id="firstName" name="firstName" type="text" required style={{ width: "100%", padding: 10 }} />
+          </div>
+          <div style={{ flex: 1 }}>
+            <label htmlFor="lastName" style={{ display: "block", fontSize: 11, opacity: 0.6, marginBottom: 6 }}>
+              Last Name *
+            </label>
+            <input id="lastName" name="lastName" type="text" required style={{ width: "100%", padding: 10 }} />
+          </div>
         </div>
         <div>
           <label htmlFor="email" style={{ display: "block", fontSize: 11, opacity: 0.6, marginBottom: 6 }}>
