@@ -1,16 +1,11 @@
 // Prisma schema — Body Shaper System™ BSS Hub
-//
-// This is scaffolding only. Models for Milestone 1 (users, roles,
-// permissions, leads, lead_status_history) will be added once the
-// Supabase project exists and DATABASE_URL / DIRECT_URL are available.
+// Milestone 1: core database architecture, role system, leads module.
 //
 // Connection strategy (Supabase + Prisma + Vercel serverless):
 // - DATABASE_URL  -> Supabase's pooled "Transaction" connection string
 //                    (port 6543, via PgBouncer) — used at runtime.
-// - DIRECT_URL    -> Supabase's direct connection string (port 5432)
-//                    — used only for running migrations, since
-//                    PgBouncer's transaction mode doesn't support the
-//                    prepared statements Prisma Migrate needs.
+// - DIRECT_URL    -> Supabase's direct/session connection string
+//                    (port 5432) — used only for running migrations.
 
 generator client {
   provider = "prisma-client-js"
@@ -20,4 +15,144 @@ datasource db {
   provider  = "postgresql"
   url       = env("DATABASE_URL")
   directUrl = env("DIRECT_URL")
+}
+
+// ---------- Roles & Permissions ----------
+// Permissions are NEVER hardcoded in application code. A role is just
+// a named bucket of permissions; granting/revoking access to a
+// feature means adding/removing rows here, not shipping new code.
+
+model Role {
+  id          String   @id @default(cuid())
+  name        String   @unique // "Owner", "Admin", "Manager", "Specialist", "Assistant", "Marketing", "Client"
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  users           User[]
+  rolePermissions RolePermission[]
+
+  @@map("roles")
+}
+
+model Permission {
+  id          String   @id @default(cuid())
+  key         String   @unique // e.g. "leads.view", "leads.edit", "leads.delete", "clients.view"
+  description String?
+  createdAt   DateTime @default(now())
+
+  rolePermissions RolePermission[]
+
+  @@map("permissions")
+}
+
+model RolePermission {
+  roleId       String
+  permissionId String
+  role         Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  permission   Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+
+  @@id([roleId, permissionId])
+  @@map("role_permissions")
+}
+
+// ---------- Users (Hub staff + portal clients, one identity system) ----------
+// `authUserId` links to Supabase Auth's own user (auth.users.id), which
+// owns the actual password/session. This table is BSS's own profile +
+// role/permission layer on top of that identity.
+
+enum UserStatus {
+  ACTIVE
+  SUSPENDED
+  INVITED
+}
+
+model User {
+  id         String     @id @default(cuid())
+  authUserId String     @unique // Supabase Auth user id (auth.users.id)
+  email      String     @unique
+  fullName   String
+  roleId     String
+  role       Role       @relation(fields: [roleId], references: [id])
+  status     UserStatus @default(ACTIVE)
+
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  createdById String?
+  lastLoginAt DateTime?
+
+  leadsCreated      Lead[]              @relation("LeadCreatedBy")
+  leadStatusChanges LeadStatusHistory[]
+
+  @@map("users")
+}
+
+// ---------- Leads ----------
+// Every website lead lands here first. Leads do NOT get portal access.
+// Nothing is ever hard-deleted — archivedAt marks a soft delete/archive.
+
+enum LeadStatus {
+  NEW
+  CONTACTED
+  QUALIFIED
+  CONSULTATION_SCHEDULED
+  PAYMENT_PENDING
+  PAYMENT_CONFIRMED
+  LOST
+  ARCHIVED
+}
+
+model Lead {
+  id     String  @id @default(cuid())
+  name   String
+  email  String
+  phone  String?
+  city   String?
+  goals  String?
+  source String? // e.g. "website", "instagram", "referral", "jotform:lets-build-your-blueprint"
+
+  status   LeadStatus @default(NEW)
+  timeline String? // client's stated timeline/urgency, free text for now
+
+  internalNotes String?
+  bodyBlueprint Json? // raw Body Blueprint™ submission data, if submitted as a lead
+
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  createdById String?
+  createdBy   User?     @relation("LeadCreatedBy", fields: [createdById], references: [id])
+  archivedAt  DateTime? // soft delete — never hard-delete lead data
+
+  statusHistory LeadStatusHistory[]
+  emailHistory  LeadEmailLog[]
+
+  @@map("leads")
+}
+
+model LeadStatusHistory {
+  id          String      @id @default(cuid())
+  leadId      String
+  lead        Lead        @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  fromStatus  LeadStatus?
+  toStatus    LeadStatus
+  note        String?
+  changedAt   DateTime    @default(now())
+  changedById String?
+  changedBy   User?       @relation(fields: [changedById], references: [id])
+
+  @@map("lead_status_history")
+}
+
+// Structure only for now — actual sending is Phase 1 Milestone 6
+// (Resend automation). This just gives every lead a permanent,
+// queryable email timeline from day one.
+model LeadEmailLog {
+  id          String   @id @default(cuid())
+  leadId      String
+  lead        Lead     @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  subject     String
+  sentAt      DateTime @default(now())
+  sequenceKey String? // maps to EMAIL_SEQUENCE keys in src/lib/email-sequence.ts
+
+  @@map("lead_email_log")
 }
