@@ -219,6 +219,8 @@ model Client {
   photos               Photo[]
   formSubmissions      FormSubmission[]
   progressSnapshots    ProgressSnapshot[]
+  appointments   Appointment[]
+  payments       Payment[]
   measurements   Measurement[]
   documents      Document[]
   messageThread  MessageThread?
@@ -557,7 +559,92 @@ model RewardsAccount {
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
+  transactions RewardsTransaction[]
+
   @@map("rewards_accounts")
+}
+
+model RewardsTransaction {
+  id               String         @id @default(cuid())
+  rewardsAccountId String
+  rewardsAccount   RewardsAccount @relation(fields: [rewardsAccountId], references: [id], onDelete: Cascade)
+  points           Int
+  action           String
+  notes            String?
+  createdAt        DateTime       @default(now())
+  createdById      String?
+
+  @@map("rewards_transactions")
+}
+
+// ---------- Appointments ----------
+
+enum AppointmentStatus {
+  SCHEDULED
+  COMPLETED
+  CANCELLED
+  NO_SHOW
+}
+
+model Appointment {
+  id          String            @id @default(cuid())
+  clientId    String
+  client      Client            @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  title       String
+  startsAt    DateTime
+  endsAt      DateTime?
+  status      AppointmentStatus @default(SCHEDULED)
+  notes       String?
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+  createdById String?
+
+  @@map("appointments")
+}
+
+// ---------- Payments ----------
+
+enum PaymentMethod {
+  CASH
+  CARD
+  TRANSFER
+  OTHER
+}
+
+enum PaymentRecordStatus {
+  PENDING
+  PAID
+  REFUNDED
+  FAILED
+}
+
+model Payment {
+  id          String              @id @default(cuid())
+  clientId    String
+  client      Client              @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  amountCents Int
+  method      PaymentMethod       @default(CARD)
+  status      PaymentRecordStatus @default(PENDING)
+  paidAt      DateTime?
+  notes       String?
+  createdAt   DateTime            @default(now())
+  updatedAt   DateTime            @updatedAt
+  createdById String?
+
+  @@map("payments")
+}
+
+// ---------- Business Settings (singleton) ----------
+
+model BusinessSettings {
+  id           String   @id @default("default")
+  businessName String   @default("Body Shaper System™")
+  contactEmail String?
+  contactPhone String?
+  address      String?
+  updatedAt    DateTime @updatedAt
+
+  @@map("business_settings")
 }
 
 // ---------- Portal activation invitations ----------

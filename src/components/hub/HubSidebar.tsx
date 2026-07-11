@@ -4,20 +4,40 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { logoutHubUser } from "@/app/(hub)/hub/login/actions";
 
-const NAV = [
-  { href: "/hub/dashboard", label: "Dashboard", icon: "grid" },
-  { href: "/hub/leads", label: "Leads", icon: "target" },
-  { href: "/hub/clients", label: "Clients", icon: "people" },
-  { href: "/hub/blueprints", label: "Body Blueprints™", icon: "brain" },
-  { href: "/hub/appointments", label: "Appointments", icon: "calendar" },
-  { href: "/hub/documents", label: "Documents", icon: "doc" },
-  { href: "/hub/messages", label: "Messages", icon: "chat" },
-  { href: "/hub/measurements", label: "Measurements", icon: "ruler" },
-  { href: "/hub/rewards", label: "Rewards™", icon: "star" },
-  { href: "/hub/payments", label: "Payments", icon: "card" },
-  { href: "/hub/analytics", label: "Analytics", icon: "chart" },
-  { href: "/hub/people", label: "People", icon: "person" },
-  { href: "/hub/settings", label: "Settings", icon: "gear" },
+const NAV_GROUPS = [
+  {
+    label: "Workspace",
+    items: [
+      { href: "/hub/dashboard", label: "Dashboard", icon: "grid" },
+      { href: "/hub/leads", label: "Leads", icon: "target" },
+      { href: "/hub/clients", label: "Clients", icon: "people" },
+    ],
+  },
+  {
+    label: "Operations",
+    items: [
+      { href: "/hub/blueprints", label: "Body Blueprint™", icon: "brain" },
+      { href: "/hub/appointments", label: "Appointments", icon: "calendar" },
+      { href: "/hub/documents", label: "Documents", icon: "doc" },
+      { href: "/hub/messages", label: "Messages", icon: "chat" },
+      { href: "/hub/measurements", label: "Measurements", icon: "ruler" },
+    ],
+  },
+  {
+    label: "Business",
+    items: [
+      { href: "/hub/rewards", label: "Rewards™", icon: "star" },
+      { href: "/hub/payments", label: "Payments", icon: "card" },
+      { href: "/hub/analytics", label: "Analytics", icon: "chart" },
+    ],
+  },
+  {
+    label: "Administration",
+    items: [
+      { href: "/hub/team", label: "Team", icon: "person" },
+      { href: "/hub/settings", label: "Settings", icon: "gear" },
+    ],
+  },
 ];
 
 function NavIcon({ name }: { name: string }) {
@@ -156,14 +176,21 @@ export default function HubSidebar({ userName, roleName }: { userName: string; r
           </span>
         </button>
         <ul className="psb-nav">
-          {NAV.map((item) => (
-            <li key={item.href}>
-              <Link href={item.href} className={pathname.startsWith(item.href) ? "active" : ""}>
-                <span className="psb-icon">
-                  <NavIcon name={item.icon} />
-                </span>
-                {item.label}
-              </Link>
+          {NAV_GROUPS.map((group) => (
+            <li key={group.label} className="psb-nav-group">
+              <span className="psb-nav-group-label">{group.label}</span>
+              <ul>
+                {group.items.map((item) => (
+                  <li key={item.href}>
+                    <Link href={item.href} className={pathname.startsWith(item.href) ? "active" : ""}>
+                      <span className="psb-icon">
+                        <NavIcon name={item.icon} />
+                      </span>
+                      {item.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
             </li>
           ))}
         </ul>
