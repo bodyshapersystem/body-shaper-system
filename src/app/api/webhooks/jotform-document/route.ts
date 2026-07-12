@@ -4,6 +4,12 @@ import { parseJotformPayload, extractContactField, extractSubmissionMeta } from 
 import { fetchAndStoreJotformSubmissionPdf } from "@/lib/jotform-pdf";
 import type { DocumentCategory } from "@prisma/client";
 
+// The PDF fetch (with retries) can take a while — give this route
+// more time than the default serverless limit so it doesn't get
+// killed mid-request (which showed up as a status-0/no-response log
+// entry rather than a clean error).
+export const maxDuration = 30;
+
 /**
  * Generic, reusable receiver for ANY onboarding Jotform form whose
  * completed submission should become a Document automatically — no
