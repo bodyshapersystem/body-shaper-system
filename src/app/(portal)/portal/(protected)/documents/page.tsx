@@ -43,13 +43,14 @@ export default async function DocumentsPage() {
         ) : (
           <ul className="simple-list">
             {withUrls.map((doc) => (
-              <li key={doc.id}>
+              <li key={doc.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 10 }}>
+                <span>{doc.title}</span>
                 {doc.url ? (
                   <a href={doc.url} target="_blank" rel="noopener noreferrer">
-                    {doc.title}
+                    View →
                   </a>
                 ) : (
-                  doc.title
+                  <span style={{ opacity: 0.5 }}>Unavailable</span>
                 )}
               </li>
             ))}

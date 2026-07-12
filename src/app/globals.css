@@ -2256,6 +2256,7 @@
 .simple-list{ list-style:none; }
 .simple-list li{ font-family:var(--sans); font-size:13px; color:#2B2622; opacity:.75; padding:9px 0; border-top:1px solid rgba(0,0,0,0.06); }
 .simple-list li:first-child{ border-top:none; }
+.simple-list li a{ color:var(--cat,#5C1A1F); text-decoration:underline; opacity:1; }
 .simple-table{ width:100%; border-collapse:collapse; font-family:var(--sans); font-size:13px; }
 .simple-table td{ padding:12px 8px; border-top:1px solid rgba(0,0,0,0.06); color:#2B2622; }
 .simple-pill{ background:var(--cat,#5C1A1F); color:#fff; font-size:10.5px; padding:3px 10px; border-radius:12px; }
