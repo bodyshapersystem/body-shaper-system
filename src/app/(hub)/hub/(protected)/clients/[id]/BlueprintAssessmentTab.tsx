@@ -1,10 +1,10 @@
 import {
-  addProfessionalMeasurement,
   addBodyComposition,
   addObservation,
   validateAssessment,
 } from "./blueprint-actions";
 import PhotoUploadForm from "./PhotoUploadForm";
+import MeasurementSheet from "./MeasurementSheet";
 import type { Prisma } from "@prisma/client";
 
 type ClientWithBlueprint = Prisma.ClientGetPayload<{
@@ -128,35 +128,50 @@ export default function BlueprintAssessmentTab({
 
       {/* ---------- Section 1: Professional Measurements ---------- */}
       <Section title="1. Professional Body Measurements">
-        {canManage && (
-          <form
-            action={async (formData: FormData) => {
-              "use server";
-              await addProfessionalMeasurement(client.id, formData);
-            }}
-            style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 10, marginBottom: 20 }}
-          >
-            <input name="measuredAt" type="date" required style={inputStyle} />
-            <input name="waistCm" type="number" step="0.1" placeholder="Waist (cm)" style={inputStyle} />
-            <input name="highWaistCm" type="number" step="0.1" placeholder="High Waist (cm)" style={inputStyle} />
-            <input name="lowerAbdomenCm" type="number" step="0.1" placeholder="Lower Abdomen (cm)" style={inputStyle} />
-            <input name="hipsCm" type="number" step="0.1" placeholder="Hips (cm)" style={inputStyle} />
-            <input name="chestCm" type="number" step="0.1" placeholder="Chest (cm)" style={inputStyle} />
-            <input name="rightArmCm" type="number" step="0.1" placeholder="Right Arm (cm)" style={inputStyle} />
-            <input name="leftArmCm" type="number" step="0.1" placeholder="Left Arm (cm)" style={inputStyle} />
-            <input name="rightThighCm" type="number" step="0.1" placeholder="Right Thigh (cm)" style={inputStyle} />
-            <input name="leftThighCm" type="number" step="0.1" placeholder="Left Thigh (cm)" style={inputStyle} />
-            <input name="notes" placeholder="Notes" style={{ ...inputStyle, gridColumn: "span 3" }} />
-            <button type="submit" className="auth-submit" style={{ width: "auto", padding: "10px 20px", gridColumn: "span 3" }}>
-              Save Measurement
-            </button>
-          </form>
-        )}
         {assessment.bodyMeasurements.length === 0 ? (
-          <p style={{ opacity: 0.6, fontSize: 13 }}>No measurements recorded yet.</p>
+          <p className="dash-empty">No measurements recorded yet.</p>
         ) : (
           <>
-            <LatestMeasurement m={assessment.bodyMeasurements[0]} />
+            <div className="bp-stat-grid" style={{ marginBottom: 20 }}>
+              {(
+                [
+                  { label: "Waist", key: "waistCm" },
+                  { label: "High Waist", key: "highWaistCm" },
+                  { label: "Lower Abdomen", key: "lowerAbdomenCm" },
+                  { label: "Hips", key: "hipsCm" },
+                  { label: "Chest", key: "chestCm" },
+                  { label: "Right Arm", key: "rightArmCm" },
+                  { label: "Left Arm", key: "leftArmCm" },
+                  { label: "Right Thigh", key: "rightThighCm" },
+                  { label: "Left Thigh", key: "leftThighCm" },
+                ] as const
+              ).map((m) => {
+                const latest = assessment.bodyMeasurements[0];
+                const baseline = assessment.bodyMeasurements[assessment.bodyMeasurements.length - 1];
+                const latestVal = latest[m.key];
+                const baselineVal = baseline[m.key];
+                const change = latestVal != null && baselineVal != null ? latestVal - baselineVal : null;
+                return (
+                  <div className="bp-stat-card" key={m.key}>
+                    <span>{m.label}</span>
+                    <strong>{latestVal != null ? `${latestVal} cm` : "Not available yet"}</strong>
+                    {change !== null && change !== 0 && (
+                      <span className="pay-history-meta">
+                        {change > 0 ? "↑" : "↓"} {Math.abs(change).toFixed(1)} cm vs baseline
+                      </span>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+            <p className="pay-history-meta" style={{ marginBottom: 16 }}>
+              Last updated {assessment.bodyMeasurements[0].measuredAt.toLocaleDateString()} · {assessment.bodyMeasurements.length} scans recorded
+            </p>
+          </>
+        )}
+        {canManage && <MeasurementSheet clientId={client.id} />}
+        {assessment.bodyMeasurements.length > 0 && (
+          <div style={{ marginTop: 24 }}>
             <HistoryList
               rows={assessment.bodyMeasurements.map((m) => ({
                 id: m.id,
@@ -164,7 +179,7 @@ export default function BlueprintAssessmentTab({
                 summary: `Waist ${m.waistCm ?? "—"}cm · Hips ${m.hipsCm ?? "—"}cm · Chest ${m.chestCm ?? "—"}cm`,
               }))}
             />
-          </>
+          </div>
         )}
       </Section>
 
@@ -330,24 +345,6 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
     <div>
       <strong style={{ display: "block", fontSize: 11, opacity: 0.6 }}>{label}</strong>
       {children}
-    </div>
-  );
-}
-
-function LatestMeasurement({
-  m,
-}: {
-  m: {
-    measuredAt: Date;
-    waistCm: number | null;
-    hipsCm: number | null;
-    chestCm: number | null;
-  };
-}) {
-  return (
-    <div style={{ fontSize: 13, marginBottom: 12 }}>
-      <strong style={{ fontSize: 11, opacity: 0.6, display: "block" }}>Latest — {m.measuredAt.toLocaleDateString()}</strong>
-      Waist: {m.waistCm ?? "—"}cm · Hips: {m.hipsCm ?? "—"}cm · Chest: {m.chestCm ?? "—"}cm
     </div>
   );
 }
