@@ -10,6 +10,7 @@ import {
 } from "./actions";
 import InvitationPanel from "./InvitationPanel";
 import BlueprintAssessmentTab from "./BlueprintAssessmentTab";
+import BlueprintReport from "./BlueprintReport";
 import DocumentUploadForm from "./DocumentUploadForm";
 
 export const dynamic = "force-dynamic";
@@ -256,7 +257,10 @@ export default async function ClientDetailPage({
       )}
 
       {tab === "blueprint" && (
-        <BlueprintAssessmentTab client={client} canManage={hasPermission(user, "blueprints.manage")} />
+        <>
+          <BlueprintReport client={client} clientId={id} />
+          <BlueprintAssessmentTab client={client} canManage={hasPermission(user, "blueprints.manage")} />
+        </>
       )}
 
 
