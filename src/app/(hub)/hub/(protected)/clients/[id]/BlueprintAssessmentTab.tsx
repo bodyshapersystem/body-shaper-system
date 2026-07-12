@@ -1,10 +1,10 @@
 import {
-  addBodyComposition,
   addObservation,
   validateAssessment,
 } from "./blueprint-actions";
 import PhotoUploadForm from "./PhotoUploadForm";
 import MeasurementSheet from "./MeasurementSheet";
+import BodyCompositionSheet from "./BodyCompositionSheet";
 import type { Prisma } from "@prisma/client";
 
 type ClientWithBlueprint = Prisma.ClientGetPayload<{
@@ -183,55 +183,73 @@ export default function BlueprintAssessmentTab({
         )}
       </Section>
 
-      {/* ---------- Section 2: Body Composition ---------- */}
+      {/* ---------- Section 2: Body Composition (RENPHO Health) ---------- */}
       <Section title="2. Body Composition" subtitle="Source: RENPHO Health">
-        {canManage && (
-          <form
-            action={async (formData: FormData) => {
-              "use server";
-              await addBodyComposition(client.id, formData);
-            }}
-            style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 10, marginBottom: 20 }}
-          >
-            <input name="measuredAt" type="date" required style={inputStyle} />
-            <input name="weightKg" type="number" step="0.1" placeholder="Weight (kg)" style={inputStyle} />
-            <input name="bmi" type="number" step="0.1" placeholder="BMI" style={inputStyle} />
-            <input name="bodyFatPercent" type="number" step="0.1" placeholder="Body Fat %" style={inputStyle} />
-            <input name="muscleMassKg" type="number" step="0.1" placeholder="Muscle Mass (kg)" style={inputStyle} />
-            <input name="skeletalMuscleKg" type="number" step="0.1" placeholder="Skeletal Muscle (kg)" style={inputStyle} />
-            <input name="bodyWaterPercent" type="number" step="0.1" placeholder="Body Water %" style={inputStyle} />
-            <input name="proteinPercent" type="number" step="0.1" placeholder="Protein %" style={inputStyle} />
-            <input name="visceralFat" type="number" step="0.1" placeholder="Visceral Fat" style={inputStyle} />
-            <input name="boneMassKg" type="number" step="0.1" placeholder="Bone Mass (kg)" style={inputStyle} />
-            <input name="bmr" type="number" placeholder="BMR" style={inputStyle} />
-            <input name="bodyAge" type="number" placeholder="Metabolic Age" style={inputStyle} />
-            <input name="subcutaneousFatPercent" type="number" step="0.1" placeholder="Subcutaneous Fat %" style={inputStyle} />
-            <input name="fatFreeWeightKg" type="number" step="0.1" placeholder="Fat-Free Weight (kg)" style={inputStyle} />
-            <input name="notes" placeholder="Notes" style={{ ...inputStyle, gridColumn: "span 3" }} />
-            <button type="submit" className="auth-submit" style={{ width: "auto", padding: "10px 20px", gridColumn: "span 3" }}>
-              Save Scan
-            </button>
-          </form>
-        )}
         {assessment.renphoScans.length === 0 ? (
-          <p style={{ opacity: 0.6, fontSize: 13 }}>No Body Composition scans recorded yet.</p>
+          <div className="bp-empty-state">
+            <p>No RENPHO scan available yet.</p>
+            <p className="pay-history-meta">Complete the client's first body composition scan to populate this section.</p>
+          </div>
         ) : (
           <>
-            <div style={{ fontSize: 13, marginBottom: 12 }}>
-              <strong style={{ fontSize: 11, opacity: 0.6, display: "block" }}>
-                Latest — {assessment.renphoScans[0].scanDate.toLocaleDateString()}
-              </strong>
-              Weight: {assessment.renphoScans[0].weightKg ?? "—"}kg · Body Fat: {assessment.renphoScans[0].bodyFatPercent ?? "—"}%
-              · Metabolic Age: {assessment.renphoScans[0].bodyAge ?? "—"}
+            <p className="pay-history-meta" style={{ marginBottom: 12 }}>
+              Last sync {assessment.renphoScans[0].scanDate.toLocaleDateString()} · {assessment.renphoScans.length} scans on file
+            </p>
+            <div className="bp-stat-grid" style={{ marginBottom: 16 }}>
+              {(
+                [
+                  { label: "Weight", key: "weightKg", unit: "kg" },
+                  { label: "BMI", key: "bmi", unit: "" },
+                  { label: "Body Fat", key: "bodyFatPercent", unit: "%" },
+                  { label: "Muscle Mass", key: "muscleMassKg", unit: "kg" },
+                  { label: "Skeletal Muscle", key: "skeletalMuscleKg", unit: "kg" },
+                  { label: "Body Water", key: "bodyWaterPercent", unit: "%" },
+                  { label: "Protein", key: "proteinPercent", unit: "%" },
+                  { label: "Visceral Fat", key: "visceralFat", unit: "" },
+                  { label: "Bone Mass", key: "boneMassKg", unit: "kg" },
+                  { label: "BMR", key: "bmr", unit: "kcal" },
+                  { label: "Metabolic Age", key: "bodyAge", unit: "" },
+                  { label: "Subcutaneous Fat", key: "subcutaneousFatPercent", unit: "%" },
+                  { label: "Fat-Free Weight", key: "fatFreeWeightKg", unit: "kg" },
+                ] as const
+              ).map((m) => {
+                const latest = assessment.renphoScans[0];
+                const baseline = assessment.renphoScans[assessment.renphoScans.length - 1];
+                const latestVal = latest[m.key];
+                const baselineVal = baseline[m.key];
+                const change = latestVal != null && baselineVal != null ? latestVal - baselineVal : null;
+                return (
+                  <div className="bp-stat-card" key={m.key}>
+                    <span>{m.label}</span>
+                    <strong>{latestVal != null ? `${latestVal}${m.unit ? " " + m.unit : ""}` : "Not available yet"}</strong>
+                    {change !== null && change !== 0 && (
+                      <span className="pay-history-meta">
+                        {change > 0 ? "↑" : "↓"} {Math.abs(change).toFixed(1)}
+                        {m.unit ? ` ${m.unit}` : ""} vs baseline
+                      </span>
+                    )}
+                  </div>
+                );
+              })}
             </div>
-            <HistoryList
-              rows={assessment.renphoScans.map((m) => ({
-                id: m.id,
-                date: m.scanDate,
-                summary: `Weight ${m.weightKg ?? "—"}kg · Body Fat ${m.bodyFatPercent ?? "—"}% · Muscle ${m.muscleMassKg ?? "—"}kg`,
-              }))}
-            />
+            <div style={{ marginTop: 16 }}>
+              <HistoryList
+                rows={assessment.renphoScans.map((m) => ({
+                  id: m.id,
+                  date: m.scanDate,
+                  summary: `Weight ${m.weightKg ?? "—"}kg · Body Fat ${m.bodyFatPercent ?? "—"}% · Muscle ${m.muscleMassKg ?? "—"}kg`,
+                }))}
+              />
+            </div>
           </>
+        )}
+        <p className="pay-history-meta" style={{ marginTop: 16 }}>
+          Body composition data is populated automatically from RENPHO Health.
+        </p>
+        {canManage && (
+          <div style={{ marginTop: 8 }}>
+            <BodyCompositionSheet clientId={client.id} />
+          </div>
         )}
       </Section>
 
