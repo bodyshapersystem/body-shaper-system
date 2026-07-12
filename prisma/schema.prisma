@@ -329,6 +329,8 @@ model BodyMeasurement {
   client         Client               @relation(fields: [clientId], references: [id], onDelete: Cascade)
   assessmentId   String?
   assessment     BlueprintAssessment? @relation(fields: [assessmentId], references: [id], onDelete: SetNull)
+  appointmentId  String?
+  appointment    Appointment?         @relation(fields: [appointmentId], references: [id], onDelete: SetNull)
   measuredAt     DateTime
   waistCm        Float?
   highWaistCm    Float?
@@ -357,18 +359,20 @@ enum PhotoType {
 }
 
 model Photo {
-  id           String              @id @default(cuid())
-  clientId     String
-  client       Client              @relation(fields: [clientId], references: [id], onDelete: Cascade)
-  assessmentId String?
-  assessment   BlueprintAssessment? @relation(fields: [assessmentId], references: [id], onDelete: SetNull)
-  type         PhotoType
-  storagePath  String
-  takenAt      DateTime?
-  uploadedAt   DateTime  @default(now())
-  specialistId String?
-  notes        String?
-  visibility   Visibility @default(INTERNAL_ONLY)
+  id            String              @id @default(cuid())
+  clientId      String
+  client        Client              @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  assessmentId  String?
+  assessment    BlueprintAssessment? @relation(fields: [assessmentId], references: [id], onDelete: SetNull)
+  appointmentId String?
+  appointment   Appointment?        @relation(fields: [appointmentId], references: [id], onDelete: SetNull)
+  type          PhotoType
+  storagePath   String
+  takenAt       DateTime?
+  uploadedAt    DateTime  @default(now())
+  specialistId  String?
+  notes         String?
+  visibility    Visibility @default(INTERNAL_ONLY)
 
   @@map("photos")
 }
@@ -444,6 +448,8 @@ model Measurement {
   client                 Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
   assessmentId           String?
   assessment             BlueprintAssessment? @relation(fields: [assessmentId], references: [id], onDelete: SetNull)
+  appointmentId          String?
+  appointment            Appointment? @relation(fields: [appointmentId], references: [id], onDelete: SetNull)
   scanDate               DateTime
   weightKg               Float?
   bodyFatPercent         Float?
@@ -505,15 +511,17 @@ model ProgressSnapshot {
 // ---------- Documents (Supabase Storage metadata) ----------
 
 model Document {
-  id           String   @id @default(cuid())
-  clientId     String
-  client       Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
-  title        String
-  storagePath  String
-  fileType     String?
-  sizeBytes    Int?
-  uploadedAt   DateTime @default(now())
-  uploadedById String?
+  id            String       @id @default(cuid())
+  clientId      String
+  client        Client       @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  appointmentId String?
+  appointment   Appointment? @relation(fields: [appointmentId], references: [id], onDelete: SetNull)
+  title         String
+  storagePath   String
+  fileType      String?
+  sizeBytes     Int?
+  uploadedAt    DateTime @default(now())
+  uploadedById  String?
 
   @@map("documents")
 }
@@ -594,12 +602,25 @@ model Appointment {
   startsAt         DateTime
   endsAt           DateTime?
   status           AppointmentStatus @default(SCHEDULED)
-  technologies     Json? // array of selected technology names for this session
+  technologies     Json? // array of selected technology objects for this session
   estimatedMinutes Int?
   notes            String?
   createdAt        DateTime          @default(now())
   updatedAt        DateTime          @updatedAt
   createdById      String?
+
+  // Long-term architecture: every appointment is the permanent
+  // clinical session record. Photos, Renpho scans, professional
+  // measurements, payments, and documents can all optionally anchor
+  // to the specific session they belong to, in addition to always
+  // belonging to the client directly. No UI wires these up yet —
+  // this is the data model groundwork for the client timeline/session
+  // detail view that will read them later.
+  photos           Photo[]
+  renphoScans      Measurement[]
+  bodyMeasurements BodyMeasurement[]
+  payments         Payment[]
+  documents        Document[]
 
   @@map("appointments")
 }
@@ -621,17 +642,19 @@ enum PaymentRecordStatus {
 }
 
 model Payment {
-  id          String              @id @default(cuid())
-  clientId    String
-  client      Client              @relation(fields: [clientId], references: [id], onDelete: Cascade)
-  amountCents Int
-  method      PaymentMethod       @default(CARD)
-  status      PaymentRecordStatus @default(PENDING)
-  paidAt      DateTime?
-  notes       String?
-  createdAt   DateTime            @default(now())
-  updatedAt   DateTime            @updatedAt
-  createdById String?
+  id            String              @id @default(cuid())
+  clientId      String
+  client        Client              @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  appointmentId String?
+  appointment   Appointment?        @relation(fields: [appointmentId], references: [id], onDelete: SetNull)
+  amountCents   Int
+  method        PaymentMethod       @default(CARD)
+  status        PaymentRecordStatus @default(PENDING)
+  paidAt        DateTime?
+  notes         String?
+  createdAt     DateTime            @default(now())
+  updatedAt     DateTime            @updatedAt
+  createdById   String?
 
   @@map("payments")
 }

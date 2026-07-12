@@ -2375,6 +2375,7 @@
 .sched-duration-summary span{ font-family:var(--sans); font-size:11px; letter-spacing:.06em; text-transform:uppercase; color:#8a7f74; }
 .sched-duration-summary strong{ font-family:var(--serif); font-size:20px; color:#2B2622; }
 .sched-tech-count{ margin-left:auto !important; }
+.sched-notes-label{ margin-top:6px; }
 
 .sched-readiness-list{ list-style:none; display:flex; flex-direction:column; gap:6px; }
 .sched-readiness-list li{ font-family:var(--sans); font-size:13px; color:#2f6b3a; }

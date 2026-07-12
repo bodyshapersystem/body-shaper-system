@@ -79,9 +79,9 @@ export async function cancelAppointment(appointmentId: string) {
 }
 
 /**
- * Read-only summary used by the redesigned scheduler UI to show the
- * client's session context (system, progress, specialist) after
- * selecting them — no scheduling logic, no writes. Session count and
+ * Read-only summary used by the scheduler UI to show the client's
+ * session context (system, progress, specialist) after selecting
+ * them — no scheduling logic, no writes. Session count and
  * phase/milestone are real where the data exists (completed
  * appointments, validated session target from the Blueprint
  * Assessment™); "Current Phase" and "Expected Milestone" are
@@ -92,7 +92,7 @@ export async function getClientSessionContext(clientId: string) {
   const user = await getCurrentHubUser();
   if (!user) return null;
 
-  const [client, completedCount, photoCount, renphoCount, bodyMeasurementCount] = await Promise.all([
+  const [client, completedCount] = await Promise.all([
     prisma.client.findUnique({
       where: { id: clientId },
       include: {
@@ -104,9 +104,6 @@ export async function getClientSessionContext(clientId: string) {
       },
     }),
     prisma.appointment.count({ where: { clientId, status: "COMPLETED" } }),
-    prisma.photo.count({ where: { clientId } }),
-    prisma.measurement.count({ where: { clientId } }),
-    prisma.bodyMeasurement.count({ where: { clientId } }),
   ]);
 
   if (!client) return null;
@@ -125,11 +122,5 @@ export async function getClientSessionContext(clientId: string) {
     progressPercent,
     specialistName: user.fullName,
     durationMinutes: 75,
-    // Real readiness signals only — no invented statuses (e.g. no
-    // "Consent Verified" or "Intake Review" here, since no backing
-    // data exists for those yet).
-    hasProgressPhotos: photoCount > 0,
-    hasRenphoScan: renphoCount > 0,
-    hasBodyMeasurements: bodyMeasurementCount > 0,
   };
 }

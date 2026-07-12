@@ -15,9 +15,22 @@ type SessionContext = {
   progressPercent: number;
   specialistName: string;
   durationMinutes: number;
-  hasProgressPhotos: boolean;
-  hasRenphoScan: boolean;
-  hasBodyMeasurements: boolean;
+};
+
+/**
+ * A technology selected for this session. Deliberately structured so
+ * each entry can gain per-technology fields later (body area, custom
+ * duration override, intensity, technology-specific settings, notes)
+ * without redesigning this component or migrating the database again
+ * — Appointment.technologies is already a JSON array of these
+ * objects, so new optional fields just start appearing in new rows.
+ */
+type TechSelection = {
+  name: string;
+  minutes: number;
+  bodyArea?: string;
+  intensity?: string;
+  notes?: string;
 };
 
 const TECHNOLOGIES: { name: string; minutes: number; label: string }[] = [
@@ -27,8 +40,6 @@ const TECHNOLOGIES: { name: string; minutes: number; label: string }[] = [
   { name: "Carboxy™", minutes: 30, label: "30 min" },
   { name: "Lymphatic Drainage™", minutes: 30, label: "30 min" },
   { name: "RF + Cavitation™", minutes: 45, label: "40–50 min" },
-  { name: "Progress Photos™", minutes: 15, label: "15 min" },
-  { name: "Measurements™", minutes: 12, label: "10–15 min" },
 ];
 
 const TIME_SLOTS = [
@@ -61,7 +72,7 @@ export default function AppointmentScheduler({ clients }: { clients: ClientOptio
   const [systemOverride, setSystemOverride] = useState("");
   const [sessionOverride, setSessionOverride] = useState<number | "">("");
 
-  const [selectedTechs, setSelectedTechs] = useState<string[]>([]);
+  const [selectedTechs, setSelectedTechs] = useState<TechSelection[]>([]);
   const [notes, setNotes] = useState("");
 
   const today = useMemo(() => new Date(), []);
@@ -91,14 +102,15 @@ export default function AppointmentScheduler({ clients }: { clients: ClientOptio
     });
   }
 
-  function toggleTech(name: string) {
-    setSelectedTechs((prev) => (prev.includes(name) ? prev.filter((t) => t !== name) : [...prev, name]));
+  function toggleTech(tech: { name: string; minutes: number }) {
+    setSelectedTechs((prev) =>
+      prev.some((t) => t.name === tech.name)
+        ? prev.filter((t) => t.name !== tech.name)
+        : [...prev, { name: tech.name, minutes: tech.minutes }]
+    );
   }
 
-  const estimatedDuration = selectedTechs.reduce((sum, name) => {
-    const tech = TECHNOLOGIES.find((t) => t.name === name);
-    return sum + (tech?.minutes ?? 0);
-  }, 0);
+  const estimatedDuration = selectedTechs.reduce((sum, t) => sum + t.minutes, 0);
 
   const effectiveSystem = systemOverride.trim() || context?.system || null;
   const effectiveSession = sessionOverride !== "" ? sessionOverride : context?.currentSession ?? 1;
@@ -131,8 +143,7 @@ export default function AppointmentScheduler({ clients }: { clients: ClientOptio
     formData.set("title", title);
     formData.set("startsAt", startsAt.toISOString());
     if (notes) formData.set("notes", notes);
-    if (selectedTechs.length > 0) formData.set("technologies", JSON.stringify(selectedTechs));
-    if (estimatedDuration > 0) formData.set("estimatedMinutes", String(estimatedDuration));
+    if (selectedTechs.length > 0) formData.set("technologies", JSON.stringify(selectedTechs));    if (estimatedDuration > 0) formData.set("estimatedMinutes", String(estimatedDuration));
 
     startTransition(async () => {
       const result = await createAppointment(formData);
@@ -187,7 +198,7 @@ export default function AppointmentScheduler({ clients }: { clients: ClientOptio
           {selectedTechs.length > 0 && (
             <div>
               <span>Technologies</span>
-              <strong>{selectedTechs.join(", ")}</strong>
+              <strong>{selectedTechs.map((t) => t.name).join(", ")}</strong>
             </div>
           )}
         </div>
@@ -271,7 +282,7 @@ export default function AppointmentScheduler({ clients }: { clients: ClientOptio
         </button>
       )}
 
-      {/* ---------- Step 2: Today's Tech + Readiness + Notes ---------- */}
+      {/* ---------- Step 2: Today's Tech (technologies + duration + session notes, all in one operational section) ---------- */}
       {context && step >= 2 && (
         <>
           <div className="sched-section">
@@ -283,8 +294,8 @@ export default function AppointmentScheduler({ clients }: { clients: ClientOptio
                   <label className="sched-tech-row">
                     <input
                       type="checkbox"
-                      checked={selectedTechs.includes(tech.name)}
-                      onChange={() => toggleTech(tech.name)}
+                      checked={selectedTechs.some((t) => t.name === tech.name)}
+                      onChange={() => toggleTech(tech)}
                       className="sched-checkbox"
                     />
                     <span className="sched-tech-name">{tech.name}</span>
@@ -294,29 +305,15 @@ export default function AppointmentScheduler({ clients }: { clients: ClientOptio
               ))}
             </ul>
             <div className="sched-duration-summary">
-              <span>Estimated Session</span>
+              <span>Estimated Duration</span>
               <strong>{estimatedDuration || 0} min</strong>
               <span className="sched-tech-count">{selectedTechs.length} selected</span>
             </div>
-          </div>
-
-          {(context.hasProgressPhotos || context.hasRenphoScan || context.hasBodyMeasurements) && (
-            <div className="sched-section">
-              <h4 className="sched-subheading">Session Readiness</h4>
-              <ul className="sched-readiness-list">
-                {context.hasProgressPhotos && <li>✓ Progress photos on file</li>}
-                {context.hasRenphoScan && <li>✓ Body Composition (Renpho) on file</li>}
-                {context.hasBodyMeasurements && <li>✓ Professional measurements on file</li>}
-              </ul>
-            </div>
-          )}
-
-          <div className="sched-section">
-            <label className="sched-label" htmlFor="clinical-notes">
-              Clinical Notes (optional)
+            <label className="sched-label sched-notes-label" htmlFor="session-notes">
+              Session Notes (optional)
             </label>
             <textarea
-              id="clinical-notes"
+              id="session-notes"
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               rows={3}

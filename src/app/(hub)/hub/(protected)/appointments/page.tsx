@@ -36,8 +36,9 @@ export default async function HubAppointmentsPage() {
   const upcoming = allAppointments.filter((a) => a.startsAt >= now);
   const past = allAppointments.filter((a) => a.startsAt < now).reverse();
 
-  function techList(technologies: unknown): string[] {
-    return Array.isArray(technologies) ? (technologies as string[]) : [];
+  function techList(technologies: unknown): { name: string }[] {
+    if (!Array.isArray(technologies)) return [];
+    return technologies.map((t) => (typeof t === "string" ? { name: t } : (t as { name: string })));
   }
 
   return (
@@ -81,8 +82,8 @@ export default async function HubAppointmentsPage() {
               {techList(a.technologies).length > 0 && (
                 <div className="sess-card-techs">
                   {techList(a.technologies).map((t) => (
-                    <span key={t} className="sess-tech-chip">
-                      {t}
+                    <span key={t.name} className="sess-tech-chip">
+                      {t.name}
                     </span>
                   ))}
                 </div>
