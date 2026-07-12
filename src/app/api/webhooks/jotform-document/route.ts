@@ -27,7 +27,7 @@ import type { DocumentCategory } from "@prisma/client";
  * delivery log) rather than silently dropping the document.
  */
 export async function POST(request: NextRequest) {
-  const token = request.nextUrl.searchParams.get("token");
+  const token = request.nextUrl.searchParams.get("token")?.replace(/\/+$/, "");
   if (!process.env.JOTFORM_WEBHOOK_SECRET || token !== process.env.JOTFORM_WEBHOOK_SECRET) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
