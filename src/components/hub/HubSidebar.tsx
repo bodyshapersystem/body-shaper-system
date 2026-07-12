@@ -20,7 +20,7 @@ const NAV_GROUPS = [
       { href: "/hub/appointments", label: "Appointments", icon: "calendar" },
       { href: "/hub/documents", label: "Documents", icon: "doc" },
       { href: "/hub/messages", label: "Messages", icon: "chat" },
-      { href: "/hub/measurements", label: "Measurements", icon: "ruler" },
+      { href: "/hub/measurements", label: "Progress™", icon: "ruler" },
     ],
   },
   {

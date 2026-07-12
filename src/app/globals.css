@@ -2281,4 +2281,54 @@
   .pd-stats, .br-stats, .pd-cols, .dt-grid, .br-challenge-row, .br-privilege-grid, .br-activity-grid, .simple-grid, .br-earn-grid, .pd-quick-grid{ grid-template-columns:1fr; }
   .dt-weekly-grid{ grid-template-columns:repeat(2,1fr); }
   .pp-compare{ grid-template-columns:1fr; }
+  .dash-two-col{ grid-template-columns:1fr; }
+  .dash-pending-grid{ grid-template-columns:1fr; }
+  .dash-quick-actions{ grid-template-columns:1fr 1fr; }
 }
+
+/* ---------- Owner Hub Dashboard (Milestone 11) ---------- */
+/* Additive only — reuses .pd-stat/.pd-card/.pd-link from the existing
+   Portal Dashboard design system above; only new pieces get new classes. */
+
+.dash-subtitle{ font-family:var(--sans); font-size:13.5px; color:#2B2622; opacity:.65; margin-top:2px; }
+
+.dash-two-col{ display:grid; grid-template-columns:1.3fr 1fr; gap:20px; margin-bottom:36px; }
+@media (max-width:1080px){ .dash-two-col{ grid-template-columns:1fr; } }
+
+.dash-card-head{ display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; }
+.dash-card-head h3{ font-family:var(--sans); font-size:13px; font-weight:600; color:#2B2622; margin:0; }
+
+.dash-empty{ font-family:var(--sans); font-size:13px; color:#2B2622; opacity:.55; padding:8px 0; }
+
+.dash-table{ width:100%; border-collapse:collapse; font-family:var(--sans); font-size:12.5px; }
+.dash-table th{ text-align:left; font-size:10.5px; letter-spacing:.08em; text-transform:uppercase; color:#8a7f74; font-weight:500; padding:0 8px 10px 0; border-bottom:1px solid rgba(0,0,0,0.08); }
+.dash-table td{ padding:11px 8px 11px 0; border-bottom:1px solid rgba(0,0,0,0.06); color:#2B2622; vertical-align:middle; }
+.dash-table tr:last-child td{ border-bottom:none; }
+
+.dash-status{ display:inline-block; padding:3px 9px; border-radius:20px; font-size:10.5px; letter-spacing:.03em; background:rgba(0,0,0,0.06); color:#2B2622; }
+.dash-status-scheduled{ background:rgba(92,26,31,0.08); color:#5C1A1F; }
+.dash-status-completed{ background:rgba(60,110,70,0.12); color:#2f6b3a; }
+.dash-status-cancelled{ background:rgba(0,0,0,0.06); color:#8a7f74; }
+.dash-status-no_show{ background:rgba(180,60,40,0.1); color:#a33; }
+
+.dash-view-btn{ font-family:var(--sans); font-size:11.5px; color:var(--cat,#5C1A1F); text-decoration:none; border:1px solid rgba(92,26,31,0.25); border-radius:4px; padding:4px 10px; white-space:nowrap; }
+.dash-view-btn:hover{ background:rgba(92,26,31,0.06); }
+
+.dash-timeline{ list-style:none; display:flex; flex-direction:column; gap:2px; }
+.dash-timeline li{ display:flex; align-items:flex-start; gap:10px; padding:9px 0; border-top:1px solid rgba(0,0,0,0.06); font-family:var(--sans); }
+.dash-timeline li:first-child{ border-top:none; }
+.dash-timeline-dot{ width:6px; height:6px; border-radius:50%; background:var(--cat,#5C1A1F); margin-top:5px; flex-shrink:0; }
+.dash-timeline-text{ font-size:12.5px; color:#2B2622; flex:1; line-height:1.4; }
+.dash-timeline-time{ font-size:11px; color:#8a7f74; white-space:nowrap; }
+
+.dash-section-title{ font-family:var(--sans); font-size:13px; font-weight:600; color:#2B2622; margin:8px 0 14px; }
+
+.dash-pending-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-bottom:36px; }
+.dash-pending-card{ display:flex; flex-direction:column; gap:4px; border:1px solid rgba(0,0,0,0.08); border-radius:6px; padding:18px; text-decoration:none; transition:border-color .15s ease, background .15s ease; }
+.dash-pending-card:hover{ border-color:rgba(92,26,31,0.3); background:rgba(92,26,31,0.03); }
+.dash-pending-card strong{ font-family:var(--serif); font-size:22px; color:#2B2622; }
+.dash-pending-card span{ font-family:var(--sans); font-size:12px; color:#2B2622; opacity:.65; }
+
+.dash-quick-actions{ display:grid; grid-template-columns:repeat(4,1fr); gap:14px; }
+.dash-quick-btn{ display:flex; align-items:center; justify-content:center; text-align:center; font-family:var(--sans); font-size:12.5px; font-weight:600; letter-spacing:.02em; color:#F6F3EE; background:var(--cat,#5C1A1F); border-radius:6px; padding:14px 12px; text-decoration:none; transition:opacity .15s ease; }
+.dash-quick-btn:hover{ opacity:.88; }
