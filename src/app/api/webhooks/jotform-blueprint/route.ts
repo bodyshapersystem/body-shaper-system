@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { sendBlueprintReceivedEmail } from "@/lib/email/service";
 import { createOrUpdateDraftAssessment } from "@/lib/blueprint-assessments";
+import { parseJotformPayload, extractContactField, extractName } from "@/lib/jotform-webhook-utils";
 import type { Prisma } from "@prisma/client";
 
 /**
@@ -125,69 +126,4 @@ export async function POST(request: NextRequest) {
   });
 
   return NextResponse.json({ success: true, leadId: lead.id, created: !existing });
-}
-
-/**
- * Jotform webhooks POST as multipart/form-data (or urlencoded),
- * with a `rawRequest` field containing the JSON-stringified answers
- * object. Falls back to treating the whole form/body as the payload
- * if `rawRequest` isn't present (e.g. a custom/test payload).
- */
-async function parseJotformPayload(request: NextRequest): Promise<Record<string, unknown>> {
-  const contentType = request.headers.get("content-type") || "";
-
-  if (contentType.includes("application/json")) {
-    return await request.json();
-  }
-
-  const formData = await request.formData();
-  const rawRequest = formData.get("rawRequest");
-  if (typeof rawRequest === "string") {
-    return JSON.parse(rawRequest);
-  }
-
-  const fallback: Record<string, unknown> = {};
-  formData.forEach((value, key) => {
-    fallback[key] = typeof value === "string" ? value : "[file]";
-  });
-  return fallback;
-}
-
-function extractContactField(raw: Record<string, unknown>, patterns: string[]): string | undefined {
-  for (const [key, value] of Object.entries(raw)) {
-    const lowerKey = key.toLowerCase();
-    if (!patterns.some((p) => lowerKey.includes(p))) continue;
-
-    if (typeof value === "string" && value.trim()) return value.trim();
-
-    if (value && typeof value === "object") {
-      const obj = value as Record<string, unknown>;
-      const joined = Object.values(obj)
-        .filter((v): v is string => typeof v === "string" && v.trim().length > 0)
-        .join(" ");
-      if (joined.trim()) return joined.trim();
-    }
-  }
-  return undefined;
-}
-
-function extractName(raw: Record<string, unknown>): { firstName: string; lastName: string } {
-  for (const [key, value] of Object.entries(raw)) {
-    if (!key.toLowerCase().includes("name")) continue;
-
-    if (value && typeof value === "object") {
-      const obj = value as Record<string, unknown>;
-      const first = (obj.first ?? obj.firstName ?? obj.fname) as string | undefined;
-      const last = (obj.last ?? obj.lastName ?? obj.lname) as string | undefined;
-      if (first || last) {
-        return { firstName: (first ?? "").trim(), lastName: (last ?? "").trim() };
-      }
-    }
-
-    if (typeof value === "string" && value.trim()) {
-      const parts = value.trim().split(/\s+/);
-      return { firstName: parts[0] ?? "", lastName: parts.slice(1).join(" ") };
-    }
-  }
-  return { firstName: "", lastName: "" };
 }

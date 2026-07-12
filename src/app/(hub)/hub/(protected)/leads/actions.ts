@@ -292,10 +292,12 @@ async function finishConversion(
     where: { clientId: result.client.id },
     orderBy: { version: "desc" },
   });
-  if (linkedAssessment?.jotformSubmissionId && process.env.JOTFORM_BLUEPRINT_FORM_ID) {
+  const rawData = linkedAssessment?.jotformRawData as Record<string, unknown> | null;
+  const blueprintFormId = (rawData?.formID as string | undefined) ?? process.env.JOTFORM_BLUEPRINT_FORM_ID;
+  if (linkedAssessment?.jotformSubmissionId && blueprintFormId) {
     await fetchAndStoreJotformSubmissionPdf({
       clientId: result.client.id,
-      jotformFormId: process.env.JOTFORM_BLUEPRINT_FORM_ID,
+      jotformFormId: blueprintFormId,
       jotformSubmissionId: linkedAssessment.jotformSubmissionId,
       title: "Intake Form.pdf",
       category: "INTAKE_FORM",
