@@ -15,9 +15,21 @@ export async function createAppointment(formData: FormData) {
   const startsAtRaw = String(formData.get("startsAt") || "");
   const endsAtRaw = String(formData.get("endsAt") || "");
   const notes = (formData.get("notes") as string) || undefined;
+  const technologiesRaw = (formData.get("technologies") as string) || undefined;
+  const estimatedMinutesRaw = formData.get("estimatedMinutes");
 
   if (!clientId || !title || !startsAtRaw) {
     return { error: "Client, title, and start time are required." };
+  }
+
+  let technologies: string[] | undefined;
+  if (technologiesRaw) {
+    try {
+      const parsed = JSON.parse(technologiesRaw);
+      if (Array.isArray(parsed)) technologies = parsed;
+    } catch {
+      // ignore malformed technologies payload — appointment still saves
+    }
   }
 
   await prisma.appointment.create({
@@ -26,6 +38,8 @@ export async function createAppointment(formData: FormData) {
       title,
       startsAt: new Date(startsAtRaw),
       endsAt: endsAtRaw ? new Date(endsAtRaw) : undefined,
+      technologies,
+      estimatedMinutes: estimatedMinutesRaw ? Number(estimatedMinutesRaw) : undefined,
       notes,
       createdById: user.id,
     },
@@ -78,7 +92,7 @@ export async function getClientSessionContext(clientId: string) {
   const user = await getCurrentHubUser();
   if (!user) return null;
 
-  const [client, completedCount] = await Promise.all([
+  const [client, completedCount, photoCount, renphoCount, bodyMeasurementCount] = await Promise.all([
     prisma.client.findUnique({
       where: { id: clientId },
       include: {
@@ -90,6 +104,9 @@ export async function getClientSessionContext(clientId: string) {
       },
     }),
     prisma.appointment.count({ where: { clientId, status: "COMPLETED" } }),
+    prisma.photo.count({ where: { clientId } }),
+    prisma.measurement.count({ where: { clientId } }),
+    prisma.bodyMeasurement.count({ where: { clientId } }),
   ]);
 
   if (!client) return null;
@@ -108,5 +125,11 @@ export async function getClientSessionContext(clientId: string) {
     progressPercent,
     specialistName: user.fullName,
     durationMinutes: 75,
+    // Real readiness signals only — no invented statuses (e.g. no
+    // "Consent Verified" or "Intake Review" here, since no backing
+    // data exists for those yet).
+    hasProgressPhotos: photoCount > 0,
+    hasRenphoScan: renphoCount > 0,
+    hasBodyMeasurements: bodyMeasurementCount > 0,
   };
 }

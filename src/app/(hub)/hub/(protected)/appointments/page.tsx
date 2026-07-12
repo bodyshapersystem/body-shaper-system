@@ -12,7 +12,7 @@ export default async function HubAppointmentsPage() {
   if (!user) redirect("/hub/login");
   const canManage = hasPermission(user, "appointments.manage");
 
-  const [appointments, clients] = await Promise.all([
+  const [allAppointments, clients] = await Promise.all([
     prisma.appointment.findMany({
       where: { status: { not: "CANCELLED" } },
       include: { client: true },
@@ -21,9 +21,24 @@ export default async function HubAppointmentsPage() {
     prisma.client.findMany({ where: { archivedAt: null }, orderBy: { firstName: "asc" } }),
   ]);
 
+  // Session number = ordinal position among this client's own
+  // appointments (chronological), matching "Session N" language
+  // instead of a generic list.
+  const sessionNumberByAppointmentId = new Map<string, number>();
+  const perClientCounter = new Map<string, number>();
+  for (const a of allAppointments) {
+    const n = (perClientCounter.get(a.clientId) ?? 0) + 1;
+    perClientCounter.set(a.clientId, n);
+    sessionNumberByAppointmentId.set(a.id, n);
+  }
+
   const now = new Date();
-  const upcoming = appointments.filter((a) => a.startsAt >= now);
-  const past = appointments.filter((a) => a.startsAt < now);
+  const upcoming = allAppointments.filter((a) => a.startsAt >= now);
+  const past = allAppointments.filter((a) => a.startsAt < now).reverse();
+
+  function techList(technologies: unknown): string[] {
+    return Array.isArray(technologies) ? (technologies as string[]) : [];
+  }
 
   return (
     <div className="cat-body portal-page">
@@ -40,48 +55,82 @@ export default async function HubAppointmentsPage() {
       )}
 
       <h3 className="dash-section-title" style={{ marginTop: 40 }}>
-        Upcoming
+        Upcoming Sessions
       </h3>
       {upcoming.length === 0 ? (
-        <p style={{ opacity: 0.6, fontSize: 13, marginBottom: 28 }}>No upcoming appointments.</p>
+        <p className="dash-empty" style={{ marginBottom: 28 }}>
+          No upcoming appointments.
+        </p>
       ) : (
-        <ul style={{ display: "flex", flexDirection: "column", gap: 8, fontSize: 13.5, paddingLeft: 0, listStyle: "none", marginBottom: 28 }}>
+        <div className="sess-card-grid">
           {upcoming.map((a) => (
-            <li key={a.id} style={{ borderBottom: "1px solid rgba(0,0,0,0.06)", paddingBottom: 8, display: "flex", justifyContent: "space-between", alignItems: "center", gap: 10 }}>
-              <span>
-                <strong>{a.startsAt.toLocaleString()}</strong> — {a.title} —{" "}
+            <div key={a.id} className="sess-card">
+              <div className="sess-card-head">
+                <span className="sess-card-number">SESSION {sessionNumberByAppointmentId.get(a.id)}</span>
+                <span className={`dash-status dash-status-${a.status.toLowerCase()}`}>{a.status}</span>
+              </div>
+              <p className="sess-card-date">
+                {a.startsAt.toLocaleDateString(undefined, { month: "long", day: "numeric" })} ·{" "}
+                {a.startsAt.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}
+              </p>
+              <p className="sess-card-client">
                 <Link href={`/hub/clients/${a.clientId}`}>
                   {a.client.firstName} {a.client.lastName}
                 </Link>
-              </span>
-              {canManage && (
-                <form
-                  action={async () => {
-                    "use server";
-                    await cancelAppointment(a.id);
-                  }}
-                >
-                  <button type="submit" style={{ fontSize: 12, padding: "4px 10px", border: "1px solid rgba(0,0,0,0.15)", borderRadius: 4, background: "none" }}>
-                    Cancel
-                  </button>
-                </form>
+              </p>
+              {techList(a.technologies).length > 0 && (
+                <div className="sess-card-techs">
+                  {techList(a.technologies).map((t) => (
+                    <span key={t} className="sess-tech-chip">
+                      {t}
+                    </span>
+                  ))}
+                </div>
               )}
-            </li>
+              <div className="sess-card-footer">
+                {a.estimatedMinutes ? <span>{a.estimatedMinutes} min</span> : <span />}
+                <div style={{ display: "flex", gap: 8 }}>
+                  <Link href={`/hub/clients/${a.clientId}`} className="dash-view-btn">
+                    View
+                  </Link>
+                  {canManage && (
+                    <form
+                      action={async () => {
+                        "use server";
+                        await cancelAppointment(a.id);
+                      }}
+                    >
+                      <button type="submit" className="sess-cancel-btn">
+                        Cancel
+                      </button>
+                    </form>
+                  )}
+                </div>
+              </div>
+            </div>
           ))}
-        </ul>
+        </div>
       )}
 
-      <h3 className="dash-section-title">Past</h3>
+      <h3 className="dash-section-title" style={{ marginTop: 40 }}>
+        Past Sessions
+      </h3>
       {past.length === 0 ? (
-        <p style={{ opacity: 0.6, fontSize: 13 }}>No past appointments.</p>
+        <p className="dash-empty">No past appointments.</p>
       ) : (
-        <ul style={{ display: "flex", flexDirection: "column", gap: 8, fontSize: 13.5, paddingLeft: 0, listStyle: "none" }}>
+        <div className="sess-card-grid sess-card-grid-past">
           {past.map((a) => (
-            <li key={a.id} style={{ borderBottom: "1px solid rgba(0,0,0,0.06)", paddingBottom: 8, opacity: 0.75 }}>
-              {a.startsAt.toLocaleString()} — {a.title} — {a.client.firstName} {a.client.lastName} ({a.status})
-            </li>
+            <div key={a.id} className="sess-card sess-card-past">
+              <div className="sess-card-head">
+                <span className="sess-card-number">SESSION {sessionNumberByAppointmentId.get(a.id)}</span>
+                <span className={`dash-status dash-status-${a.status.toLowerCase()}`}>{a.status}</span>
+              </div>
+              <p className="sess-card-date">
+                {a.startsAt.toLocaleDateString(undefined, { month: "long", day: "numeric" })} — {a.client.firstName} {a.client.lastName}
+              </p>
+            </div>
           ))}
-        </ul>
+        </div>
       )}
     </div>
   );

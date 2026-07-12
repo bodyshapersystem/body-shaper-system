@@ -587,17 +587,19 @@ enum AppointmentStatus {
 }
 
 model Appointment {
-  id          String            @id @default(cuid())
-  clientId    String
-  client      Client            @relation(fields: [clientId], references: [id], onDelete: Cascade)
-  title       String
-  startsAt    DateTime
-  endsAt      DateTime?
-  status      AppointmentStatus @default(SCHEDULED)
-  notes       String?
-  createdAt   DateTime          @default(now())
-  updatedAt   DateTime          @updatedAt
-  createdById String?
+  id               String            @id @default(cuid())
+  clientId         String
+  client           Client            @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  title            String
+  startsAt         DateTime
+  endsAt           DateTime?
+  status           AppointmentStatus @default(SCHEDULED)
+  technologies     Json? // array of selected technology names for this session
+  estimatedMinutes Int?
+  notes            String?
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+  createdById      String?
 
   @@map("appointments")
 }

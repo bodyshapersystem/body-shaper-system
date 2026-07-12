@@ -2362,6 +2362,46 @@
 .sched-system-input{ font-size:13px; letter-spacing:.04em; width:100%; margin:2px 0 4px; }
 .sched-session-input{ font-size:13px; width:44px; text-align:center; display:inline-block; }
 
+.sched-hint{ font-family:var(--sans); font-size:12.5px; color:#2B2622; opacity:.6; margin:-6px 0 4px; }
+
+.sched-tech-list{ list-style:none; display:flex; flex-direction:column; gap:8px; }
+.sched-tech-row{ display:flex; align-items:center; gap:12px; padding:14px 16px; border:1px solid rgba(0,0,0,0.08); border-radius:10px; cursor:pointer; transition:border-color .15s ease, background .15s ease; }
+.sched-tech-row:hover{ border-color:rgba(92,26,31,0.3); }
+.sched-checkbox{ width:18px; height:18px; accent-color:var(--cat,#5C1A1F); flex-shrink:0; }
+.sched-tech-name{ flex:1; font-family:var(--sans); font-size:14px; color:#2B2622; }
+.sched-tech-time{ font-family:var(--sans); font-size:12px; color:#8a7f74; }
+
+.sched-duration-summary{ display:flex; align-items:baseline; gap:10px; padding:14px 16px; background:rgba(92,26,31,0.05); border-radius:10px; }
+.sched-duration-summary span{ font-family:var(--sans); font-size:11px; letter-spacing:.06em; text-transform:uppercase; color:#8a7f74; }
+.sched-duration-summary strong{ font-family:var(--serif); font-size:20px; color:#2B2622; }
+.sched-tech-count{ margin-left:auto !important; }
+
+.sched-readiness-list{ list-style:none; display:flex; flex-direction:column; gap:6px; }
+.sched-readiness-list li{ font-family:var(--sans); font-size:13px; color:#2f6b3a; }
+
+.sched-confirm-details{ width:100%; display:flex; flex-direction:column; gap:10px; text-align:left; padding:20px; border:1px solid rgba(0,0,0,0.08); border-radius:10px; margin:10px 0; }
+.sched-confirm-details div{ display:flex; justify-content:space-between; gap:12px; }
+.sched-confirm-details span{ font-family:var(--sans); font-size:11px; letter-spacing:.05em; text-transform:uppercase; color:#8a7f74; }
+.sched-confirm-details strong{ font-family:var(--sans); font-size:13px; color:#2B2622; text-align:right; }
+
+/* ---------- Session cards (Upcoming/Past — mockup #11/#12) ---------- */
+.sess-card-grid{ display:grid; grid-template-columns:repeat(auto-fill, minmax(260px, 1fr)); gap:16px; margin-bottom:20px; }
+.sess-card{ border:1px solid rgba(0,0,0,0.08); border-radius:12px; padding:20px; display:flex; flex-direction:column; gap:8px; }
+.sess-card-head{ display:flex; justify-content:space-between; align-items:center; }
+.sess-card-number{ font-family:var(--sans); font-size:10.5px; letter-spacing:.1em; color:#8a7f74; }
+.sess-card-date{ font-family:var(--serif); font-size:17px; color:#2B2622; margin:0; }
+.sess-card-client a{ font-family:var(--sans); font-size:13px; color:var(--cat,#5C1A1F); text-decoration:none; }
+.sess-card-techs{ display:flex; flex-wrap:wrap; gap:6px; margin:4px 0; }
+.sess-tech-chip{ font-family:var(--sans); font-size:11px; padding:4px 10px; border-radius:12px; background:rgba(92,26,31,0.07); color:#5C1A1F; }
+.sess-card-footer{ display:flex; justify-content:space-between; align-items:center; margin-top:8px; font-family:var(--sans); font-size:12px; color:#8a7f74; }
+.sess-cancel-btn{ font-family:var(--sans); font-size:11.5px; padding:4px 10px; border:1px solid rgba(0,0,0,0.12); border-radius:4px; background:none; cursor:pointer; }
+.sess-card-grid-past{ opacity:.75; }
+.sess-card-past{ padding:14px 20px; }
+
+@media (max-width:600px){
+  .sess-card-grid{ grid-template-columns:1fr; }
+}
+
 .sched-protocol-list{ list-style:none; display:flex; flex-direction:column; gap:8px; }
 .sched-protocol-list li{ font-family:var(--sans); font-size:14px; color:#2B2622; padding:12px 16px; border:1px solid rgba(0,0,0,0.08); border-radius:8px; }
 

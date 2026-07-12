@@ -15,7 +15,21 @@ type SessionContext = {
   progressPercent: number;
   specialistName: string;
   durationMinutes: number;
+  hasProgressPhotos: boolean;
+  hasRenphoScan: boolean;
+  hasBodyMeasurements: boolean;
 };
+
+const TECHNOLOGIES: { name: string; minutes: number; label: string }[] = [
+  { name: "Exilis Elite™", minutes: 50, label: "45–50 min" },
+  { name: "EMS™", minutes: 30, label: "30 min" },
+  { name: "Endospheres™", minutes: 30, label: "30 min" },
+  { name: "Carboxy™", minutes: 30, label: "30 min" },
+  { name: "Lymphatic Drainage™", minutes: 30, label: "30 min" },
+  { name: "RF + Cavitation™", minutes: 45, label: "40–50 min" },
+  { name: "Progress Photos™", minutes: 15, label: "15 min" },
+  { name: "Measurements™", minutes: 12, label: "10–15 min" },
+];
 
 const TIME_SLOTS = [
   "08:00", "08:30", "09:00", "09:30", "10:00", "10:30", "11:00", "11:30",
@@ -34,13 +48,21 @@ function dateKey(d: Date) {
   return d.toISOString().slice(0, 10);
 }
 
+type Step = 1 | 2 | 3 | 4;
+
 export default function AppointmentScheduler({ clients }: { clients: ClientOption[] }) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
+  const [step, setStep] = useState<Step>(1);
 
   const [clientId, setClientId] = useState("");
   const [context, setContext] = useState<SessionContext | null>(null);
   const [loadingContext, setLoadingContext] = useState(false);
+  const [systemOverride, setSystemOverride] = useState("");
+  const [sessionOverride, setSessionOverride] = useState<number | "">("");
+
+  const [selectedTechs, setSelectedTechs] = useState<string[]>([]);
+  const [notes, setNotes] = useState("");
 
   const today = useMemo(() => new Date(), []);
   const tomorrow = useMemo(() => {
@@ -48,20 +70,16 @@ export default function AppointmentScheduler({ clients }: { clients: ClientOptio
     d.setDate(d.getDate() + 1);
     return d;
   }, []);
-
   const [dateMode, setDateMode] = useState<"today" | "tomorrow" | "custom">("today");
   const [customDate, setCustomDate] = useState(dateKey(today));
   const [time, setTime] = useState<string | null>(null);
-  const [notes, setNotes] = useState("");
+
   const [error, setError] = useState("");
-  const [success, setSuccess] = useState<{ appointmentClientId: string } | null>(null);
-  const [systemOverride, setSystemOverride] = useState("");
-  const [sessionOverride, setSessionOverride] = useState<number | "">("");
+  const [scheduled, setScheduled] = useState<{ clientId: string } | null>(null);
 
   function handleClientChange(id: string) {
     setClientId(id);
     setContext(null);
-    setSuccess(null);
     setSystemOverride("");
     setSessionOverride("");
     if (!id) return;
@@ -73,16 +91,25 @@ export default function AppointmentScheduler({ clients }: { clients: ClientOptio
     });
   }
 
+  function toggleTech(name: string) {
+    setSelectedTechs((prev) => (prev.includes(name) ? prev.filter((t) => t !== name) : [...prev, name]));
+  }
+
+  const estimatedDuration = selectedTechs.reduce((sum, name) => {
+    const tech = TECHNOLOGIES.find((t) => t.name === name);
+    return sum + (tech?.minutes ?? 0);
+  }, 0);
+
+  const effectiveSystem = systemOverride.trim() || context?.system || null;
+  const effectiveSession = sessionOverride !== "" ? sessionOverride : context?.currentSession ?? 1;
+
   function selectedDate(): Date {
     if (dateMode === "today") return today;
     if (dateMode === "tomorrow") return tomorrow;
     return new Date(customDate + "T00:00:00");
   }
 
-  const effectiveSystem = systemOverride.trim() || context?.system || null;
-  const effectiveSession = sessionOverride !== "" ? sessionOverride : context?.currentSession ?? 1;
-
-  function handleSubmit() {
+  function handleSchedule() {
     setError("");
     if (!clientId) {
       setError("Select a client first.");
@@ -104,6 +131,8 @@ export default function AppointmentScheduler({ clients }: { clients: ClientOptio
     formData.set("title", title);
     formData.set("startsAt", startsAt.toISOString());
     if (notes) formData.set("notes", notes);
+    if (selectedTechs.length > 0) formData.set("technologies", JSON.stringify(selectedTechs));
+    if (estimatedDuration > 0) formData.set("estimatedMinutes", String(estimatedDuration));
 
     startTransition(async () => {
       const result = await createAppointment(formData);
@@ -111,34 +140,62 @@ export default function AppointmentScheduler({ clients }: { clients: ClientOptio
         setError(result.error);
         return;
       }
-      setSuccess({ appointmentClientId: clientId });
-      setTime(null);
-      setNotes("");
+      setScheduled({ clientId });
       router.refresh();
     });
   }
 
-  if (success) {
+  function resetAll() {
+    setScheduled(null);
+    setStep(1);
+    setClientId("");
+    setContext(null);
+    setSystemOverride("");
+    setSessionOverride("");
+    setSelectedTechs([]);
+    setNotes("");
+    setTime(null);
+    setDateMode("today");
+  }
+
+  // ---------- Step 4: Confirmation ----------
+  if (scheduled) {
     return (
       <div className="sched-success">
         <span className="sched-success-check">✓</span>
         <h3>Session Scheduled</h3>
-        <p>Session {effectiveSession} has been added successfully.</p>
+        <p>Session {effectiveSession} has been successfully scheduled.</p>
+        <div className="sched-confirm-details">
+          <div>
+            <span>Client</span>
+            <strong>
+              {context?.firstName} {context?.lastName}
+            </strong>
+          </div>
+          <div>
+            <span>Date</span>
+            <strong>{selectedDate().toLocaleDateString()}</strong>
+          </div>
+          <div>
+            <span>Time</span>
+            <strong>{time ? fmtTime(time) : "—"}</strong>
+          </div>
+          <div>
+            <span>Est. Duration</span>
+            <strong>{estimatedDuration || context?.durationMinutes || 75} min</strong>
+          </div>
+          {selectedTechs.length > 0 && (
+            <div>
+              <span>Technologies</span>
+              <strong>{selectedTechs.join(", ")}</strong>
+            </div>
+          )}
+        </div>
         <div className="sched-success-actions">
-          <a href={`/hub/clients/${success.appointmentClientId}?tab=blueprint`} className="sched-cta">
+          <a href={`/hub/clients/${scheduled.clientId}?tab=blueprint`} className="sched-cta">
             View Appointment →
           </a>
-          <button
-            type="button"
-            className="sched-secondary-btn"
-            onClick={() => {
-              setSuccess(null);
-              setClientId("");
-              setContext(null);
-              setSystemOverride("");
-              setSessionOverride("");
-            }}
-          >
+          <button type="button" className="sched-secondary-btn" onClick={resetAll}>
             Schedule Another
           </button>
           <a href="/hub/dashboard" className="sched-text-link">
@@ -151,16 +208,12 @@ export default function AppointmentScheduler({ clients }: { clients: ClientOptio
 
   return (
     <div className="sched-form">
+      {/* ---------- Step 1: Client + Summary ---------- */}
       <div className="sched-section">
         <label className="sched-label" htmlFor="client-select">
           Client
         </label>
-        <select
-          id="client-select"
-          value={clientId}
-          onChange={(e) => handleClientChange(e.target.value)}
-          className="sched-select"
-        >
+        <select id="client-select" value={clientId} onChange={(e) => handleClientChange(e.target.value)} className="sched-select">
           <option value="">Select client…</option>
           {clients.map((c) => (
             <option key={c.id} value={c.id}>
@@ -173,116 +226,152 @@ export default function AppointmentScheduler({ clients }: { clients: ClientOptio
       {loadingContext && <p className="sched-loading">Loading client summary…</p>}
 
       {context && (
-        <>
-          <div className="sched-summary-card">
-            <h3>
-              {context.firstName} {context.lastName}
-            </h3>
+        <div className="sched-summary-card">
+          <h3>
+            {context.firstName} {context.lastName}
+          </h3>
+          <input
+            type="text"
+            value={systemOverride}
+            onChange={(e) => setSystemOverride(e.target.value)}
+            placeholder={context.system ?? "Enter system (e.g. ExiLipo Signature™)"}
+            className="sched-inline-input sched-system-input"
+          />
+          <p className="sched-session-line">
+            Session{" "}
             <input
-              type="text"
-              value={systemOverride}
-              onChange={(e) => setSystemOverride(e.target.value)}
-              placeholder={context.system ?? "Enter system (e.g. ExiLipo Signature™)"}
-              className="sched-inline-input sched-system-input"
-            />
-            <p className="sched-session-line">
-              Session{" "}
-              <input
-                type="number"
-                min={1}
-                value={sessionOverride === "" ? context.currentSession : sessionOverride}
-                onChange={(e) => setSessionOverride(e.target.value === "" ? "" : Number(e.target.value))}
-                className="sched-inline-input sched-session-input"
-              />{" "}
-              of {context.totalSessions}
-            </p>
-            <div className="sched-progress-track">
-              <div className="sched-progress-fill" style={{ width: `${Math.min(context.progressPercent, 100)}%` }} />
+              type="number"
+              min={1}
+              value={sessionOverride === "" ? context.currentSession : sessionOverride}
+              onChange={(e) => setSessionOverride(e.target.value === "" ? "" : Number(e.target.value))}
+              className="sched-inline-input sched-session-input"
+            />{" "}
+            of {context.totalSessions}
+          </p>
+          <div className="sched-progress-track">
+            <div className="sched-progress-fill" style={{ width: `${Math.min(context.progressPercent, 100)}%` }} />
+          </div>
+          <p className="sched-progress-label">{context.progressPercent}% Complete</p>
+          <div className="sched-summary-meta">
+            <div>
+              <span>Specialist</span>
+              <strong>{context.specialistName}</strong>
             </div>
-            <p className="sched-progress-label">{context.progressPercent}% Complete</p>
-            <div className="sched-summary-meta">
-              <div>
-                <span>Specialist</span>
-                <strong>{context.specialistName}</strong>
-              </div>
-              <div>
-                <span>Estimated Duration</span>
-                <strong>{context.durationMinutes} minutes</strong>
-              </div>
+            <div>
+              <span>Estimated Duration</span>
+              <strong>{estimatedDuration || context.durationMinutes} min</strong>
             </div>
           </div>
+        </div>
+      )}
 
+      {context && step === 1 && (
+        <button type="button" className="sched-cta sched-cta-block" onClick={() => setStep(2)}>
+          Continue to Session Setup →
+        </button>
+      )}
+
+      {/* ---------- Step 2: Today's Tech + Readiness + Notes ---------- */}
+      {context && step >= 2 && (
+        <>
           <div className="sched-section">
-            <h4 className="sched-subheading">Today's Protocol</h4>
-            <ul className="sched-protocol-list">
-              <li>✓ {effectiveSystem ?? "Personalized treatment protocol"}</li>
+            <h4 className="sched-subheading">Today's Tech</h4>
+            <p className="sched-hint">Select every technology included in today's visit.</p>
+            <ul className="sched-tech-list">
+              {TECHNOLOGIES.map((tech) => (
+                <li key={tech.name}>
+                  <label className="sched-tech-row">
+                    <input
+                      type="checkbox"
+                      checked={selectedTechs.includes(tech.name)}
+                      onChange={() => toggleTech(tech.name)}
+                      className="sched-checkbox"
+                    />
+                    <span className="sched-tech-name">{tech.name}</span>
+                    <span className="sched-tech-time">{tech.label}</span>
+                  </label>
+                </li>
+              ))}
             </ul>
-          </div>
-
-          <div className="sched-section">
-            <h4 className="sched-subheading">Session Information</h4>
-            <div className="sched-session-info">
-              <div>
-                <span>Current Phase</span>
-                <strong>Foundation</strong>
-              </div>
-              <div>
-                <span>Expected Milestone</span>
-                <strong>Improved lymphatic activation and skin firmness.</strong>
-              </div>
+            <div className="sched-duration-summary">
+              <span>Estimated Session</span>
+              <strong>{estimatedDuration || 0} min</strong>
+              <span className="sched-tech-count">{selectedTechs.length} selected</span>
             </div>
           </div>
+
+          {(context.hasProgressPhotos || context.hasRenphoScan || context.hasBodyMeasurements) && (
+            <div className="sched-section">
+              <h4 className="sched-subheading">Session Readiness</h4>
+              <ul className="sched-readiness-list">
+                {context.hasProgressPhotos && <li>✓ Progress photos on file</li>}
+                {context.hasRenphoScan && <li>✓ Body Composition (Renpho) on file</li>}
+                {context.hasBodyMeasurements && <li>✓ Professional measurements on file</li>}
+              </ul>
+            </div>
+          )}
+
+          <div className="sched-section">
+            <label className="sched-label" htmlFor="clinical-notes">
+              Clinical Notes (optional)
+            </label>
+            <textarea
+              id="clinical-notes"
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+              rows={3}
+              className="sched-textarea"
+              placeholder="Add relevant notes about today's session…"
+            />
+          </div>
+
+          {step === 2 && (
+            <button type="button" className="sched-cta sched-cta-block" onClick={() => setStep(3)}>
+              Continue to Schedule →
+            </button>
+          )}
         </>
       )}
 
-      <div className="sched-section">
-        <h4 className="sched-subheading">Date</h4>
-        <div className="sched-date-pills">
-          <button type="button" className={dateMode === "today" ? "sched-pill active" : "sched-pill"} onClick={() => setDateMode("today")}>
-            Today
+      {/* ---------- Step 3: Date + Time ---------- */}
+      {context && step >= 3 && (
+        <>
+          <div className="sched-section">
+            <h4 className="sched-subheading">Date</h4>
+            <div className="sched-date-pills">
+              <button type="button" className={dateMode === "today" ? "sched-pill active" : "sched-pill"} onClick={() => setDateMode("today")}>
+                Today
+              </button>
+              <button type="button" className={dateMode === "tomorrow" ? "sched-pill active" : "sched-pill"} onClick={() => setDateMode("tomorrow")}>
+                Tomorrow
+              </button>
+              <button type="button" className={dateMode === "custom" ? "sched-pill active" : "sched-pill"} onClick={() => setDateMode("custom")}>
+                Choose another date
+              </button>
+            </div>
+            {dateMode === "custom" && (
+              <input type="date" value={customDate} onChange={(e) => setCustomDate(e.target.value)} className="sched-date-input" />
+            )}
+          </div>
+
+          <div className="sched-section">
+            <h4 className="sched-subheading">Time</h4>
+            <div className="sched-time-chips">
+              {TIME_SLOTS.map((t) => (
+                <button key={t} type="button" className={time === t ? "sched-chip active" : "sched-chip"} onClick={() => setTime(t)}>
+                  {fmtTime(t)}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {error && <p className="sched-error">{error}</p>}
+
+          <button type="button" className="sched-cta sched-cta-block" disabled={isPending} onClick={handleSchedule}>
+            {isPending ? "Scheduling…" : "Confirm & Schedule Session →"}
           </button>
-          <button type="button" className={dateMode === "tomorrow" ? "sched-pill active" : "sched-pill"} onClick={() => setDateMode("tomorrow")}>
-            Tomorrow
-          </button>
-          <button type="button" className={dateMode === "custom" ? "sched-pill active" : "sched-pill"} onClick={() => setDateMode("custom")}>
-            Choose another date
-          </button>
-        </div>
-        {dateMode === "custom" && (
-          <input type="date" value={customDate} onChange={(e) => setCustomDate(e.target.value)} className="sched-date-input" />
-        )}
-      </div>
-
-      <div className="sched-section">
-        <h4 className="sched-subheading">Time</h4>
-        <div className="sched-time-chips">
-          {TIME_SLOTS.map((t) => (
-            <button key={t} type="button" className={time === t ? "sched-chip active" : "sched-chip"} onClick={() => setTime(t)}>
-              {fmtTime(t)}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      <div className="sched-section">
-        <label className="sched-label" htmlFor="clinical-notes">
-          Clinical Notes (optional)
-        </label>
-        <textarea
-          id="clinical-notes"
-          value={notes}
-          onChange={(e) => setNotes(e.target.value)}
-          rows={3}
-          className="sched-textarea"
-          placeholder="Add any relevant notes for this session…"
-        />
-      </div>
-
-      {error && <p className="sched-error">{error}</p>}
-
-      <button type="button" className="sched-cta sched-cta-block" disabled={isPending} onClick={handleSubmit}>
-        {isPending ? "Scheduling…" : "Schedule Session →"}
-      </button>
+        </>
+      )}
     </div>
   );
 }
