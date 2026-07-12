@@ -53,6 +53,33 @@ export async function createLead(formData: FormData) {
   redirect(`/hub/leads/${lead.id}`);
 }
 
+export async function updateLead(leadId: string, formData: FormData) {
+  const user = await getCurrentHubUser();
+  if (!user || !hasPermission(user, "leads.edit")) {
+    return { error: "You don't have permission to edit leads." };
+  }
+
+  const parsed = createLeadSchema.safeParse({
+    firstName: formData.get("firstName"),
+    lastName: formData.get("lastName"),
+    email: formData.get("email"),
+    phone: formData.get("phone") || undefined,
+    city: formData.get("city") || undefined,
+    goals: formData.get("goals") || undefined,
+    source: formData.get("source") || undefined,
+  });
+
+  if (!parsed.success) {
+    return { error: parsed.error.issues[0]?.message ?? "Invalid input." };
+  }
+
+  await prisma.lead.update({ where: { id: leadId }, data: parsed.data });
+
+  revalidatePath(`/hub/leads/${leadId}`);
+  revalidatePath("/hub/leads");
+  return { success: true };
+}
+
 export async function updateLeadStatus(leadId: string, newStatus: LeadStatus, note?: string) {
   const user = await getCurrentHubUser();
   if (!user || !hasPermission(user, "leads.edit")) {
@@ -101,7 +128,7 @@ export async function archiveLead(leadId: string) {
   // Soft delete only — archivedAt is set, the row is never removed.
   await prisma.lead.update({ where: { id: leadId }, data: { archivedAt: new Date() } });
   revalidatePath("/hub/leads");
-  return { success: true };
+  redirect("/hub/leads");
 }
 
 /**
