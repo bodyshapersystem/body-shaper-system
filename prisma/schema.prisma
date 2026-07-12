@@ -640,6 +640,8 @@ enum PaymentRecordStatus {
   PAID
   REFUNDED
   FAILED
+  PARTIAL
+  CANCELLED
 }
 
 enum PaymentType {
