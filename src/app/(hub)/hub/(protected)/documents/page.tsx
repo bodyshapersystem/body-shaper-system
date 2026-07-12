@@ -11,8 +11,6 @@ const CHECKLIST: { category: string; label: string }[] = [
   { category: "WELCOME_GUIDE", label: "Welcome Guide" },
   { category: "POLICIES_APPOINTMENTS", label: "Policies & Appointments" },
   { category: "CONSENT_TREATMENT", label: "Consent for Treatment" },
-  { category: "PHOTOGRAPHY_AUTHORIZATION", label: "Photography Authorization" },
-  { category: "BODY_BLUEPRINT_PDF", label: "Body Blueprint™ PDF" },
 ];
 
 const CATEGORY_LABELS: Record<string, string> = {
@@ -119,8 +117,6 @@ async function ClientRecordsView({
 
   const checklistDone = CHECKLIST.filter((item) => (categoryCounts.get(item.category) ?? 0) > 0).length;
   const progressPercent = Math.round((checklistDone / CHECKLIST.length) * 100);
-  const finalReportExists = (categoryCounts.get("FINAL_REPORT") ?? 0) > 0;
-  const finalReportReady = checklistDone === CHECKLIST.length;
 
   const filtered = documents.filter((d) => {
     if (category && d.category !== category) return false;
@@ -174,13 +170,6 @@ async function ClientRecordsView({
               </li>
             );
           })}
-          <li>
-            <span className={finalReportExists ? "doc-check-dot done" : "doc-check-dot"}>{finalReportExists ? "✓" : "○"}</span>
-            Final Report
-            <span className="pay-history-meta" style={{ marginLeft: "auto" }}>
-              {finalReportExists ? "Generated" : finalReportReady ? "Ready to generate" : "Available after completion"}
-            </span>
-          </li>
         </ul>
       </div>
 
