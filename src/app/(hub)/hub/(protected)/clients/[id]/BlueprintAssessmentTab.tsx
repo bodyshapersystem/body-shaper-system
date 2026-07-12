@@ -59,25 +59,68 @@ export default function BlueprintAssessmentTab({
 
   return (
     <div style={{ maxWidth: 760, display: "flex", flexDirection: "column", gap: 36 }}>
-      {/* ---------- Header ---------- */}
-      <div style={{ border: "1px solid rgba(0,0,0,0.1)", borderRadius: 6, padding: 16 }}>
-        <h2 style={{ fontSize: 16, marginBottom: 12 }}>Blueprint Assessment™</h2>
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12, fontSize: 13 }}>
-          <Field label="Version">v{assessment.version}</Field>
-          <Field label="Status">{STATUS_LABELS[assessment.status] ?? assessment.status}</Field>
-          <Field label="Intake Submitted">{assessment.intakeSubmissionDate?.toLocaleDateString() ?? "—"}</Field>
-          <Field label="Baseline Appointment">{assessment.baselineAppointmentDate?.toLocaleDateString() ?? "—"}</Field>
-          <Field label="Original Recommendation">{assessment.originalRecommendedSystem ?? "—"}</Field>
-          <Field label="Validated System">{assessment.status === "VALIDATED" || assessment.status === "IN_PROGRESS" || assessment.status === "COMPLETED" ? assessment.recommendedSystem ?? "—" : "Not yet validated"}</Field>
-          <Field label="Initial Frequency">{assessment.initialFrequency ?? "—"}</Field>
-          <Field label="Validated Frequency">{assessment.validatedFrequency ?? "—"}</Field>
-          <Field label="Initial Sessions">{assessment.initialSessionCount ?? "—"}</Field>
-          <Field label="Validated Sessions">{assessment.validatedSessionCount ?? "—"}</Field>
-          <Field label="Validated At">{assessment.validatedAt?.toLocaleString() ?? "—"}</Field>
+      {/* ---------- Blueprint Assessment Summary (premium card) ---------- */}
+      <div className="bp-summary-card">
+        <div className="bp-summary-head">
+          <div>
+            <p className="bp-hero-eyebrow">Blueprint Assessment™</p>
+            <h2 style={{ fontFamily: "var(--serif)", fontSize: 20, margin: 0 }}>Version {assessment.version}</h2>
+          </div>
+          <span className={`bp-status-chip bp-status-chip-${assessment.status.toLowerCase()}`}>
+            {STATUS_LABELS[assessment.status] ?? assessment.status}
+          </span>
         </div>
+
+        <div className="bp-summary-grid">
+          <div className="bp-summary-item">
+            <span>Intake Submitted</span>
+            <strong>{assessment.intakeSubmissionDate?.toLocaleDateString() ?? "Not available yet"}</strong>
+          </div>
+          <div className="bp-summary-item">
+            <span>Baseline Appointment</span>
+            <strong>{assessment.baselineAppointmentDate?.toLocaleDateString() ?? "Not scheduled yet"}</strong>
+          </div>
+          <div className="bp-summary-item">
+            <span>Original Recommendation</span>
+            <strong>{assessment.originalRecommendedSystem ?? "Not available yet"}</strong>
+          </div>
+          <div className="bp-summary-item">
+            <span>Validated System</span>
+            <strong>
+              {["VALIDATED", "IN_PROGRESS", "COMPLETED"].includes(assessment.status)
+                ? assessment.recommendedSystem ?? "Not available yet"
+                : "Not yet validated"}
+            </strong>
+          </div>
+          <div className="bp-summary-item">
+            <span>Initial Frequency</span>
+            <strong>{assessment.initialFrequency ?? "Not set"}</strong>
+          </div>
+          <div className="bp-summary-item">
+            <span>Validated Frequency</span>
+            <strong>{assessment.validatedFrequency ?? "Not yet validated"}</strong>
+          </div>
+          <div className="bp-summary-item">
+            <span>Initial Sessions</span>
+            <strong>{assessment.initialSessionCount ?? "Not set"}</strong>
+          </div>
+          <div className="bp-summary-item">
+            <span>Validated Sessions</span>
+            <strong>{assessment.validatedSessionCount ?? "Not yet validated"}</strong>
+          </div>
+          <div className="bp-summary-item">
+            <span>Last Updated</span>
+            <strong>{assessment.updatedAt.toLocaleDateString()}</strong>
+          </div>
+          <div className="bp-summary-item">
+            <span>Validation Status</span>
+            <strong>{assessment.validatedAt ? assessment.validatedAt.toLocaleDateString() : "Awaiting validation"}</strong>
+          </div>
+        </div>
+
         {assessment.validationNotes && (
-          <p style={{ marginTop: 12, fontSize: 13 }}>
-            <strong style={{ fontSize: 11, opacity: 0.6 }}>Validation Notes: </strong>
+          <p className="bp-summary-notes">
+            <strong>Validation Notes — </strong>
             {assessment.validationNotes}
           </p>
         )}
