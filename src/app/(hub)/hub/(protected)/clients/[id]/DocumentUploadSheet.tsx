@@ -67,6 +67,7 @@ export default function DocumentUploadSheet({ clientId, defaultCategory }: { cli
           fileType: file.type || undefined,
           sizeBytes: file.size,
           category: (formData.get("category") as string || undefined) as DocumentCategory | undefined,
+          visibility: (formData.get("visibility") as string || undefined) as "INTERNAL_ONLY" | "CLIENT_VISIBLE" | undefined,
         });
 
         if (result?.error) {
@@ -111,6 +112,13 @@ export default function DocumentUploadSheet({ clientId, defaultCategory }: { cli
               <label className="sched-label">
                 Title (optional)
                 <input name="title" placeholder="Defaults to file name" className="sched-select" />
+              </label>
+              <label className="sched-label">
+                Visibility
+                <select name="visibility" defaultValue="CLIENT_VISIBLE" className="sched-select">
+                  <option value="CLIENT_VISIBLE">Client Visible (shows in their Client Hub too)</option>
+                  <option value="INTERNAL_ONLY">Internal Only</option>
+                </select>
               </label>
               <label className="doc-dropzone">
                 <input name="file" type="file" accept=".pdf,.png,.jpg,.jpeg,.docx" required style={{ display: "none" }} />

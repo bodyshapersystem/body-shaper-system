@@ -6,7 +6,7 @@ import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { revalidatePath } from "next/cache";
 import { sendWelcomeActivationEmail } from "@/lib/email/service";
 import { randomUUID } from "crypto";
-import type { DocumentCategory } from "@prisma/client";
+import type { DocumentCategory, Visibility } from "@prisma/client";
 import {
   getActiveAssessmentForClient,
   startReassessment,
@@ -177,7 +177,7 @@ export async function createSignedDocumentUploadUrl(clientId: string, fileName: 
  */
 export async function recordClientDocument(
   clientId: string,
-  data: { storagePath: string; title: string; fileType?: string; sizeBytes?: number; category?: DocumentCategory }
+  data: { storagePath: string; title: string; fileType?: string; sizeBytes?: number; category?: DocumentCategory; visibility?: Visibility }
 ) {
   const user = await getCurrentHubUser();
   if (!user || !hasPermission(user, "documents.manage")) {
@@ -192,6 +192,7 @@ export async function recordClientDocument(
       fileType: data.fileType,
       sizeBytes: data.sizeBytes,
       category: data.category,
+      visibility: data.visibility,
       uploadedById: user.id,
     },
   });
@@ -223,11 +224,12 @@ export async function updateDocument(documentId: string, formData: FormData) {
 
   const title = String(formData.get("title") || "").trim();
   const category = formData.get("category") as DocumentCategory | null;
+  const visibility = formData.get("visibility") as Visibility | null;
   if (!title) return { error: "Title can't be empty." };
 
   const doc = await prisma.document.update({
     where: { id: documentId },
-    data: { title, category: category ?? undefined },
+    data: { title, category: category ?? undefined, visibility: visibility ?? undefined },
   });
 
   revalidatePath(`/hub/clients/${doc.clientId}`);

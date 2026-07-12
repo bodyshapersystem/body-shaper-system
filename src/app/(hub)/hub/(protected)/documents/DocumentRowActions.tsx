@@ -22,12 +22,14 @@ export default function DocumentRowActions({
   storagePath,
   title,
   category,
+  visibility,
   canManage,
 }: {
   documentId: string;
   storagePath: string;
   title: string;
   category: string;
+  visibility: string;
   canManage: boolean;
 }) {
   const router = useRouter();
@@ -69,6 +71,10 @@ export default function DocumentRowActions({
               {c.label}
             </option>
           ))}
+        </select>
+        <select name="visibility" defaultValue={visibility} className="sched-select">
+          <option value="CLIENT_VISIBLE">Client Visible</option>
+          <option value="INTERNAL_ONLY">Internal Only</option>
         </select>
         <div style={{ display: "flex", gap: 8 }}>
           <button type="button" className="sched-secondary-btn" onClick={() => setEditing(false)}>

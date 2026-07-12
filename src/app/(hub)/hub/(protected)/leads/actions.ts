@@ -10,6 +10,7 @@ import { z } from "zod";
 import type { LeadStatus, PaymentStatus } from "@prisma/client";
 import { sendWelcomeActivationEmail } from "@/lib/email/service";
 import { linkAssessmentToClient } from "@/lib/blueprint-assessments";
+import { fetchAndStoreJotformSubmissionPdf } from "@/lib/jotform-pdf";
 
 const createLeadSchema = z.object({
   firstName: z.string().min(1, "First name is required"),
@@ -277,6 +278,29 @@ async function finishConversion(
   // submission, this creates a blank ACTIVE assessment instead — every
   // Client always has at least one baseline assessment.
   await linkAssessmentToClient(lead.id, result.client.id, convertedById);
+
+  // Automatic intake document capture — per the shared-vault
+  // direction: no manual "assign this document" step. If the lead's
+  // Blueprint Assessment™ came from a real Jotform submission, fetch
+  // and store the actual submission PDF as a Client Visible Document
+  // now that a Client row exists to attach it to (Documents can't
+  // belong to a Lead — only to a Client). Silently skipped (not
+  // failed) if JOTFORM_API_KEY/JOTFORM_BLUEPRINT_FORM_ID aren't
+  // configured yet, or if this lead had no real Jotform submission —
+  // conversion must never fail because of this.
+  const linkedAssessment = await prisma.blueprintAssessment.findFirst({
+    where: { clientId: result.client.id },
+    orderBy: { version: "desc" },
+  });
+  if (linkedAssessment?.jotformSubmissionId && process.env.JOTFORM_BLUEPRINT_FORM_ID) {
+    await fetchAndStoreJotformSubmissionPdf({
+      clientId: result.client.id,
+      jotformFormId: process.env.JOTFORM_BLUEPRINT_FORM_ID,
+      jotformSubmissionId: linkedAssessment.jotformSubmissionId,
+      title: "Intake Form.pdf",
+      category: "INTAKE_FORM",
+    }).catch(() => undefined); // never block conversion on this
+  }
 
   const activationUrl = `${SITE_URL}/portal/activate?token=${result.invite.token}`;
 

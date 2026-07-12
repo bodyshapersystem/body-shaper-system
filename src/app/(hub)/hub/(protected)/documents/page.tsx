@@ -255,8 +255,16 @@ async function ClientRecordsView({
               <p className="sess-card-date">{d.title}</p>
               <p className="pay-history-meta">
                 {d.uploadedById ? uploaderNameById.get(d.uploadedById) ?? "—" : "—"} · {d.uploadedAt.toLocaleDateString()} · {money(d.sizeBytes)}
+                {d.visibility === "CLIENT_VISIBLE" ? " · Visible in Client Hub" : " · Internal Only"}
               </p>
-              <DocumentRowActions documentId={d.id} storagePath={d.storagePath} title={d.title} category={d.category} canManage={canManage} />
+              <DocumentRowActions
+                documentId={d.id}
+                storagePath={d.storagePath}
+                title={d.title}
+                category={d.category}
+                visibility={d.visibility}
+                canManage={canManage}
+              />
             </div>
           ))}
         </div>

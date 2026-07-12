@@ -525,6 +525,7 @@ model ProgressSnapshot {
 // ---------- Documents (Supabase Storage metadata) ----------
 
 enum DocumentCategory {
+  INTAKE_FORM
   WELCOME_GUIDE
   POLICIES_APPOINTMENTS
   CONSENT_TREATMENT
@@ -545,6 +546,7 @@ model Document {
   appointment   Appointment?     @relation(fields: [appointmentId], references: [id], onDelete: SetNull)
   title         String
   category      DocumentCategory @default(ADDITIONAL_FILES)
+  visibility    Visibility       @default(INTERNAL_ONLY) // shared Owner Hub / Client Hub vault reads this
   storagePath   String
   fileType      String?
   sizeBytes     Int?

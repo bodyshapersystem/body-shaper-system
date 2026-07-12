@@ -11,8 +11,13 @@ export default async function DocumentsPage() {
 
   // Re-query with documents included (getCurrentPortalClient only
   // preloads the latest blueprint/measurement for the dashboard).
+  // Only documents the Owner has explicitly marked Client Visible —
+  // previously this had no visibility filter at all, meaning any
+  // internal-only document (e.g. an internal note or receipt) was
+  // already exposed here. Now the Owner Hub and Client Hub share the
+  // same vault, with visibility as the one real difference.
   const documents = await prisma.document.findMany({
-    where: { clientId: client.id },
+    where: { clientId: client.id, visibility: "CLIENT_VISIBLE" },
     orderBy: { uploadedAt: "desc" },
   });
 
