@@ -2,6 +2,8 @@
 
 import { useState, useTransition } from "react";
 import BlueprintWaves from "@/components/BlueprintWaves";
+import Link from "next/link";
+import PasswordInput from "@/components/auth/PasswordInput";
 import { loginHubUser } from "./actions";
 
 export default function HubLoginPage() {
@@ -50,8 +52,13 @@ export default function HubLoginPage() {
             <label htmlFor="hub-email">Email Address</label>
             <input id="hub-email" name="email" type="email" placeholder="you@bodyshapersystem.com" required />
 
-            <label htmlFor="hub-password">Password</label>
-            <input id="hub-password" name="password" type="password" placeholder="••••••••" required />
+            <div className="auth-label-row">
+              <label htmlFor="hub-password">Password</label>
+              <Link href="/hub/forgot-password" className="auth-forgot">
+                Forgot password?
+              </Link>
+            </div>
+            <PasswordInput id="hub-password" name="password" required autoComplete="current-password" />
 
             {error && <p className="auth-error">{error}</p>}
 

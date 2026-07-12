@@ -1,4 +1,5 @@
 import BlueprintWaves from "@/components/BlueprintWaves";
+import PasswordInput from "@/components/auth/PasswordInput";
 import { prisma } from "@/lib/prisma";
 import { activatePortalAccount } from "./actions";
 
@@ -65,10 +66,10 @@ export default async function ActivatePortalPage({
                 }}
               >
                 <label htmlFor="password">New Password</label>
-                <input id="password" name="password" type="password" placeholder="••••••••" required minLength={8} />
+                <PasswordInput id="password" name="password" required minLength={8} autoComplete="new-password" />
 
                 <label htmlFor="confirm">Confirm Password</label>
-                <input id="confirm" name="confirm" type="password" placeholder="••••••••" required minLength={8} />
+                <PasswordInput id="confirm" name="confirm" required minLength={8} autoComplete="new-password" />
 
                 <button type="submit" className="auth-submit">
                   Activate Account

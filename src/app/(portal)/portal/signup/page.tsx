@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import BlueprintWaves from "@/components/BlueprintWaves";
+import PasswordInput from "@/components/auth/PasswordInput";
 
 export default function PortalSignupPage() {
   const router = useRouter();
@@ -90,18 +91,16 @@ export default function PortalSignupPage() {
             />
 
             <label htmlFor="signup-password">Password</label>
-            <input
+            <PasswordInput
               id="signup-password"
-              type="password"
               placeholder="••••••••"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
             />
 
             <label htmlFor="signup-confirm">Confirm Password</label>
-            <input
+            <PasswordInput
               id="signup-confirm"
-              type="password"
               placeholder="••••••••"
               value={confirm}
               onChange={(e) => setConfirm(e.target.value)}

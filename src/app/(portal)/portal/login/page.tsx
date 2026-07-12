@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import Link from "next/link";
 import BlueprintWaves from "@/components/BlueprintWaves";
+import PasswordInput from "@/components/auth/PasswordInput";
 import { loginPortalClient } from "./actions";
 
 export default function PortalLoginPage() {
@@ -55,11 +56,11 @@ export default function PortalLoginPage() {
 
             <div className="auth-label-row">
               <label htmlFor="login-password">Password</label>
-              <Link href="#" className="auth-forgot">
+              <Link href="/portal/forgot-password" className="auth-forgot">
                 Forgot password?
               </Link>
             </div>
-            <input id="login-password" name="password" type="password" placeholder="••••••••" required />
+            <PasswordInput id="login-password" name="password" required autoComplete="current-password" />
 
             <label className="auth-checkbox">
               <input type="checkbox" />
