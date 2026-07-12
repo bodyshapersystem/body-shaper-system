@@ -55,11 +55,15 @@ export default function AppointmentScheduler({ clients }: { clients: ClientOptio
   const [notes, setNotes] = useState("");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState<{ appointmentClientId: string } | null>(null);
+  const [systemOverride, setSystemOverride] = useState("");
+  const [sessionOverride, setSessionOverride] = useState<number | "">("");
 
   function handleClientChange(id: string) {
     setClientId(id);
     setContext(null);
     setSuccess(null);
+    setSystemOverride("");
+    setSessionOverride("");
     if (!id) return;
     setLoadingContext(true);
     startTransition(async () => {
@@ -74,6 +78,9 @@ export default function AppointmentScheduler({ clients }: { clients: ClientOptio
     if (dateMode === "tomorrow") return tomorrow;
     return new Date(customDate + "T00:00:00");
   }
+
+  const effectiveSystem = systemOverride.trim() || context?.system || null;
+  const effectiveSession = sessionOverride !== "" ? sessionOverride : context?.currentSession ?? 1;
 
   function handleSubmit() {
     setError("");
@@ -90,9 +97,7 @@ export default function AppointmentScheduler({ clients }: { clients: ClientOptio
     const startsAt = selectedDate();
     startsAt.setHours(h, m, 0, 0);
 
-    const title = context?.system
-      ? `Session ${context.currentSession} — ${context.system}`
-      : `Session ${context?.currentSession ?? 1}`;
+    const title = effectiveSystem ? `Session ${effectiveSession} — ${effectiveSystem}` : `Session ${effectiveSession}`;
 
     const formData = new FormData();
     formData.set("clientId", clientId);
@@ -118,7 +123,7 @@ export default function AppointmentScheduler({ clients }: { clients: ClientOptio
       <div className="sched-success">
         <span className="sched-success-check">✓</span>
         <h3>Session Scheduled</h3>
-        <p>Session {context?.currentSession ?? 1} has been added successfully.</p>
+        <p>Session {effectiveSession} has been added successfully.</p>
         <div className="sched-success-actions">
           <a href={`/hub/clients/${success.appointmentClientId}?tab=blueprint`} className="sched-cta">
             View Appointment →
@@ -130,6 +135,8 @@ export default function AppointmentScheduler({ clients }: { clients: ClientOptio
               setSuccess(null);
               setClientId("");
               setContext(null);
+              setSystemOverride("");
+              setSessionOverride("");
             }}
           >
             Schedule Another
@@ -171,9 +178,23 @@ export default function AppointmentScheduler({ clients }: { clients: ClientOptio
             <h3>
               {context.firstName} {context.lastName}
             </h3>
-            {context.system && <p className="sched-system">{context.system}</p>}
+            <input
+              type="text"
+              value={systemOverride}
+              onChange={(e) => setSystemOverride(e.target.value)}
+              placeholder={context.system ?? "Enter system (e.g. ExiLipo Signature™)"}
+              className="sched-inline-input sched-system-input"
+            />
             <p className="sched-session-line">
-              Session {context.currentSession} of {context.totalSessions}
+              Session{" "}
+              <input
+                type="number"
+                min={1}
+                value={sessionOverride === "" ? context.currentSession : sessionOverride}
+                onChange={(e) => setSessionOverride(e.target.value === "" ? "" : Number(e.target.value))}
+                className="sched-inline-input sched-session-input"
+              />{" "}
+              of {context.totalSessions}
             </p>
             <div className="sched-progress-track">
               <div className="sched-progress-fill" style={{ width: `${Math.min(context.progressPercent, 100)}%` }} />
@@ -194,7 +215,7 @@ export default function AppointmentScheduler({ clients }: { clients: ClientOptio
           <div className="sched-section">
             <h4 className="sched-subheading">Today's Protocol</h4>
             <ul className="sched-protocol-list">
-              <li>✓ {context.system ?? "Personalized treatment protocol"}</li>
+              <li>✓ {effectiveSystem ?? "Personalized treatment protocol"}</li>
             </ul>
           </div>
 
