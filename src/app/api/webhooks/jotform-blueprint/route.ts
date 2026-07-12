@@ -39,6 +39,8 @@ import type { Prisma } from "@prisma/client";
 
 export async function POST(request: NextRequest) {
   const token = request.nextUrl.searchParams.get("token");
+  // TEMPORARY diagnostic logging — remove once the 401 mismatch is resolved.
+  console.error("[jotform-blueprint] received token:", JSON.stringify(token), "expected:", JSON.stringify(process.env.JOTFORM_WEBHOOK_SECRET), "full URL:", request.nextUrl.toString());
   if (!process.env.JOTFORM_WEBHOOK_SECRET || token !== process.env.JOTFORM_WEBHOOK_SECRET) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
