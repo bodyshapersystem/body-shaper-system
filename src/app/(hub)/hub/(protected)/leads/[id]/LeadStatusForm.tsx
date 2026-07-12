@@ -4,28 +4,21 @@ import { useTransition } from "react";
 import { updateLeadStatus } from "../actions";
 import type { LeadStatus } from "@prisma/client";
 
-const STATUSES: LeadStatus[] = [
-  "NEW",
-  "CONTACTED",
-  "QUALIFIED",
-  "CONSULTATION_SCHEDULED",
-  "PAYMENT_PENDING",
-  "PAYMENT_CONFIRMED",
-  "LOST",
-  "ARCHIVED",
+const STATUSES: { value: LeadStatus; label: string }[] = [
+  { value: "NEW", label: "New" },
+  { value: "CONTACTED", label: "Contacted" },
+  { value: "QUALIFIED", label: "Qualified" },
+  { value: "CONSULTATION_SCHEDULED", label: "Consultation Scheduled" },
+  { value: "PAYMENT_PENDING", label: "Proposal Sent" },
+  { value: "PAYMENT_CONFIRMED", label: "Deposit Received" },
+  { value: "LOST", label: "Lost" },
+  { value: "ARCHIVED", label: "Archived" },
 ];
 
-export default function LeadStatusForm({
-  leadId,
-  currentStatus,
-}: {
-  leadId: string;
-  currentStatus: LeadStatus;
-}) {
+export default function LeadStatusForm({ leadId, currentStatus }: { leadId: string; currentStatus: LeadStatus }) {
   const [isPending, startTransition] = useTransition();
 
-  function handleChange(e: React.ChangeEvent<HTMLSelectElement>) {
-    const newStatus = e.target.value as LeadStatus;
+  function handleSelect(newStatus: LeadStatus) {
     startTransition(() => {
       updateLeadStatus(leadId, newStatus);
     });
@@ -33,16 +26,22 @@ export default function LeadStatusForm({
 
   return (
     <div>
-      <label htmlFor="status" style={{ display: "block", fontSize: 11, opacity: 0.6, marginBottom: 6 }}>
-        Status
-      </label>
-      <select id="status" defaultValue={currentStatus} onChange={handleChange} disabled={isPending} style={{ padding: 10 }}>
+      <p className="sched-label" style={{ marginBottom: 10 }}>
+        Lead Status
+      </p>
+      <div className="sched-date-pills">
         {STATUSES.map((s) => (
-          <option key={s} value={s}>
-            {s.replace(/_/g, " ")}
-          </option>
+          <button
+            key={s.value}
+            type="button"
+            disabled={isPending}
+            className={currentStatus === s.value ? "sched-pill active" : "sched-pill"}
+            onClick={() => handleSelect(s.value)}
+          >
+            {s.label}
+          </button>
         ))}
-      </select>
+      </div>
     </div>
   );
 }

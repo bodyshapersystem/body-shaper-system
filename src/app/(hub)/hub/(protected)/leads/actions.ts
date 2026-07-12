@@ -305,3 +305,30 @@ async function finishConversion(
   };
 }
 
+
+/**
+ * Appends a timestamped note to the lead's existing internalNotes
+ * field, formatted as a simple log — no new table, per direction not
+ * to modify the database for this pass. Each entry is separated by a
+ * delimiter the detail page splits on to render a chronological list.
+ */
+export async function addLeadNote(leadId: string, formData: FormData) {
+  const user = await getCurrentHubUser();
+  if (!user || !hasPermission(user, "leads.edit")) {
+    return { error: "You don't have permission to add notes." };
+  }
+
+  const content = String(formData.get("content") || "").trim();
+  if (!content) return { error: "Note can't be empty." };
+
+  const lead = await prisma.lead.findUnique({ where: { id: leadId } });
+  if (!lead) return { error: "Lead not found." };
+
+  const entry = `[${new Date().toISOString()}|${user.fullName}] ${content}`;
+  const updated = lead.internalNotes ? `${lead.internalNotes}\n---\n${entry}` : entry;
+
+  await prisma.lead.update({ where: { id: leadId }, data: { internalNotes: updated } });
+
+  revalidatePath(`/hub/leads/${leadId}`);
+  return { success: true };
+}
