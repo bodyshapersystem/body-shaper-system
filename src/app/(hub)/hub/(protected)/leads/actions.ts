@@ -295,13 +295,17 @@ async function finishConversion(
   const rawData = linkedAssessment?.jotformRawData as Record<string, unknown> | null;
   const blueprintFormId = (rawData?.formID as string | undefined) ?? process.env.JOTFORM_BLUEPRINT_FORM_ID;
   if (linkedAssessment?.jotformSubmissionId && blueprintFormId) {
-    await fetchAndStoreJotformSubmissionPdf({
+    const pdfResult = await fetchAndStoreJotformSubmissionPdf({
       clientId: result.client.id,
       jotformFormId: blueprintFormId,
       jotformSubmissionId: linkedAssessment.jotformSubmissionId,
       title: "Intake Form.pdf",
       category: "INTAKE_FORM",
-    }).catch(() => undefined); // never block conversion on this
+    }).catch((err) => ({ success: false as const, error: err instanceof Error ? err.message : String(err) }));
+    // TEMPORARY diagnostic logging — remove once auto-capture is confirmed working.
+    console.error("[intake-pdf-capture]", JSON.stringify(pdfResult), "formId:", blueprintFormId, "submissionId:", linkedAssessment.jotformSubmissionId);
+  } else {
+    console.error("[intake-pdf-capture] skipped — jotformSubmissionId:", linkedAssessment?.jotformSubmissionId, "formId:", blueprintFormId);
   }
 
   const activationUrl = `${SITE_URL}/portal/activate?token=${result.invite.token}`;
