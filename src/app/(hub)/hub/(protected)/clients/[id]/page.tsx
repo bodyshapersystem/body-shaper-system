@@ -4,6 +4,9 @@ import { getCurrentHubUser, hasPermission } from "@/lib/permissions";
 import {
   addMeasurement,
   sendOwnerMessage,
+  getClientOverviewSummary,
+  toggleClientPause,
+  addClientNote,
 } from "./actions";
 import InvitationPanel from "./InvitationPanel";
 import BlueprintAssessmentTab from "./BlueprintAssessmentTab";
@@ -65,8 +68,32 @@ export default async function ClientDetailPage({
 
   if (!client) notFound();
 
+  const [overview, appointments, payments, clientNotes] = await Promise.all([
+    getClientOverviewSummary(id),
+    prisma.appointment.findMany({ where: { clientId: id }, orderBy: { startsAt: "desc" } }),
+    prisma.payment.findMany({ where: { clientId: id }, orderBy: { createdAt: "desc" } }),
+    prisma.clientNote.findMany({ where: { clientId: id }, orderBy: { createdAt: "desc" } }),
+  ]);
+
   const tab: Tab = TABS.includes(tabParam as Tab) ? (tabParam as Tab) : "overview";
   const [latestScan, previousScan] = client.measurements;
+  const initials = `${client.firstName[0] ?? ""}${client.lastName[0] ?? ""}`.toUpperCase();
+  const TAB_LABELS: Record<Tab, string> = {
+    overview: "Overview",
+    blueprint: "Plan & Progress",
+    measurements: "Measurements",
+    documents: "Documents",
+    messages: "Messages",
+    appointments: "Sessions",
+    rewards: "Rewards",
+    payments: "Payments",
+    notes: "Notes",
+    journey: "Journey",
+  };
+
+  function money(cents: number) {
+    return `$${(cents / 100).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  }
 
   return (
     <div className="cat-body portal-page">
@@ -75,7 +102,34 @@ export default async function ClientDetailPage({
         <h1>
           {client.firstName} {client.lastName}
         </h1>
-        <p style={{ fontSize: 13, opacity: 0.65 }}>Portal: {(client.user.portalStatus ?? "—").replace(/_/g, " ")}</p>
+      </div>
+
+      <div className="cl-header-card">
+        <div className="cl-avatar">{initials}</div>
+        <div className="cl-header-info">
+          <div className="cl-header-name-row">
+            <strong>
+              {client.firstName} {client.lastName}
+            </strong>
+            <span className={`dash-status dash-status-${(overview?.status ?? "active").toLowerCase()}`}>{overview?.status ?? "Active"}</span>
+          </div>
+          <p className="cl-header-contact">
+            {client.email} {client.phone && `· ${client.phone}`}
+          </p>
+          <p className="cl-header-contact">Client since {client.createdAt.toLocaleDateString()}</p>
+        </div>
+        {hasPermission(user, "clients.convert") && (
+          <form
+            action={async () => {
+              "use server";
+              await toggleClientPause(client.id);
+            }}
+          >
+            <button type="submit" className="dash-view-btn">
+              {overview?.status === "Paused" ? "Resume" : "Pause"}
+            </button>
+          </form>
+        )}
       </div>
 
       <div style={{ marginBottom: 28 }}>
@@ -98,45 +152,105 @@ export default async function ClientDetailPage({
         />
       </div>
 
-      <nav style={{ display: "flex", flexWrap: "wrap", gap: 4, marginBottom: 28, borderBottom: "1px solid rgba(0,0,0,0.1)" }}>
+      <nav className="cl-tab-nav">
         {TABS.map((t) => (
-          <a
-            key={t}
-            href={`/hub/clients/${id}?tab=${t}`}
-            style={{
-              padding: "8px 14px",
-              fontSize: 12.5,
-              textTransform: "capitalize",
-              borderBottom: tab === t ? "2px solid currentColor" : "2px solid transparent",
-              fontWeight: tab === t ? 600 : 400,
-            }}
-          >
-            {t}
+          <a key={t} href={`/hub/clients/${id}?tab=${t}`} className={tab === t ? "cl-tab active" : "cl-tab"}>
+            {TAB_LABELS[t]}
           </a>
         ))}
       </nav>
 
-      {tab === "overview" && (
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 24, maxWidth: 720 }}>
-          <div>
-            <strong style={{ display: "block", fontSize: 11, opacity: 0.6 }}>Email</strong>
-            {client.email}
+      {tab === "overview" && overview && (
+        <div className="cl-overview-grid">
+          <div className="pd-card">
+            <h3 style={{ fontFamily: "var(--sans)", fontSize: 13, marginBottom: 16 }}>Client Summary</h3>
+            <div className="cl-summary-list">
+              <div className="cl-summary-row">
+                <span>Personalized System™</span>
+                <span>{overview.system ?? "Not set"}</span>
+              </div>
+              <div className="cl-summary-row">
+                <span>Total Sessions</span>
+                <span>{overview.totalSessions}</span>
+              </div>
+              <div className="cl-summary-row">
+                <span>Completed</span>
+                <span>{overview.completedCount}</span>
+              </div>
+              <div className="cl-summary-row">
+                <span>Remaining</span>
+                <span>{overview.remaining}</span>
+              </div>
+              <div className="cl-summary-row">
+                <span>Plan Value</span>
+                <span>{overview.planTotalCents !== null ? money(overview.planTotalCents) : "Not set"}</span>
+              </div>
+              <div className="cl-summary-row">
+                <span>Paid to Date</span>
+                <span>{money(overview.paidCents)}</span>
+              </div>
+              <div className="cl-summary-row">
+                <span>Balance</span>
+                <span>{overview.balanceCents !== null ? money(overview.balanceCents) : "—"}</span>
+              </div>
+              <div className="cl-summary-row">
+                <span>Next Appointment</span>
+                <span>
+                  {overview.nextAppointment
+                    ? `${overview.nextAppointment.startsAt.toLocaleDateString()} · ${overview.nextAppointment.startsAt.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}`
+                    : "No upcoming"}
+                </span>
+              </div>
+            </div>
           </div>
+
           <div>
-            <strong style={{ display: "block", fontSize: 11, opacity: 0.6 }}>Phone</strong>
-            {client.phone ?? "—"}
-          </div>
-          <div>
-            <strong style={{ display: "block", fontSize: 11, opacity: 0.6 }}>City</strong>
-            {client.city ?? "—"}
-          </div>
-          <div>
-            <strong style={{ display: "block", fontSize: 11, opacity: 0.6 }}>Membership Tier</strong>
-            {client.membershipTier}
-          </div>
-          <div>
-            <strong style={{ display: "block", fontSize: 11, opacity: 0.6 }}>Client Since</strong>
-            {client.createdAt.toLocaleDateString()}
+            <div className="pd-card" style={{ marginBottom: 20 }}>
+              <h3 style={{ fontFamily: "var(--sans)", fontSize: 13, marginBottom: 16 }}>Progress Overview</h3>
+              <div className="cl-ring-wrap">
+                <div
+                  className="cl-ring"
+                  style={{
+                    background: `conic-gradient(#5C1A1F ${overview.overallProgressPercent}%, rgba(92,26,31,0.15) 0)`,
+                  }}
+                >
+                  <div className="cl-ring-inner">
+                    <strong>{overview.overallProgressPercent}%</strong>
+                    <span>Overall</span>
+                  </div>
+                </div>
+                <div className="cl-ring-legend">
+                  <span>
+                    <span className="cl-ring-legend-dot" style={{ background: "#5C1A1F" }} />
+                    {overview.completedCount} Completed
+                  </span>
+                  <span>
+                    <span className="cl-ring-legend-dot" style={{ background: "rgba(92,26,31,0.15)" }} />
+                    {overview.remaining} Remaining
+                  </span>
+                  <span>
+                    <span className="cl-ring-legend-dot" style={{ background: "#93650f" }} />
+                    {overview.onHoldCount} On Hold
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <h3 style={{ fontFamily: "var(--sans)", fontSize: 13, marginBottom: 4 }}>Quick Actions</h3>
+            <div className="cl-quick-actions">
+              <a href="/hub/appointments" className="cl-quick-btn">
+                + New Appointment
+              </a>
+              <a href="/hub/payments" className="cl-quick-btn">
+                $ Record Payment
+              </a>
+              <a href={`/hub/clients/${id}?tab=blueprint`} className="cl-quick-btn">
+                ↑ Upload Progress Photos
+              </a>
+              <a href={`/hub/clients/${id}?tab=notes`} className="cl-quick-btn">
+                ✎ Add Note
+              </a>
+            </div>
           </div>
         </div>
       )}
@@ -272,7 +386,26 @@ export default async function ClientDetailPage({
         </div>
       )}
 
-      {tab === "appointments" && <p style={{ opacity: 0.6 }}>No appointments scheduled yet.</p>}
+      {tab === "appointments" && (
+        <div style={{ maxWidth: 640 }}>
+          {appointments.length === 0 ? (
+            <p className="dash-empty">No appointments scheduled yet.</p>
+          ) : (
+            <ul style={{ display: "flex", flexDirection: "column", gap: 10, listStyle: "none", paddingLeft: 0 }}>
+              {appointments.map((a) => (
+                <li key={a.id} className="sess-card">
+                  <div className="sess-card-head">
+                    <span className="sess-card-number">{a.startsAt.toLocaleDateString()}</span>
+                    <span className={`dash-status dash-status-${a.status.toLowerCase()}`}>{a.status}</span>
+                  </div>
+                  <p className="sess-card-date">{a.title}</p>
+                  {a.estimatedMinutes && <p className="pay-history-meta">{a.estimatedMinutes} min</p>}
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      )}
 
       {tab === "rewards" && (
         <div style={{ fontSize: 13.5 }}>
@@ -282,14 +415,81 @@ export default async function ClientDetailPage({
       )}
 
       {tab === "payments" && (
-        <div style={{ fontSize: 13.5 }}>
-          <p>Payment status (from originating lead): {client.lead.paymentStatus.replace(/_/g, " ")}</p>
+        <div style={{ maxWidth: 640 }}>
+          {overview && (
+            <div className="pay-financials" style={{ marginBottom: 24 }}>
+              <div>
+                <span>Total Plan</span>
+                <strong>{overview.planTotalCents !== null ? money(overview.planTotalCents) : "Not set"}</strong>
+              </div>
+              <div>
+                <span>Paid</span>
+                <strong>{money(overview.paidCents)}</strong>
+              </div>
+              <div>
+                <span>Balance</span>
+                <strong>{overview.balanceCents !== null ? money(overview.balanceCents) : "—"}</strong>
+              </div>
+            </div>
+          )}
+          <a href="/hub/payments" className="sched-cta" style={{ display: "inline-block", marginBottom: 24, textDecoration: "none" }}>
+            Record Payment →
+          </a>
+          {payments.length === 0 ? (
+            <p className="dash-empty">No payments recorded yet.</p>
+          ) : (
+            <ul style={{ display: "flex", flexDirection: "column", gap: 10, listStyle: "none", paddingLeft: 0 }}>
+              {payments.map((p) => (
+                <li key={p.id} className="sess-card">
+                  <div className="sess-card-head">
+                    <span className="sess-card-number">{p.createdAt.toLocaleDateString()}</span>
+                    <span className={`dash-status dash-status-${p.status.toLowerCase()}`}>{p.status}</span>
+                  </div>
+                  <p className="sess-card-date">{money(p.amountCents)}</p>
+                  {p.installmentNumber && (
+                    <p className="pay-history-meta">
+                      Payment {p.installmentNumber} of {p.installmentTotal}
+                    </p>
+                  )}
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
       )}
 
       {tab === "notes" && (
-        <div style={{ fontSize: 13.5, maxWidth: 560 }}>
-          <p>{client.lead.internalNotes || "No internal notes yet."}</p>
+        <div style={{ maxWidth: 640 }}>
+          {hasPermission(user, "clients.view") && (
+            <form
+              action={async (formData: FormData) => {
+                "use server";
+                await addClientNote(client.id, formData);
+              }}
+              style={{ marginBottom: 24 }}
+            >
+              <textarea
+                name="content"
+                rows={3}
+                className="sched-textarea"
+                placeholder="Add a note about this client…"
+                style={{ marginBottom: 10 }}
+              />
+              <button type="submit" className="sched-cta">
+                Add Note
+              </button>
+            </form>
+          )}
+          {clientNotes.length === 0 ? (
+            <p className="dash-empty">No notes yet.</p>
+          ) : (
+            clientNotes.map((n) => (
+              <div key={n.id} className="cl-note-card">
+                <p className="cl-note-meta">{n.createdAt.toLocaleString()}</p>
+                <p className="cl-note-content">{n.content}</p>
+              </div>
+            ))
+          )}
         </div>
       )}
 

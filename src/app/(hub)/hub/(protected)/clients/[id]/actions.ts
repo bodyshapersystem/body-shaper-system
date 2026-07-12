@@ -244,3 +244,99 @@ export async function resendInvitation(clientId: string) {
   revalidatePath(`/hub/clients/${clientId}`);
   return { success: true, emailSent: result.success, emailError: result.success ? undefined : result.error };
 }
+
+/**
+ * Combined real-data summary for the Clients V2 Overview tab — reuses
+ * the same logic already built for Appointments/Payments (session
+ * count, plan total/paid/balance) rather than recomputing it
+ * differently here. "On Hold" in the progress ring maps to real
+ * NO_SHOW appointments (a session that was scheduled but didn't
+ * happen) — not a fabricated status.
+ */
+export async function getClientOverviewSummary(clientId: string) {
+  const [client, completedCount, noShowCount, paidAgg, pendingAgg, nextAppointment] = await Promise.all([
+    prisma.client.findUnique({
+      where: { id: clientId },
+      include: {
+        blueprintAssessments: {
+          where: { status: { in: ["ACTIVE", "BASELINE_PENDING", "BASELINE_COMPLETED", "VALIDATED", "IN_PROGRESS", "COMPLETED"] } },
+          orderBy: { version: "desc" },
+          take: 1,
+        },
+      },
+    }),
+    prisma.appointment.count({ where: { clientId, status: "COMPLETED" } }),
+    prisma.appointment.count({ where: { clientId, status: "NO_SHOW" } }),
+    prisma.payment.aggregate({ where: { clientId, status: "PAID" }, _sum: { amountCents: true } }),
+    prisma.payment.aggregate({ where: { clientId, status: "PENDING" }, _sum: { amountCents: true } }),
+    prisma.appointment.findFirst({ where: { clientId, status: "SCHEDULED", startsAt: { gte: new Date() } }, orderBy: { startsAt: "asc" } }),
+  ]);
+
+  if (!client) return null;
+
+  const assessment = client.blueprintAssessments[0];
+  const totalSessions = assessment?.validatedSessionCount ?? 8;
+  const remaining = Math.max(totalSessions - completedCount, 0);
+  const planTotalCents = assessment?.planTotalCents ?? null;
+  const paidCents = paidAgg._sum.amountCents ?? 0;
+  const pendingCents = pendingAgg._sum.amountCents ?? 0;
+  const balanceCents = planTotalCents !== null ? Math.max(planTotalCents - paidCents, 0) : null;
+  const overallProgressPercent = totalSessions > 0 ? Math.round((completedCount / totalSessions) * 100) : 0;
+
+  return {
+    system: assessment?.recommendedSystem ?? null,
+    totalSessions,
+    completedCount,
+    remaining,
+    onHoldCount: noShowCount,
+    overallProgressPercent,
+    planTotalCents,
+    paidCents,
+    pendingCents,
+    balanceCents,
+    nextAppointment: nextAppointment ? { title: nextAppointment.title, startsAt: nextAppointment.startsAt } : null,
+    status: client.archivedAt
+      ? "Archived"
+      : client.pausedAt
+      ? "Paused"
+      : assessment?.status === "COMPLETED"
+      ? "Completed"
+      : "Active",
+  };
+}
+
+export async function toggleClientPause(clientId: string) {
+  const user = await getCurrentHubUser();
+  if (!user || !hasPermission(user, "clients.convert")) {
+    return { error: "You don't have permission to change client status." };
+  }
+
+  const client = await prisma.client.findUnique({ where: { id: clientId } });
+  if (!client) return { error: "Client not found." };
+
+  await prisma.client.update({
+    where: { id: clientId },
+    data: { pausedAt: client.pausedAt ? null : new Date() },
+  });
+
+  revalidatePath(`/hub/clients/${clientId}`);
+  revalidatePath("/hub/clients");
+  return { success: true };
+}
+
+export async function addClientNote(clientId: string, formData: FormData) {
+  const user = await getCurrentHubUser();
+  if (!user || !hasPermission(user, "clients.view")) {
+    return { error: "You don't have permission to add notes." };
+  }
+
+  const content = String(formData.get("content") || "").trim();
+  if (!content) return { error: "Note can't be empty." };
+
+  await prisma.clientNote.create({
+    data: { clientId, authorId: user.id, content },
+  });
+
+  revalidatePath(`/hub/clients/${clientId}`);
+  return { success: true };
+}

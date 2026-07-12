@@ -208,6 +208,7 @@ model Client {
   phone          String?
   city           String?
   membershipTier String  @default("Standard")
+  pausedAt       DateTime? // treatment temporarily paused — null = not paused
 
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
@@ -223,12 +224,24 @@ model Client {
   payments       Payment[]
   measurements   Measurement[]
   documents      Document[]
+  notes          ClientNote[]
   messageThread  MessageThread?
   rewardsAccount RewardsAccount?
   portalInvite   PortalInvitation?
   emailEvents    EmailEvent[]
 
   @@map("clients")
+}
+
+model ClientNote {
+  id        String   @id @default(cuid())
+  clientId  String
+  client    Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  authorId  String?
+  content   String
+  createdAt DateTime @default(now())
+
+  @@map("client_notes")
 }
 
 // ---------- Body Blueprint (versioned, never overwritten) ----------
