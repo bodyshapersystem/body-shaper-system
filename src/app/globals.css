@@ -2310,6 +2310,10 @@
 .dash-status-completed{ background:rgba(60,110,70,0.12); color:#2f6b3a; }
 .dash-status-cancelled{ background:rgba(0,0,0,0.06); color:#8a7f74; }
 .dash-status-no_show{ background:rgba(180,60,40,0.1); color:#a33; }
+.dash-status-pending{ background:rgba(196,140,40,0.12); color:#93650f; }
+.dash-status-partial{ background:rgba(196,140,40,0.12); color:#93650f; }
+.dash-status-refunded{ background:rgba(0,0,0,0.06); color:#8a7f74; }
+.dash-status-failed{ background:rgba(180,60,40,0.1); color:#a33; }
 
 .dash-view-btn{ font-family:var(--sans); font-size:11.5px; color:var(--cat,#5C1A1F); text-decoration:none; border:1px solid rgba(92,26,31,0.25); border-radius:4px; padding:4px 10px; white-space:nowrap; }
 .dash-view-btn:hover{ background:rgba(92,26,31,0.06); }
@@ -2392,6 +2396,16 @@
 .pay-origin-option{ display:flex; align-items:center; gap:10px; font-family:var(--sans); font-size:13.5px; color:#2B2622; }
 
 .pay-history-meta{ font-family:var(--sans); font-size:12px; color:#8a7f74; margin:0; }
+
+.pay-schedule-setup{ display:flex; gap:14px; }
+.pay-schedule-setup label{ flex:1; }
+.pay-generate-btn{ color:var(--cat,#5C1A1F); border-color:rgba(92,26,31,0.3); margin-top:4px; }
+.pay-schedule-list{ list-style:none; display:flex; flex-direction:column; gap:8px; }
+.pay-schedule-row{ display:flex; justify-content:space-between; align-items:center; padding:12px 14px; border:1px solid rgba(0,0,0,0.08); border-radius:8px; }
+.pay-schedule-row strong{ display:block; font-family:var(--sans); font-size:13.5px; color:#2B2622; }
+.pay-schedule-row span{ font-family:var(--sans); font-size:11.5px; color:#8a7f74; }
+.pay-schedule-right{ display:flex; flex-direction:column; align-items:flex-end; gap:4px; }
+.pay-schedule-right span:first-child{ font-family:var(--serif); font-size:15px; color:#2B2622; }
 
 .sched-readiness-list{ list-style:none; display:flex; flex-direction:column; gap:6px; }
 .sched-readiness-list li{ font-family:var(--sans); font-size:13px; color:#2f6b3a; }

@@ -7,6 +7,9 @@ import {
   getClientFinancialSummary,
   updatePlanTotal,
   getFullPaymentDiscount,
+  generatePaymentSchedule,
+  payInstallment,
+  getClientPaymentSchedule,
 } from "./actions";
 
 type ClientOption = { id: string; firstName: string; lastName: string };
@@ -24,14 +27,14 @@ type FinancialSummary = {
   balanceCents: number | null;
 };
 
-const PAYMENT_TYPES = [
-  { value: "DEPOSIT", label: "Deposit" },
-  { value: "INSTALLMENT", label: "Installment" },
-  { value: "FULL_PAYMENT", label: "Full Payment" },
-  { value: "CUSTOM_AMOUNT", label: "Custom Amount" },
-  { value: "REFUND", label: "Refund" },
-  { value: "ADJUSTMENT", label: "Adjustment" },
-];
+type ScheduleRow = {
+  id: string;
+  amountCents: number;
+  status: string;
+  dueDate: string | Date | null;
+  installmentNumber: number | null;
+  installmentTotal: number | null;
+};
 
 const PAYMENT_METHODS = [
   { value: "OTHER", label: "Zelle" },
@@ -59,36 +62,53 @@ export default function PaymentRecorder({ clients }: { clients: ClientOption[] }
 
   const [clientId, setClientId] = useState("");
   const [summary, setSummary] = useState<FinancialSummary | null>(null);
+  const [schedule, setSchedule] = useState<ScheduleRow[]>([]);
   const [loadingSummary, setLoadingSummary] = useState(false);
   const [discountCents, setDiscountCents] = useState<number | null>(null);
 
   const [planTotalInput, setPlanTotalInput] = useState("");
+  const [installmentCount, setInstallmentCount] = useState("4");
+  const [cadenceDays, setCadenceDays] = useState("14");
+
+  const [applyTo, setApplyTo] = useState<string>("custom");
   const [amount, setAmount] = useState("");
-  const [paymentType, setPaymentType] = useState("");
   const [method, setMethod] = useState("CARD");
   const [origin, setOrigin] = useState("CLIENT_PAYMENT");
   const [reference, setReference] = useState("");
   const [notes, setNotes] = useState("");
   const [error, setError] = useState("");
-  const [recorded, setRecorded] = useState<{ amountCents: number; method: string; newBalanceCents: number | null } | null>(null);
+  const [recorded, setRecorded] = useState<{
+    amountCents: number;
+    method: string;
+    newBalanceCents: number | null;
+    installmentLabel: string | null;
+  } | null>(null);
+
+  async function reloadClientData(id: string) {
+    const [s, discount, sched] = await Promise.all([
+      getClientFinancialSummary(id),
+      getFullPaymentDiscount(),
+      getClientPaymentSchedule(id),
+    ]);
+    setSummary(s);
+    setDiscountCents(discount);
+    setSchedule(sched as unknown as ScheduleRow[]);
+    return s;
+  }
 
   function handleClientChange(id: string) {
     setClientId(id);
     setSummary(null);
+    setSchedule([]);
     setAmount("");
-    setPaymentType("");
+    setApplyTo("custom");
     setReference("");
     setNotes("");
     setRecorded(null);
     if (!id) return;
     setLoadingSummary(true);
     startTransition(async () => {
-      const [s, discount] = await Promise.all([getClientFinancialSummary(id), getFullPaymentDiscount()]);
-      setSummary(s);
-      setDiscountCents(discount);
-      if (s?.balanceCents != null && s.balanceCents > 0) {
-        setAmount((s.balanceCents / 100).toFixed(2));
-      }
+      await reloadClientData(id);
       setLoadingSummary(false);
     });
   }
@@ -103,10 +123,35 @@ export default function PaymentRecorder({ clients }: { clients: ClientOption[] }
         setError(result.error);
         return;
       }
-      const s = await getClientFinancialSummary(clientId);
-      setSummary(s);
+      await reloadClientData(clientId);
       setPlanTotalInput("");
     });
+  }
+
+  function handleGenerateSchedule() {
+    if (!summary?.assessmentId) return;
+    setError("");
+    const formData = new FormData();
+    formData.set("installmentCount", installmentCount);
+    formData.set("cadenceDays", cadenceDays);
+    startTransition(async () => {
+      const result = await generatePaymentSchedule(clientId, summary.assessmentId!, formData);
+      if (result?.error) {
+        setError(result.error);
+        return;
+      }
+      await reloadClientData(clientId);
+    });
+  }
+
+  const pendingInstallments = schedule.filter((s) => s.status === "PENDING");
+  const selectedInstallment = pendingInstallments.find((s) => s.id === applyTo);
+
+  function handleApplyToChange(value: string) {
+    setApplyTo(value);
+    const inst = pendingInstallments.find((s) => s.id === value);
+    if (inst) setAmount((inst.amountCents / 100).toFixed(2));
+    else if (summary?.balanceCents != null && summary.balanceCents > 0) setAmount((summary.balanceCents / 100).toFixed(2));
   }
 
   function handleSubmit() {
@@ -121,28 +166,40 @@ export default function PaymentRecorder({ clients }: { clients: ClientOption[] }
       return;
     }
 
-    const formData = new FormData();
-    formData.set("clientId", clientId);
-    formData.set("amount", amount);
-    formData.set("method", method);
-    formData.set("origin", origin);
-    formData.set("status", "PAID");
-    if (paymentType) formData.set("paymentType", paymentType);
-    if (reference) formData.set("reference", reference);
-    if (notes) formData.set("notes", notes);
-
     startTransition(async () => {
-      const result = await createPayment(formData);
+      let result;
+      if (selectedInstallment) {
+        const formData = new FormData();
+        formData.set("amount", amount);
+        formData.set("method", method);
+        if (reference) formData.set("reference", reference);
+        if (notes) formData.set("notes", notes);
+        result = await payInstallment(selectedInstallment.id, formData);
+      } else {
+        const formData = new FormData();
+        formData.set("clientId", clientId);
+        formData.set("amount", amount);
+        formData.set("method", method);
+        formData.set("origin", origin);
+        formData.set("status", "PAID");
+        formData.set("paymentType", "CUSTOM_AMOUNT");
+        if (reference) formData.set("reference", reference);
+        if (notes) formData.set("notes", notes);
+        result = await createPayment(formData);
+      }
+
       if (result?.error) {
         setError(result.error);
         return;
       }
+
       const amountCents = Math.round(amountNum * 100);
       const newBalanceCents = summary?.balanceCents != null ? Math.max(summary.balanceCents - amountCents, 0) : null;
       setRecorded({
         amountCents,
         method: PAYMENT_METHODS.find((m) => m.value === method)?.label ?? method,
         newBalanceCents,
+        installmentLabel: selectedInstallment ? `Payment ${selectedInstallment.installmentNumber} of ${selectedInstallment.installmentTotal}` : null,
       });
       router.refresh();
     });
@@ -152,8 +209,9 @@ export default function PaymentRecorder({ clients }: { clients: ClientOption[] }
     setRecorded(null);
     setClientId("");
     setSummary(null);
+    setSchedule([]);
     setAmount("");
-    setPaymentType("");
+    setApplyTo("custom");
     setReference("");
     setNotes("");
   }
@@ -168,6 +226,12 @@ export default function PaymentRecorder({ clients }: { clients: ClientOption[] }
             <span>Amount</span>
             <strong>{money(recorded.amountCents)}</strong>
           </div>
+          {recorded.installmentLabel && (
+            <div>
+              <span>Installment</span>
+              <strong>{recorded.installmentLabel}</strong>
+            </div>
+          )}
           <div>
             <span>Client</span>
             <strong>
@@ -277,20 +341,77 @@ export default function PaymentRecorder({ clients }: { clients: ClientOption[] }
             </div>
           )}
 
+          {/* ---------- Payment Schedule ---------- */}
+          {summary.planTotalCents !== null && schedule.length === 0 && (
+            <div className="sched-section">
+              <h4 className="sched-subheading">Payment Schedule</h4>
+              <p className="sched-hint">No schedule yet — split the total plan into equal installments.</p>
+              <div className="pay-schedule-setup">
+                <label className="sched-label">
+                  Installments
+                  <input
+                    type="number"
+                    min={1}
+                    max={24}
+                    value={installmentCount}
+                    onChange={(e) => setInstallmentCount(e.target.value)}
+                    className="sched-select"
+                  />
+                </label>
+                <label className="sched-label">
+                  Days Between
+                  <input type="number" min={1} value={cadenceDays} onChange={(e) => setCadenceDays(e.target.value)} className="sched-select" />
+                </label>
+              </div>
+              <button type="button" className="pay-plan-save-btn pay-generate-btn" onClick={handleGenerateSchedule}>
+                Generate Payment Schedule
+              </button>
+            </div>
+          )}
+
+          {schedule.length > 0 && (
+            <div className="sched-section">
+              <h4 className="sched-subheading">Payment Schedule</h4>
+              <ul className="pay-schedule-list">
+                {schedule.map((s) => (
+                  <li key={s.id} className="pay-schedule-row">
+                    <div>
+                      <strong>
+                        Payment {s.installmentNumber} of {s.installmentTotal}
+                      </strong>
+                      <span>{s.dueDate ? new Date(s.dueDate).toLocaleDateString() : ""}</span>
+                    </div>
+                    <div className="pay-schedule-right">
+                      <span>{money(s.amountCents)}</span>
+                      <span className={`dash-status dash-status-${s.status.toLowerCase()}`}>{s.status}</span>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
           <div className="sched-section">
             <h4 className="sched-subheading">Record Payment</h4>
 
-            <label className="sched-label" htmlFor="pay-type">
-              Payment Type
-            </label>
-            <select id="pay-type" value={paymentType} onChange={(e) => setPaymentType(e.target.value)} className="sched-select">
-              <option value="">Select type…</option>
-              {PAYMENT_TYPES.map((t) => (
-                <option key={t.value} value={t.value}>
-                  {t.label}
-                </option>
-              ))}
-            </select>
+            {pendingInstallments.length > 0 && (
+              <>
+                <label className="sched-label">Apply To</label>
+                <div className="pay-origin-options">
+                  {pendingInstallments.map((inst) => (
+                    <label key={inst.id} className="pay-origin-option">
+                      <input type="radio" name="applyTo" checked={applyTo === inst.id} onChange={() => handleApplyToChange(inst.id)} />
+                      Payment {inst.installmentNumber} of {inst.installmentTotal} — {money(inst.amountCents)}
+                      {inst.dueDate ? ` — due ${new Date(inst.dueDate).toLocaleDateString()}` : ""}
+                    </label>
+                  ))}
+                  <label className="pay-origin-option">
+                    <input type="radio" name="applyTo" checked={applyTo === "custom"} onChange={() => handleApplyToChange("custom")} />
+                    Custom Amount
+                  </label>
+                </div>
+              </>
+            )}
 
             <label className="sched-label" htmlFor="pay-amount">
               Amount ($)
@@ -327,15 +448,19 @@ export default function PaymentRecorder({ clients }: { clients: ClientOption[] }
               placeholder="Transaction ID, check #, etc. (optional)"
             />
 
-            <label className="sched-label sched-notes-label">Payment Origin</label>
-            <div className="pay-origin-options">
-              {PAYMENT_ORIGINS.map((o) => (
-                <label key={o.value} className="pay-origin-option">
-                  <input type="radio" name="origin" checked={origin === o.value} onChange={() => setOrigin(o.value)} />
-                  {o.label}
-                </label>
-              ))}
-            </div>
+            {applyTo === "custom" && (
+              <>
+                <label className="sched-label sched-notes-label">Payment Origin</label>
+                <div className="pay-origin-options">
+                  {PAYMENT_ORIGINS.map((o) => (
+                    <label key={o.value} className="pay-origin-option">
+                      <input type="radio" name="origin" checked={origin === o.value} onChange={() => setOrigin(o.value)} />
+                      {o.label}
+                    </label>
+                  ))}
+                </div>
+              </>
+            )}
 
             <label className="sched-label sched-notes-label" htmlFor="pay-notes">
               Notes

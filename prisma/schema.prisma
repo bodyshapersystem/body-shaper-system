@@ -660,22 +660,25 @@ enum PaymentOrigin {
 }
 
 model Payment {
-  id            String              @id @default(cuid())
-  clientId      String
-  client        Client              @relation(fields: [clientId], references: [id], onDelete: Cascade)
-  appointmentId String?
-  appointment   Appointment?        @relation(fields: [appointmentId], references: [id], onDelete: SetNull)
-  amountCents   Int
-  method        PaymentMethod       @default(CARD)
-  status        PaymentRecordStatus @default(PENDING)
-  paymentType   PaymentType?
-  origin        PaymentOrigin       @default(CLIENT_PAYMENT)
-  reference     String?
-  paidAt        DateTime?
-  notes         String?
-  createdAt     DateTime            @default(now())
-  updatedAt     DateTime            @updatedAt
-  createdById   String?
+  id                String              @id @default(cuid())
+  clientId          String
+  client            Client              @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  appointmentId     String?
+  appointment       Appointment?        @relation(fields: [appointmentId], references: [id], onDelete: SetNull)
+  amountCents       Int
+  method            PaymentMethod       @default(CARD)
+  status            PaymentRecordStatus @default(PENDING)
+  paymentType       PaymentType?
+  origin            PaymentOrigin       @default(CLIENT_PAYMENT)
+  reference         String?
+  dueDate           DateTime? // for scheduled installments not yet paid
+  installmentNumber Int? // "Payment N of installmentTotal" — null for ad-hoc (non-scheduled) payments
+  installmentTotal  Int?
+  paidAt            DateTime?
+  notes             String?
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+  createdById       String?
 
   @@map("payments")
 }

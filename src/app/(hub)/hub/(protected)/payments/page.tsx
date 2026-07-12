@@ -88,6 +88,11 @@ export default async function HubPaymentsPage() {
                   <span className={`dash-status dash-status-${p.status.toLowerCase()}`}>{p.status}</span>
                 </div>
                 <p className="sess-card-date">{money(p.amountCents)}</p>
+                {p.installmentNumber && (
+                  <p className="pay-history-meta">
+                    Payment {p.installmentNumber} of {p.installmentTotal}
+                  </p>
+                )}
                 <p className="sess-card-client">
                   <Link href={`/hub/clients/${p.clientId}`}>
                     {p.client.firstName} {p.client.lastName}
