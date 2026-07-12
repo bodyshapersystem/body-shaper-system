@@ -2,7 +2,8 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { getCurrentHubUser, hasPermission } from "@/lib/permissions";
-import { createAppointment, cancelAppointment, updateAppointment } from "./actions";
+import { cancelAppointment } from "./actions";
+import AppointmentScheduler from "./AppointmentScheduler";
 
 export const dynamic = "force-dynamic";
 
@@ -27,37 +28,20 @@ export default async function HubAppointmentsPage() {
   return (
     <div className="cat-body portal-page">
       <div className="portal-page-head">
-        <p className="portal-eyebrow">Operations</p>
+        <p className="portal-eyebrow">operations</p>
         <h1>appointments.</h1>
+        <p className="dash-subtitle">Every visit is another step toward your client's transformation.</p>
       </div>
 
       {canManage && (
-        <form
-          action={async (formData: FormData) => {
-            "use server";
-            await createAppointment(formData);
-          }}
-          style={{ display: "flex", gap: 10, flexWrap: "wrap", marginBottom: 32, maxWidth: 800 }}
-        >
-          <select name="clientId" required style={{ padding: 10 }}>
-            <option value="">Select client…</option>
-            {clients.map((c) => (
-              <option key={c.id} value={c.id}>
-                {c.firstName} {c.lastName}
-              </option>
-            ))}
-          </select>
-          <input name="title" placeholder="Appointment title" required style={{ padding: 10, flex: 1 }} />
-          <input name="startsAt" type="datetime-local" required style={{ padding: 10 }} />
-          <input name="endsAt" type="datetime-local" style={{ padding: 10 }} />
-          <input name="notes" placeholder="Notes" style={{ padding: 10, flex: 1 }} />
-          <button type="submit" className="auth-submit" style={{ width: "auto", padding: "10px 20px" }}>
-            Schedule
-          </button>
-        </form>
+        <div className="sched-wrap">
+          <AppointmentScheduler clients={clients.map((c) => ({ id: c.id, firstName: c.firstName, lastName: c.lastName }))} />
+        </div>
       )}
 
-      <h3 style={{ fontSize: 14, marginBottom: 10 }}>Upcoming</h3>
+      <h3 className="dash-section-title" style={{ marginTop: 40 }}>
+        Upcoming
+      </h3>
       {upcoming.length === 0 ? (
         <p style={{ opacity: 0.6, fontSize: 13, marginBottom: 28 }}>No upcoming appointments.</p>
       ) : (
@@ -87,7 +71,7 @@ export default async function HubAppointmentsPage() {
         </ul>
       )}
 
-      <h3 style={{ fontSize: 14, marginBottom: 10 }}>Past</h3>
+      <h3 className="dash-section-title">Past</h3>
       {past.length === 0 ? (
         <p style={{ opacity: 0.6, fontSize: 13 }}>No past appointments.</p>
       ) : (
