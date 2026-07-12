@@ -2377,6 +2377,22 @@
 .sched-tech-count{ margin-left:auto !important; }
 .sched-notes-label{ margin-top:6px; }
 
+/* ---------- Payments (Milestone 15) ---------- */
+.pay-plan-setup{ display:flex; gap:8px; align-items:center; margin:4px 0; }
+.pay-plan-save-btn{ font-family:var(--sans); font-size:12px; padding:6px 14px; border-radius:20px; border:1px solid rgba(246,243,238,0.4); background:transparent; color:#F6F3EE; cursor:pointer; white-space:nowrap; }
+.pay-financials{ display:flex; gap:24px; margin:6px 0; }
+.pay-financials span{ display:block; font-family:var(--sans); font-size:10.5px; letter-spacing:.06em; text-transform:uppercase; opacity:.65; margin-bottom:4px; }
+.pay-financials strong{ font-family:var(--serif); font-size:18px; font-weight:500; }
+
+.pay-discount-card{ border:1px dashed rgba(92,26,31,0.35); background:rgba(92,26,31,0.04); border-radius:10px; padding:16px 18px; }
+.pay-discount-card strong{ font-family:var(--sans); font-size:11px; letter-spacing:.06em; text-transform:uppercase; color:#5C1A1F; }
+.pay-discount-card p{ font-family:var(--sans); font-size:13px; color:#2B2622; margin:6px 0 0; }
+
+.pay-origin-options{ display:flex; flex-direction:column; gap:8px; }
+.pay-origin-option{ display:flex; align-items:center; gap:10px; font-family:var(--sans); font-size:13.5px; color:#2B2622; }
+
+.pay-history-meta{ font-family:var(--sans); font-size:12px; color:#8a7f74; margin:0; }
+
 .sched-readiness-list{ list-style:none; display:flex; flex-direction:column; gap:6px; }
 .sched-readiness-list li{ font-family:var(--sans); font-size:13px; color:#2f6b3a; }
 

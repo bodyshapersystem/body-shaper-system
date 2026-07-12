@@ -293,6 +293,7 @@ model BlueprintAssessment {
   treatmentInterests       String?
   recommendedSystem        String?
   originalRecommendedSystem String? // frozen at intake — never overwritten
+  planTotalCents            Int?    // the sold package's total price — set by the Owner, never hardcoded; null until entered
 
   initialFrequency      String?
   validatedFrequency     String?
@@ -641,6 +642,23 @@ enum PaymentRecordStatus {
   FAILED
 }
 
+enum PaymentType {
+  DEPOSIT
+  INSTALLMENT
+  FULL_PAYMENT
+  CUSTOM_AMOUNT
+  REFUND
+  ADJUSTMENT
+}
+
+enum PaymentOrigin {
+  CLIENT_PAYMENT
+  AMBASSADOR
+  INFLUENCER_COLLABORATION
+  PARTNER
+  INTERNAL_ADJUSTMENT
+}
+
 model Payment {
   id            String              @id @default(cuid())
   clientId      String
@@ -650,6 +668,9 @@ model Payment {
   amountCents   Int
   method        PaymentMethod       @default(CARD)
   status        PaymentRecordStatus @default(PENDING)
+  paymentType   PaymentType?
+  origin        PaymentOrigin       @default(CLIENT_PAYMENT)
+  reference     String?
   paidAt        DateTime?
   notes         String?
   createdAt     DateTime            @default(now())
@@ -662,12 +683,13 @@ model Payment {
 // ---------- Business Settings (singleton) ----------
 
 model BusinessSettings {
-  id           String   @id @default("default")
-  businessName String   @default("Body Shaper System™")
-  contactEmail String?
-  contactPhone String?
-  address      String?
-  updatedAt    DateTime @updatedAt
+  id                       String   @id @default("default")
+  businessName             String   @default("Body Shaper System™")
+  contactEmail             String?
+  contactPhone             String?
+  address                  String?
+  fullPaymentDiscountCents Int? // "Exclusive Courtesy" full-balance discount — configurable, null = feature off
+  updatedAt                DateTime @updatedAt
 
   @@map("business_settings")
 }

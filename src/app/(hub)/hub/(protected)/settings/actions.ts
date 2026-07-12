@@ -10,6 +10,10 @@ export async function updateBusinessSettings(formData: FormData) {
     return { error: "You don't have permission to edit business settings." };
   }
 
+  const discountRaw = formData.get("fullPaymentDiscount");
+  const fullPaymentDiscountCents =
+    discountRaw && String(discountRaw).trim() !== "" ? Math.round(Number(discountRaw) * 100) : null;
+
   await prisma.businessSettings.upsert({
     where: { id: "default" },
     create: {
@@ -18,16 +22,19 @@ export async function updateBusinessSettings(formData: FormData) {
       contactEmail: (formData.get("contactEmail") as string) || undefined,
       contactPhone: (formData.get("contactPhone") as string) || undefined,
       address: (formData.get("address") as string) || undefined,
+      fullPaymentDiscountCents,
     },
     update: {
       businessName: String(formData.get("businessName") || "Body Shaper System™"),
       contactEmail: (formData.get("contactEmail") as string) || undefined,
       contactPhone: (formData.get("contactPhone") as string) || undefined,
       address: (formData.get("address") as string) || undefined,
+      fullPaymentDiscountCents,
     },
   });
 
   revalidatePath("/hub/settings");
+  revalidatePath("/hub/payments");
   return { success: true };
 }
 

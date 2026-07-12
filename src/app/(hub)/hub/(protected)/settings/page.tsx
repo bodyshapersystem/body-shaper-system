@@ -52,6 +52,19 @@ export default async function HubSettingsPage() {
           <input name="contactEmail" defaultValue={business.contactEmail ?? ""} placeholder="Contact email" style={{ padding: 10 }} />
           <input name="contactPhone" defaultValue={business.contactPhone ?? ""} placeholder="Contact phone" style={{ padding: 10 }} />
           <input name="address" defaultValue={business.address ?? ""} placeholder="Address" style={{ padding: 10 }} />
+          <label style={{ fontSize: 13 }}>
+            <span style={{ display: "block", fontSize: 11, opacity: 0.6, marginBottom: 4 }}>
+              "Exclusive Courtesy" full-payment discount ($, leave blank to disable)
+            </span>
+            <input
+              name="fullPaymentDiscount"
+              type="number"
+              step="0.01"
+              defaultValue={business.fullPaymentDiscountCents ? (business.fullPaymentDiscountCents / 100).toFixed(2) : ""}
+              placeholder="e.g. 120"
+              style={{ padding: 10, width: "100%" }}
+            />
+          </label>
           <button type="submit" className="auth-submit" style={{ width: "auto", padding: "10px 20px" }}>
             Save
           </button>
