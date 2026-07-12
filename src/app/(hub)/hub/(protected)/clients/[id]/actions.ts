@@ -6,6 +6,7 @@ import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { revalidatePath } from "next/cache";
 import { sendWelcomeActivationEmail } from "@/lib/email/service";
 import { randomUUID } from "crypto";
+import type { DocumentCategory } from "@prisma/client";
 import {
   getActiveAssessmentForClient,
   startReassessment,
@@ -176,7 +177,7 @@ export async function createSignedDocumentUploadUrl(clientId: string, fileName: 
  */
 export async function recordClientDocument(
   clientId: string,
-  data: { storagePath: string; title: string; fileType?: string; sizeBytes?: number }
+  data: { storagePath: string; title: string; fileType?: string; sizeBytes?: number; category?: DocumentCategory }
 ) {
   const user = await getCurrentHubUser();
   if (!user || !hasPermission(user, "documents.manage")) {
@@ -190,11 +191,65 @@ export async function recordClientDocument(
       storagePath: data.storagePath,
       fileType: data.fileType,
       sizeBytes: data.sizeBytes,
+      category: data.category,
       uploadedById: user.id,
     },
   });
 
   revalidatePath(`/hub/clients/${clientId}`);
+  revalidatePath("/hub/documents");
+  return { success: true };
+}
+
+/**
+ * Client Records™ additions — view/download, rename/re-categorize,
+ * and delete. All additive; no existing document logic changed.
+ */
+export async function getDocumentSignedUrl(storagePath: string) {
+  const user = await getCurrentHubUser();
+  if (!user) return null;
+
+  const admin = createSupabaseAdminClient();
+  const { data, error } = await admin.storage.from("client-documents").createSignedUrl(storagePath, 3600);
+  if (error || !data) return null;
+  return data.signedUrl;
+}
+
+export async function updateDocument(documentId: string, formData: FormData) {
+  const user = await getCurrentHubUser();
+  if (!user || !hasPermission(user, "documents.manage")) {
+    return { error: "You don't have permission to edit documents." };
+  }
+
+  const title = String(formData.get("title") || "").trim();
+  const category = formData.get("category") as DocumentCategory | null;
+  if (!title) return { error: "Title can't be empty." };
+
+  const doc = await prisma.document.update({
+    where: { id: documentId },
+    data: { title, category: category ?? undefined },
+  });
+
+  revalidatePath(`/hub/clients/${doc.clientId}`);
+  revalidatePath("/hub/documents");
+  return { success: true };
+}
+
+export async function deleteDocument(documentId: string) {
+  const user = await getCurrentHubUser();
+  if (!user || !hasPermission(user, "documents.manage")) {
+    return { error: "You don't have permission to delete documents." };
+  }
+
+  const doc = await prisma.document.findUnique({ where: { id: documentId } });
+  if (!doc) return { error: "Document not found." };
+
+  const admin = createSupabaseAdminClient();
+  await admin.storage.from("client-documents").remove([doc.storagePath]);
+  await prisma.document.delete({ where: { id: documentId } });
+
+  revalidatePath(`/hub/clients/${doc.clientId}`);
+  revalidatePath("/hub/documents");
   return { success: true };
 }
 

@@ -18,7 +18,7 @@ const NAV_GROUPS = [
     items: [
       { href: "/hub/blueprints", label: "Body Blueprint™", icon: "brain" },
       { href: "/hub/appointments", label: "Appointments", icon: "calendar" },
-      { href: "/hub/documents", label: "Documents", icon: "doc" },
+      { href: "/hub/documents", label: "Client Records™", icon: "doc" },
       { href: "/hub/messages", label: "Messages", icon: "chat" },
       { href: "/hub/measurements", label: "Progress™", icon: "ruler" },
     ],

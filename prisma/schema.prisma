@@ -524,13 +524,27 @@ model ProgressSnapshot {
 
 // ---------- Documents (Supabase Storage metadata) ----------
 
+enum DocumentCategory {
+  WELCOME_GUIDE
+  POLICIES_APPOINTMENTS
+  CONSENT_TREATMENT
+  PHOTOGRAPHY_AUTHORIZATION
+  BODY_BLUEPRINT_PDF
+  FINAL_REPORT
+  RECEIPTS_INVOICES
+  PROGRESS_PHOTOS
+  RENPHO_REPORTS
+  ADDITIONAL_FILES
+}
+
 model Document {
-  id            String       @id @default(cuid())
+  id            String           @id @default(cuid())
   clientId      String
-  client        Client       @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  client        Client           @relation(fields: [clientId], references: [id], onDelete: Cascade)
   appointmentId String?
-  appointment   Appointment? @relation(fields: [appointmentId], references: [id], onDelete: SetNull)
+  appointment   Appointment?     @relation(fields: [appointmentId], references: [id], onDelete: SetNull)
   title         String
+  category      DocumentCategory @default(ADDITIONAL_FILES)
   storagePath   String
   fileType      String?
   sizeBytes     Int?
