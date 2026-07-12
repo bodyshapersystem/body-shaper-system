@@ -11,7 +11,8 @@ import {
 import InvitationPanel from "./InvitationPanel";
 import BlueprintAssessmentTab from "./BlueprintAssessmentTab";
 import BlueprintReport from "./BlueprintReport";
-import DocumentUploadForm from "./DocumentUploadForm";
+import DocumentUploadSheet from "./DocumentUploadSheet";
+import DocumentRowActions from "../../documents/DocumentRowActions";
 
 export const dynamic = "force-dynamic";
 
@@ -345,17 +346,28 @@ export default async function ClientDetailPage({
 
       {tab === "documents" && (
         <div style={{ maxWidth: 560 }}>
-          {hasPermission(user, "documents.manage") && <DocumentUploadForm clientId={client.id} />}
+          {hasPermission(user, "documents.manage") && <DocumentUploadSheet clientId={client.id} />}
           {client.documents.length === 0 ? (
-            <p style={{ opacity: 0.6 }}>No documents uploaded yet.</p>
+            <p className="dash-empty">No documents uploaded yet.</p>
           ) : (
-            <ul style={{ display: "flex", flexDirection: "column", gap: 8, fontSize: 13.5 }}>
+            <div className="sess-card-grid">
               {client.documents.map((doc) => (
-                <li key={doc.id}>
-                  {doc.title} — {doc.uploadedAt.toLocaleDateString()} ({doc.fileType ?? "file"})
-                </li>
+                <div key={doc.id} className="sess-card">
+                  <p className="sess-card-date">{doc.title}</p>
+                  <p className="pay-history-meta">
+                    {doc.uploadedAt.toLocaleDateString()} · {doc.fileType ?? "file"}
+                  </p>
+                  <DocumentRowActions
+                    documentId={doc.id}
+                    storagePath={doc.storagePath}
+                    title={doc.title}
+                    category={doc.category}
+                    visibility={doc.visibility}
+                    canManage={hasPermission(user, "documents.manage")}
+                  />
+                </div>
               ))}
-            </ul>
+            </div>
           )}
         </div>
       )}
