@@ -32,7 +32,8 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const category = request.nextUrl.searchParams.get("category") as DocumentCategory | null;
+  const categoryRaw = request.nextUrl.searchParams.get("category")?.replace(/\/+$/, "");
+  const category = categoryRaw as DocumentCategory | null;
   const VALID_CATEGORIES: DocumentCategory[] = [
     "INTAKE_FORM",
     "WELCOME_GUIDE",
@@ -47,6 +48,8 @@ export async function POST(request: NextRequest) {
     "ADDITIONAL_FILES",
   ];
   if (!category || !VALID_CATEGORIES.includes(category)) {
+    // TEMPORARY diagnostic logging — remove once the 400 cause is confirmed.
+    console.error("[jotform-document] invalid category:", JSON.stringify(categoryRaw), "full URL:", request.nextUrl.toString());
     return NextResponse.json(
       { error: `Missing or invalid ?category= query param. Must be one of: ${VALID_CATEGORIES.join(", ")}` },
       { status: 400 }
@@ -65,11 +68,13 @@ export async function POST(request: NextRequest) {
 
   const email = extractContactField(raw, ["email"]);
   if (!email) {
+    console.error("[jotform-document] no email found. raw keys:", JSON.stringify(Object.keys(raw)));
     return NextResponse.json({ error: "No email field found in submission." }, { status: 400 });
   }
 
   const { formId, submissionId } = extractSubmissionMeta(raw);
   if (!formId || !submissionId) {
+    console.error("[jotform-document] missing formId/submissionId. raw:", JSON.stringify(raw).slice(0, 500));
     return NextResponse.json({ error: "Missing formID/submissionID in the Jotform payload." }, { status: 400 });
   }
 
