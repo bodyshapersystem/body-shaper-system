@@ -34,9 +34,21 @@ export async function fetchAndStoreJotformSubmissionPdf({
 
   try {
     const pdfUrl = `https://api.jotform.com/generatePDF?formid=${jotformFormId}&submissionid=${jotformSubmissionId}&apiKey=${apiKey}&download=1`;
-    const res = await fetch(pdfUrl);
-    if (!res.ok) {
-      return { success: false, error: `Jotform PDF fetch failed with status ${res.status}` };
+
+    // Jotform doesn't always have the PDF ready the instant a
+    // submission comes in — retry a couple of times with a short
+    // delay before giving up, rather than failing on the first try.
+    let res: Response | null = null;
+    let lastError = "";
+    for (const delayMs of [0, 2000, 4000]) {
+      if (delayMs > 0) await new Promise((r) => setTimeout(r, delayMs));
+      res = await fetch(pdfUrl);
+      if (res.ok && (res.headers.get("content-type") ?? "").includes("pdf")) break;
+      lastError = res.ok ? `content-type was ${res.headers.get("content-type")}` : `status ${res.status}`;
+    }
+
+    if (!res || !res.ok) {
+      return { success: false, error: `Jotform PDF fetch failed with status ${res?.status} (${lastError})` };
     }
     const contentType = res.headers.get("content-type") ?? "";
     if (!contentType.includes("pdf")) {
