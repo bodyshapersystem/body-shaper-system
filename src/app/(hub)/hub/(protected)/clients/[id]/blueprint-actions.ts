@@ -291,3 +291,42 @@ export async function validateAssessment(clientId: string, formData: FormData) {
   revalidatePath(`/hub/clients/${clientId}`);
   return { success: true };
 }
+
+/**
+ * Progress Photos, part 3: generates a short-lived signed READ URL so
+ * a photo thumbnail can be displayed. The storage bucket is private
+ * (signed-upload-only), so this is required for any display —
+ * separate from createSignedPhotoUploadUrl, which is upload-only.
+ */
+export async function getPhotoSignedUrl(storagePath: string) {
+  const user = await getCurrentHubUser();
+  if (!user) return null;
+
+  const admin = createSupabaseAdminClient();
+  const { data, error } = await admin.storage.from("client-documents").createSignedUrl(storagePath, 3600);
+  if (error || !data) return null;
+  return data.signedUrl;
+}
+
+/**
+ * Deletes a progress photo — both the DB row and the underlying
+ * storage object. This does not touch any other Blueprint record;
+ * measurements/scans/observations/strategy history are all
+ * unaffected by removing a photo.
+ */
+export async function deletePhoto(photoId: string) {
+  const user = await getCurrentHubUser();
+  if (!user || !hasPermission(user, "documents.manage")) {
+    return { error: "You don't have permission to delete photos." };
+  }
+
+  const photo = await prisma.photo.findUnique({ where: { id: photoId } });
+  if (!photo) return { error: "Photo not found." };
+
+  const admin = createSupabaseAdminClient();
+  await admin.storage.from("client-documents").remove([photo.storagePath]);
+  await prisma.photo.delete({ where: { id: photoId } });
+
+  revalidatePath(`/hub/clients/${photo.clientId}`);
+  return { success: true };
+}

@@ -1,8 +1,7 @@
-import {
-  addObservation,
-  validateAssessment,
-} from "./blueprint-actions";
-import PhotoUploadForm from "./PhotoUploadForm";
+import PhotoGallery from "./PhotoGallery";
+import PhotoCaptureSheet from "./PhotoCaptureSheet";
+import ObservationSheet from "./ObservationSheet";
+import StrategySheet from "./StrategySheet";
 import MeasurementSheet from "./MeasurementSheet";
 import BodyCompositionSheet from "./BodyCompositionSheet";
 import type { Prisma } from "@prisma/client";
@@ -127,9 +126,16 @@ export default function BlueprintAssessmentTab({
       </div>
 
       {/* ---------- Section 1: Professional Measurements ---------- */}
-      <Section title="1. Professional Body Measurements">
+      <Section title="professional measurements.">
         {assessment.bodyMeasurements.length === 0 ? (
-          <p className="dash-empty">No measurements recorded yet.</p>
+          <div className="bp-empty-state">
+            <p>Capture the client's baseline body measurements to track visible transformation throughout their journey.</p>
+            {canManage && (
+              <div style={{ marginTop: 14 }}>
+                <MeasurementSheet clientId={client.id} label="+ Record First Measurements" />
+              </div>
+            )}
+          </div>
         ) : (
           <>
             <div className="bp-stat-grid" style={{ marginBottom: 20 }}>
@@ -169,7 +175,7 @@ export default function BlueprintAssessmentTab({
             </p>
           </>
         )}
-        {canManage && <MeasurementSheet clientId={client.id} />}
+        {canManage && assessment.bodyMeasurements.length > 0 && <MeasurementSheet clientId={client.id} />}
         {assessment.bodyMeasurements.length > 0 && (
           <div style={{ marginTop: 24 }}>
             <HistoryList
@@ -184,11 +190,13 @@ export default function BlueprintAssessmentTab({
       </Section>
 
       {/* ---------- Section 2: Body Composition (RENPHO Health) ---------- */}
-      <Section title="2. Body Composition" subtitle="Source: RENPHO Health">
+      <Section title="body composition.">
         {assessment.renphoScans.length === 0 ? (
           <div className="bp-empty-state">
-            <p>No RENPHO scan available yet.</p>
-            <p className="pay-history-meta">Complete the client's first body composition scan to populate this section.</p>
+            <p>Awaiting First RENPHO Scan</p>
+            <p className="pay-history-meta">
+              Complete the client's first Body Composition Scan to unlock automatic health metrics and transformation tracking.
+            </p>
           </div>
         ) : (
           <>
@@ -244,7 +252,7 @@ export default function BlueprintAssessmentTab({
           </>
         )}
         <p className="pay-history-meta" style={{ marginTop: 16 }}>
-          Body composition data is populated automatically from RENPHO Health.
+          Source: RENPHO Health — Body Composition data is automatically synchronized from RENPHO.
         </p>
         {canManage && (
           <div style={{ marginTop: 8 }}>
@@ -254,94 +262,119 @@ export default function BlueprintAssessmentTab({
       </Section>
 
       {/* ---------- Section 3: Progress Photos ---------- */}
-      <Section title="3. Progress Photos">
-        {canManage && <PhotoUploadForm clientId={client.id} />}
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 12, fontSize: 12.5 }}>
-          {photosByType.map(({ type, photos }) => (
-            <div key={type}>
-              <strong style={{ display: "block", fontSize: 11, opacity: 0.6, marginBottom: 4 }}>{type}</strong>
-              {photos.length === 0 ? (
-                <span style={{ opacity: 0.5 }}>None</span>
-              ) : (
-                photos.map((p) => (
-                  <div key={p.id} style={{ marginBottom: 4 }}>
-                    {(p.takenAt ?? p.uploadedAt).toLocaleDateString()}
-                    {p.visibility === "CLIENT_VISIBLE" && <span style={{ opacity: 0.6 }}> · visible to client</span>}
-                  </div>
-                ))
-              )}
-            </div>
-          ))}
-        </div>
+      <Section title="progress photos.">
+        <PhotoGallery photosByType={photosByType} canManage={canManage} />
+        {canManage && (
+          <div style={{ marginTop: 16 }}>
+            <PhotoCaptureSheet clientId={client.id} />
+          </div>
+        )}
       </Section>
 
       {/* ---------- Section 4: Specialist Observations ---------- */}
-      <Section title="4. Specialist Observations">
-        {canManage && (
-          <form
-            action={async (formData: FormData) => {
-              "use server";
-              await addObservation(client.id, formData);
-            }}
-            style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 20 }}
-          >
-            <textarea name="body" placeholder="Observation" rows={2} required style={inputStyle} />
-            <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
-              <select name="visibility" defaultValue="INTERNAL_ONLY" style={inputStyle}>
-                <option value="INTERNAL_ONLY">Internal Only</option>
-                <option value="CLIENT_VISIBLE">Client Visible</option>
-              </select>
-              <button type="submit" className="auth-submit" style={{ width: "auto", padding: "10px 20px" }}>
-                Add Observation
-              </button>
-            </div>
-          </form>
-        )}
+      <Section title="specialist observations.">
         {assessment.specialistObservations.length === 0 ? (
-          <p style={{ opacity: 0.6, fontSize: 13 }}>No observations yet.</p>
+          <div className="bp-empty-state">
+            <p>No observations yet.</p>
+            {canManage && (
+              <div style={{ marginTop: 14 }}>
+                <ObservationSheet clientId={client.id} />
+              </div>
+            )}
+          </div>
         ) : (
-          <ul style={{ display: "flex", flexDirection: "column", gap: 8, fontSize: 13, paddingLeft: 0, listStyle: "none" }}>
-            {assessment.specialistObservations.map((o) => (
-              <li key={o.id} style={{ borderTop: "1px solid rgba(0,0,0,0.06)", paddingTop: 8 }}>
-                {o.createdAt.toLocaleString()} {o.visibility === "CLIENT_VISIBLE" && "· visible to client"}
-                <div>{o.body}</div>
-              </li>
-            ))}
-          </ul>
+          <>
+            {[...assessment.specialistObservations]
+              .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
+              .map((o) => (
+                <div key={o.id} className="cl-note-card">
+                  <p className="cl-note-meta">
+                    {o.createdAt.toLocaleDateString()} · {o.createdAt.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}
+                    {" · "}
+                    {o.visibility === "CLIENT_VISIBLE" ? "Client Visible" : "Internal Only"}
+                  </p>
+                  <p className="cl-note-content">{o.body}</p>
+                </div>
+              ))}
+            {canManage && (
+              <div style={{ marginTop: 16 }}>
+                <ObservationSheet clientId={client.id} />
+              </div>
+            )}
+          </>
         )}
       </Section>
 
       {/* ---------- Section 5: Strategy Validation ---------- */}
-      <Section title="5. Strategy Validation">
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, fontSize: 13, marginBottom: 16 }}>
-          <Field label="Original Recommendation">{assessment.originalRecommendedSystem ?? "—"}</Field>
-          <Field label="Validated Strategy">{assessment.status === "VALIDATED" || assessment.status === "IN_PROGRESS" || assessment.status === "COMPLETED" ? assessment.recommendedSystem ?? "—" : "Not yet validated"}</Field>
+      <Section title="strategy validation.">
+        <div className="bp-strategy-grid">
+          <div className="pd-card">
+            <p className="bp-hero-eyebrow">Original Recommendation</p>
+            <div className="cl-summary-list">
+              <div className="cl-summary-row">
+                <span>System</span>
+                <span>{assessment.originalRecommendedSystem ?? "Not available yet"}</span>
+              </div>
+              <div className="cl-summary-row">
+                <span>Frequency</span>
+                <span>{assessment.initialFrequency ?? "Not set"}</span>
+              </div>
+              <div className="cl-summary-row">
+                <span>Sessions</span>
+                <span>{assessment.initialSessionCount ?? "Not set"}</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="pd-card">
+            <p className="bp-hero-eyebrow">Validated Strategy</p>
+            <div className="cl-summary-list">
+              <div className="cl-summary-row">
+                <span>System</span>
+                <span>
+                  {["VALIDATED", "IN_PROGRESS", "COMPLETED"].includes(assessment.status)
+                    ? assessment.recommendedSystem ?? "Not available yet"
+                    : "Not yet validated"}
+                </span>
+              </div>
+              <div className="cl-summary-row">
+                <span>Frequency</span>
+                <span>{assessment.validatedFrequency ?? "Not yet validated"}</span>
+              </div>
+              <div className="cl-summary-row">
+                <span>Sessions</span>
+                <span>{assessment.validatedSessionCount ?? "Not yet validated"}</span>
+              </div>
+              <div className="cl-summary-row">
+                <span>Complementary</span>
+                <span>{assessment.complementarySessions ?? "Not set"}</span>
+              </div>
+              <div className="cl-summary-row">
+                <span>Optimization Notes</span>
+                <span>{assessment.optimizationNotes ?? "Not set"}</span>
+              </div>
+              <div className="cl-summary-row">
+                <span>Validated By</span>
+                <span>{assessment.validatedById ? "Specialist on file" : "—"}</span>
+              </div>
+              <div className="cl-summary-row">
+                <span>Validated Date</span>
+                <span>{assessment.validatedAt?.toLocaleDateString() ?? "—"}</span>
+              </div>
+            </div>
+          </div>
         </div>
+
         {canManage && assessment.status !== "VALIDATED" && (
-          <form
-            action={async (formData: FormData) => {
-              "use server";
-              await validateAssessment(client.id, formData);
-            }}
-            style={{ display: "flex", flexDirection: "column", gap: 10 }}
-          >
-            <input name="baselineAppointmentDate" type="date" style={inputStyle} />
-            <input name="validatedSystem" placeholder="Validated system (leave blank to keep original)" style={inputStyle} />
-            <input name="validatedFrequency" placeholder="Validated frequency (e.g. 2x/week)" style={inputStyle} />
-            <input name="validatedSessionCount" type="number" placeholder="Validated session count" style={inputStyle} />
-            <input name="complementarySessions" placeholder="Complementary sessions" style={inputStyle} />
-            <textarea name="homeCareGuidance" placeholder="Home-care guidance" rows={2} style={inputStyle} />
-            <textarea name="optimizationNotes" placeholder="Optimization notes" rows={2} style={inputStyle} />
-            <textarea name="validationNotes" placeholder="Validation notes (also used as strategy-change reason, if changed)" rows={2} style={inputStyle} />
-            <button type="submit" className="auth-submit" style={{ width: "auto", padding: "10px 20px" }}>
-              {canValidate ? "Validate Blueprint Assessment™" : "Save (validation requires completed baseline)"}
-            </button>
-          </form>
+          <div style={{ marginTop: 20 }}>
+            <StrategySheet
+              clientId={client.id}
+              ctaLabel={canValidate ? "Validate Blueprint Assessment™" : "Save (validation requires completed baseline)"}
+            />
+          </div>
         )}
         {assessment.status === "VALIDATED" && (
-          <p style={{ fontSize: 13, color: "#2f6b3a" }}>
-            ✓ Validated {assessment.validatedAt?.toLocaleString()}
-          </p>
+          <p style={{ fontSize: 13, color: "#2f6b3a", marginTop: 16 }}>✓ Validated {assessment.validatedAt?.toLocaleString()}</p>
         )}
       </Section>
     </div>
@@ -351,17 +384,10 @@ export default function BlueprintAssessmentTab({
 function Section({ title, subtitle, children }: { title: string; subtitle?: string; children: React.ReactNode }) {
   return (
     <div>
-      <h3 style={{ fontSize: 14, marginBottom: 4 }}>{title}</h3>
-      {subtitle && <p style={{ fontSize: 11, opacity: 0.5, marginBottom: 12 }}>{subtitle}</p>}
-      {children}
-    </div>
-  );
-}
-
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
-  return (
-    <div>
-      <strong style={{ display: "block", fontSize: 11, opacity: 0.6 }}>{label}</strong>
+      <h3 className="bp-chapter-title" style={{ fontFamily: "var(--serif)", fontSize: 18, textTransform: "none", letterSpacing: 0, color: "#2B2622", marginTop: 0 }}>
+        {title}
+      </h3>
+      {subtitle && <p className="pay-history-meta" style={{ marginTop: -8, marginBottom: 12 }}>{subtitle}</p>}
       {children}
     </div>
   );
@@ -379,4 +405,3 @@ function HistoryList({ rows }: { rows: { id: string; date: Date; summary: string
   );
 }
 
-const inputStyle: React.CSSProperties = { padding: 10 };

@@ -2439,6 +2439,20 @@
 
 .bp-manual-entry-link{ background:none; border:none; padding:0; font-family:var(--sans); font-size:12px; color:#8a7f74; text-decoration:underline; cursor:pointer; }
 
+/* ---------- Progress Photos gallery (Stage 4 upgrade) ---------- */
+.bp-photo-gallery{ display:grid; grid-template-columns:repeat(5, 1fr); gap:10px; margin-bottom:16px; }
+@media (max-width:600px){ .bp-photo-gallery{ grid-template-columns:repeat(2, 1fr); } }
+.bp-photo-tile{ display:flex; flex-direction:column; align-items:center; gap:4px; text-align:center; }
+.bp-photo-tile-frame{ width:100%; aspect-ratio:3/4; border-radius:10px; overflow:hidden; background:rgba(0,0,0,0.04); display:flex; align-items:center; justify-content:center; }
+.bp-photo-tile-frame img{ width:100%; height:100%; object-fit:cover; }
+.bp-photo-tile-empty{ font-family:var(--serif); font-size:22px; color:#c4b8a8; }
+.bp-photo-tile-label{ font-family:var(--sans); font-size:11.5px; font-weight:600; color:#2B2622; margin:2px 0 0; }
+.bp-photo-delete-btn{ background:none; border:none; padding:0; font-family:var(--sans); font-size:10.5px; color:#a33; text-decoration:underline; cursor:pointer; }
+
+/* ---------- Strategy Validation cards (Stage 6 upgrade) ---------- */
+.bp-strategy-grid{ display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+@media (max-width:700px){ .bp-strategy-grid{ grid-template-columns:1fr; } }
+
 .dash-view-btn{ font-family:var(--sans); font-size:11.5px; color:var(--cat,#5C1A1F); text-decoration:none; border:1px solid rgba(92,26,31,0.25); border-radius:4px; padding:4px 10px; white-space:nowrap; }
 .dash-view-btn:hover{ background:rgba(92,26,31,0.06); }
 

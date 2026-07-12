@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react";
 import { addProfessionalMeasurement } from "./blueprint-actions";
 
-export default function MeasurementSheet({ clientId }: { clientId: string }) {
+export default function MeasurementSheet({ clientId, label = "+ Update Measurements" }: { clientId: string; label?: string }) {
   const [open, setOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
 
@@ -17,7 +17,7 @@ export default function MeasurementSheet({ clientId }: { clientId: string }) {
   return (
     <>
       <button type="button" className="sched-cta" onClick={() => setOpen(true)}>
-        + Update Measurements
+        {label}
       </button>
 
       {open && (
