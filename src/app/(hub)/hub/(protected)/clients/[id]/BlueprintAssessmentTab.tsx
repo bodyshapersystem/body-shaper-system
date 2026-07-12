@@ -1,4 +1,6 @@
 import PhotoGallery from "./PhotoGallery";
+import { AccordionGroup, AccordionItem } from "./AccordionGroup";
+import { RulerIcon, ScaleIcon, CameraIcon, NoteIcon, StrategyIcon } from "./BlueprintIcons";
 import PhotoCaptureSheet from "./PhotoCaptureSheet";
 import ObservationSheet from "./ObservationSheet";
 import StrategySheet from "./StrategySheet";
@@ -57,7 +59,8 @@ export default function BlueprintAssessmentTab({
   const canValidate = assessment.status === "BASELINE_COMPLETED" || assessment.status === "BASELINE_PENDING";
 
   return (
-    <div style={{ maxWidth: 760, display: "flex", flexDirection: "column", gap: 36 }}>
+    <div style={{ maxWidth: 760, display: "flex", flexDirection: "column", gap: 8 }}>
+      <AccordionGroup defaultOpenId="measurements">
       {/* ---------- Blueprint Assessment Summary (premium card) ---------- */}
       <div className="bp-summary-card">
         <div className="bp-summary-head">
@@ -126,7 +129,7 @@ export default function BlueprintAssessmentTab({
       </div>
 
       {/* ---------- Section 1: Professional Measurements ---------- */}
-      <Section title="professional measurements.">
+      <AccordionItem id="measurements" title="professional measurements." icon={<RulerIcon />}>
         {assessment.bodyMeasurements.length === 0 ? (
           <div className="bp-empty-state">
             <p>Capture the client's baseline body measurements to track visible transformation throughout their journey.</p>
@@ -187,10 +190,10 @@ export default function BlueprintAssessmentTab({
             />
           </div>
         )}
-      </Section>
+      </AccordionItem>
 
       {/* ---------- Section 2: Body Composition (RENPHO Health) ---------- */}
-      <Section title="body composition.">
+      <AccordionItem id="composition" title="body composition." icon={<ScaleIcon />}>
         {assessment.renphoScans.length === 0 ? (
           <div className="bp-empty-state">
             <p>Awaiting First RENPHO Scan</p>
@@ -259,20 +262,20 @@ export default function BlueprintAssessmentTab({
             <BodyCompositionSheet clientId={client.id} />
           </div>
         )}
-      </Section>
+      </AccordionItem>
 
       {/* ---------- Section 3: Progress Photos ---------- */}
-      <Section title="progress photos.">
+      <AccordionItem id="photos" title="progress photos." icon={<CameraIcon />}>
         <PhotoGallery photosByType={photosByType} canManage={canManage} />
         {canManage && (
           <div style={{ marginTop: 16 }}>
             <PhotoCaptureSheet clientId={client.id} />
           </div>
         )}
-      </Section>
+      </AccordionItem>
 
       {/* ---------- Section 4: Specialist Observations ---------- */}
-      <Section title="specialist observations.">
+      <AccordionItem id="observations" title="specialist observations." icon={<NoteIcon />}>
         {assessment.specialistObservations.length === 0 ? (
           <div className="bp-empty-state">
             <p>No observations yet.</p>
@@ -303,10 +306,10 @@ export default function BlueprintAssessmentTab({
             )}
           </>
         )}
-      </Section>
+      </AccordionItem>
 
       {/* ---------- Section 5: Strategy Validation ---------- */}
-      <Section title="strategy validation.">
+      <AccordionItem id="strategy" title="strategy validation." icon={<StrategyIcon />}>
         <div className="bp-strategy-grid">
           <div className="pd-card">
             <p className="bp-hero-eyebrow">Original Recommendation</p>
@@ -376,19 +379,8 @@ export default function BlueprintAssessmentTab({
         {assessment.status === "VALIDATED" && (
           <p style={{ fontSize: 13, color: "#2f6b3a", marginTop: 16 }}>✓ Validated {assessment.validatedAt?.toLocaleString()}</p>
         )}
-      </Section>
-    </div>
-  );
-}
-
-function Section({ title, subtitle, children }: { title: string; subtitle?: string; children: React.ReactNode }) {
-  return (
-    <div>
-      <h3 className="bp-chapter-title" style={{ fontFamily: "var(--serif)", fontSize: 18, textTransform: "none", letterSpacing: 0, color: "#2B2622", marginTop: 0 }}>
-        {title}
-      </h3>
-      {subtitle && <p className="pay-history-meta" style={{ marginTop: -8, marginBottom: 12 }}>{subtitle}</p>}
-      {children}
+      </AccordionItem>
+      </AccordionGroup>
     </div>
   );
 }
