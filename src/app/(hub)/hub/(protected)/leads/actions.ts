@@ -142,6 +142,18 @@ export async function convertLeadToClient(leadId: string): Promise<ConversionRes
   if (!lead) return { error: "Lead not found." };
   if (lead.archivedAt) return { error: "Cannot convert an archived lead." };
 
+  // Guard against the same email belonging to a different Client already
+  // (e.g. a duplicate test lead, or a returning person re-submitting the
+  // intake form under a new Lead). Converting would otherwise try to
+  // attach a second Client to that email's existing portal account and
+  // crash on the userId unique constraint. Fail clearly instead.
+  const existingClientByEmail = await prisma.client.findFirst({ where: { email: lead.email } });
+  if (existingClientByEmail) {
+    return {
+      error: `${lead.email} already belongs to an existing client (${existingClientByEmail.firstName} ${existingClientByEmail.lastName}). Merge or archive this lead instead of converting it.`,
+    };
+  }
+
   const clientRoleId = "role_client";
 
   const admin = createSupabaseAdminClient();
