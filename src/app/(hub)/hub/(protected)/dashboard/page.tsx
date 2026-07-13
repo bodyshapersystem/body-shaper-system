@@ -86,7 +86,7 @@ export default async function HubDashboardPage() {
       select: { id: true },
     }),
     prisma.measurement.findMany({
-      where: { clientId: { not: null }, weightKg: { not: null } },
+      where: { weightKg: { not: null } },
       select: { clientId: true, weightKg: true, scanDate: true },
       orderBy: { scanDate: "asc" },
     }),
