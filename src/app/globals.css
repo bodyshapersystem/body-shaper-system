@@ -2774,3 +2774,167 @@
   .sched-time-chips{ gap:6px; }
   .sched-chip{ padding:8px 12px; font-size:12px; }
 }
+
+/* ============================================================
+   BODY BLUEPRINT™ EDITORIAL LAYER — ".bbp-" namespace
+   New, purely additive. Nothing above this block was modified.
+   Scoped to BlueprintReport.tsx only — does not touch .bp-/.cl-/
+   .dash-/.pay- classes shared with Dashboard, Analytics,
+   Measurements, or the public marketing site.
+   Reuses the existing brand variables (--ivory, --mocha, --taupe,
+   --charcoal, --olive, --rose, --burgundy, --serif, --sans) rather
+   than introducing new tokens.
+   ============================================================ */
+:root{
+  --bbp-ink:#2B2622;        /* matches existing .br-card-dark */
+  --bbp-card:#FBF8F3;
+  --bbp-ivory:#F5EEE4;      /* = --ivory */
+  --bbp-gold:#C9A876;
+  --bbp-gold-dark:#A9895C;
+  --bbp-line:rgba(43,38,34,0.12);
+  --bbp-line-dark:rgba(255,255,255,0.10);
+  --bbp-muted:#8B8072;
+  --bbp-muted-light:#B3A996;
+}
+
+.bbp-root{ font-family:var(--sans); color:var(--charcoal); max-width:1180px; }
+
+.bbp-illustration{ width:100%; height:auto; object-fit:contain; display:block; }
+.bbp-illustration-fallback{ opacity:0.9; }
+
+/* ---------- shared section label (numbered eyebrow + rule) ---------- */
+.bbp-section-label{ display:flex; align-items:baseline; justify-content:space-between; gap:16px; margin-bottom:18px; }
+.bbp-section-label-left{ display:flex; align-items:baseline; gap:10px; }
+.bbp-section-num{ font-family:var(--sans); font-size:13px; color:var(--bbp-muted-light); }
+.bbp-section-div{ font-family:var(--sans); font-size:13px; color:var(--bbp-muted); }
+.bbp-section-title{ font-family:var(--serif); font-size:24px; line-height:1; margin:0; }
+.bbp-section-rule{ flex:1; height:1px; background:var(--bbp-line); margin:0 4px; }
+.bbp-section-right{ font-family:var(--sans); font-size:10.5px; letter-spacing:0.1em; text-transform:uppercase; color:var(--bbp-muted); white-space:nowrap; }
+
+/* ---------- generic card ---------- */
+.bbp-card{ background:var(--bbp-card); border:1px solid var(--bbp-line); border-radius:18px; }
+.bbp-card-dark{ background:var(--bbp-ink); border-radius:18px; color:#F1EBE1; position:relative; overflow:hidden; }
+
+/* ---------- hero / executive summary ---------- */
+.bbp-hero{ display:grid; grid-template-columns:1fr 300px; gap:16px; margin-bottom:14px; }
+.bbp-hero-welcome{ display:flex; border-radius:18px; overflow:hidden; background:var(--bbp-card); border:1px solid var(--bbp-line); }
+.bbp-hero-avatar{ width:150px; flex-shrink:0; background:var(--bbp-ink); color:#F1EBE1; display:flex; align-items:center; justify-content:center; font-family:var(--serif); font-size:34px; }
+.bbp-hero-welcome-body{ flex:1; display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:20px; padding:22px 28px; }
+.bbp-hero-eyebrow{ font-family:var(--sans); font-size:11.5px; letter-spacing:0.08em; text-transform:uppercase; color:var(--bbp-muted); margin:0; }
+.bbp-hero-name{ font-family:var(--serif); font-size:30px; margin:2px 0 0; }
+.bbp-hero-sub{ font-family:var(--sans); font-size:12.5px; color:var(--bbp-muted); max-width:280px; margin-top:6px; }
+.bbp-hero-meta{ display:flex; flex-direction:column; gap:10px; padding-left:22px; border-left:1px solid var(--bbp-line); }
+.bbp-hero-meta-label{ font-family:var(--sans); font-size:9.5px; letter-spacing:0.1em; text-transform:uppercase; color:var(--bbp-muted-light); }
+.bbp-hero-meta-value{ font-family:var(--sans); font-size:12.5px; color:var(--bbp-gold-dark); }
+.bbp-hero-side{ display:flex; flex-direction:column; gap:12px; }
+.bbp-phase-card, .bbp-completion-card{ border-radius:18px; padding:18px 22px; display:flex; align-items:center; justify-content:space-between; }
+.bbp-phase-card{ background:var(--bbp-card); border:1px solid var(--bbp-line); }
+.bbp-completion-card{ background:var(--bbp-ink); color:#F1EBE1; }
+.bbp-completion-value{ font-family:var(--serif); font-size:32px; line-height:1; margin-top:4px; }
+.bbp-badge-row{ display:flex; flex-wrap:wrap; gap:8px; margin:8px 0; }
+.bbp-badge{ font-family:var(--sans); font-size:10.5px; letter-spacing:0.04em; text-transform:uppercase; padding:5px 12px; border-radius:100px; background:var(--bbp-ivory); border:1px solid var(--bbp-line); color:var(--charcoal); }
+
+/* ---------- body composition hero (Section 01) ---------- */
+.bbp-composition{ display:grid; grid-template-columns:300px 1fr; gap:16px; }
+.bbp-composition-visual{ padding:28px; display:flex; flex-direction:column; justify-content:space-between; min-height:360px; }
+.bbp-composition-heading{ font-family:var(--serif); font-size:26px; line-height:1.15; color:#F1EBE1; }
+.bbp-composition-copy{ font-family:var(--sans); font-size:12.5px; color:rgba(241,235,225,0.7); max-width:220px; margin-top:10px; }
+.bbp-composition-illustration{ margin:12px -8px; }
+.bbp-composition-cta{ font-family:var(--sans); font-size:10.5px; letter-spacing:0.08em; text-transform:uppercase; color:#F1EBE1; border:1px solid var(--bbp-line-dark); border-radius:8px; padding:11px 18px; align-self:flex-start; text-decoration:none; }
+.bbp-stat-tiles{ display:grid; grid-template-columns:repeat(4,1fr); }
+.bbp-stat-tile{ padding:14px 16px; border-right:1px solid var(--bbp-line); border-bottom:1px solid var(--bbp-line); }
+.bbp-stat-tile-label{ font-family:var(--sans); font-size:9.5px; letter-spacing:0.06em; text-transform:uppercase; color:var(--bbp-muted-light); }
+.bbp-stat-tile-value{ font-family:var(--serif); font-size:22px; margin-top:3px; }
+.bbp-stat-tile-unit{ font-family:var(--sans); font-size:12px; color:var(--bbp-muted); margin-left:3px; }
+.bbp-stat-tile-ideal{ font-family:var(--sans); font-size:10.5px; color:var(--bbp-muted-light); margin-top:1px; }
+.bbp-source-note{ font-family:var(--sans); font-size:10px; font-style:italic; color:var(--bbp-muted-light); padding:10px 16px; }
+
+/* ---------- 3-column row: measurements / body profile / personalized system ---------- */
+.bbp-row-3{ display:grid; grid-template-columns:1fr 1fr 1fr; gap:16px; }
+.bbp-row-2{ display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+.bbp-panel{ padding:24px; }
+.bbp-panel-title{ font-family:var(--serif); font-size:20px; margin:0; }
+
+.bbp-measure-table{ width:100%; margin-top:12px; }
+.bbp-measure-head, .bbp-measure-row{ display:grid; grid-template-columns:1fr 56px 56px 56px; gap:4px; padding:8px 0; }
+.bbp-measure-head{ font-family:var(--sans); font-size:9.5px; letter-spacing:0.06em; text-transform:uppercase; color:var(--bbp-muted-light); border-bottom:1px solid var(--bbp-line); }
+.bbp-measure-row{ font-family:var(--sans); font-size:12.5px; border-bottom:1px solid var(--bbp-line); }
+.bbp-measure-row span{ text-align:right; }
+.bbp-measure-row span:first-child{ text-align:left; }
+.bbp-measure-current{ color:var(--charcoal); }
+.bbp-measure-goal{ color:var(--bbp-muted); }
+.bbp-measure-diff{ color:var(--bbp-gold-dark); }
+
+.bbp-profile-card{ padding:24px; }
+.bbp-profile-label{ font-family:var(--serif); font-size:28px; color:var(--bbp-gold); margin-top:10px; }
+.bbp-profile-desc{ font-family:var(--sans); font-size:12.5px; color:rgba(241,235,225,0.75); margin-top:6px; }
+.bbp-focus-label{ font-family:var(--sans); font-size:10px; letter-spacing:0.08em; text-transform:uppercase; color:var(--bbp-gold); margin-top:18px; }
+.bbp-focus-list{ list-style:none; padding:0; margin:8px 0 0; display:flex; flex-direction:column; gap:7px; }
+.bbp-focus-list li{ font-family:var(--sans); font-size:12.5px; color:#F1EBE1; display:flex; align-items:center; gap:8px; }
+.bbp-focus-dot{ width:4px; height:4px; border-radius:100%; background:var(--bbp-gold); flex-shrink:0; }
+
+.bbp-system-card{ border-radius:14px; padding:18px 20px; background:var(--olive,#8A8B6C); color:#F1EBE1; display:flex; align-items:center; justify-content:space-between; gap:14px; margin-bottom:18px; }
+.bbp-system-name{ font-family:var(--serif); font-size:21px; margin:0; }
+.bbp-system-sub{ font-family:var(--sans); font-size:10px; letter-spacing:0.06em; text-transform:uppercase; color:rgba(241,235,225,0.7); margin-top:4px; }
+.bbp-protocol-list{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:9px; }
+.bbp-protocol-list li{ font-family:var(--sans); font-size:12.5px; display:flex; align-items:center; gap:8px; }
+
+/* ---------- system architecture / why selected ---------- */
+.bbp-arch-grid{ display:grid; grid-template-columns:1fr 1fr 1fr; gap:22px; margin-top:14px; }
+.bbp-arch-col-label{ font-family:var(--sans); font-size:10px; letter-spacing:0.08em; text-transform:uppercase; color:var(--bbp-gold-dark); margin-bottom:8px; }
+.bbp-arch-item{ font-family:var(--sans); font-size:12.5px; padding:4px 0; }
+.bbp-quote{ font-family:var(--serif); font-style:italic; font-size:18px; line-height:1.5; color:var(--charcoal); margin-top:8px; }
+.bbp-quote-sign{ font-family:var(--serif); font-style:italic; font-size:21px; color:var(--charcoal); margin-top:14px; }
+
+/* ---------- progress / milestone row ---------- */
+.bbp-bottom-row{ display:grid; grid-template-columns:1fr 1fr 1fr; gap:16px; }
+.bbp-progress-legend{ display:flex; gap:16px; margin-top:6px; }
+.bbp-legend-item{ font-family:var(--sans); font-size:10px; color:rgba(241,235,225,0.75); display:flex; align-items:center; gap:6px; }
+.bbp-legend-dot{ width:8px; height:8px; border-radius:100%; display:inline-block; }
+.bbp-quote-card{ padding:22px; display:flex; flex-direction:column; justify-content:space-between; }
+.bbp-milestone-ring-wrap{ display:flex; align-items:center; gap:18px; }
+.bbp-milestone-copy{ font-family:var(--serif); font-size:18px; line-height:1.25; }
+
+/* ---------- photo gallery ---------- */
+.bbp-photo-grid{ display:grid; grid-template-columns:repeat(5,1fr); gap:14px; }
+.bbp-photo-card{ border-radius:14px; overflow:hidden; background:var(--bbp-card); border:1px solid var(--bbp-line); }
+.bbp-photo-frame{ aspect-ratio:3/4; position:relative; background:var(--bbp-ivory); overflow:hidden; }
+.bbp-photo-frame img{ width:100%; height:100%; object-fit:cover; }
+.bbp-photo-corner{ position:absolute; width:11px; height:11px; opacity:0.6; }
+.bbp-photo-label-row{ display:flex; align-items:center; justify-content:space-between; padding:9px 12px; }
+.bbp-photo-label{ font-family:var(--sans); font-size:11px; }
+
+/* ---------- approved empty state ---------- */
+.bbp-empty{ border-radius:18px; background:var(--bbp-ink); color:#F1EBE1; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:40px 28px; position:relative; overflow:hidden; }
+.bbp-empty-title{ font-family:var(--serif); font-size:20px; margin-top:10px; }
+.bbp-empty-sub{ font-family:var(--sans); font-size:12.5px; color:rgba(241,235,225,0.65); max-width:280px; margin-top:6px; }
+
+/* ---------- footer ---------- */
+.bbp-footer{ display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; margin-top:36px; padding-top:20px; border-top:1px solid var(--bbp-line); }
+.bbp-footer-tagline{ font-family:var(--sans); font-size:11px; color:var(--bbp-muted); }
+
+/* ============================================================
+   RESPONSIVE — mobile-first collapse. Desktop grids defined above;
+   these queries only stack them, no new visual language introduced.
+   ============================================================ */
+@media (max-width: 980px){
+  .bbp-hero{ grid-template-columns:1fr; }
+  .bbp-composition{ grid-template-columns:1fr; }
+  .bbp-row-3{ grid-template-columns:1fr; }
+  .bbp-row-2{ grid-template-columns:1fr; }
+  .bbp-arch-grid{ grid-template-columns:1fr 1fr; }
+  .bbp-bottom-row{ grid-template-columns:1fr; }
+  .bbp-photo-grid{ grid-template-columns:repeat(3,1fr); }
+  .bbp-stat-tiles{ grid-template-columns:repeat(2,1fr); }
+}
+
+@media (max-width: 640px){
+  .bbp-hero-welcome{ flex-direction:column; }
+  .bbp-hero-avatar{ width:100%; height:110px; }
+  .bbp-hero-meta{ border-left:none; border-top:1px solid var(--bbp-line); padding-left:0; padding-top:14px; width:100%; }
+  .bbp-arch-grid{ grid-template-columns:1fr; }
+  .bbp-photo-grid{ grid-template-columns:repeat(2,1fr); }
+  .bbp-stat-tiles{ grid-template-columns:repeat(2,1fr); }
+  .bbp-section-title{ font-size:20px; }
+  .bbp-composition-heading{ font-size:22px; }
+}

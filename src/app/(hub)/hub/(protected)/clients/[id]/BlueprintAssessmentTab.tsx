@@ -6,6 +6,8 @@ import ObservationSheet from "./ObservationSheet";
 import StrategySheet from "./StrategySheet";
 import MeasurementSheet from "./MeasurementSheet";
 import BodyCompositionSheet from "./BodyCompositionSheet";
+import BodyTypeSheet from "./BodyTypeSheet";
+import { BODY_TYPE_CONTENT } from "@/lib/body-types";
 import type { Prisma } from "@prisma/client";
 
 type ClientWithBlueprint = Prisma.ClientGetPayload<{
@@ -118,7 +120,17 @@ export default function BlueprintAssessmentTab({
             <span>Validation Status</span>
             <strong>{assessment.validatedAt ? assessment.validatedAt.toLocaleDateString() : "Awaiting validation"}</strong>
           </div>
+          <div className="bp-summary-item">
+            <span>Body Profile™</span>
+            <strong>{assessment.bodyType ? BODY_TYPE_CONTENT[assessment.bodyType].label : "Not set yet"}</strong>
+          </div>
         </div>
+
+        {canManage && (
+          <div style={{ marginTop: 14 }}>
+            <BodyTypeSheet clientId={client.id} currentBodyType={assessment.bodyType} />
+          </div>
+        )}
 
         {assessment.validationNotes && (
           <p className="bp-summary-notes">

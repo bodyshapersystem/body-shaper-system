@@ -5,7 +5,9 @@ import { getCurrentHubUser, hasPermission } from "@/lib/permissions";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { revalidatePath } from "next/cache";
 import { recordStrategyChange, getActiveAssessmentForClient } from "@/lib/blueprint-assessments";
-import type { PhotoType, Visibility } from "@prisma/client";
+import type { PhotoType, Visibility, BodyType } from "@prisma/client";
+
+const VALID_BODY_TYPES: BodyType[] = ["hourglass", "pear", "apple", "rectangle", "inverted_triangle"];
 
 function num(formData: FormData, key: string): number | undefined {
   const v = formData.get(key);
@@ -96,6 +98,33 @@ export async function addBodyComposition(clientId: string, formData: FormData) {
   });
 
   await maybeAdvanceToBaselineCompleted(clientId);
+
+  revalidatePath(`/hub/clients/${clientId}`);
+  return { success: true };
+}
+
+/**
+ * Body Profile™ — single source of truth for body-type classification.
+ * Set once by the Owner/specialist on the active assessment; every
+ * downstream experience (Section 01 illustration, Body Profile card,
+ * Blueprint PDF, Client Portal, analytics) reads this same field.
+ * Intentionally never recalculated from measurements in the UI layer.
+ */
+export async function setBodyType(clientId: string, bodyType: string) {
+  const user = await getCurrentHubUser();
+  if (!user || !hasPermission(user, "blueprints.manage")) {
+    return { error: "You don't have permission to set the Body Profile." };
+  }
+  if (!VALID_BODY_TYPES.includes(bodyType as BodyType)) {
+    return { error: "Invalid body type." };
+  }
+
+  const assessment = await requireAssessment(clientId);
+
+  await prisma.blueprintAssessment.update({
+    where: { id: assessment.id },
+    data: { bodyType: bodyType as BodyType },
+  });
 
   revalidatePath(`/hub/clients/${clientId}`);
   return { success: true };

@@ -293,6 +293,17 @@ enum Visibility {
   CLIENT_VISIBLE
 }
 
+// Body Profile™ classification — set once by the Owner/specialist during
+// assessment and read by every downstream experience (Owner Hub illustration,
+// Blueprint PDF, Client Portal, analytics). Never derived/recalculated in the UI.
+enum BodyType {
+  hourglass
+  pear
+  apple
+  rectangle
+  inverted_triangle
+}
+
 model BlueprintAssessment {
   id       String            @id @default(cuid())
   leadId   String?           @unique
@@ -301,6 +312,12 @@ model BlueprintAssessment {
   client   Client?           @relation(fields: [clientId], references: [id], onDelete: Cascade)
   version  Int               @default(1)
   status   AssessmentStatus  @default(INTAKE_SUBMITTED)
+
+  // Body Profile™ — single source of truth for body-type classification.
+  // Nullable until the Owner sets it at assessment; drives Section 01
+  // illustration, the Body Profile card, PDF generation, and the Client
+  // Portal. Do not infer this from measurements in the UI layer.
+  bodyType BodyType?
 
   // Jotform intake (Let's Build Your Blueprint™)
   jotformSubmissionId String?
