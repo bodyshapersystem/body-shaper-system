@@ -83,10 +83,20 @@ model User {
   authUserId   String        @unique // Supabase Auth user id (auth.users.id)
   email        String        @unique
   fullName     String
+  phone        String?
   roleId       String
   role         Role          @relation(fields: [roleId], references: [id])
   status       UserStatus    @default(ACTIVE)
   portalStatus PortalStatus? // Client-role users only
+
+  // Notification preferences (Owner Hub Settings™) — persisted but
+  // not yet wired into every notification-sending code path; see
+  // Settings page notes.
+  emailNotifications      Boolean @default(true)
+  appointmentReminders    Boolean @default(true)
+  paymentNotifications    Boolean @default(true)
+  leadNotifications       Boolean @default(true)
+  weeklyReports           Boolean @default(true)
 
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
@@ -722,6 +732,14 @@ model BusinessSettings {
   contactEmail             String?
   contactPhone             String?
   address                  String?
+  website                  String?
+  logoStoragePath          String?
+  timezone                 String   @default("America/New_York")
+  language                 String   @default("English")
+  measurementUnits         String   @default("Imperial") // Imperial | Metric
+  currency                 String   @default("USD")
+  dateFormat               String   @default("MM/DD/YYYY")
+  weekStartsOn             String   @default("Monday")
   fullPaymentDiscountCents Int? // "Exclusive Courtesy" full-balance discount — configurable, null = feature off
   updatedAt                DateTime @updatedAt
 
