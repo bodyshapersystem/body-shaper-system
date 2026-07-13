@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { getCurrentHubUser } from "@/lib/permissions";
 import InviteMemberSheet from "./InviteMemberSheet";
 import MemberDetailPanel from "./MemberDetailPanel";
+import { getUserAvatarUrl } from "../settings/actions";
 
 export const dynamic = "force-dynamic";
 
@@ -25,6 +26,14 @@ export default async function HubTeamPage({ searchParams }: { searchParams: Prom
   const distinctRoles = new Set(teamMembers.map((m) => m.role.name)).size;
 
   const selected = teamMembers.find((m) => m.id === memberId) ?? teamMembers[0];
+
+  const avatarUrls = Object.fromEntries(
+    await Promise.all(
+      teamMembers
+        .filter((m) => m.avatarStoragePath)
+        .map(async (m) => [m.id, await getUserAvatarUrl(m.avatarStoragePath!)] as const)
+    )
+  );
 
   return (
     <div className="cat-body portal-page">
@@ -92,8 +101,12 @@ export default async function HubTeamPage({ searchParams }: { searchParams: Prom
                     >
                       <td style={{ padding: "10px 8px" }}>
                         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                          <div className="cl-avatar" style={{ width: 32, height: 32, fontSize: 12 }}>
-                            {initials}
+                          <div className="cl-avatar" style={{ width: 32, height: 32, fontSize: 12, overflow: "hidden" }}>
+                            {avatarUrls[member.id] ? (
+                              <img src={avatarUrls[member.id]} alt={member.fullName} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                            ) : (
+                              initials
+                            )}
                           </div>
                           <div>
                             <Link href={`/hub/team?memberId=${member.id}`} style={{ fontWeight: 500, color: "#2B2622", textDecoration: "none" }}>
@@ -140,6 +153,7 @@ export default async function HubTeamPage({ searchParams }: { searchParams: Prom
               status: selected.status,
               createdAt: selected.createdAt.toLocaleDateString(),
               lastLoginAt: selected.lastLoginAt ? selected.lastLoginAt.toLocaleString() : null,
+              avatarUrl: avatarUrls[selected.id] ?? null,
             }}
             permissionKeys={selected.role.rolePermissions.map((rp) => rp.permission.key)}
             canManage={isOwner}

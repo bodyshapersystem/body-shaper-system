@@ -95,6 +95,33 @@ export async function getBusinessLogoUrl(storagePath: string) {
   return data.signedUrl;
 }
 
+export async function createSignedAvatarUploadUrl(fileName: string) {
+  const user = await getCurrentHubUser();
+  if (!user) return { error: "Not signed in." };
+  const ext = fileName.split(".").pop() || "png";
+  const path = `avatars/${user.id}-${randomUUID()}.${ext}`;
+  const admin = createSupabaseAdminClient();
+  const { data, error } = await admin.storage.from("client-documents").createSignedUploadUrl(path);
+  if (error || !data) return { error: error?.message ?? "Could not prepare upload." };
+  return { path: data.path, token: data.token };
+}
+
+export async function updateOwnAvatar(storagePath: string) {
+  const user = await getCurrentHubUser();
+  if (!user) return { error: "Not signed in." };
+  await prisma.user.update({ where: { id: user.id }, data: { avatarStoragePath: storagePath } });
+  revalidatePath("/hub/settings");
+  revalidatePath("/hub/team");
+  return { success: true };
+}
+
+export async function getUserAvatarUrl(storagePath: string) {
+  const admin = createSupabaseAdminClient();
+  const { data, error } = await admin.storage.from("client-documents").createSignedUrl(storagePath, 60 * 60);
+  if (error || !data) return null;
+  return data.signedUrl;
+}
+
 export async function updateOwnProfile(formData: FormData) {
   const user = await getCurrentHubUser();
   if (!user) return { error: "Not signed in." };

@@ -142,7 +142,7 @@ function NavIcon({ name }: { name: string }) {
   }
 }
 
-export default function HubSidebar({ userName, roleName }: { userName: string; roleName: string }) {
+export default function HubSidebar({ userName, roleName, avatarUrl }: { userName: string; roleName: string; avatarUrl?: string | null }) {
   const pathname = usePathname();
 
   return (
@@ -163,12 +163,16 @@ export default function HubSidebar({ userName, roleName }: { userName: string; r
           aria-label="Log out"
         >
           <span className="profile-logout-avatar">
-            {userName
-              .split(" ")
-              .map((p) => p[0])
-              .join("")
-              .slice(0, 2)
-              .toUpperCase()}
+            {avatarUrl ? (
+              <img src={avatarUrl} alt={userName} style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "50%" }} />
+            ) : (
+              userName
+                .split(" ")
+                .map((p) => p[0])
+                .join("")
+                .slice(0, 2)
+                .toUpperCase()
+            )}
           </span>
           <span className="profile-logout-text">
             {userName}

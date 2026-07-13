@@ -25,7 +25,7 @@ export default function MemberDetailPanel({
   canManage,
   isOwnerRole,
 }: {
-  member: { id: string; fullName: string; email: string; phone: string | null; roleName: string; status: string; createdAt: string; lastLoginAt: string | null };
+  member: { id: string; fullName: string; email: string; phone: string | null; roleName: string; status: string; createdAt: string; lastLoginAt: string | null; avatarUrl: string | null };
   permissionKeys: string[];
   canManage: boolean;
   isOwnerRole: boolean;
@@ -80,8 +80,12 @@ export default function MemberDetailPanel({
     <div className="pd-card">
       <p className="dash-section-title" style={{ marginTop: 0 }}>Member Details</p>
       <div className="cl-header-name-row" style={{ marginBottom: 16 }}>
-        <div className="cl-avatar" style={{ width: 48, height: 48, fontSize: 16 }}>
-          {initials}
+        <div className="cl-avatar" style={{ width: 48, height: 48, fontSize: 16, overflow: "hidden" }}>
+          {member.avatarUrl ? (
+            <img src={member.avatarUrl} alt={member.fullName} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+          ) : (
+            initials
+          )}
         </div>
         <div>
           <strong style={{ display: "block", fontFamily: "var(--serif)", fontSize: 16 }}>{member.fullName}</strong>

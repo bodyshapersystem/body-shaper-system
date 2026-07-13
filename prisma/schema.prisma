@@ -84,6 +84,7 @@ model User {
   email        String        @unique
   fullName     String
   phone        String?
+  avatarStoragePath String?
   roleId       String
   role         Role          @relation(fields: [roleId], references: [id])
   status       UserStatus    @default(ACTIVE)

@@ -1,11 +1,12 @@
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { getCurrentHubUser, hasPermission } from "@/lib/permissions";
-import { updatePreferences, updateNotificationPreferences, getBusinessLogoUrl } from "./actions";
+import { updatePreferences, updateNotificationPreferences, getBusinessLogoUrl, getUserAvatarUrl } from "./actions";
 import EditBusinessInfoSheet from "./EditBusinessInfoSheet";
 import EditProfileSheet from "./EditProfileSheet";
 import PasswordChangeSheet from "./PasswordChangeSheet";
 import LogoUploadWidget from "./LogoUploadWidget";
+import AvatarUploadWidget from "./AvatarUploadWidget";
 import LogOutAllDevicesButton from "./LogOutAllDevicesButton";
 
 export const dynamic = "force-dynamic";
@@ -33,6 +34,7 @@ export default async function HubSettingsPage() {
   const jotformConnected = !!process.env.JOTFORM_API_KEY && !!process.env.JOTFORM_WEBHOOK_SECRET;
 
   const logoUrl = business.logoStoragePath ? await getBusinessLogoUrl(business.logoStoragePath) : null;
+  const ownAvatarUrl = user.avatarStoragePath ? await getUserAvatarUrl(user.avatarStoragePath) : null;
 
   return (
     <div className="cat-body portal-page">
@@ -133,6 +135,12 @@ export default async function HubSettingsPage() {
         {/* ---------- Owner Account ---------- */}
         <div className="pd-card">
           <h3 style={{ fontFamily: "var(--sans)", fontSize: 13, marginBottom: 16 }}>Owner Account</h3>
+          <div style={{ display: "flex", gap: 16, alignItems: "center", marginBottom: 16 }}>
+            <div className="settings-logo-frame" style={{ borderRadius: "50%" }}>
+              {ownAvatarUrl ? <img src={ownAvatarUrl} alt={user.fullName} /> : <span>{user.fullName[0]}</span>}
+            </div>
+            <AvatarUploadWidget />
+          </div>
           <div className="cl-summary-list" style={{ marginBottom: 16 }}>
             <div className="cl-summary-row">
               <span>Name</span>
