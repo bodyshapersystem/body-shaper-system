@@ -194,13 +194,6 @@ export default async function HubDashboardPage() {
           </Link>
         </div>
 
-        <div className="dash-hero-center">
-          <p className="dash-hero-center-line">Advanced Technology.</p>
-          <p className="dash-hero-center-line">Personalized Strategy.</p>
-          <p className="dash-hero-center-line">Visible Results.</p>
-          <p className="dash-hero-center-tagline">Your business. Elevated every day.</p>
-        </div>
-
         <div className="dash-hero-right">
           <img src="/images/emmy-hero.jpg" alt={firstName} className="dash-hero-photo" />
         </div>

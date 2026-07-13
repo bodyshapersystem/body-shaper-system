@@ -2564,8 +2564,8 @@
 /* ---------- Dashboard v2 — Editorial Luxury Hero (Milestone 28) ---------- */
 @keyframes dashFadeIn { from{ opacity:0; transform:translateY(8px); } to{ opacity:1; transform:translateY(0); } }
 
-.dash-hero{ position:relative; display:grid; grid-template-columns:1.2fr 1fr 0.6fr; gap:32px; align-items:center; padding:40px 0 48px; overflow:hidden; animation:dashFadeIn .5s ease; }
-@media (max-width:1100px){ .dash-hero{ grid-template-columns:1fr; } }
+.dash-hero{ position:relative; display:grid; grid-template-columns:1fr 1.1fr; gap:32px; align-items:center; padding:40px 0 48px; overflow:hidden; animation:dashFadeIn .5s ease; }
+@media (max-width:900px){ .dash-hero{ grid-template-columns:1fr; } }
 .dash-hero-waves{ position:absolute; top:-20px; right:0; width:280px; height:200px; opacity:.5; pointer-events:none; }
 
 .dash-hero-title{ font-family:var(--serif); font-size:42px; line-height:1.1; color:#2B2622; margin:8px 0 20px; }
@@ -2577,13 +2577,9 @@
 .dash-hero-cta{ display:inline-block; font-family:var(--sans); font-size:13px; color:var(--cat,#5C1A1F); text-decoration:none; border-bottom:1px solid var(--cat,#5C1A1F); padding-bottom:2px; transition:opacity .15s; }
 .dash-hero-cta:hover{ opacity:.7; }
 
-.dash-hero-center{ text-align:center; padding:0 20px; border-left:1px solid rgba(0,0,0,0.06); border-right:1px solid rgba(0,0,0,0.06); }
-@media (max-width:1100px){ .dash-hero-center{ border:none; text-align:left; padding:0; } }
-.dash-hero-center-line{ font-family:var(--serif); font-size:17px; color:#2B2622; margin:0; line-height:1.5; }
-.dash-hero-center-tagline{ font-family:var(--sans); font-size:12px; color:#8a7f74; margin-top:14px; font-style:italic; }
-
-.dash-hero-right{ display:flex; justify-content:center; }
-.dash-hero-photo{ width:100%; max-width:280px; height:320px; object-fit:cover; object-position:75% center; border-radius:16px; box-shadow:0 12px 32px rgba(43,38,34,0.15); }
+.dash-hero-right{ width:100%; }
+.dash-hero-photo{ width:100%; height:280px; object-fit:cover; object-position:center 25%; border-radius:16px; box-shadow:0 12px 32px rgba(43,38,34,0.15); display:block; }
+@media (max-width:900px){ .dash-hero-photo{ height:200px; } }
 .dash-hero-avatar{ width:96px; height:96px; border-radius:50%; background:var(--cat,#5C1A1F); color:#F6F3EE; display:flex; align-items:center; justify-content:center; font-family:var(--serif); font-size:36px; box-shadow:0 8px 24px rgba(92,26,31,0.18); }
 
 .dash-editorial-panel{ border:1px solid rgba(0,0,0,0.06); box-shadow:none; }
