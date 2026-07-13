@@ -70,11 +70,14 @@ export default async function ClientDetailPage({
 
   if (!client) notFound();
 
-  const [overview, appointments, payments, clientNotes] = await Promise.all([
+  const [overview, appointments, payments, clientNotes, specialist] = await Promise.all([
     getClientOverviewSummary(id),
     prisma.appointment.findMany({ where: { clientId: id }, orderBy: { startsAt: "desc" } }),
     prisma.payment.findMany({ where: { clientId: id }, orderBy: { createdAt: "desc" } }),
     prisma.clientNote.findMany({ where: { clientId: id }, orderBy: { createdAt: "desc" } }),
+    client.blueprintAssessments?.[0]?.validatedById
+      ? prisma.user.findUnique({ where: { id: client.blueprintAssessments[0].validatedById } })
+      : Promise.resolve(null),
   ]);
 
   const tab: Tab = TABS.includes(tabParam as Tab) ? (tabParam as Tab) : "overview";
@@ -108,55 +111,58 @@ export default async function ClientDetailPage({
             </h1>
           </div>
 
-          <div className="cl-header-card">
-            <div className="cl-avatar">{initials}</div>
-            <div className="cl-header-info">
-              <div className="cl-header-name-row">
-            <strong>
-              {client.firstName} {client.lastName}
-            </strong>
-            <span className={`dash-status dash-status-${(overview?.status ?? "active").toLowerCase()}`}>{overview?.status ?? "Active"}</span>
+          <div className="cl-overview-panel">
+            <div className="cl-overview-top">
+              <div className="cl-avatar">{initials}</div>
+              <div className="cl-overview-info">
+                <div className="cl-header-name-row">
+                  <strong>
+                    {client.firstName} {client.lastName}
+                  </strong>
+                  <span className={`dash-status dash-status-${(overview?.status ?? "active").toLowerCase()}`}>{overview?.status ?? "Active"}</span>
+                </div>
+                <p className="cl-header-contact">
+                  {client.email} {client.phone && `· ${client.phone}`}
+                </p>
+                <p className="cl-header-contact">
+                  Client since {client.createdAt.toLocaleDateString()}
+                  {specialist && ` · Specialist: ${specialist.fullName}`}
+                </p>
+              </div>
+              {hasPermission(user, "clients.convert") && (
+                <form
+                  action={async () => {
+                    "use server";
+                    await toggleClientPause(client.id);
+                  }}
+                >
+                  <button type="submit" className="cl-subtle-action">
+                    {overview?.status === "Paused" ? "Resume" : "Pause"}
+                  </button>
+                </form>
+              )}
+            </div>
+
+            <InvitationPanel
+              clientId={client.id}
+              portalStatus={client.user.portalStatus}
+              invitedAt={client.portalInvite?.createdAt ?? null}
+              lastSentAt={client.portalInvite?.lastSentAt ?? null}
+              activatedAt={client.portalInvite?.acceptedAt ?? null}
+              attemptCount={client.portalInvite?.attemptCount ?? 0}
+              activationToken={client.portalInvite?.token ?? null}
+              emailEvents={client.emailEvents.map((e) => ({
+                id: e.id,
+                template: e.template,
+                status: e.status,
+                createdAt: e.createdAt.toISOString(),
+                errorMessage: e.errorMessage,
+              }))}
+              canResend={hasPermission(user, "clients.convert")}
+            />
           </div>
-          <p className="cl-header-contact">
-            {client.email} {client.phone && `· ${client.phone}`}
-          </p>
-          <p className="cl-header-contact">Client since {client.createdAt.toLocaleDateString()}</p>
-        </div>
-        {hasPermission(user, "clients.convert") && (
-          <form
-            action={async () => {
-              "use server";
-              await toggleClientPause(client.id);
-            }}
-          >
-            <button type="submit" className="dash-view-btn">
-              {overview?.status === "Paused" ? "Resume" : "Pause"}
-            </button>
-          </form>
-        )}
-      </div>
         </>
       )}
-
-      <div style={{ marginBottom: 28 }}>
-        <InvitationPanel
-          clientId={client.id}
-          portalStatus={client.user.portalStatus}
-          invitedAt={client.portalInvite?.createdAt ?? null}
-          lastSentAt={client.portalInvite?.lastSentAt ?? null}
-          activatedAt={client.portalInvite?.acceptedAt ?? null}
-          attemptCount={client.portalInvite?.attemptCount ?? 0}
-          activationToken={client.portalInvite?.token ?? null}
-          emailEvents={client.emailEvents.map((e) => ({
-            id: e.id,
-            template: e.template,
-            status: e.status,
-            createdAt: e.createdAt.toISOString(),
-            errorMessage: e.errorMessage,
-          }))}
-          canResend={hasPermission(user, "clients.convert")}
-        />
-      </div>
 
       <nav className="cl-tab-nav">
         {TABS.map((t) => (

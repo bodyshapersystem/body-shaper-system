@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState, useTransition, useRef, useEffect } from "react";
 import { resendInvitation } from "./actions";
 
 const SITE_URL = "https://www.bodyshapersystem.com";
@@ -37,13 +37,25 @@ export default function InvitationPanel({
   const [isPending, startTransition] = useTransition();
   const [message, setMessage] = useState("");
   const [showLog, setShowLog] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
   const [copied, setCopied] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
 
   const activationUrl = activationToken ? `${SITE_URL}/portal/activate?token=${activationToken}` : null;
   const lastEmail = emailEvents[0];
+  const isActive = portalStatus === "ACTIVE";
+
+  useEffect(() => {
+    function handleClick(e: MouseEvent) {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) setMenuOpen(false);
+    }
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, []);
 
   function handleResend() {
     setMessage("");
+    setMenuOpen(false);
     startTransition(async () => {
       const result = await resendInvitation(clientId);
       if (result?.error) {
@@ -62,66 +74,85 @@ export default function InvitationPanel({
   }
 
   return (
-    <div style={{ border: "1px solid rgba(0,0,0,0.08)", borderRadius: 6, padding: 16, fontSize: 13 }}>
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: 12, marginBottom: 12 }}>
-        <div>
-          <strong style={{ display: "block", fontSize: 11, opacity: 0.6 }}>Portal Status</strong>
-          {(portalStatus ?? "—").replace(/_/g, " ")}
+    <div className="cl-status-panel">
+      <div className="cl-status-grid">
+        <div className="cl-status-item">
+          <span className={`cl-status-dot ${isActive ? "done" : ""}`} aria-hidden="true" />
+          <div>
+            <p className="cl-status-label">Portal</p>
+            <p className="cl-status-value">{isActive ? "Active" : (portalStatus ?? "—").replace(/_/g, " ")}</p>
+          </div>
         </div>
-        <div>
-          <strong style={{ display: "block", fontSize: 11, opacity: 0.6 }}>Invitation Sent</strong>
-          {lastSentAt ? new Date(lastSentAt).toLocaleString() : invitedAt ? "Pending first send" : "—"}
+        <div className="cl-status-item">
+          <span className={`cl-status-dot ${lastSentAt || invitedAt ? "done" : ""}`} aria-hidden="true" />
+          <div>
+            <p className="cl-status-label">Invitation Sent</p>
+            <p className="cl-status-value">{lastSentAt ? new Date(lastSentAt).toLocaleDateString() : invitedAt ? "Pending first send" : "—"}</p>
+          </div>
         </div>
-        <div>
-          <strong style={{ display: "block", fontSize: 11, opacity: 0.6 }}>Activation Date</strong>
-          {activatedAt ? new Date(activatedAt).toLocaleString() : "Not yet activated"}
+        <div className="cl-status-item">
+          <span className={`cl-status-dot ${activatedAt ? "done" : ""}`} aria-hidden="true" />
+          <div>
+            <p className="cl-status-label">Activated</p>
+            <p className="cl-status-value">{activatedAt ? new Date(activatedAt).toLocaleDateString() : "Not yet"}</p>
+          </div>
         </div>
-        <div>
-          <strong style={{ display: "block", fontSize: 11, opacity: 0.6 }}>Email Delivery</strong>
-          {lastEmail ? lastEmail.status : "—"} {attemptCount > 1 && `(${attemptCount} attempts)`}
+        <div className="cl-status-item">
+          <span className={`cl-status-dot ${lastEmail?.status === "SENT" || lastEmail?.status === "DELIVERED" ? "done" : ""}`} aria-hidden="true" />
+          <div>
+            <p className="cl-status-label">Email Delivery</p>
+            <p className="cl-status-value">
+              {lastEmail ? lastEmail.status : "—"} {attemptCount > 1 && `· ${attemptCount}x`}
+            </p>
+          </div>
+        </div>
+
+        <div className="cl-status-menu-wrap" ref={menuRef}>
+          <button type="button" className="cl-status-menu-btn" onClick={() => setMenuOpen((v) => !v)} aria-label="More actions">
+            •••
+          </button>
+          {menuOpen && (
+            <div className="doc-menu">
+              {canResend && !isActive && (
+                <button type="button" onClick={handleResend} disabled={isPending}>
+                  {isPending ? "Sending…" : "Resend Invitation"}
+                </button>
+              )}
+              {activationUrl && !isActive && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    handleCopy();
+                    setMenuOpen(false);
+                  }}
+                >
+                  {copied ? "Copied!" : "Copy Portal Login URL"}
+                </button>
+              )}
+              {emailEvents.length > 0 && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowLog((s) => !s);
+                    setMenuOpen(false);
+                  }}
+                >
+                  {showLog ? "Hide Email Log" : "View Email Log"}
+                </button>
+              )}
+            </div>
+          )}
         </div>
       </div>
 
-      <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
-        {canResend && portalStatus !== "ACTIVE" && (
-          <button
-            type="button"
-            onClick={handleResend}
-            disabled={isPending}
-            className="auth-submit"
-            style={{ width: "auto", padding: "8px 16px", fontSize: 12.5 }}
-          >
-            {isPending ? "Sending…" : "Resend Invitation"}
-          </button>
-        )}
-        {activationUrl && portalStatus !== "ACTIVE" && (
-          <button
-            type="button"
-            onClick={handleCopy}
-            style={{ padding: "8px 16px", fontSize: 12.5, border: "1px solid rgba(0,0,0,0.15)", borderRadius: 4, background: "transparent" }}
-          >
-            {copied ? "Copied!" : "Copy Portal Login URL"}
-          </button>
-        )}
-        {emailEvents.length > 0 && (
-          <button
-            type="button"
-            onClick={() => setShowLog((s) => !s)}
-            style={{ padding: "8px 16px", fontSize: 12.5, border: "1px solid rgba(0,0,0,0.15)", borderRadius: 4, background: "transparent" }}
-          >
-            {showLog ? "Hide Email Log" : "View Email Log"}
-          </button>
-        )}
-      </div>
-
-      {message && <p style={{ marginTop: 10, fontSize: 12.5 }}>{message}</p>}
+      {message && <p className="pay-history-meta" style={{ marginTop: 10 }}>{message}</p>}
 
       {showLog && (
-        <ul style={{ marginTop: 14, display: "flex", flexDirection: "column", gap: 6, fontSize: 12.5, paddingLeft: 0, listStyle: "none" }}>
+        <ul className="cl-email-log">
           {emailEvents.map((e) => (
-            <li key={e.id} style={{ borderTop: "1px solid rgba(0,0,0,0.06)", paddingTop: 6 }}>
+            <li key={e.id}>
               <strong>{e.template.replace(/_/g, " ")}</strong> — {e.status} — {new Date(e.createdAt).toLocaleString()}
-              {e.errorMessage && <div style={{ opacity: 0.6 }}>{e.errorMessage}</div>}
+              {e.errorMessage && <div className="pay-history-meta">{e.errorMessage}</div>}
             </li>
           ))}
         </ul>
