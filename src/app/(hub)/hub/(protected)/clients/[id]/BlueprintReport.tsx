@@ -97,15 +97,30 @@ function SectionLabel({ num, title, right }: { num: string; title: string; right
  * honest substitutions made in place of mockup elements without
  * backing data.
  */
-export default async function BlueprintReport({ client, clientId }: { client: ClientWithBlueprint; clientId: string }) {
+export default async function BlueprintReport({
+  client,
+  clientId,
+  mode = "owner",
+}: {
+  client: ClientWithBlueprint;
+  clientId: string;
+  mode?: "owner" | "client";
+}) {
   const assessment = client.blueprintAssessments[0];
   if (!assessment) return null;
 
-  const [completedCount, nextAppointment, paidAgg] = await Promise.all([
+  const [completedCount, nextAppointment, paidAgg, specialist] = await Promise.all([
     prisma.appointment.count({ where: { clientId, status: "COMPLETED" } }),
     prisma.appointment.findFirst({ where: { clientId, status: "SCHEDULED", startsAt: { gte: new Date() } }, orderBy: { startsAt: "asc" } }),
     prisma.payment.aggregate({ where: { clientId, status: "PAID" }, _sum: { amountCents: true } }),
+    assessment.validatedById ? prisma.user.findUnique({ where: { id: assessment.validatedById } }) : Promise.resolve(null),
   ]);
+  const specialistName = specialist?.fullName ?? null;
+
+  // Client mode must never surface internal-only specialist notes —
+  // same real visibility field already used for Photos/Documents.
+  const visibleObservations =
+    mode === "client" ? assessment.specialistObservations.filter((o) => o.visibility === "CLIENT_VISIBLE") : assessment.specialistObservations;
 
   const totalSessions = assessment.validatedSessionCount ?? 8;
   const completionPercent = totalSessions > 0 ? Math.round((completedCount / totalSessions) * 100) : 0;
@@ -173,6 +188,7 @@ export default async function BlueprintReport({ client, clientId }: { client: Cl
           <div className="bbp-hero-welcome-body">
             <div>
               <p className="bbp-hero-eyebrow">the body blueprint™</p>
+              <p className="bbp-hero-welcome-line">Welcome back,</p>
               <p className="bbp-hero-name">
                 {client.firstName} {client.lastName}
               </p>
@@ -181,6 +197,11 @@ export default async function BlueprintReport({ client, clientId }: { client: Cl
                 <span className="bbp-badge">{STATUS_LABELS[assessment.status] ?? assessment.status}</span>
               </div>
               <p className="bbp-hero-sub">Client since {client.createdAt.toLocaleDateString()}</p>
+              <p className="bbp-hero-message">
+                {assessment.status === "COMPLETED"
+                  ? "Your transformation program is complete — review your full journey below."
+                  : "Your personalized strategy, progress, and results — all in one place."}
+              </p>
             </div>
             <div className="bbp-hero-meta">
               <div>
@@ -190,6 +211,10 @@ export default async function BlueprintReport({ client, clientId }: { client: Cl
               <div>
                 <p className="bbp-hero-meta-label">Last Updated</p>
                 <p className="bbp-hero-meta-value">{assessment.updatedAt.toLocaleDateString()}</p>
+              </div>
+              <div>
+                <p className="bbp-hero-meta-label">Specialist</p>
+                <p className="bbp-hero-meta-value">{specialistName ?? "Not yet assigned"}</p>
               </div>
             </div>
           </div>
@@ -426,11 +451,11 @@ export default async function BlueprintReport({ client, clientId }: { client: Cl
       {/* ---------- Clinical Analysis (real specialist observations — unchanged data source) ---------- */}
       <div style={{ marginBottom: 40 }}>
         <SectionLabel num="07" title="Clinical Analysis" />
-        {assessment.specialistObservations.length === 0 ? (
+        {visibleObservations.length === 0 ? (
           <EmptyState title="no observations yet." sub="Specialist notes will appear here as they're recorded." />
         ) : (
           <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-            {assessment.specialistObservations.slice(0, 4).map((obs) => (
+            {visibleObservations.slice(0, 4).map((obs) => (
               <div key={obs.id} className="cl-note-card">
                 <p className="cl-note-meta">{obs.createdAt.toLocaleDateString()}</p>
                 <p className="cl-note-content">{obs.body}</p>
@@ -568,10 +593,21 @@ export default async function BlueprintReport({ client, clientId }: { client: Cl
       <div style={{ marginBottom: 40 }}>
         <SectionLabel num="12" title="Quick Actions" />
         <div className="cl-quick-actions" style={{ maxWidth: 340 }}>
-          <Link href="/hub/appointments" className="cl-quick-btn">Schedule Session</Link>
-          <Link href="/hub/payments" className="cl-quick-btn">Record Payment</Link>
-          <Link href={`/hub/clients/${clientId}?tab=documents`} className="cl-quick-btn">Upload Documents</Link>
-          <a href={`mailto:${client.email}`} className="cl-quick-btn">Send Email</a>
+          {mode === "owner" ? (
+            <>
+              <Link href="/hub/appointments" className="cl-quick-btn">Schedule Session</Link>
+              <Link href="/hub/payments" className="cl-quick-btn">Record Payment</Link>
+              <Link href={`/hub/clients/${clientId}?tab=documents`} className="cl-quick-btn">Upload Documents</Link>
+              <a href={`mailto:${client.email}`} className="cl-quick-btn">Send Email</a>
+            </>
+          ) : (
+            <>
+              <Link href="/portal/appointments" className="cl-quick-btn">View Appointments</Link>
+              <Link href="/portal/documents" className="cl-quick-btn">View Documents</Link>
+              <Link href="/portal/photos" className="cl-quick-btn">View Progress Photos</Link>
+              <Link href="/portal/messages" className="cl-quick-btn">Message Your Specialist</Link>
+            </>
+          )}
         </div>
       </div>
 

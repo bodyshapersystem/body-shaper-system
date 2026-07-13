@@ -1,53 +1,46 @@
-"use client";
+import { redirect } from "next/navigation";
+import { prisma } from "@/lib/prisma";
+import { getCurrentPortalClient } from "@/lib/permissions";
+import BlueprintReport from "@/app/(hub)/hub/(protected)/clients/[id]/BlueprintReport";
 
-export default function MyBlueprintPage() {
+export const dynamic = "force-dynamic";
+
+export default async function PortalBlueprintPage() {
+  const portalClient = await getCurrentPortalClient();
+  if (!portalClient) redirect("/portal/login");
+
+  // Same shared include shape BlueprintReport expects — one component,
+  // one data source, for both the Owner Hub and the Client Portal.
+  const client = await prisma.client.findUnique({
+    where: { id: portalClient.id },
+    include: {
+      blueprintAssessments: {
+        where: { status: { in: ["ACTIVE", "BASELINE_PENDING", "BASELINE_COMPLETED", "VALIDATED", "IN_PROGRESS", "COMPLETED"] } },
+        orderBy: { version: "desc" },
+        take: 1,
+        include: {
+          bodyMeasurements: { orderBy: { measuredAt: "desc" } },
+          renphoScans: { orderBy: { scanDate: "desc" } },
+          photos: { orderBy: { uploadedAt: "desc" } },
+          specialistObservations: { orderBy: { createdAt: "desc" } },
+          strategyChanges: { orderBy: { changedAt: "desc" } },
+        },
+      },
+    },
+  });
+
+  if (!client) redirect("/portal/login");
+
   return (
     <div className="cat-body portal-page">
-      <div className="portal-page-head">
-        <p className="portal-eyebrow">Your Personalized Plan</p>
-        <h1>my body blueprint™.</h1>
-        <p className="portal-page-sub">The complete strategy behind your transformation — created just for you.</p>
-      </div>
-
-      <div className="simple-card">
-        <h3>Overall Goal</h3>
-        <p>Body recomposition &amp; skin tightening</p>
-      </div>
-
-      <div className="simple-grid">
-        <div className="simple-card">
-          <h3>Recommended System</h3>
-          <p><strong>Sculpt Signature™</strong></p>
+      {client.blueprintAssessments.length === 0 ? (
+        <div className="bp-empty-state">
+          <p>Your Body Blueprint™ isn't ready yet.</p>
+          <p className="pay-history-meta">Your specialist will complete this as soon as your assessment is validated.</p>
         </div>
-        <div className="simple-card">
-          <h3>Frequency</h3>
-          <p>2 – 3 sessions per week</p>
-        </div>
-        <div className="simple-card">
-          <h3>Estimated Duration</h3>
-          <p>8 – 12 weeks</p>
-        </div>
-      </div>
-
-      <div className="simple-card">
-        <h3>Treatments</h3>
-        <ul className="simple-list">
-          <li>Exilis</li>
-          <li>EMS</li>
-          <li>Lymphatic Drainage</li>
-          <li>Endospheres</li>
-        </ul>
-      </div>
-
-      <div className="simple-card">
-        <h3>Priority Areas</h3>
-        <ul className="simple-list">
-          <li>Lower abdomen</li>
-          <li>Flanks / love handles</li>
-          <li>Thighs (inner &amp; outer)</li>
-          <li>Back</li>
-        </ul>
-      </div>
+      ) : (
+        <BlueprintReport client={client} clientId={client.id} mode="client" />
+      )}
     </div>
   );
 }

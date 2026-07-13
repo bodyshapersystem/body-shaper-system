@@ -99,17 +99,19 @@ export default async function ClientDetailPage({
 
   return (
     <div className="cat-body portal-page">
-      <div className="portal-page-head">
-        <p className="portal-eyebrow">Clients</p>
-        <h1>
-          {client.firstName} {client.lastName}
-        </h1>
-      </div>
+      {tab !== "blueprint" && (
+        <>
+          <div className="portal-page-head">
+            <p className="portal-eyebrow">Clients</p>
+            <h1>
+              {client.firstName} {client.lastName}
+            </h1>
+          </div>
 
-      <div className="cl-header-card">
-        <div className="cl-avatar">{initials}</div>
-        <div className="cl-header-info">
-          <div className="cl-header-name-row">
+          <div className="cl-header-card">
+            <div className="cl-avatar">{initials}</div>
+            <div className="cl-header-info">
+              <div className="cl-header-name-row">
             <strong>
               {client.firstName} {client.lastName}
             </strong>
@@ -133,6 +135,8 @@ export default async function ClientDetailPage({
           </form>
         )}
       </div>
+        </>
+      )}
 
       <div style={{ marginBottom: 28 }}>
         <InvitationPanel
