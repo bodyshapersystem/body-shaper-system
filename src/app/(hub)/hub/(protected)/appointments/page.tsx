@@ -36,6 +36,21 @@ export default async function HubAppointmentsPage() {
   const upcoming = allAppointments.filter((a) => a.startsAt >= now);
   const past = allAppointments.filter((a) => a.startsAt < now).reverse();
 
+  const startOfToday = new Date(now);
+  startOfToday.setHours(0, 0, 0, 0);
+  const endOfToday = new Date(startOfToday);
+  endOfToday.setDate(endOfToday.getDate() + 1);
+  const startOfWeek = new Date(startOfToday);
+  startOfWeek.setDate(startOfWeek.getDate() - startOfWeek.getDay());
+  const endOfWeek = new Date(startOfWeek);
+  endOfWeek.setDate(endOfWeek.getDate() + 7);
+  const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+
+  const todaysCount = allAppointments.filter((a) => a.startsAt >= startOfToday && a.startsAt < endOfToday).length;
+  const thisWeekCount = allAppointments.filter((a) => a.startsAt >= startOfWeek && a.startsAt < endOfWeek).length;
+  const completedThisMonth = allAppointments.filter((a) => a.status === "COMPLETED" && a.startsAt >= startOfMonth).length;
+  const noShowsThisMonth = allAppointments.filter((a) => a.status === "NO_SHOW" && a.startsAt >= startOfMonth).length;
+
   function techList(technologies: unknown): { name: string }[] {
     if (!Array.isArray(technologies)) return [];
     return technologies.map((t) => (typeof t === "string" ? { name: t } : (t as { name: string })));
@@ -43,10 +58,33 @@ export default async function HubAppointmentsPage() {
 
   return (
     <div className="cat-body portal-page">
-      <div className="portal-page-head">
-        <p className="portal-eyebrow">operations</p>
-        <h1>appointments.</h1>
-        <p className="dash-subtitle">Every visit is another step toward your client's transformation.</p>
+      <div className="module-hero module-hero-appointments">
+        <svg className="module-hero-mark" width="60" height="60" viewBox="0 0 60 60" fill="none" aria-hidden="true">
+          <circle cx="30" cy="30" r="28" stroke="currentColor" strokeWidth="0.8" />
+          <circle cx="30" cy="30" r="18" stroke="currentColor" strokeWidth="0.8" />
+          <circle cx="30" cy="30" r="2" fill="currentColor" />
+        </svg>
+        <p className="module-hero-eyebrow">operations</p>
+        <h1 className="module-hero-title">appointments.</h1>
+        <p className="module-hero-sub">Every visit is another step toward your client's transformation.</p>
+        <div className="module-hero-stats">
+          <div className="module-hero-stat">
+            <strong>{todaysCount}</strong>
+            <span>Today</span>
+          </div>
+          <div className="module-hero-stat">
+            <strong>{thisWeekCount}</strong>
+            <span>This Week</span>
+          </div>
+          <div className="module-hero-stat">
+            <strong>{completedThisMonth}</strong>
+            <span>Completed This Month</span>
+          </div>
+          <div className="module-hero-stat">
+            <strong>{noShowsThisMonth}</strong>
+            <span>No-Shows This Month</span>
+          </div>
+        </div>
       </div>
 
       {canManage && (
@@ -59,9 +97,14 @@ export default async function HubAppointmentsPage() {
         Upcoming Sessions
       </h3>
       {upcoming.length === 0 ? (
-        <p className="dash-empty" style={{ marginBottom: 28 }}>
-          No upcoming appointments.
-        </p>
+        <div className="module-empty" style={{ marginBottom: 28 }}>
+          <svg className="module-empty-icon" width="36" height="36" viewBox="0 0 24 24" fill="none" style={{ margin: "0 auto 14px" }}>
+            <rect x="3.5" y="4.5" width="17" height="16" rx="2" stroke="currentColor" strokeWidth="1" />
+            <line x1="3.5" y1="9" x2="20.5" y2="9" stroke="currentColor" strokeWidth="1" />
+          </svg>
+          <p className="module-empty-title">No sessions scheduled yet.</p>
+          <p className="module-empty-sub">Once you book a session above, it will appear here — organized by date, ready for the day.</p>
+        </div>
       ) : (
         <div className="sess-card-grid">
           {upcoming.map((a) => (
@@ -117,7 +160,14 @@ export default async function HubAppointmentsPage() {
         Past Sessions
       </h3>
       {past.length === 0 ? (
-        <p className="dash-empty">No past appointments.</p>
+        <div className="module-empty">
+          <svg className="module-empty-icon" width="36" height="36" viewBox="0 0 24 24" fill="none" style={{ margin: "0 auto 14px" }}>
+            <circle cx="12" cy="12" r="8.5" stroke="currentColor" strokeWidth="1" />
+            <path d="M12 8v4l2.5 2.2" stroke="currentColor" strokeWidth="1" />
+          </svg>
+          <p className="module-empty-title">No history yet.</p>
+          <p className="module-empty-sub">Completed and past sessions will build a record here over time.</p>
+        </div>
       ) : (
         <div className="sess-card-grid sess-card-grid-past">
           {past.map((a) => (
