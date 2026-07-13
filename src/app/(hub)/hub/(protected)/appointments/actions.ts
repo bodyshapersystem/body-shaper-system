@@ -3,6 +3,7 @@
 import { prisma } from "@/lib/prisma";
 import { getCurrentHubUser, hasPermission } from "@/lib/permissions";
 import { revalidatePath } from "next/cache";
+import { sendAppointmentConfirmationEmail } from "@/lib/email/service";
 
 export async function createAppointment(formData: FormData) {
   const user = await getCurrentHubUser();
@@ -32,7 +33,7 @@ export async function createAppointment(formData: FormData) {
     }
   }
 
-  await prisma.appointment.create({
+  const appointment = await prisma.appointment.create({
     data: {
       clientId,
       title,
@@ -44,6 +45,25 @@ export async function createAppointment(formData: FormData) {
       createdById: user.id,
     },
   });
+
+  // Real confirmation email — never blocks/fails the scheduling
+  // action itself if the send fails; the appointment is already saved.
+  const client = await prisma.client.findUnique({
+    where: { id: clientId },
+    include: { blueprintAssessments: { orderBy: { version: "desc" }, take: 1 } },
+  });
+  if (client) {
+    await sendAppointmentConfirmationEmail({
+      clientId,
+      firstName: client.firstName,
+      email: client.email,
+      sessionTitle: title,
+      dateLabel: appointment.startsAt.toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric" }),
+      timeLabel: appointment.startsAt.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" }),
+      systemName: client.blueprintAssessments[0]?.recommendedSystem ?? undefined,
+      portalUrl: "https://www.bodyshapersystem.com/portal/appointments",
+    }).catch(() => undefined);
+  }
 
   revalidatePath("/hub/appointments");
   revalidatePath("/hub/dashboard");

@@ -6,6 +6,7 @@ import {
   buildBodyBlueprintCompletedEmail,
   buildPaymentConfirmationEmail,
   buildBlueprintReceivedEmail,
+  buildAppointmentConfirmationEmail,
 } from "./templates";
 
 /**
@@ -24,7 +25,7 @@ import {
  * ever gets imported into a Client Component by mistake).
  */
 
-type EmailTemplateName = "WELCOME_ACTIVATION" | "BODY_BLUEPRINT_COMPLETED" | "PAYMENT_CONFIRMATION" | "BLUEPRINT_RECEIVED";
+type EmailTemplateName = "WELCOME_ACTIVATION" | "BODY_BLUEPRINT_COMPLETED" | "PAYMENT_CONFIRMATION" | "BLUEPRINT_RECEIVED" | "APPOINTMENT_CONFIRMATION";
 
 async function logAndSend(params: {
   clientId?: string;
@@ -185,6 +186,34 @@ export async function sendPaymentConfirmationEmail(params: {
   return logAndSend({
     clientId,
     template: "PAYMENT_CONFIRMATION",
+    sender: SENDERS.concierge,
+    recipient: email,
+    subject,
+    html,
+  });
+}
+
+/**
+ * Sends a real appointment-confirmation email when a session is
+ * scheduled. From concierge@ (the client's day-to-day channel).
+ * Called right after Appointment.create() — fails soft (the
+ * appointment itself is always saved regardless of email outcome).
+ */
+export async function sendAppointmentConfirmationEmail(params: {
+  clientId: string;
+  firstName: string;
+  email: string;
+  sessionTitle: string;
+  dateLabel: string;
+  timeLabel: string;
+  systemName?: string;
+  portalUrl: string;
+}) {
+  const { clientId, firstName, email, sessionTitle, dateLabel, timeLabel, systemName, portalUrl } = params;
+  const { subject, html } = buildAppointmentConfirmationEmail({ firstName, sessionTitle, dateLabel, timeLabel, systemName, portalUrl });
+  return logAndSend({
+    clientId,
+    template: "APPOINTMENT_CONFIRMATION",
     sender: SENDERS.concierge,
     recipient: email,
     subject,

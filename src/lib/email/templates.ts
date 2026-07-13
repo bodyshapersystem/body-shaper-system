@@ -165,3 +165,37 @@ export function buildPaymentConfirmationEmail(params: {
   `;
   return { subject: "Payment confirmed — Body Shaper System™", html: emailShell(body) };
 }
+
+export function buildAppointmentConfirmationEmail(params: {
+  firstName: string;
+  sessionTitle: string;
+  dateLabel: string;
+  timeLabel: string;
+  systemName?: string;
+  portalUrl: string;
+}): { subject: string; html: string } {
+  const { firstName, sessionTitle, dateLabel, timeLabel, systemName, portalUrl } = params;
+  const body = `
+    <h1 style="font-family:Georgia,'Times New Roman',serif;font-size:26px;color:${COLORS.charcoal};margin:0 0 20px;">
+      Hi ${firstName},
+    </h1>
+    <p style="font-family:Arial,sans-serif;font-size:15px;line-height:1.6;color:${COLORS.charcoal};margin:0 0 20px;">
+      Your session has been scheduled. Here are the details:
+    </p>
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:${COLORS.ivory};border:1px solid ${COLORS.sand};border-radius:4px;margin:0 0 20px;">
+      <tr>
+        <td style="padding:20px 24px;font-family:Arial,sans-serif;font-size:14px;color:${COLORS.charcoal};line-height:1.9;">
+          <strong style="color:${COLORS.mocha};">Session</strong> — ${sessionTitle}<br />
+          <strong style="color:${COLORS.mocha};">Date</strong> — ${dateLabel}<br />
+          <strong style="color:${COLORS.mocha};">Time</strong> — ${timeLabel}
+          ${systemName ? `<br /><strong style="color:${COLORS.mocha};">Personalized System™</strong> — ${systemName}` : ""}
+        </td>
+      </tr>
+    </table>
+    <p style="font-family:Arial,sans-serif;font-size:14px;color:${COLORS.mocha};margin:0 0 8px;">
+      Need to reschedule? Just reply to this email or reach out through your Portal.
+    </p>
+    ${button("VIEW MY APPOINTMENTS", portalUrl)}
+  `;
+  return { subject: `Your session is confirmed — ${dateLabel}`, html: emailShell(body) };
+}

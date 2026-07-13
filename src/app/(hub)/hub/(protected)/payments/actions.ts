@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { getCurrentHubUser, hasPermission } from "@/lib/permissions";
 import { revalidatePath } from "next/cache";
 import type { PaymentMethod, PaymentRecordStatus, PaymentType, PaymentOrigin } from "@prisma/client";
+import { sendPaymentConfirmationEmail } from "@/lib/email/service";
 
 export async function createPayment(formData: FormData) {
   const user = await getCurrentHubUser();
@@ -38,6 +39,19 @@ export async function createPayment(formData: FormData) {
       createdById: user.id,
     },
   });
+
+  if (status === "PAID") {
+    const client = await prisma.client.findUnique({ where: { id: clientId } });
+    if (client) {
+      await sendPaymentConfirmationEmail({
+        clientId,
+        firstName: client.firstName,
+        email: client.email,
+        amountLabel: `$${(payment.amountCents / 100).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+        portalUrl: "https://www.bodyshapersystem.com/portal/payments",
+      }).catch(() => undefined);
+    }
+  }
 
   revalidatePath("/hub/payments");
   revalidatePath("/hub/dashboard");
@@ -264,6 +278,19 @@ export async function payInstallment(paymentId: string, formData: FormData) {
     where: { id: paymentId },
     data: { amountCents, method, reference, notes, status, paidAt: new Date() },
   });
+
+  if (status === "PAID") {
+    const client = await prisma.client.findUnique({ where: { id: existing.clientId } });
+    if (client) {
+      await sendPaymentConfirmationEmail({
+        clientId: existing.clientId,
+        firstName: client.firstName,
+        email: client.email,
+        amountLabel: `$${(amountCents / 100).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+        portalUrl: "https://www.bodyshapersystem.com/portal/payments",
+      }).catch(() => undefined);
+    }
+  }
 
   revalidatePath("/hub/payments");
   revalidatePath("/hub/dashboard");
