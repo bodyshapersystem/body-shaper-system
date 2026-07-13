@@ -2525,6 +2525,42 @@
 .settings-security-list{ display:flex; flex-direction:column; gap:14px; align-items:flex-start; }
 .settings-security-row{ display:flex; justify-content:space-between; width:100%; font-family:var(--sans); font-size:13.5px; color:#2B2622; }
 
+/* ---------- Analytics™ (Milestone 27) ---------- */
+.analytics-kpi-grid{ display:grid; grid-template-columns:repeat(auto-fit, minmax(150px, 1fr)); gap:14px; margin-bottom:24px; }
+.analytics-delta{ font-family:var(--sans); font-size:11px; }
+.analytics-delta.up{ color:#2f6b3a; }
+.analytics-delta.down{ color:#a33; }
+
+.analytics-main-grid{ display:grid; grid-template-columns:1.3fr 1fr 1fr; gap:20px; margin-bottom:24px; }
+@media (max-width:1100px){ .analytics-main-grid{ grid-template-columns:1fr; } }
+
+.analytics-chart-wrap{ position:relative; }
+.analytics-chart-svg{ width:100%; height:220px; }
+.analytics-chart-axis{ display:flex; justify-content:space-between; font-family:var(--sans); font-size:11px; color:#8a7f74; margin-top:4px; }
+.analytics-chart-tooltip{ position:absolute; top:0; right:0; background:#fff; border:1px solid rgba(0,0,0,0.1); border-radius:8px; padding:6px 12px; font-family:var(--sans); font-size:12px; box-shadow:0 2px 8px rgba(0,0,0,0.08); }
+.analytics-chart-tooltip strong{ display:block; font-size:11px; color:#8a7f74; }
+
+.analytics-donut-wrap{ display:flex; align-items:center; gap:20px; flex-wrap:wrap; }
+.analytics-donut{ width:130px; height:130px; border-radius:50%; flex-shrink:0; display:flex; align-items:center; justify-content:center; }
+.analytics-donut-inner{ width:90px; height:90px; border-radius:50%; background:#fff; display:flex; flex-direction:column; align-items:center; justify-content:center; }
+.analytics-donut-inner strong{ font-family:var(--serif); font-size:16px; color:#2B2622; }
+.analytics-donut-inner span{ font-family:var(--sans); font-size:10px; text-transform:uppercase; color:#8a7f74; }
+.analytics-donut-legend{ flex:1; min-width:150px; display:flex; flex-direction:column; gap:8px; }
+.analytics-donut-legend-row{ display:flex; align-items:center; gap:8px; font-family:var(--sans); font-size:12.5px; color:#2B2622; }
+.analytics-donut-dot{ width:8px; height:8px; border-radius:50%; flex-shrink:0; }
+
+.analytics-insight-list{ display:flex; flex-direction:column; gap:12px; }
+.analytics-insight-item{ display:flex; align-items:flex-start; gap:10px; font-family:var(--sans); font-size:12.5px; color:#2B2622; }
+.analytics-insight-dot{ width:8px; height:8px; border-radius:50%; margin-top:4px; flex-shrink:0; background:#8a7f74; }
+.analytics-insight-item.positive .analytics-insight-dot{ background:#2f6b3a; }
+.analytics-insight-item.warning .analytics-insight-dot{ background:#93650f; }
+
+.analytics-metrics-grid{ display:grid; grid-template-columns:repeat(auto-fill, minmax(180px, 1fr)); gap:14px; margin-bottom:24px; }
+
+.analytics-funnel{ display:flex; flex-direction:column; gap:10px; }
+.analytics-funnel-row{ display:flex; align-items:center; gap:10px; font-family:var(--sans); font-size:13px; color:#2B2622; border-bottom:1px solid rgba(0,0,0,0.06); padding-bottom:8px; }
+.analytics-funnel-row strong{ font-family:var(--serif); font-size:15px; margin-left:auto; }
+
 .dash-view-btn{ font-family:var(--sans); font-size:11.5px; color:var(--cat,#5C1A1F); text-decoration:none; border:1px solid rgba(92,26,31,0.25); border-radius:4px; padding:4px 10px; white-space:nowrap; }
 .dash-view-btn:hover{ background:rgba(92,26,31,0.06); }
 
