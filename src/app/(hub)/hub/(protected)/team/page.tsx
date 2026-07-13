@@ -94,6 +94,7 @@ export default async function HubTeamPage({ searchParams }: { searchParams: Prom
                     .join("")
                     .slice(0, 2)
                     .toUpperCase();
+                  const avatarUrl = avatarUrls[member.id];
                   return (
                     <tr
                       key={member.id}
@@ -102,8 +103,8 @@ export default async function HubTeamPage({ searchParams }: { searchParams: Prom
                       <td style={{ padding: "10px 8px" }}>
                         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                           <div className="cl-avatar" style={{ width: 32, height: 32, fontSize: 12, overflow: "hidden" }}>
-                            {avatarUrls[member.id] ? (
-                              <img src={avatarUrls[member.id]} alt={member.fullName} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                            {avatarUrl ? (
+                              <img src={avatarUrl} alt={member.fullName} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
                             ) : (
                               initials
                             )}
