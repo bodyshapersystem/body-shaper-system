@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import ProfileLogout from "@/components/ProfileLogout";
@@ -96,32 +97,55 @@ export default function ClientSidebar({
   logoutAction?: () => Promise<void>;
 }) {
   const pathname = usePathname();
+  const [mobileOpen, setMobileOpen] = useState(false);
+
+  useEffect(() => {
+    setMobileOpen(false);
+  }, [pathname]);
 
   return (
-    <nav className="psb">
-      <div className="psb-inner">
-        <div className="psb-word">
-          body
-          <br />
-          shaper
-          <br />
-          system™
-        </div>
-        <span className="psb-rule" aria-hidden="true" />
-        <ProfileLogout className="psb-profile psb-profile-top" name={name} tier={tier} onLogout={logoutAction} />
-        <ul className="psb-nav">
-          {NAV.map((item) => (
-            <li key={item.href}>
-              <Link href={item.href} className={pathname === item.href ? "active" : ""}>
-                <span className="psb-icon">
-                  <NavIcon name={item.icon} />
-                </span>
-                {item.label}
-              </Link>
-            </li>
-          ))}
-        </ul>
+    <>
+      <div className="psb-mobile-bar">
+        <button
+          type="button"
+          className="psb-mobile-toggle"
+          aria-label={mobileOpen ? "Close menu" : "Open menu"}
+          aria-expanded={mobileOpen}
+          onClick={() => setMobileOpen((v) => !v)}
+        >
+          <span />
+          <span />
+          <span />
+        </button>
       </div>
-    </nav>
+
+      {mobileOpen && <div className="psb-backdrop" onClick={() => setMobileOpen(false)} aria-hidden="true" />}
+
+      <nav className={`psb ${mobileOpen ? "psb-open" : ""}`}>
+        <div className="psb-inner">
+          <div className="psb-word">
+            body
+            <br />
+            shaper
+            <br />
+            system™
+          </div>
+          <span className="psb-rule" aria-hidden="true" />
+          <ProfileLogout className="psb-profile psb-profile-top" name={name} tier={tier} onLogout={logoutAction} />
+          <ul className="psb-nav">
+            {NAV.map((item) => (
+              <li key={item.href}>
+                <Link href={item.href} className={pathname === item.href ? "active" : ""} onClick={() => setMobileOpen(false)}>
+                  <span className="psb-icon">
+                    <NavIcon name={item.icon} />
+                  </span>
+                  {item.label}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </nav>
+    </>
   );
 }
