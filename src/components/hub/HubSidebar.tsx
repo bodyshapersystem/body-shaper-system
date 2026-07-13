@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { logoutHubUser } from "@/app/(hub)/hub/login/actions";
@@ -144,61 +145,88 @@ function NavIcon({ name }: { name: string }) {
 
 export default function HubSidebar({ userName, roleName, avatarUrl }: { userName: string; roleName: string; avatarUrl?: string | null }) {
   const pathname = usePathname();
+  const [mobileOpen, setMobileOpen] = useState(false);
+
+  // Close the mobile drawer automatically whenever the route changes
+  // (covers link taps and the browser/system back button).
+  useEffect(() => {
+    setMobileOpen(false);
+  }, [pathname]);
 
   return (
-    <nav className="psb">
-      <div className="psb-inner">
-        <div className="psb-word">
-          body
-          <br />
-          shaper
-          <br />
-          system™
-        </div>
-        <span className="psb-rule" aria-hidden="true" />
+    <>
+      {/* ---------- Mobile-only top bar: just the hamburger, per direction ---------- */}
+      <div className="psb-mobile-bar">
         <button
           type="button"
-          className="profile-logout psb-profile psb-profile-top"
-          onClick={() => logoutHubUser()}
-          aria-label="Log out"
+          className="psb-mobile-toggle"
+          aria-label={mobileOpen ? "Close menu" : "Open menu"}
+          aria-expanded={mobileOpen}
+          onClick={() => setMobileOpen((v) => !v)}
         >
-          <span className="profile-logout-avatar">
-            {avatarUrl ? (
-              <img src={avatarUrl} alt={userName} style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "50%" }} />
-            ) : (
-              userName
-                .split(" ")
-                .map((p) => p[0])
-                .join("")
-                .slice(0, 2)
-                .toUpperCase()
-            )}
-          </span>
-          <span className="profile-logout-text">
-            {userName}
-            <small>{roleName}</small>
-          </span>
+          <span />
+          <span />
+          <span />
         </button>
-        <ul className="psb-nav">
-          {NAV_GROUPS.map((group) => (
-            <li key={group.label} className="psb-nav-group">
-              <span className="psb-nav-group-label">{group.label}</span>
-              <ul>
-                {group.items.map((item) => (
-                  <li key={item.href}>
-                    <Link href={item.href} className={pathname.startsWith(item.href) ? "active" : ""}>
-                      <span className="psb-icon">
-                        <NavIcon name={item.icon} />
-                      </span>
-                      {item.label}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </li>
-          ))}
-        </ul>
       </div>
-    </nav>
+
+      {/* ---------- Mobile-only backdrop: tapping it closes the drawer ---------- */}
+      {mobileOpen && <div className="psb-backdrop" onClick={() => setMobileOpen(false)} aria-hidden="true" />}
+
+      <nav className={`psb ${mobileOpen ? "psb-open" : ""}`}>
+        <div className="psb-inner">
+          <div className="psb-word">
+            body
+            <br />
+            shaper
+            <br />
+            system™
+          </div>
+          <span className="psb-rule" aria-hidden="true" />
+          <button
+            type="button"
+            className="profile-logout psb-profile psb-profile-top"
+            onClick={() => logoutHubUser()}
+            aria-label="Log out"
+          >
+            <span className="profile-logout-avatar">
+              {avatarUrl ? (
+                <img src={avatarUrl} alt={userName} style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "50%" }} />
+              ) : (
+                userName
+                  .split(" ")
+                  .map((p) => p[0])
+                  .join("")
+                  .slice(0, 2)
+                  .toUpperCase()
+              )}
+            </span>
+            <span className="profile-logout-text">
+              {userName}
+              <small>{roleName}</small>
+            </span>
+          </button>
+          <ul className="psb-nav">
+            {NAV_GROUPS.map((group) => (
+              <li key={group.label} className="psb-nav-group">
+                <span className="psb-nav-group-label">{group.label}</span>
+                <ul>
+                  {group.items.map((item) => (
+                    <li key={item.href}>
+                      <Link href={item.href} className={pathname.startsWith(item.href) ? "active" : ""} onClick={() => setMobileOpen(false)}>
+                        <span className="psb-icon">
+                          <NavIcon name={item.icon} />
+                        </span>
+                        {item.label}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </nav>
+    </>
   );
 }

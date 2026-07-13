@@ -2279,11 +2279,25 @@
 }
 @media (max-width:760px){
   .portal-shell{ flex-direction:column; }
-  .psb{ width:100%; height:auto; position:static; border-right:none; border-bottom:1px solid rgba(43,38,34,0.08); }
-  .psb-inner{ flex-direction:row; flex-wrap:wrap; padding:18px; gap:6px 14px; }
-  .psb-word{ width:100%; margin-bottom:6px; }
+
+  /* Mobile-only top bar: just the hamburger stays visible, per direction */
+  .psb-mobile-bar{ display:flex; align-items:center; height:56px; padding:0 18px; background:#1a1310; position:sticky; top:0; z-index:40; }
+  .psb-mobile-toggle{ width:32px; height:32px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:5px; background:none; border:none; padding:0; cursor:pointer; }
+  .psb-mobile-toggle span{ display:block; width:22px; height:1.5px; background:#F6F3EE; }
+
+  .psb-backdrop{ position:fixed; inset:0; background:rgba(20,15,12,0.45); z-index:45; }
+
+  /* The drawer itself: fixed, off-screen by default, slides in on .psb-open */
+  .psb{
+    position:fixed; top:0; left:0; bottom:0; width:82%; max-width:320px; height:100vh;
+    transform:translateX(-100%); transition:transform .25s ease; z-index:50;
+    border-right:none; box-shadow:0 0 32px rgba(0,0,0,0.25); overflow-y:auto;
+  }
+  .psb.psb-open{ transform:translateX(0); }
+  .psb-inner{ flex-direction:column; flex-wrap:nowrap; padding:20px 18px; gap:0; height:auto; min-height:100%; }
+  .psb-word{ width:auto; margin-bottom:16px; }
   .psb-rule{ display:none; }
-  .psb-nav{ display:flex; flex-wrap:wrap; gap:4px; width:100%; }
+  .psb-nav{ display:flex; flex-direction:column; flex-wrap:nowrap; gap:14px; width:100%; }
   .psb-nav li{ margin-bottom:0; }
   .psb-profile{ margin-top:10px; }
   .portal-main{ padding:28px 20px 60px; }
@@ -2293,6 +2307,9 @@
   .dash-two-col{ grid-template-columns:1fr; }
   .dash-pending-grid{ grid-template-columns:1fr; }
   .dash-quick-actions{ grid-template-columns:1fr 1fr; }
+}
+@media (min-width:761px){
+  .psb-mobile-bar, .psb-backdrop{ display:none; }
 }
 
 /* ---------- Owner Hub Dashboard (Milestone 11) ---------- */
