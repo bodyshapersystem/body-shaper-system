@@ -154,7 +154,10 @@ export default async function HubDashboardPage() {
     .slice(0, 8);
 
   const firstName = (user?.fullName ?? "").split(" ")[0] || "there";
-  const hour = new Date().getHours();
+  const business = await prisma.businessSettings.findUnique({ where: { id: "default" } });
+  const timezone = business?.timezone ?? "America/New_York";
+  const localHourString = new Intl.DateTimeFormat("en-US", { hour: "numeric", hour12: false, timeZone: timezone }).format(new Date());
+  const hour = parseInt(localHourString, 10) % 24; // Intl can return "24" for midnight
   const greeting = hour < 12 ? "Good Morning" : hour < 18 ? "Good Afternoon" : "Good Evening";
   const revenueThisMonth = revenueThisMonthAgg._sum.amountCents ?? 0;
   const conversionRate = totalLeadsAllTime > 0 ? Math.round((convertedLeadsAllTime / totalLeadsAllTime) * 100) : 0;
