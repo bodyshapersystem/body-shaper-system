@@ -2561,6 +2561,47 @@
 .analytics-funnel-row{ display:flex; align-items:center; gap:10px; font-family:var(--sans); font-size:13px; color:#2B2622; border-bottom:1px solid rgba(0,0,0,0.06); padding-bottom:8px; }
 .analytics-funnel-row strong{ font-family:var(--serif); font-size:15px; margin-left:auto; }
 
+/* ---------- Dashboard v2 — Editorial Luxury Hero (Milestone 28) ---------- */
+@keyframes dashFadeIn { from{ opacity:0; transform:translateY(8px); } to{ opacity:1; transform:translateY(0); } }
+
+.dash-hero{ position:relative; display:grid; grid-template-columns:1.2fr 1fr 0.6fr; gap:32px; align-items:center; padding:40px 0 48px; overflow:hidden; animation:dashFadeIn .5s ease; }
+@media (max-width:1100px){ .dash-hero{ grid-template-columns:1fr; } }
+.dash-hero-waves{ position:absolute; top:-20px; right:0; width:280px; height:200px; opacity:.5; pointer-events:none; }
+
+.dash-hero-title{ font-family:var(--serif); font-size:42px; line-height:1.1; color:#2B2622; margin:8px 0 20px; }
+.dash-hero-sub{ font-family:var(--sans); font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:#8a7f74; margin-bottom:14px; }
+.dash-hero-kpis{ display:grid; grid-template-columns:repeat(4, 1fr); gap:14px; margin-bottom:24px; max-width:440px; }
+.dash-hero-kpi{ display:flex; flex-direction:column; gap:2px; }
+.dash-hero-kpi strong{ font-family:var(--serif); font-size:24px; color:var(--cat,#5C1A1F); }
+.dash-hero-kpi span{ font-family:var(--sans); font-size:10.5px; color:#8a7f74; }
+.dash-hero-cta{ display:inline-block; font-family:var(--sans); font-size:13px; color:var(--cat,#5C1A1F); text-decoration:none; border-bottom:1px solid var(--cat,#5C1A1F); padding-bottom:2px; transition:opacity .15s; }
+.dash-hero-cta:hover{ opacity:.7; }
+
+.dash-hero-center{ text-align:center; padding:0 20px; border-left:1px solid rgba(0,0,0,0.06); border-right:1px solid rgba(0,0,0,0.06); }
+@media (max-width:1100px){ .dash-hero-center{ border:none; text-align:left; padding:0; } }
+.dash-hero-center-line{ font-family:var(--serif); font-size:17px; color:#2B2622; margin:0; line-height:1.5; }
+.dash-hero-center-tagline{ font-family:var(--sans); font-size:12px; color:#8a7f74; margin-top:14px; font-style:italic; }
+
+.dash-hero-right{ display:flex; justify-content:center; }
+.dash-hero-avatar{ width:96px; height:96px; border-radius:50%; background:var(--cat,#5C1A1F); color:#F6F3EE; display:flex; align-items:center; justify-content:center; font-family:var(--serif); font-size:36px; box-shadow:0 8px 24px rgba(92,26,31,0.18); }
+
+.dash-editorial-panel{ border:1px solid rgba(0,0,0,0.06); box-shadow:none; }
+
+.dash-spotlight{ display:flex; gap:28px; flex-wrap:wrap; margin-bottom:32px; }
+.dash-spotlight-photos{ display:flex; gap:12px; }
+.dash-spotlight-photos > div{ display:flex; flex-direction:column; align-items:center; gap:6px; }
+.dash-spotlight-photos img{ width:140px; height:180px; object-fit:cover; border-radius:10px; }
+.dash-spotlight-photos span{ font-family:var(--sans); font-size:10.5px; text-transform:uppercase; letter-spacing:.05em; color:#8a7f74; }
+.dash-spotlight-info{ flex:1; min-width:200px; }
+.dash-spotlight-stat{ display:flex; flex-direction:column; }
+.dash-spotlight-stat strong{ font-family:var(--serif); font-size:32px; color:var(--cat,#5C1A1F); }
+.dash-spotlight-stat span{ font-family:var(--sans); font-size:11px; color:#8a7f74; text-transform:uppercase; letter-spacing:.05em; }
+
+.dash-quick-tiles{ display:grid; grid-template-columns:repeat(auto-fill, minmax(120px, 1fr)); gap:12px; margin-bottom:32px; }
+.dash-quick-tile{ display:flex; flex-direction:column; align-items:center; gap:8px; padding:20px 10px; border:1px solid rgba(0,0,0,0.07); border-radius:12px; text-decoration:none; font-family:var(--sans); font-size:12px; color:#2B2622; text-align:center; transition:border-color .15s, transform .15s; }
+.dash-quick-tile:hover{ border-color:rgba(92,26,31,0.3); transform:translateY(-2px); }
+.dash-quick-tile span{ font-family:var(--serif); font-size:20px; color:var(--cat,#5C1A1F); }
+
 .dash-view-btn{ font-family:var(--sans); font-size:11.5px; color:var(--cat,#5C1A1F); text-decoration:none; border:1px solid rgba(92,26,31,0.25); border-radius:4px; padding:4px 10px; white-space:nowrap; }
 .dash-view-btn:hover{ background:rgba(92,26,31,0.06); }
 

@@ -1,6 +1,8 @@
 import { prisma } from "@/lib/prisma";
 import { getCurrentHubUser } from "@/lib/permissions";
+import { getPhotoSignedUrl } from "../clients/[id]/blueprint-actions";
 import Link from "next/link";
+import BlueprintWaves from "@/components/BlueprintWaves";
 
 export const dynamic = "force-dynamic";
 
@@ -26,6 +28,7 @@ export default async function HubDashboardPage() {
   startOfToday.setHours(0, 0, 0, 0);
   const endOfToday = new Date(startOfToday);
   endOfToday.setDate(endOfToday.getDate() + 1);
+  const startOfMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
 
   const [
     todaysAppointments,
@@ -40,6 +43,11 @@ export default async function HubDashboardPage() {
     recentAppointmentsCompleted,
     recentRewards,
     recentValidatedAssessments,
+    revenueThisMonthAgg,
+    totalLeadsAllTime,
+    convertedLeadsAllTime,
+    clientsMissingDocs,
+    weightHistory,
   ] = await Promise.all([
     prisma.appointment.findMany({
       where: { startsAt: { gte: startOfToday, lt: endOfToday }, status: { not: "CANCELLED" } },
@@ -67,7 +75,72 @@ export default async function HubDashboardPage() {
     prisma.appointment.findMany({ where: { status: "COMPLETED" }, include: { client: true }, orderBy: { updatedAt: "desc" }, take: 5 }),
     prisma.rewardsTransaction.findMany({ include: { rewardsAccount: { include: { client: true } } }, orderBy: { createdAt: "desc" }, take: 5 }),
     prisma.blueprintAssessment.findMany({ where: { status: "VALIDATED" }, include: { client: true }, orderBy: { validatedAt: "desc" }, take: 5 }),
+    prisma.payment.aggregate({ where: { status: "PAID", paidAt: { gte: startOfMonth } }, _sum: { amountCents: true } }),
+    prisma.lead.count({ where: { archivedAt: null } }),
+    prisma.lead.count({ where: { status: "CONVERTED" } }),
+    prisma.client.findMany({
+      where: {
+        archivedAt: null,
+        documents: { none: { category: { in: ["WELCOME_GUIDE", "POLICIES_APPOINTMENTS", "CONSENT_TREATMENT"] } } },
+      },
+      select: { id: true },
+    }),
+    prisma.measurement.findMany({
+      where: { clientId: { not: null }, weightKg: { not: null } },
+      select: { clientId: true, weightKg: true, scanDate: true },
+      orderBy: { scanDate: "asc" },
+    }),
   ]);
+
+  // ---------- Transformation Spotlight: real, or honest empty state ----------
+  const weightByClient = new Map<string, { first: number; last: number; firstDate: Date; lastDate: Date }>();
+  for (const m of weightHistory) {
+    if (!m.clientId || m.weightKg == null) continue;
+    const entry = weightByClient.get(m.clientId);
+    if (!entry) {
+      weightByClient.set(m.clientId, { first: m.weightKg, last: m.weightKg, firstDate: m.scanDate, lastDate: m.scanDate });
+    } else {
+      entry.last = m.weightKg;
+      entry.lastDate = m.scanDate;
+    }
+  }
+  const biggestLoss = [...weightByClient.entries()]
+    .map(([clientId, w]) => ({ clientId, lossKg: w.first - w.last, ...w }))
+    .filter((w) => w.lossKg > 0)
+    .sort((a, b) => b.lossKg - a.lossKg)[0];
+
+  let spotlight: {
+    clientName: string;
+    system: string | null;
+    weeks: number;
+    lossLbs: number;
+    beforeUrl: string | null;
+    afterUrl: string | null;
+  } | null = null;
+
+  if (biggestLoss) {
+    const [client, photos] = await Promise.all([
+      prisma.client.findUnique({
+        where: { id: biggestLoss.clientId },
+        include: { blueprintAssessments: { orderBy: { version: "desc" }, take: 1 } },
+      }),
+      prisma.photo.findMany({ where: { clientId: biggestLoss.clientId }, orderBy: { uploadedAt: "asc" } }),
+    ]);
+    if (client && photos.length >= 2) {
+      const before = photos[0];
+      const after = photos[photos.length - 1];
+      const [beforeUrl, afterUrl] = await Promise.all([getPhotoSignedUrl(before.storagePath), getPhotoSignedUrl(after.storagePath)]);
+      const weeks = Math.max(1, Math.round((biggestLoss.lastDate.getTime() - biggestLoss.firstDate.getTime()) / (7 * 86400000)));
+      spotlight = {
+        clientName: `${client.firstName} ${client.lastName[0]}.`,
+        system: client.blueprintAssessments[0]?.recommendedSystem ?? null,
+        weeks,
+        lossLbs: Math.round(biggestLoss.lossKg * 2.20462 * 10) / 10,
+        beforeUrl,
+        afterUrl,
+      };
+    }
+  }
 
   const activity = [
     ...recentLeads.map((l) => ({ at: l.createdAt, text: `${l.firstName} ${l.lastName} submitted a new lead` })),
@@ -81,41 +154,61 @@ export default async function HubDashboardPage() {
     .slice(0, 8);
 
   const firstName = (user?.fullName ?? "").split(" ")[0] || "there";
+  const hour = new Date().getHours();
+  const greeting = hour < 12 ? "Good Morning" : hour < 18 ? "Good Afternoon" : "Good Evening";
+  const revenueThisMonth = revenueThisMonthAgg._sum.amountCents ?? 0;
+  const conversionRate = totalLeadsAllTime > 0 ? Math.round((convertedLeadsAllTime / totalLeadsAllTime) * 100) : 0;
 
   return (
     <div className="cat-body portal-page dash-root">
-      <div className="portal-page-head">
-        <p className="portal-eyebrow">Dashboard</p>
-        <h1>Welcome back, {firstName}.</h1>
-        <p className="dash-subtitle">Today is focused on transformation.</p>
+      {/* ---------- Hero ---------- */}
+      <div className="dash-hero">
+        <BlueprintWaves className="dash-hero-waves" />
+        <div className="dash-hero-left">
+          <p className="portal-eyebrow">owner hub</p>
+          <h1 className="dash-hero-title">
+            {greeting},<br />
+            {firstName}.
+          </h1>
+          <p className="dash-hero-sub">Today's Business</p>
+          <div className="dash-hero-kpis">
+            <div className="dash-hero-kpi">
+              <strong>{todaysAppointments.length}</strong>
+              <span>Appointments</span>
+            </div>
+            <div className="dash-hero-kpi">
+              <strong>{newLeadsToday}</strong>
+              <span>New Leads</span>
+            </div>
+            <div className="dash-hero-kpi">
+              <strong>{clientsMissingDocs.length}</strong>
+              <span>Pending Documents</span>
+            </div>
+            <div className="dash-hero-kpi">
+              <strong>{money(pendingPayments._sum.amountCents)}</strong>
+              <span>Pending Payments</span>
+            </div>
+          </div>
+          <Link href="/hub/appointments" className="dash-hero-cta">
+            Open Today →
+          </Link>
+        </div>
+
+        <div className="dash-hero-center">
+          <p className="dash-hero-center-line">Advanced Technology.</p>
+          <p className="dash-hero-center-line">Personalized Strategy.</p>
+          <p className="dash-hero-center-line">Visible Results.</p>
+          <p className="dash-hero-center-tagline">Your business. Elevated every day.</p>
+        </div>
+
+        <div className="dash-hero-right">
+          <div className="dash-hero-avatar">{firstName[0]}</div>
+        </div>
       </div>
 
-      {/* ---------- KPI Cards (reusing the existing .pd-stat design system) ---------- */}
-      <div className="pd-stats">
-        <div className="pd-stat">
-          <span className="pd-stat-label">Today's Appointments</span>
-          <strong>{todaysAppointments.length}</strong>
-          <span className="pd-stat-sub">{todaysAppointments.length === 0 ? "Nothing scheduled" : `${todaysAppointments.filter((a) => a.status === "SCHEDULED").length} scheduled`}</span>
-        </div>
-        <div className="pd-stat">
-          <span className="pd-stat-label">Pending Payments</span>
-          <strong>{money(pendingPayments._sum.amountCents)}</strong>
-          <span className="pd-stat-sub">{pendingPayments._count} outstanding</span>
-        </div>
-        <div className="pd-stat">
-          <span className="pd-stat-label">New Leads</span>
-          <strong>{newLeadsCount}</strong>
-          <span className="pd-stat-sub">+{newLeadsToday} today</span>
-        </div>
-        <div className="pd-stat">
-          <span className="pd-stat-label">Active Clients</span>
-          <strong>{activeClientsCount}</strong>
-        </div>
-      </div>
-
+      {/* ---------- Below Hero: editorial panels ---------- */}
       <div className="dash-two-col">
-        {/* ---------- Today's Schedule ---------- */}
-        <div className="pd-card">
+        <div className="pd-card dash-editorial-panel">
           <div className="dash-card-head">
             <h3>Today's Schedule</h3>
             <Link href="/hub/appointments" className="pd-link">
@@ -161,8 +254,7 @@ export default async function HubDashboardPage() {
           )}
         </div>
 
-        {/* ---------- Recent Activity ---------- */}
-        <div className="pd-card">
+        <div className="pd-card dash-editorial-panel">
           <div className="dash-card-head">
             <h3>Recent Activity</h3>
           </div>
@@ -182,37 +274,92 @@ export default async function HubDashboardPage() {
         </div>
       </div>
 
-      {/* ---------- Pending Actions ---------- */}
-      <h3 className="dash-section-title">Pending Actions</h3>
-      <div className="dash-pending-grid">
-        <Link href="/hub/payments" className="dash-pending-card">
-          <strong>{pendingPayments._count}</strong>
-          <span>Pending Payments</span>
-        </Link>
-        <Link href="/hub/blueprints" className="dash-pending-card">
-          <strong>{blueprintsWaitingReview}</strong>
-          <span>Body Blueprints waiting review</span>
-        </Link>
-        <Link href="/hub/appointments" className="dash-pending-card">
+      {/* ---------- Transformation Spotlight ---------- */}
+      <h3 className="dash-section-title">Transformation Spotlight™</h3>
+      {spotlight && spotlight.beforeUrl && spotlight.afterUrl ? (
+        <div className="pd-card dash-spotlight">
+          <div className="dash-spotlight-photos">
+            <div>
+              <img src={spotlight.beforeUrl} alt="Before" />
+              <span>Before</span>
+            </div>
+            <div>
+              <img src={spotlight.afterUrl} alt="After" />
+              <span>After</span>
+            </div>
+          </div>
+          <div className="dash-spotlight-info">
+            <p className="bp-hero-eyebrow">{spotlight.clientName}</p>
+            <h2 style={{ fontFamily: "var(--serif)", fontSize: 22, margin: "0 0 4px" }}>
+              {spotlight.system ?? "Custom System"}
+            </h2>
+            <p className="pay-history-meta" style={{ marginBottom: 16 }}>{spotlight.weeks} Weeks</p>
+            <div className="dash-spotlight-stat">
+              <strong>-{spotlight.lossLbs} lbs</strong>
+              <span>Weight Change</span>
+            </div>
+            <Link href="/hub/clients" className="pd-link" style={{ marginTop: 12, display: "inline-block" }}>
+              View Full Story →
+            </Link>
+          </div>
+        </div>
+      ) : (
+        <div className="pd-card">
+          <p className="dash-empty">No transformation with both before/after photos and weight tracking yet — it will appear here automatically once available.</p>
+        </div>
+      )}
+
+      {/* ---------- Business Overview ---------- */}
+      <h3 className="dash-section-title">Business Overview</h3>
+      <div className="pd-stats" style={{ marginBottom: 32 }}>
+        <div className="pd-stat">
+          <span className="pd-stat-label">Revenue (This Month)</span>
+          <strong>{money(revenueThisMonth)}</strong>
+        </div>
+        <div className="pd-stat">
+          <span className="pd-stat-label">Active Clients</span>
+          <strong>{activeClientsCount}</strong>
+        </div>
+        <div className="pd-stat">
+          <span className="pd-stat-label">Today's Appointments</span>
           <strong>{todaysAppointments.length}</strong>
-          <span>Today's appointments</span>
-        </Link>
+        </div>
+        <div className="pd-stat">
+          <span className="pd-stat-label">Conversion Rate</span>
+          <strong>{conversionRate}%</strong>
+        </div>
       </div>
 
       {/* ---------- Quick Actions ---------- */}
       <h3 className="dash-section-title">Quick Actions</h3>
-      <div className="dash-quick-actions">
-        <Link href="/hub/leads" className="dash-quick-btn">
-          + New Lead
+      <div className="dash-quick-tiles">
+        <Link href="/hub/leads/new" className="dash-quick-tile">
+          <span>+</span>
+          New Lead
         </Link>
-        <Link href="/hub/leads" className="dash-quick-btn">
-          + New Client
+        <Link href="/hub/clients" className="dash-quick-tile">
+          <span>◐</span>
+          New Client
         </Link>
-        <Link href="/hub/appointments" className="dash-quick-btn">
-          + Appointment
+        <Link href="/hub/clients" className="dash-quick-tile">
+          <span>▤</span>
+          Create Blueprint™
         </Link>
-        <Link href="/hub/blueprints" className="dash-quick-btn">
-          + Body Blueprint
+        <Link href="/hub/appointments" className="dash-quick-tile">
+          <span>◷</span>
+          Schedule Session
+        </Link>
+        <Link href="/hub/payments" className="dash-quick-tile">
+          <span>$</span>
+          Record Payment
+        </Link>
+        <Link href="/hub/documents" className="dash-quick-tile">
+          <span>⬆</span>
+          Upload Documents
+        </Link>
+        <Link href="/hub/analytics" className="dash-quick-tile">
+          <span>◫</span>
+          Analytics
         </Link>
       </div>
     </div>
