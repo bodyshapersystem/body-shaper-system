@@ -202,7 +202,7 @@ export default async function HubDashboardPage() {
         </div>
 
         <div className="dash-hero-right">
-          <div className="dash-hero-avatar">{firstName[0]}</div>
+          <img src="/images/emmy-hero.jpg" alt={firstName} className="dash-hero-photo" />
         </div>
       </div>
 
