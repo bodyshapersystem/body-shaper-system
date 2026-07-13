@@ -2058,6 +2058,7 @@
   font-family:var(--sans,'Jost',sans-serif); font-size:12px; text-decoration:none;
   transition:color .18s ease, background .18s ease; border-radius:6px;
   -webkit-tap-highlight-color:transparent;outline:none;
+  width:fit-content; max-width:160px;
 }
 .psb-nav a:focus:not(:focus-visible){outline:none;}
 .psb-nav a:focus-visible{outline:1.5px solid #6B5240;outline-offset:2px;}
