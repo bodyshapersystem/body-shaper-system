@@ -1,52 +1,62 @@
 // Premium editorial email templates for Body Shaper System™ — the
-// ONE real, final version. No "temporary simple" template kept
-// alongside this; every send goes through emailShell() below.
+// ONE real, final version, rebuilt to match the approved mockup
+// ("thank you." / Blueprint Received design) as closely as HTML
+// email reliably allows. This exact shell is reused by every other
+// email — every future template inherits this same structure.
 //
 // Real hosted assets used (all live on the production domain today):
-//   logo          -> bss-wordmark.png
 //   waves texture -> blueprint-waves.png
 //   founder photo -> emmy-hero.jpg (Welcome email only, per spec)
 //
-// NOT YET AVAILABLE (documented honestly, not faked):
-//   - Brittany Signature font files — no .woff2/.woff hosted yet.
-//     Falls back to italic Georgia serif for every "script" moment
-//     (category label + signature), matching the spec's own stated
-//     Outlook-fallback behavior — this isn't a placeholder guess,
-//     it's the documented degraded state.
-//   - The 8 line-icons (headset/clock/calendar/pin/chart/document/
-//     sparkle/laptop) — none hosted. Feature cards use clean
-//     typography only instead of a broken/missing <img>. Once real
-//     icon files exist, they can be dropped into the ICONS map below
-//     with zero other changes needed.
+// HONEST SUBSTITUTIONS (documented, not silently faked):
+//   - Wordmark: rendered as real text ("Body Shaper System.", serif),
+//     matching the mockup exactly — not a logo image. Simpler, and
+//     removes a broken-image risk entirely.
+//   - Icons (clock/sparkle/headset/pin/globe): no hosted icon files
+//     exist yet, and inline SVG has inconsistent email-client support.
+//     Using emoji glyphs (⏱ ✦ 🎧 📍 🌐) instead — these render
+//     correctly in Gmail/Apple Mail/Outlook.com/mobile Outlook; only
+//     legacy Outlook desktop may render them plainly rather than
+//     styled, which is a graceful degradation, not a broken image.
+//   - Brittany Signature script font: no .woff2/.woff hosted yet.
+//     Signature line uses italic Georgia serif — this is the exact
+//     documented fallback behavior from the approved spec, not a
+//     placeholder guess.
+//   - The large decorative corner wave/arch graphic from the mockup's
+//     bottom-right: NOT reproduced. Background-image positioning like
+//     that is unreliable across email clients (especially Outlook,
+//     which ignores CSS background-image entirely) and risks a
+//     broken/shifted layout more than it adds polish. Kept the
+//     top-of-header wave texture only, which is simple enough to be
+//     reliable everywhere.
 
 const SITE_URL = "https://www.bodyshapersystem.com";
 const ASSETS = {
-  logo: `${SITE_URL}/images/bss-wordmark.png`,
   wavesTop: `${SITE_URL}/images/blueprint-waves.png`,
   founderPhoto: `${SITE_URL}/images/emmy-hero.jpg`,
 };
 
 const COLORS = {
-  ivory: "#F7F4EF",
-  sand: "#D8CEC0",
+  ivory: "#F7F2EA",
+  sand: "#E4D6C3",
+  sandLight: "#EFE4D4",
   mocha: "#8B7362",
-  burgundy: "#5C1A1F",
-  gold: "#D4AF37",
-  charcoal: "#1C1C1C",
+  burgundy: "#8B3A3F",
+  rose: "#A85D5D",
+  gold: "#C9A876",
+  charcoal: "#3A322C",
+  taupeBar: "#A8967F",
 };
 
-/** The Four Point Star Divider — a real typographic mark (✦), not an
- * image, so it always renders identically everywhere with zero
- * hosting/broken-image risk. */
-function starDivider(): string {
-  return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr><td align="center" style="padding:22px 0;font-family:Georgia,serif;font-size:15px;color:${COLORS.gold};letter-spacing:8px;">✦</td></tr></table>`;
+function rule(): string {
+  return `<table role="presentation" cellpadding="0" cellspacing="0"><tr><td style="width:48px;height:2px;background-color:${COLORS.rose};font-size:0;line-height:0;">&nbsp;</td></tr></table>`;
 }
 
 function button(label: string, url: string): string {
-  return `<table role="presentation" cellpadding="0" cellspacing="0" style="margin:24px auto;">
+  return `<table role="presentation" cellpadding="0" cellspacing="0" style="margin:22px 0;">
     <tr>
       <td style="background-color:${COLORS.burgundy};border-radius:3px;">
-        <a href="${url}" style="display:inline-block;padding:15px 36px;font-family:Arial,sans-serif;font-size:12.5px;letter-spacing:1.5px;color:${COLORS.ivory};text-decoration:none;font-weight:bold;text-transform:uppercase;">
+        <a href="${url}" style="display:inline-block;padding:15px 34px;font-family:Arial,sans-serif;font-size:12px;letter-spacing:1.5px;color:${COLORS.ivory};text-decoration:none;font-weight:bold;text-transform:uppercase;">
           ${label}
         </a>
       </td>
@@ -54,142 +64,196 @@ function button(label: string, url: string): string {
   </table>`;
 }
 
-/** Feature Card — the one container used for every "highlight" moment
- * across all templates, in one of the 4 approved content variants.
- * Never invent a 5th; always reuse A/B/C/D. */
-type FeatureCard =
-  | { variant: "A"; title: string; text: string }
-  | { variant: "B"; rows: { label: string; value: string }[] } // date/time/location style
-  | { variant: "C"; pairs: { label: string; value: string }[] } // label:value pairs
-  | { variant: "D"; stat: string; statLabel: string; secondaryText?: string };
-
-function featureCard(card: FeatureCard): string {
-  const wrap = (inner: string) =>
-    `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:${COLORS.ivory};border:1px solid ${COLORS.sand};border-radius:6px;margin:0 0 24px;">
-      <tr><td style="padding:22px 26px;">${inner}</td></tr>
-    </table>`;
-
-  if (card.variant === "A") {
-    return wrap(
-      `<p style="font-family:Georgia,serif;font-size:16px;color:${COLORS.charcoal};margin:0 0 8px;">${card.title}</p>
-       <p style="font-family:Arial,sans-serif;font-size:13.5px;line-height:1.6;color:${COLORS.mocha};margin:0;">${card.text}</p>`
-    );
-  }
-  if (card.variant === "B") {
-    return wrap(
-      card.rows
-        .map(
-          (r) =>
-            `<p style="font-family:Arial,sans-serif;font-size:14px;color:${COLORS.charcoal};margin:0 0 8px;line-height:1.5;"><strong style="color:${COLORS.mocha};font-size:11px;letter-spacing:.06em;text-transform:uppercase;display:block;">${r.label}</strong>${r.value}</p>`
-        )
-        .join("")
-    );
-  }
-  if (card.variant === "C") {
-    return wrap(
-      `<table role="presentation" width="100%" cellpadding="0" cellspacing="0">${card.pairs
-        .map(
-          (p) =>
-            `<tr><td style="padding:6px 0;font-family:Arial,sans-serif;font-size:13px;color:${COLORS.mocha};">${p.label}</td><td align="right" style="padding:6px 0;font-family:Arial,sans-serif;font-size:13px;color:${COLORS.charcoal};font-weight:bold;">${p.value}</td></tr>`
-        )
-        .join("")}</table>`
-    );
-  }
-  return wrap(
-    `<p style="font-family:Georgia,serif;font-size:30px;color:${COLORS.burgundy};margin:0 0 4px;">${card.stat}</p>
-     <p style="font-family:Arial,sans-serif;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:${COLORS.mocha};margin:0 0 8px;">${card.statLabel}</p>
-     ${card.secondaryText ? `<p style="font-family:Arial,sans-serif;font-size:13px;color:${COLORS.charcoal};margin:0;">${card.secondaryText}</p>` : ""}`
-  );
-}
-
-function needAnythingCard(): string {
-  return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:${COLORS.ivory};border:1px solid ${COLORS.sand};border-radius:6px;margin:0 0 8px;">
-    <tr><td style="padding:20px 26px;text-align:center;">
-      <p style="font-family:Georgia,serif;font-size:14px;color:${COLORS.charcoal};margin:0 0 4px;">Need anything?</p>
-      <p style="font-family:Arial,sans-serif;font-size:12.5px;color:${COLORS.mocha};margin:0;">
-        Reply to this email or reach us at <a href="mailto:hello@bodyshapersystem.com" style="color:${COLORS.burgundy};">hello@bodyshapersystem.com</a>
-      </p>
-    </td></tr>
+/** Left-border-accent moment — a rose vertical line, an emoji glyph,
+ * and text. Matches the "Within the next 24 hours..." block in the
+ * approved mockup. */
+function infoMoment(icon: string, html: string): string {
+  return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 20px;">
+    <tr>
+      <td width="4" style="background-color:${COLORS.rose};font-size:0;line-height:0;">&nbsp;</td>
+      <td width="16" style="font-size:0;line-height:0;">&nbsp;</td>
+      <td width="34" valign="top" style="font-size:22px;padding-top:2px;">${icon}</td>
+      <td width="12" style="font-size:0;line-height:0;">&nbsp;</td>
+      <td valign="top" style="font-family:Arial,sans-serif;font-size:14px;line-height:1.6;color:${COLORS.charcoal};">${html}</td>
+    </tr>
   </table>`;
 }
 
+/** Solid sand-background highlight box — matches "Every recommendation
+ * begins with understanding." Also used to hold structured content
+ * (appointment date/time, payment amount, etc.) for other emails. */
+function highlightMoment(icon: string, html: string): string {
+  return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:${COLORS.sandLight};border-radius:6px;margin:0 0 20px;">
+    <tr>
+      <td width="24" style="font-size:0;line-height:0;">&nbsp;</td>
+      <td width="30" valign="top" style="padding:22px 0;font-size:19px;">${icon}</td>
+      <td width="14" style="font-size:0;line-height:0;">&nbsp;</td>
+      <td valign="top" style="padding:22px 0;font-family:Georgia,serif;font-size:15px;line-height:1.5;color:${COLORS.charcoal};">${html}</td>
+      <td width="24" style="font-size:0;line-height:0;">&nbsp;</td>
+    </tr>
+  </table>`;
+}
+
+function needAnythingCard(): string {
+  return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border:1px solid ${COLORS.sand};border-radius:6px;margin:0 0 26px;">
+    <tr>
+      <td width="24" style="font-size:0;">&nbsp;</td>
+      <td width="34" valign="top" style="padding:18px 0;font-size:22px;">🎧</td>
+      <td width="14" style="font-size:0;">&nbsp;</td>
+      <td valign="top" style="padding:18px 0;font-family:Arial,sans-serif;font-size:13.5px;line-height:1.6;color:${COLORS.charcoal};">
+        Need anything in the meantime?<br />Your <strong>Body Shaper Concierge™</strong> is here to help.
+      </td>
+      <td width="24" style="font-size:0;">&nbsp;</td>
+    </tr>
+  </table>`;
+}
+
+type FeatureCard =
+  | { variant: "A"; icon: string; text: string }
+  | { variant: "B"; rows: { label: string; value: string }[] }
+  | { variant: "C"; pairs: { label: string; value: string }[] }
+  | { variant: "D"; stat: string; statLabel: string };
+
+function renderFeatureCardInline(card: FeatureCard): string {
+  if (card.variant === "A") return card.text;
+  if (card.variant === "B") {
+    return card.rows.map((r) => `<strong>${r.label}:</strong> ${r.value}`).join("<br />");
+  }
+  if (card.variant === "C") {
+    return card.pairs.map((p) => `${p.label}: <strong>${p.value}</strong>`).join("<br />");
+  }
+  return `<span style="font-size:26px;color:${COLORS.burgundy};">${card.stat}</span><br /><span style="font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:${COLORS.mocha};">${card.statLabel}</span>`;
+}
+
 /**
- * The single master email shell — every notification is this exact
- * structure with different content injected, per the approved
- * Design System v1.0 component order:
- *   Header (logo) -> Star Divider -> [founder photo, Welcome only]
- *   -> Category -> Headline -> Subheadline -> Star Divider -> Body
- *   -> Feature Card -> Primary CTA -> Star Divider -> Need Anything
- *   -> Signature -> Footer
+ * The single master email shell, rebuilt to match the approved
+ * mockup's exact composition: centered wordmark + rule, large
+ * lowercase serif headline, tracked uppercase subheadline (2 lines),
+ * short rose rule, body copy, info moment, highlight moment, rose
+ * rule, closing line, script-style signature, Need Anything card,
+ * footer (location + website), and the 3-item tagline bar.
  */
 function emailShell(params: {
-  category: string;
   headline: string;
-  subheadline?: string;
-  bodyHtml: string;
+  subheadlineLines: string[];
+  bodyParagraphs: string[];
+  infoMomentIcon?: string;
+  infoMomentHtml?: string;
   featureCard?: FeatureCard;
+  featureCardIcon?: string;
   ctaLabel?: string;
   ctaUrl?: string;
-  signatureName: string; // "The Body Shaper Concierge" or "Emmy Branger" (Welcome only)
+  closingText: string;
   founderPhoto?: boolean;
+  signatureName?: string;
 }): string {
-  const { category, headline, subheadline, bodyHtml, featureCard: card, ctaLabel, ctaUrl, signatureName, founderPhoto } = params;
+  const {
+    headline,
+    subheadlineLines,
+    bodyParagraphs,
+    infoMomentIcon,
+    infoMomentHtml,
+    featureCard,
+    featureCardIcon,
+    ctaLabel,
+    ctaUrl,
+    closingText,
+    founderPhoto,
+    signatureName,
+  } = params;
 
   return `<!DOCTYPE html>
 <html>
 <head><meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /></head>
-<body style="margin:0;padding:0;background-color:${COLORS.sand};font-family:Georgia,'Times New Roman',serif;">
-  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:${COLORS.sand};padding:32px 0;">
+<body style="margin:0;padding:0;background-color:${COLORS.ivory};font-family:Georgia,'Times New Roman',serif;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:${COLORS.ivory};padding:36px 0;">
     <tr>
       <td align="center">
-        <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="background-color:${COLORS.ivory};border-radius:6px;overflow:hidden;position:relative;">
-          <!-- Header: official logo -->
+        <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="background-color:${COLORS.ivory};">
+
+          <!-- Wordmark -->
           <tr>
-            <td style="background-color:${COLORS.charcoal};padding:28px 40px;text-align:center;">
-              <img src="${ASSETS.logo}" alt="Body Shaper System™" height="30" style="height:30px;width:auto;" />
+            <td align="center" style="padding:0 40px 8px;">
+              <span style="font-family:Georgia,serif;font-size:22px;color:${COLORS.mocha};">Body Shaper System.</span>
             </td>
           </tr>
-          <tr><td style="padding:0 40px;">${starDivider()}</td></tr>
+          <tr>
+            <td align="center" style="padding:0 0 32px;">
+              <table role="presentation" cellpadding="0" cellspacing="0"><tr><td style="width:36px;height:1px;background-color:${COLORS.mocha};font-size:0;">&nbsp;</td></tr></table>
+            </td>
+          </tr>
+
           ${
             founderPhoto
-              ? `<tr><td align="center" style="padding:0 40px 8px;">
-                   <img src="${ASSETS.founderPhoto}" alt="Emmy Branger" width="88" height="88" style="width:88px;height:88px;border-radius:50%;object-fit:cover;display:block;" />
+              ? `<tr><td align="center" style="padding:0 40px 20px;">
+                   <img src="${ASSETS.founderPhoto}" alt="Emmy Branger" width="84" height="84" style="width:84px;height:84px;border-radius:50%;object-fit:cover;display:block;" />
                  </td></tr>`
               : ""
           }
+
+          <!-- Headline + subheadline -->
           <tr>
-            <td style="padding:16px 40px 0;text-align:center;">
-              <p style="font-family:Georgia,serif;font-size:13px;font-style:italic;color:${COLORS.burgundy};letter-spacing:.5px;margin:0 0 10px;">${category}</p>
-              <h1 style="font-family:Georgia,serif;font-size:25px;color:${COLORS.charcoal};margin:0 0 6px;line-height:1.25;">${headline}</h1>
-              ${
-                subheadline
-                  ? `<p style="font-family:Arial,sans-serif;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:${COLORS.mocha};margin:0 0 6px;">${subheadline}</p>`
-                  : ""
-              }
+            <td style="padding:0 40px;">
+              <h1 style="font-family:Georgia,serif;font-size:52px;line-height:1;color:${COLORS.charcoal};margin:0 0 18px;font-weight:normal;">${headline}</h1>
+              <p style="font-family:Arial,sans-serif;font-size:13px;letter-spacing:2px;text-transform:uppercase;color:${COLORS.mocha};line-height:1.6;margin:0 0 20px;">
+                ${subheadlineLines.join("<br />")}
+              </p>
+              ${rule()}
             </td>
           </tr>
-          <tr><td style="padding:0 40px;">${starDivider()}</td></tr>
+
+          <!-- Body -->
           <tr>
-            <td style="padding:0 40px 8px;">
-              <div style="font-family:Arial,sans-serif;font-size:14.5px;line-height:1.7;color:${COLORS.charcoal};text-align:left;">${bodyHtml}</div>
-              ${card ? featureCard(card) : ""}
-              ${ctaLabel && ctaUrl ? `<table role="presentation" width="100%"><tr><td align="center">${button(ctaLabel, ctaUrl)}</td></tr></table>` : ""}
+            <td style="padding:20px 40px 4px;">
+              ${bodyParagraphs.map((p) => `<p style="font-family:Arial,sans-serif;font-size:15px;line-height:1.7;color:${COLORS.charcoal};margin:0 0 16px;">${p}</p>`).join("")}
             </td>
           </tr>
-          <tr><td style="padding:0 40px;">${starDivider()}</td></tr>
-          <tr><td style="padding:0 40px 24px;">${needAnythingCard()}</td></tr>
+
+          ${infoMomentIcon && infoMomentHtml ? `<tr><td style="padding:8px 40px 0;">${infoMoment(infoMomentIcon, infoMomentHtml)}</td></tr>` : ""}
+
+          ${
+            featureCard
+              ? `<tr><td style="padding:0 40px;">${highlightMoment(featureCardIcon ?? "✦", renderFeatureCardInline(featureCard))}</td></tr>`
+              : ""
+          }
+
+          ${
+            ctaLabel && ctaUrl
+              ? `<tr><td align="center" style="padding:4px 40px 8px;">${button(ctaLabel, ctaUrl)}</td></tr>`
+              : ""
+          }
+
+          <tr><td style="padding:8px 40px 0;">${rule()}</td></tr>
+
+          <!-- Closing + signature -->
           <tr>
-            <td style="padding:0 40px 28px;text-align:center;">
-              <p style="font-family:Georgia,serif;font-style:italic;font-size:16px;color:${COLORS.burgundy};margin:0;">${signatureName}</p>
+            <td style="padding:20px 40px 4px;">
+              <p style="font-family:Arial,sans-serif;font-size:15px;line-height:1.7;color:${COLORS.charcoal};margin:0 0 14px;">${closingText}</p>
+              <p style="font-family:Georgia,serif;font-style:italic;font-size:19px;color:${COLORS.burgundy};margin:0 0 24px;">— ${signatureName ?? "Body Shaper System™"}</p>
             </td>
           </tr>
+
+          <!-- Need anything -->
+          <tr><td style="padding:0 40px;">${needAnythingCard()}</td></tr>
+
+          <!-- Footer: location + website -->
           <tr>
-            <td style="background-color:${COLORS.charcoal};padding:22px 40px;text-align:center;">
-              <span style="font-family:Arial,sans-serif;font-size:11px;color:${COLORS.sand};">
-                Body Shaper System™ &middot; Miami, FL &middot; <a href="mailto:hello@bodyshapersystem.com" style="color:${COLORS.sand};">hello@bodyshapersystem.com</a>
+            <td style="padding:0 40px 28px;">
+              <span style="font-family:Arial,sans-serif;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:${COLORS.mocha};">
+                📍 Miami, Florida &nbsp;&nbsp;|&nbsp;&nbsp; 🌐 bodyshapersystem.com
               </span>
             </td>
           </tr>
+
+          <!-- Tagline bar -->
+          <tr>
+            <td style="background-color:${COLORS.taupeBar};padding:18px 40px;text-align:center;">
+              <span style="font-family:Arial,sans-serif;font-size:10.5px;letter-spacing:1.5px;text-transform:uppercase;color:${COLORS.ivory};">
+                Advanced Technology. &nbsp;|&nbsp; Personalized Strategy. &nbsp;|&nbsp; Visible Results.
+              </span>
+            </td>
+          </tr>
+
         </table>
       </td>
     </tr>
@@ -203,27 +267,26 @@ export function buildWelcomeActivationEmail(params: {
   activationUrl: string;
   welcomeGuideUrl?: string;
 }): { subject: string; html: string } {
-  const { firstName, activationUrl, welcomeGuideUrl } = params;
-  const bodyHtml = `<p style="margin:0 0 14px;">Hi ${firstName},</p>
-    <p style="margin:0 0 14px;">Welcome to Body Shaper System™. Your personalized transformation journey is officially beginning — and I'm so glad you're here.</p>
-    <p style="margin:0 0 14px;">Your Client Portal has been prepared for you, with your Body Blueprint™, Welcome Guide, appointments, progress and documents all in one place.</p>`;
+  const { firstName, activationUrl } = params;
+  const name = firstName?.trim() || "there"; // elegant fallback — never a username/email
   return {
     subject: "Welcome to Body Shaper System™",
     html: emailShell({
-      category: "welcome",
-      headline: `Your journey begins, ${firstName}.`,
-      bodyHtml,
-      featureCard: {
-        variant: "A",
-        title: "Your Client Portal is ready",
-        text: welcomeGuideUrl
-          ? "Activate your account below to view your Body Blueprint™, Welcome Guide, and everything else prepared for you."
-          : "Activate your account below to view your Body Blueprint™ and everything else prepared for you.",
-      },
+      headline: "welcome.",
+      subheadlineLines: ["YOUR JOURNEY WITH", "BODY SHAPER SYSTEM™ BEGINS NOW."],
+      bodyParagraphs: [
+        `Hi ${name}, welcome — I'm so glad you're here.`,
+        "Your Client Portal has been prepared for you, with your Body Blueprint™, appointments, progress, and documents all in one place.",
+      ],
+      infoMomentIcon: "⏱",
+      infoMomentHtml: "Activate your account below to set your password and step inside your Portal.",
+      featureCard: { variant: "A", icon: "✦", text: "Every transformation begins with a single step." },
+      featureCardIcon: "✦",
       ctaLabel: "Activate My Client Portal",
       ctaUrl: activationUrl,
-      signatureName: "Emmy Branger", // Email 02 — the one signed personally, per the approved Design System
+      closingText: "We can't wait to help you create the best version of you.",
       founderPhoto: true,
+      signatureName: "Emmy Branger",
     }),
   };
 }
@@ -233,34 +296,40 @@ export function buildBodyBlueprintCompletedEmail(params: {
   portalUrl: string;
 }): { subject: string; html: string } {
   const { firstName, portalUrl } = params;
-  const bodyHtml = `<p style="margin:0 0 14px;">Hi ${firstName},</p>
-    <p style="margin:0 0 14px;">Your Body Blueprint™ is ready — your personalized goals, recommended system, and treatment plan are now available in your Client Portal.</p>`;
+  const name = firstName?.trim() || "there";
   return {
     subject: "Your Body Blueprint™ is ready",
     html: emailShell({
-      category: "body blueprint™",
-      headline: "Your personalized strategy is ready.",
-      bodyHtml,
-      featureCard: { variant: "A", title: "Your Body Blueprint™", text: "Review your recommended system, goals, and full treatment plan." },
+      headline: "it's ready.",
+      subheadlineLines: ["YOUR PERSONALIZED", "BODY BLUEPRINT™ STRATEGY."],
+      bodyParagraphs: [
+        `Hi ${name}, your Body Blueprint™ is ready — your personalized goals, recommended system, and treatment plan are now available in your Client Portal.`,
+      ],
+      featureCard: { variant: "A", icon: "✦", text: "Every recommendation begins with understanding." },
+      featureCardIcon: "✦",
       ctaLabel: "View My Body Blueprint™",
       ctaUrl: portalUrl,
-      signatureName: "The Body Shaper Concierge",
+      closingText: "We can't wait to help you create the best version of you.",
     }),
   };
 }
 
 export function buildBlueprintReceivedEmail(params: { firstName: string }): { subject: string; html: string } {
-  const { firstName } = params;
-  const bodyHtml = `<p style="margin:0 0 14px;">Hi ${firstName},</p>
-    <p style="margin:0 0 14px;">We've received your Body Blueprint™ submission — thank you for taking the time to share your goals with us.</p>
-    <p style="margin:0;">A Body Shaper System™ specialist will personally review your Blueprint shortly and reach out with your next steps.</p>`;
+  const name = params.firstName?.trim() || "there"; // elegant fallback — never a username/email
   return {
     subject: "We've received your Body Blueprint™",
     html: emailShell({
-      category: "body blueprint™",
-      headline: "Thank you for sharing your goals.",
-      bodyHtml,
-      signatureName: "Body Blueprint™ Team",
+      headline: "thank you.",
+      subheadlineLines: ["WE'VE RECEIVED YOUR", "LET'S BUILD YOUR BODY BLUEPRINT™."],
+      bodyParagraphs: [
+        `Thank you for taking the first step toward your transformation, ${name}.`,
+        "Our team is now personally reviewing your Blueprint to create the most effective strategy for your body, your goals, and your lifestyle.",
+      ],
+      infoMomentIcon: "⏱",
+      infoMomentHtml: "Within the next <strong>24 hours</strong>, one of our specialists will reach out with your personalized recommendation.",
+      featureCard: { variant: "A", icon: "✦", text: "Every recommendation begins with understanding." },
+      featureCardIcon: "✦",
+      closingText: "We can't wait to help you create the best version of you.",
     }),
   };
 }
@@ -271,18 +340,18 @@ export function buildPaymentConfirmationEmail(params: {
   portalUrl: string;
 }): { subject: string; html: string } {
   const { firstName, amountLabel, portalUrl } = params;
-  const bodyHtml = `<p style="margin:0 0 14px;">Hi ${firstName},</p>
-    <p style="margin:0;">This confirms your payment below. Thank you for trusting Body Shaper System™ with your transformation.</p>`;
+  const name = firstName?.trim() || "there";
   return {
     subject: "Payment confirmed — Body Shaper System™",
     html: emailShell({
-      category: "payment confirmation",
-      headline: "Payment received, thank you.",
-      bodyHtml,
+      headline: "thank you.",
+      subheadlineLines: ["YOUR PAYMENT HAS BEEN", "RECEIVED AND CONFIRMED."],
+      bodyParagraphs: [`Hi ${name}, this confirms your payment below. Thank you for trusting Body Shaper System™ with your transformation.`],
       featureCard: { variant: "D", stat: amountLabel, statLabel: "Amount Confirmed" },
+      featureCardIcon: "✦",
       ctaLabel: "View My Portal",
       ctaUrl: portalUrl,
-      signatureName: "The Body Shaper Concierge",
+      closingText: "We're honored to be part of your journey.",
     }),
   };
 }
@@ -296,24 +365,24 @@ export function buildAppointmentConfirmationEmail(params: {
   portalUrl: string;
 }): { subject: string; html: string } {
   const { firstName, sessionTitle, dateLabel, timeLabel, systemName, portalUrl } = params;
-  const bodyHtml = `<p style="margin:0 0 14px;">Hi ${firstName},</p>
-    <p style="margin:0;">Your session has been scheduled. Here are the details:</p>`;
+  const name = firstName?.trim() || "there";
   const rows = [
     { label: "Session", value: sessionTitle },
     { label: "Date", value: dateLabel },
     { label: "Time", value: timeLabel },
   ];
-  if (systemName) rows.push({ label: "Personalized System™", value: systemName });
+  if (systemName) rows.push({ label: "System", value: systemName });
   return {
     subject: `Your session is confirmed — ${dateLabel}`,
     html: emailShell({
-      category: "appointment confirmed",
-      headline: "See you soon.",
-      bodyHtml,
+      headline: "see you soon.",
+      subheadlineLines: ["YOUR SESSION HAS BEEN", "SCHEDULED AND CONFIRMED."],
+      bodyParagraphs: [`Hi ${name}, your session has been scheduled. Here are the details:`],
       featureCard: { variant: "B", rows },
+      featureCardIcon: "⏱",
       ctaLabel: "View My Appointments",
       ctaUrl: portalUrl,
-      signatureName: "The Body Shaper Concierge",
+      closingText: "Every visit is another step toward your transformation.",
     }),
   };
 }

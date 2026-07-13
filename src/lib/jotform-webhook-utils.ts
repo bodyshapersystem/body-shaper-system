@@ -38,9 +38,38 @@ export async function parseJotformPayload(request: NextRequest): Promise<Record<
   return merged;
 }
 
+// Jotform's own webhook metadata fields — NOT form answers. Several of
+// these (username, formTitle, customTitle, subject...) contain
+// substrings like "name" or "email"-adjacent words and were being
+// matched by the loose `key.includes(pattern)` check below, which is
+// exactly how a real bug happened: the metadata field `username`
+// (Jotform ACCOUNT username, e.g. "beautyboxmia") contains the
+// substring "name" ("userNAME"), so it was being picked up as the
+// person's name instead of their actual submitted answer. Excluding
+// all known metadata keys fixes this at the source.
+const JOTFORM_METADATA_KEYS = new Set([
+  "action", "webhookurl", "username", "formid", "type", "customparams", "product",
+  "formtitle", "customtitle", "submissionid", "event", "documentid", "teamid",
+  "subject", "issilent", "custombody", "fromtable", "appid", "pretty", "unread",
+  "parent", "ip", "slug", "jsexecutiontracker", "submitsource", "submitdate",
+  "builddate", "uploadserverurl", "eventobserver", "event_id", "timetosubmit",
+  "validatednewrequiredfieldids", "path",
+]);
+
+/** Real Jotform question fields are always prefixed like "q3_..." —
+ * metadata fields never are. Preferring these first (and excluding
+ * known metadata keys entirely) is what actually fixes the bug above,
+ * rather than just adding more exclusions as new metadata fields
+ * appear. */
+function isLikelyQuestionKey(key: string): boolean {
+  return /^q\d+_/i.test(key);
+}
+
 export function extractContactField(raw: Record<string, unknown>, patterns: string[]): string | undefined {
-  for (const [key, value] of Object.entries(raw)) {
+  const entries = Object.entries(raw).sort(([a], [b]) => Number(isLikelyQuestionKey(b)) - Number(isLikelyQuestionKey(a)));
+  for (const [key, value] of entries) {
     const lowerKey = key.toLowerCase();
+    if (JOTFORM_METADATA_KEYS.has(lowerKey)) continue;
     if (!patterns.some((p) => lowerKey.includes(p))) continue;
 
     if (typeof value === "string" && value.trim()) return value.trim();
@@ -57,8 +86,11 @@ export function extractContactField(raw: Record<string, unknown>, patterns: stri
 }
 
 export function extractName(raw: Record<string, unknown>): { firstName: string; lastName: string } {
-  for (const [key, value] of Object.entries(raw)) {
-    if (!key.toLowerCase().includes("name")) continue;
+  const entries = Object.entries(raw).sort(([a], [b]) => Number(isLikelyQuestionKey(b)) - Number(isLikelyQuestionKey(a)));
+  for (const [key, value] of entries) {
+    const lowerKey = key.toLowerCase();
+    if (JOTFORM_METADATA_KEYS.has(lowerKey)) continue;
+    if (!lowerKey.includes("name")) continue;
 
     if (value && typeof value === "object") {
       const obj = value as Record<string, unknown>;
