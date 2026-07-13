@@ -85,6 +85,110 @@ function SectionLabel({ num, title, right }: { num: string; title: string; right
   );
 }
 
+function JourneyIcon({ type }: { type: "created" | "validated" | "strategy" | "session" | "payment" | "photo" }) {
+  const common = { viewBox: "0 0 24 24", fill: "none" as const, width: 16, height: 16 };
+  switch (type) {
+    case "validated":
+      return (
+        <svg {...common}>
+          <path d="M5 12.5l4.5 4.5L19 7" stroke="currentColor" strokeWidth="1.4" />
+        </svg>
+      );
+    case "session":
+      return (
+        <svg {...common}>
+          <rect x="3.5" y="4.5" width="17" height="16" rx="2" stroke="currentColor" strokeWidth="1.2" />
+          <line x1="3.5" y1="9" x2="20.5" y2="9" stroke="currentColor" strokeWidth="1.2" />
+        </svg>
+      );
+    case "payment":
+      return (
+        <svg {...common}>
+          <rect x="2.5" y="6" width="19" height="13" rx="2" stroke="currentColor" strokeWidth="1.2" />
+          <line x1="2.5" y1="10" x2="21.5" y2="10" stroke="currentColor" strokeWidth="1.2" />
+        </svg>
+      );
+    case "photo":
+      return (
+        <svg {...common}>
+          <rect x="3" y="6" width="18" height="14" rx="2" stroke="currentColor" strokeWidth="1.2" />
+          <circle cx="12" cy="13" r="3.5" stroke="currentColor" strokeWidth="1.2" />
+        </svg>
+      );
+    case "strategy":
+      return (
+        <svg {...common}>
+          <path d="M7 3.5c0 5 10 5 10 10s-10 5-10 10" stroke="currentColor" strokeWidth="1.2" />
+        </svg>
+      );
+    default:
+      return (
+        <svg {...common}>
+          <circle cx="12" cy="12" r="8.5" stroke="currentColor" strokeWidth="1.2" />
+          <path d="M12 8v4l2.5 2.2" stroke="currentColor" strokeWidth="1.2" />
+        </svg>
+      );
+  }
+}
+
+function QuickActionIcon({ name }: { name: "calendar" | "card" | "doc" | "mail" | "camera" | "star" | "person" }) {
+  const common = { viewBox: "0 0 24 24", fill: "none" as const, width: 20, height: 20 };
+  switch (name) {
+    case "calendar":
+      return (
+        <svg {...common}>
+          <rect x="3.5" y="4.5" width="17" height="16" rx="2" stroke="currentColor" strokeWidth="1.2" />
+          <line x1="3.5" y1="9" x2="20.5" y2="9" stroke="currentColor" strokeWidth="1.2" />
+          <line x1="8" y1="2.5" x2="8" y2="6.5" stroke="currentColor" strokeWidth="1.2" />
+          <line x1="16" y1="2.5" x2="16" y2="6.5" stroke="currentColor" strokeWidth="1.2" />
+        </svg>
+      );
+    case "card":
+      return (
+        <svg {...common}>
+          <rect x="2.5" y="6" width="19" height="13" rx="2" stroke="currentColor" strokeWidth="1.2" />
+          <line x1="2.5" y1="10" x2="21.5" y2="10" stroke="currentColor" strokeWidth="1.2" />
+        </svg>
+      );
+    case "doc":
+      return (
+        <svg {...common}>
+          <path d="M6 3.5h9l3 3V20.5H6z" stroke="currentColor" strokeWidth="1.1" />
+          <line x1="9" y1="9.5" x2="16" y2="9.5" stroke="currentColor" strokeWidth="1.1" />
+          <line x1="9" y1="13.5" x2="16" y2="13.5" stroke="currentColor" strokeWidth="1.1" />
+        </svg>
+      );
+    case "mail":
+      return (
+        <svg {...common}>
+          <rect x="2.5" y="5" width="19" height="14" rx="2" stroke="currentColor" strokeWidth="1.2" />
+          <path d="M3 6.5l9 6.5 9-6.5" stroke="currentColor" strokeWidth="1.2" />
+        </svg>
+      );
+    case "camera":
+      return (
+        <svg {...common}>
+          <rect x="3" y="7" width="18" height="13" rx="2" stroke="currentColor" strokeWidth="1.1" />
+          <circle cx="12" cy="13.5" r="3.5" stroke="currentColor" strokeWidth="1.1" />
+        </svg>
+      );
+    case "star":
+      return (
+        <svg {...common}>
+          <path d="M12 3.5l2.5 5.5 6 0.7-4.4 4 1.2 5.9-5.3-3-5.3 3 1.2-5.9-4.4-4 6-0.7z" stroke="currentColor" strokeWidth="1.1" strokeLinejoin="round" />
+        </svg>
+      );
+    default:
+      return (
+        <svg {...common}>
+          <circle cx="12" cy="8.5" r="3.5" stroke="currentColor" strokeWidth="1.2" />
+          <path d="M5 20c1.5-4 4.5-6 7-6s5.5 2 7 6" stroke="currentColor" strokeWidth="1.2" />
+        </svg>
+      );
+  }
+}
+
+
 /**
  * The premium "Blueprint report" reading experience — an ADDITIVE
  * presentation layer above the existing functional Blueprint tab
@@ -109,12 +213,19 @@ export default async function BlueprintReport({
   const assessment = client.blueprintAssessments[0];
   if (!assessment) return null;
 
-  const [completedCount, nextAppointment, paidAgg, specialist] = await Promise.all([
+  const [completedCount, nextAppointment, paidAgg, specialist, completedAppointments, paidPayments] = await Promise.all([
     prisma.appointment.count({ where: { clientId, status: "COMPLETED" } }),
     prisma.appointment.findFirst({ where: { clientId, status: "SCHEDULED", startsAt: { gte: new Date() } }, orderBy: { startsAt: "asc" } }),
     prisma.payment.aggregate({ where: { clientId, status: "PAID" }, _sum: { amountCents: true } }),
     assessment.validatedById ? prisma.user.findUnique({ where: { id: assessment.validatedById } }) : Promise.resolve(null),
+    prisma.appointment.findMany({ where: { clientId, status: "COMPLETED" }, orderBy: { startsAt: "asc" } }),
+    prisma.payment.findMany({ where: { clientId, status: "PAID" }, orderBy: { paidAt: "asc" } }),
   ]);
+  const nextPendingPayment = await prisma.payment.findFirst({
+    where: { clientId, status: { in: ["PENDING", "PARTIAL"] } },
+    orderBy: { dueDate: "asc" },
+  });
+  const lastPaymentMethod = paidPayments[paidPayments.length - 1]?.method ?? null;
   const specialistName = specialist?.fullName ?? null;
 
   // Client mode must never surface internal-only specialist notes —
@@ -140,9 +251,14 @@ export default async function BlueprintReport({
   }
 
   const journey = [
-    { at: assessment.createdAt, label: "Blueprint Submitted" },
-    ...(assessment.validatedAt ? [{ at: assessment.validatedAt, label: "Blueprint Validated" }] : []),
-    ...assessment.strategyChanges.map((s) => ({ at: s.changedAt, label: "Strategy Updated" })),
+    { at: assessment.createdAt, label: "Blueprint Submitted", type: "created" as const },
+    ...(assessment.validatedAt ? [{ at: assessment.validatedAt, label: "Blueprint Validated", type: "validated" as const }] : []),
+    ...assessment.strategyChanges.map((s) => ({ at: s.changedAt, label: "Strategy Updated", type: "strategy" as const })),
+    ...completedAppointments.map((a, i) => ({ at: a.startsAt, label: `Session ${i + 1} Completed`, type: "session" as const })),
+    ...paidPayments.map((p) => ({ at: p.paidAt ?? p.createdAt, label: `Payment Received — ${money(p.amountCents)}`, type: "payment" as const })),
+    ...(assessment.photos.length > 0
+      ? [{ at: assessment.photos[assessment.photos.length - 1].uploadedAt, label: "Progress Photos Uploaded", type: "photo" as const }]
+      : []),
   ].sort((a, b) => a.at.getTime() - b.at.getTime());
 
   const phase = PHASE_BY_STATUS[assessment.status] ?? { num: "—", name: STATUS_LABELS[assessment.status] ?? assessment.status };
@@ -577,12 +693,16 @@ export default async function BlueprintReport({
         {journey.length === 0 ? (
           <EmptyState title="no journey events yet." sub="Milestones will appear here as the Blueprint progresses." />
         ) : (
-          <ul className="dash-timeline">
+          <ul className="bbp-journey">
             {journey.map((j, i) => (
-              <li key={i}>
-                <span className="dash-timeline-dot" />
-                <span className="dash-timeline-text">{j.label}</span>
-                <span className="dash-timeline-time">{j.at.toLocaleDateString()}</span>
+              <li key={i} className="bbp-journey-item">
+                <span className="bbp-journey-marker">
+                  <JourneyIcon type={j.type} />
+                </span>
+                <div className="bbp-journey-body">
+                  <p className="bbp-journey-title">{j.label}</p>
+                  <p className="bbp-journey-date">{j.at.toLocaleDateString()}</p>
+                </div>
               </li>
             ))}
           </ul>
@@ -592,39 +712,85 @@ export default async function BlueprintReport({
       {/* ---------- Quick Actions ---------- */}
       <div style={{ marginBottom: 40 }}>
         <SectionLabel num="12" title="Quick Actions" />
-        <div className="cl-quick-actions" style={{ maxWidth: 340 }}>
-          {mode === "owner" ? (
-            <>
-              <Link href="/hub/appointments" className="cl-quick-btn">Schedule Session</Link>
-              <Link href="/hub/payments" className="cl-quick-btn">Record Payment</Link>
-              <Link href={`/hub/clients/${clientId}?tab=documents`} className="cl-quick-btn">Upload Documents</Link>
-              <a href={`mailto:${client.email}`} className="cl-quick-btn">Send Email</a>
-            </>
-          ) : (
-            <>
-              <Link href="/portal/appointments" className="cl-quick-btn">View Appointments</Link>
-              <Link href="/portal/documents" className="cl-quick-btn">View Documents</Link>
-              <Link href="/portal/photos" className="cl-quick-btn">View Progress Photos</Link>
-              <Link href="/portal/messages" className="cl-quick-btn">Message Your Specialist</Link>
-            </>
-          )}
+        <div className="bbp-actions-grid">
+          {(mode === "owner"
+            ? [
+                { href: "/hub/appointments", icon: "calendar" as const, title: "Schedule Session", desc: "Book the next treatment" },
+                { href: "/hub/payments", icon: "card" as const, title: "Record Payment", desc: "Log a new payment" },
+                { href: `/hub/clients/${clientId}?tab=documents`, icon: "doc" as const, title: "Upload Documents", desc: "Add a signed form or receipt" },
+                { href: `mailto:${client.email}`, icon: "mail" as const, title: "Send Email", desc: client.email },
+              ]
+            : [
+                { href: "/portal/appointments", icon: "calendar" as const, title: "Appointments", desc: "View your schedule" },
+                { href: "/portal/documents", icon: "doc" as const, title: "Documents", desc: "Your forms & records" },
+                { href: "/portal/photos", icon: "camera" as const, title: "Progress Photos", desc: "See your transformation" },
+                { href: "/portal/rewards", icon: "star" as const, title: "Body Rewards™", desc: "Your points & perks" },
+                { href: "/portal/messages", icon: "mail" as const, title: "Message Specialist", desc: "Ask a question" },
+                { href: "/portal/profile", icon: "person" as const, title: "Profile", desc: "Your account details" },
+              ]
+          ).map((action) => (
+            <Link key={action.title} href={action.href} className="bbp-action-card">
+              <span className="bbp-action-icon">
+                <QuickActionIcon name={action.icon} />
+              </span>
+              <span className="bbp-action-title">{action.title}</span>
+              <span className="bbp-action-desc">{action.desc}</span>
+            </Link>
+          ))}
         </div>
       </div>
 
       {/* ---------- Financial Summary ---------- */}
       <div style={{ marginBottom: 24 }}>
         <SectionLabel num="13" title="Financial Summary" />
-        <div className="pay-financials" style={{ marginBottom: 12 }}>
-          <div><span>System Value</span><strong>{planTotalCents !== null ? money(planTotalCents) : "Not set"}</strong></div>
-          <div><span>Paid</span><strong>{money(paidCents)}</strong></div>
-          <div><span>Balance</span><strong>{balanceCents !== null ? money(balanceCents) : "—"}</strong></div>
+        <div className="bbp-finance-grid">
+          <div className="bbp-finance-card">
+            <span>System Value</span>
+            <strong>{planTotalCents !== null ? money(planTotalCents) : "Not set"}</strong>
+          </div>
+          <div className="bbp-finance-card">
+            <span>Paid</span>
+            <strong>{money(paidCents)}</strong>
+          </div>
+          <div className="bbp-finance-card">
+            <span>Remaining Balance</span>
+            <strong>{balanceCents !== null ? money(balanceCents) : "—"}</strong>
+          </div>
         </div>
-        <Link href="/hub/payments" className="dash-view-btn" style={{ display: "inline-block" }}>Open Payments →</Link>
+
+        {planTotalCents !== null && planTotalCents > 0 && (
+          <div className="bbp-finance-progress">
+            <div className="bbp-finance-progress-track">
+              <div className="bbp-finance-progress-fill" style={{ width: `${Math.min(100, Math.round((paidCents / planTotalCents) * 100))}%` }} />
+            </div>
+            <span className="pay-history-meta">{Math.round((paidCents / planTotalCents) * 100)}% of plan paid</span>
+          </div>
+        )}
+
+        <div className="bbp-finance-meta">
+          <div>
+            <span>Next Payment</span>
+            <strong>{nextPendingPayment ? (nextPendingPayment.dueDate ? nextPendingPayment.dueDate.toLocaleDateString() : "Due date not set") : "None scheduled"}</strong>
+          </div>
+          <div>
+            <span>Payment Method</span>
+            <strong>{lastPaymentMethod ? lastPaymentMethod.replace(/_/g, " ") : "Not on file"}</strong>
+          </div>
+        </div>
+
+        {mode === "owner" ? (
+          <Link href="/hub/payments" className="dash-view-btn" style={{ display: "inline-block", marginTop: 16 }}>Open Payments →</Link>
+        ) : (
+          <p className="pay-history-meta" style={{ marginTop: 16 }}>
+            Downloadable invoices aren't available yet — ask your specialist for a receipt if you need one.
+          </p>
+        )}
       </div>
 
       <div className="bbp-footer">
-        <p className="bbp-footer-tagline">the blueprint is the beginning. the transformation is yours.</p>
-        <p className="bbp-footer-tagline">science. strategy. transformation.</p>
+        <TargetMarkIcon size={28} />
+        <p className="bbp-footer-tagline">the blueprint is only the beginning.</p>
+        <p className="bbp-footer-brand">science. strategy. transformation.</p>
       </div>
     </div>
   );

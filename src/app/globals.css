@@ -2935,8 +2935,40 @@
 .bbp-empty-sub{ font-family:var(--sans); font-size:12.5px; color:rgba(241,235,225,0.65); max-width:280px; margin-top:6px; }
 
 /* ---------- footer ---------- */
-.bbp-footer{ display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; margin-top:36px; padding-top:20px; border-top:1px solid var(--bbp-line); }
-.bbp-footer-tagline{ font-family:var(--sans); font-size:11px; color:var(--bbp-muted); }
+.bbp-footer{ display:flex; flex-direction:column; align-items:center; text-align:center; gap:10px; margin-top:36px; padding:32px 0 8px; border-top:1px solid var(--bbp-line); color:var(--bbp-gold-dark,#9c8a5c); }
+.bbp-footer-tagline{ font-family:var(--serif); font-size:15px; color:var(--bbp-ink,#2B2622); font-style:italic; }
+.bbp-footer-brand{ font-family:var(--sans); font-size:10.5px; letter-spacing:.14em; text-transform:uppercase; color:var(--bbp-muted); }
+
+/* ---------- Section 11: editorial Transformation Journey timeline ---------- */
+.bbp-journey{ list-style:none; margin:0; padding:0; position:relative; }
+.bbp-journey-item{ display:flex; gap:14px; padding-bottom:22px; position:relative; }
+.bbp-journey-item:last-child{ padding-bottom:0; }
+.bbp-journey-item:not(:last-child)::before{ content:""; position:absolute; left:13px; top:28px; bottom:0; width:1px; background:var(--bbp-line); }
+.bbp-journey-marker{ width:28px; height:28px; border-radius:50%; border:1px solid var(--bbp-gold-dark,#9c8a5c); display:flex; align-items:center; justify-content:center; flex-shrink:0; color:var(--bbp-gold-dark,#9c8a5c); background:var(--bbp-card,#fff); z-index:1; }
+.bbp-journey-body{ padding-top:3px; }
+.bbp-journey-title{ font-family:var(--sans); font-size:13px; color:var(--bbp-ink,#2B2622); margin:0; }
+.bbp-journey-date{ font-family:var(--sans); font-size:11px; color:var(--bbp-muted); margin:2px 0 0; }
+
+/* ---------- Section 12: editorial Quick Actions grid ---------- */
+.bbp-actions-grid{ display:grid; grid-template-columns:repeat(auto-fill, minmax(150px, 1fr)); gap:12px; }
+.bbp-action-card{ display:flex; flex-direction:column; gap:8px; padding:18px 16px; border:1px solid var(--bbp-line); border-radius:12px; text-decoration:none; background:var(--bbp-card,#fff); transition:box-shadow .18s ease, transform .18s ease; }
+.bbp-action-card:hover{ box-shadow:0 8px 20px rgba(43,38,34,0.08); transform:translateY(-2px); }
+.bbp-action-icon{ color:var(--bbp-gold-dark,#9c8a5c); }
+.bbp-action-title{ font-family:var(--sans); font-size:12.5px; font-weight:500; color:var(--bbp-ink,#2B2622); }
+.bbp-action-desc{ font-family:var(--sans); font-size:10.5px; color:var(--bbp-muted); }
+
+/* ---------- Section 13: editorial Financial Summary ---------- */
+.bbp-finance-grid{ display:grid; grid-template-columns:repeat(3, 1fr); gap:12px; margin-bottom:16px; }
+@media (max-width:600px){ .bbp-finance-grid{ grid-template-columns:1fr; } }
+.bbp-finance-card{ padding:16px; border:1px solid var(--bbp-line); border-radius:12px; display:flex; flex-direction:column; gap:6px; }
+.bbp-finance-card span{ font-family:var(--sans); font-size:10px; letter-spacing:.05em; text-transform:uppercase; color:var(--bbp-muted); }
+.bbp-finance-card strong{ font-family:var(--serif); font-size:19px; color:var(--bbp-ink,#2B2622); }
+.bbp-finance-progress{ margin-bottom:16px; }
+.bbp-finance-progress-track{ height:6px; border-radius:3px; background:rgba(0,0,0,0.06); overflow:hidden; margin-bottom:6px; }
+.bbp-finance-progress-fill{ height:100%; background:var(--bbp-gold-dark,#9c8a5c); border-radius:3px; }
+.bbp-finance-meta{ display:flex; gap:32px; flex-wrap:wrap; }
+.bbp-finance-meta span{ display:block; font-family:var(--sans); font-size:10px; letter-spacing:.05em; text-transform:uppercase; color:var(--bbp-muted); margin-bottom:4px; }
+.bbp-finance-meta strong{ font-family:var(--sans); font-size:13px; font-weight:500; color:var(--bbp-ink,#2B2622); }
 
 /* ============================================================
    RESPONSIVE — mobile-first collapse. Desktop grids defined above;
