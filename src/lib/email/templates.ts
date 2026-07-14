@@ -317,10 +317,10 @@ export function buildBodyBlueprintCompletedEmail(params: {
 export function buildBlueprintReceivedEmail(params: { firstName: string }): { subject: string; html: string } {
   const name = params.firstName?.trim() || "there"; // elegant fallback — never a username/email
   return {
-    subject: "We've received your Body Blueprint™",
+    subject: "Your Blueprint is now under review",
     html: emailShell({
-      headline: "thank you.",
-      subheadlineLines: ["WE'VE RECEIVED YOUR", "LET'S BUILD YOUR BODY BLUEPRINT™."],
+      headline: "under review.",
+      subheadlineLines: ["YOUR BLUEPRINT IS NOW", "UNDER REVIEW."],
       bodyParagraphs: [
         `Thank you for taking the first step toward your transformation, ${name}.`,
         "Our team is now personally reviewing your Blueprint to create the most effective strategy for your body, your goals, and your lifestyle.",
