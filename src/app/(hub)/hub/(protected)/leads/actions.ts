@@ -358,3 +358,50 @@ export async function addLeadNote(leadId: string, formData: FormData) {
   revalidatePath(`/hub/leads/${leadId}`);
   return { success: true };
 }
+
+/**
+ * Real deletion for a test Lead that never converted (or shouldn't
+ * have) — separate from archiving. Deletes the Lead and cascades to
+ * any draft BlueprintAssessment, LeadStatusHistory, and EmailEvents
+ * tied only to it. Refuses if the Lead has already converted to a
+ * real Client (that's a different, more consequential deletion —
+ * use deleteClientPermanently instead).
+ */
+export async function getLeadDeletionPreview(leadId: string) {
+  const user = await getCurrentHubUser();
+  if (!user || !hasPermission(user, "leads.archive")) return { error: "You don't have permission to do this." };
+
+  const lead = await prisma.lead.findUnique({ where: { id: leadId }, include: { convertedClient: true } });
+  if (!lead) return { error: "Lead not found." };
+  if (lead.convertedClient) return { error: "This Lead already converted to a Client — delete the Client record instead." };
+
+  const [assessments, statusHistory, emailEvents] = await Promise.all([
+    prisma.blueprintAssessment.count({ where: { leadId } }),
+    prisma.leadStatusHistory.count({ where: { leadId } }),
+    prisma.emailEvent.count({ where: { leadId } }),
+  ]);
+
+  return {
+    success: true,
+    leadName: `${lead.firstName} ${lead.lastName}`,
+    email: lead.email,
+    counts: { assessments, statusHistory, emailEvents },
+  };
+}
+
+export async function deleteLeadPermanently(leadId: string, confirmationText: string) {
+  const user = await getCurrentHubUser();
+  if (!user || !hasPermission(user, "leads.archive")) {
+    return { error: "You don't have permission to do this." };
+  }
+  if (confirmationText !== "DELETE") return { error: 'Type "DELETE" exactly to confirm.' };
+
+  const lead = await prisma.lead.findUnique({ where: { id: leadId }, include: { convertedClient: true } });
+  if (!lead) return { error: "Lead not found." };
+  if (lead.convertedClient) return { error: "This Lead already converted to a Client — delete the Client record instead." };
+
+  await prisma.lead.delete({ where: { id: leadId } });
+
+  revalidatePath("/hub/leads");
+  return { success: true };
+}

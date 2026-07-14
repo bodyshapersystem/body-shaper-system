@@ -718,7 +718,7 @@ export default async function BlueprintReport({
                 { href: "/hub/appointments", icon: "calendar" as const, title: "Schedule Session", desc: "Book the next treatment" },
                 { href: "/hub/payments", icon: "card" as const, title: "Record Payment", desc: "Log a new payment" },
                 { href: `/hub/clients/${clientId}?tab=documents`, icon: "doc" as const, title: "Upload Documents", desc: "Add a signed form or receipt" },
-                { href: `mailto:${client.email}`, icon: "mail" as const, title: "Send Email", desc: client.email },
+                { href: `/hub/clients/${clientId}?tab=messages`, icon: "mail" as const, title: "Message Client", desc: "Real in-system conversation" },
               ]
             : [
                 { href: "/portal/appointments", icon: "calendar" as const, title: "Appointments", desc: "View your schedule" },

@@ -397,3 +397,69 @@ export async function addClientNote(clientId: string, formData: FormData) {
   revalidatePath(`/hub/clients/${clientId}`);
   return { success: true };
 }
+
+/**
+ * Real-record cleanup — separate from Pause/Resume, which is a
+ * reversible business-status toggle, not deletion. This is genuine,
+ * permanent, cascading deletion of a test Client and every related
+ * record (Documents, Payments, Appointments, Photos, Measurements,
+ * BlueprintAssessments, Notes, Messages, Rewards, PortalInvitation,
+ * EmailEvents), plus the underlying Supabase Auth login and User row
+ * — so the same email can immediately be reused in a fresh test.
+ */
+export async function getClientDeletionPreview(clientId: string) {
+  const user = await getCurrentHubUser();
+  if (!user || !hasPermission(user, "clients.convert")) return { error: "You don't have permission to do this." };
+
+  const client = await prisma.client.findUnique({ where: { id: clientId } });
+  if (!client) return { error: "Client not found." };
+
+  const [assessments, measurements, photos, appointments, payments, documents, notes, messages, rewards] = await Promise.all([
+    prisma.blueprintAssessment.count({ where: { clientId } }),
+    prisma.bodyMeasurement.count({ where: { clientId } }),
+    prisma.photo.count({ where: { clientId } }),
+    prisma.appointment.count({ where: { clientId } }),
+    prisma.payment.count({ where: { clientId } }),
+    prisma.document.count({ where: { clientId } }),
+    prisma.clientNote.count({ where: { clientId } }),
+    prisma.message.count({ where: { thread: { clientId } } }),
+    prisma.rewardsAccount.count({ where: { clientId } }),
+  ]);
+
+  return {
+    success: true,
+    clientName: `${client.firstName} ${client.lastName}`,
+    email: client.email,
+    counts: { assessments, measurements, photos, appointments, payments, documents, notes, messages, rewards },
+  };
+}
+
+export async function deleteClientPermanently(clientId: string, confirmationText: string) {
+  const user = await getCurrentHubUser();
+  if (!user || !hasPermission(user, "clients.convert")) {
+    return { error: "You don't have permission to do this." };
+  }
+  if (confirmationText !== "DELETE") return { error: 'Type "DELETE" exactly to confirm.' };
+
+  const client = await prisma.client.findUnique({ where: { id: clientId }, include: { user: true } });
+  if (!client) return { error: "Client not found." };
+
+  // Delete the Supabase Auth login first (outside the DB transaction —
+  // if this fails we still proceed with DB cleanup rather than leaving
+  // a half-deleted record; the auth account can be cleaned up manually
+  // as a fallback).
+  const admin = createSupabaseAdminClient();
+  await admin.auth.admin.deleteUser(client.user.authUserId).catch(() => undefined);
+
+  // Deleting the Client row cascades to every related table
+  // (Documents/Payments/Appointments/Photos/Measurements/
+  // BlueprintAssessments/Notes/MessageThread/RewardsAccount/
+  // PortalInvitation/EmailEvents) via the real onDelete: Cascade
+  // foreign keys already in the schema.
+  await prisma.client.delete({ where: { id: clientId } });
+  await prisma.lead.delete({ where: { id: client.leadId } }).catch(() => undefined);
+  await prisma.user.delete({ where: { id: client.userId } }).catch(() => undefined);
+
+  revalidatePath("/hub/clients");
+  return { success: true };
+}

@@ -4,6 +4,7 @@ import { getCurrentHubUser, hasPermission } from "@/lib/permissions";
 import { redirect } from "next/navigation";
 import LeadStatusForm from "./LeadStatusForm";
 import LeadConversionPanel from "./LeadConversionPanel";
+import DeleteLeadButton from "./DeleteLeadButton";
 import { updateLead, archiveLead, addLeadNote } from "../actions";
 
 export const dynamic = "force-dynamic";
@@ -81,6 +82,7 @@ export default async function LeadDetailPage({
             {lead.source && `Source: ${lead.source} · `}Added {lead.createdAt.toLocaleDateString()}
           </p>
         </div>
+        <DeleteLeadButton leadId={lead.id} />
       </div>
 
       <nav className="cl-tab-nav">

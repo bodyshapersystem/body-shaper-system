@@ -9,6 +9,7 @@ import {
   addClientNote,
 } from "./actions";
 import InvitationPanel from "./InvitationPanel";
+import DeleteClientButton from "./DeleteClientButton";
 import BlueprintAssessmentTab from "./BlueprintAssessmentTab";
 import BlueprintReport from "./BlueprintReport";
 import DocumentUploadSheet from "./DocumentUploadSheet";
@@ -141,6 +142,7 @@ export default async function ClientDetailPage({
                   </button>
                 </form>
               )}
+              {hasPermission(user, "clients.convert") && <DeleteClientButton clientId={client.id} />}
             </div>
 
             <InvitationPanel

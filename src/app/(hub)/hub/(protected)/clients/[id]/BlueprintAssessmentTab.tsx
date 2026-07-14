@@ -7,6 +7,7 @@ import StrategySheet from "./StrategySheet";
 import MeasurementSheet from "./MeasurementSheet";
 import BodyCompositionSheet from "./BodyCompositionSheet";
 import BodyTypeSheet from "./BodyTypeSheet";
+import EditPersonalizedSystemSheet from "./EditPersonalizedSystemSheet";
 import { BODY_TYPE_CONTENT } from "@/lib/body-types";
 import type { Prisma } from "@prisma/client";
 
@@ -127,8 +128,14 @@ export default function BlueprintAssessmentTab({
         </div>
 
         {canManage && (
-          <div style={{ marginTop: 14 }}>
+          <div style={{ marginTop: 14, display: "flex", gap: 10, flexWrap: "wrap" }}>
             <BodyTypeSheet clientId={client.id} currentBodyType={assessment.bodyType} />
+            <EditPersonalizedSystemSheet
+              clientId={client.id}
+              currentSystem={assessment.recommendedSystem}
+              currentFrequency={assessment.validatedFrequency}
+              currentSessionCount={assessment.validatedSessionCount}
+            />
           </div>
         )}
 

@@ -359,3 +359,47 @@ export async function deletePhoto(photoId: string) {
   revalidatePath(`/hub/clients/${photo.clientId}`);
   return { success: true };
 }
+
+/**
+ * Edit Personalized System™ — separate from validateAssessment().
+ * validateAssessment() is gated behind the full baseline-completion
+ * checklist and always forces status=VALIDATED (it's the one-time
+ * "validate the Blueprint" gate). This action lets the Owner update
+ * Assigned System / Weekly Frequency / Number of Sessions at ANY
+ * time afterward, regardless of assessment status, without touching
+ * status or requiring the checklist again — real ongoing plan
+ * management, not just the initial validation step.
+ */
+export async function updatePersonalizedPlan(clientId: string, formData: FormData) {
+  const user = await getCurrentHubUser();
+  if (!user || !hasPermission(user, "blueprints.manage")) {
+    return { error: "You don't have permission to edit the Personalized System™." };
+  }
+
+  const assessment = await getActiveAssessmentForClient(clientId);
+  if (!assessment) return { error: "No active Blueprint Assessment found for this client." };
+
+  const newSystem = (formData.get("recommendedSystem") as string) || undefined;
+  const validatedFrequency = (formData.get("validatedFrequency") as string) || undefined;
+  const validatedSessionCount = num(formData, "validatedSessionCount");
+
+  if (newSystem && newSystem !== assessment.recommendedSystem) {
+    await recordStrategyChange({
+      assessmentId: assessment.id,
+      newStrategy: newSystem,
+      reason: "Updated via Edit Personalized System™",
+      changedById: user.id,
+    });
+  }
+
+  await prisma.blueprintAssessment.update({
+    where: { id: assessment.id },
+    data: {
+      validatedFrequency: validatedFrequency ?? assessment.validatedFrequency,
+      validatedSessionCount: validatedSessionCount ?? assessment.validatedSessionCount,
+    },
+  });
+
+  revalidatePath(`/hub/clients/${clientId}`);
+  return { success: true };
+}
