@@ -65,6 +65,76 @@ function isLikelyQuestionKey(key: string): boolean {
   return /^q\d+_/i.test(key);
 }
 
+/**
+ * Fetches a submission's answers directly from Jotform's API, keyed
+ * by the actual question TEXT ("First Name", "Email Address", etc.)
+ * rather than guessing at auto-generated field key names from the
+ * raw webhook payload. This is the reliable path — the webhook
+ * payload's own field keys vary per form and don't always contain
+ * predictable substrings (e.g. a form with separate "First Name" and
+ * "Last Name" fields doesn't guarantee either key contains "name").
+ * Requires JOTFORM_API_KEY. Returns null on any failure — callers
+ * should fall back to the raw-payload heuristics below.
+ */
+export async function fetchJotformSubmissionAnswers(submissionId: string): Promise<Record<string, string> | null> {
+  const apiKey = process.env.JOTFORM_API_KEY;
+  if (!apiKey || !submissionId) return null;
+
+  try {
+    const res = await fetch(`https://api.jotform.com/submission/${submissionId}?apiKey=${apiKey}`, { cache: "no-store" });
+    if (!res.ok) return null;
+    const json = await res.json();
+    const answers = json?.content?.answers as Record<string, { text?: string; answer?: unknown }> | undefined;
+    if (!answers) return null;
+
+    const byQuestionText: Record<string, string> = {};
+    for (const field of Object.values(answers)) {
+      if (!field?.text) continue;
+      const value = field.answer;
+      if (typeof value === "string" && value.trim()) {
+        byQuestionText[field.text] = value.trim();
+      } else if (value && typeof value === "object") {
+        const joined = Object.values(value as Record<string, unknown>)
+          .filter((v): v is string => typeof v === "string" && v.trim().length > 0)
+          .join(" ");
+        if (joined.trim()) byQuestionText[field.text] = joined.trim();
+      }
+    }
+    return byQuestionText;
+  } catch {
+    return null;
+  }
+}
+
+/** Looks up a value from the API-fetched answers by trying several
+ * likely exact question-text labels (case-insensitive). */
+function findByQuestionLabel(answers: Record<string, string>, labels: string[]): string | undefined {
+  const lowerMap = new Map(Object.entries(answers).map(([k, v]) => [k.toLowerCase(), v]));
+  for (const label of labels) {
+    const v = lowerMap.get(label.toLowerCase());
+    if (v) return v;
+  }
+  return undefined;
+}
+
+export function extractNameFromAnswers(answers: Record<string, string>): { firstName: string; lastName: string } {
+  const firstName = findByQuestionLabel(answers, ["First Name", "first name", "fname"]);
+  const lastName = findByQuestionLabel(answers, ["Last Name", "last name", "lname"]);
+  if (firstName || lastName) return { firstName: firstName ?? "", lastName: lastName ?? "" };
+
+  // Some forms use a single combined "Full Name" question instead.
+  const full = findByQuestionLabel(answers, ["Full Name", "Name", "Your Name"]);
+  if (full) {
+    const parts = full.split(/\s+/);
+    return { firstName: parts[0] ?? "", lastName: parts.slice(1).join(" ") };
+  }
+  return { firstName: "", lastName: "" };
+}
+
+export function extractContactFromAnswers(answers: Record<string, string>, labels: string[]): string | undefined {
+  return findByQuestionLabel(answers, labels);
+}
+
 export function extractContactField(raw: Record<string, unknown>, patterns: string[]): string | undefined {
   const entries = Object.entries(raw).sort(([a], [b]) => Number(isLikelyQuestionKey(b)) - Number(isLikelyQuestionKey(a)));
   for (const [key, value] of entries) {

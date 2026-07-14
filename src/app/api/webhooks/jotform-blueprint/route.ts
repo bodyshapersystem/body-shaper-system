@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { sendBlueprintReceivedEmail } from "@/lib/email/service";
 import { createOrUpdateDraftAssessment } from "@/lib/blueprint-assessments";
-import { parseJotformPayload, extractContactField, extractName } from "@/lib/jotform-webhook-utils";
+import { parseJotformPayload, extractContactField, extractName, fetchJotformSubmissionAnswers, extractNameFromAnswers, extractContactFromAnswers } from "@/lib/jotform-webhook-utils";
 import type { Prisma } from "@prisma/client";
 
 /**
@@ -53,16 +53,33 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const email = extractContactField(raw, ["email"]);
+  const rawSubmissionId = extractContactField(raw, ["submissionid", "submission_id"]);
+
+  // Primary source: fetch the real structured answers from Jotform's
+  // API, keyed by exact question text ("First Name", "Email Address",
+  // etc.) — far more reliable than guessing at the webhook payload's
+  // auto-generated field key names, which is what caused both the
+  // "beautyboxmia" and "Unknown" name bugs. Falls back to the
+  // raw-payload heuristics only if the API call itself fails (e.g.
+  // JOTFORM_API_KEY missing, network issue, or submissionId absent).
+  const answers = rawSubmissionId ? await fetchJotformSubmissionAnswers(rawSubmissionId) : null;
+
+  const email = answers
+    ? extractContactFromAnswers(answers, ["Email Address", "Email", "email"]) ?? extractContactField(raw, ["email"])
+    : extractContactField(raw, ["email"]);
   if (!email) {
     return NextResponse.json({ error: "No email field found in submission — cannot create/update a Lead." }, { status: 400 });
   }
 
-  const { firstName, lastName } = extractName(raw);
-  const phone = extractContactField(raw, ["phone"]);
-  const city = extractContactField(raw, ["city"]);
-  const goals = extractContactField(raw, ["goal", "concern", "describe", "tellus", "message"]);
-  const jotformSubmissionId = extractContactField(raw, ["submissionid", "submission_id"]);
+  const { firstName, lastName } = answers ? extractNameFromAnswers(answers) : extractName(raw);
+  const phone = answers ? extractContactFromAnswers(answers, ["Phone Number", "Phone"]) ?? extractContactField(raw, ["phone"]) : extractContactField(raw, ["phone"]);
+  const city = answers
+    ? extractContactFromAnswers(answers, ["Which area are you located in?", "City"]) ?? extractContactField(raw, ["city"])
+    : extractContactField(raw, ["city"]);
+  const goals = answers
+    ? extractContactFromAnswers(answers, ["Your Goals", "What would you like to improve?"]) ?? extractContactField(raw, ["goal", "concern", "describe", "tellus", "message"])
+    : extractContactField(raw, ["goal", "concern", "describe", "tellus", "message"]);
+  const jotformSubmissionId = rawSubmissionId;
 
   const existing = await prisma.lead.findFirst({
     where: { email, archivedAt: null },
@@ -86,7 +103,7 @@ export async function POST(request: NextRequest) {
   } else {
     lead = await prisma.lead.create({
       data: {
-        firstName: firstName || "Unknown",
+        firstName: firstName || email.split("@")[0],
         lastName: lastName || "",
         email,
         phone,
