@@ -108,11 +108,30 @@ export async function fetchJotformSubmissionAnswers(submissionId: string): Promi
 
 /** Looks up a value from the API-fetched answers by trying several
  * likely exact question-text labels (case-insensitive). */
+function normalizeQuestionText(s: string): string {
+  return s
+    .toLowerCase()
+    .replace(/[*:.?]/g, "") // strip required-field markers and punctuation Jotform commonly appends
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+/**
+ * Fuzzy match on question text — real Jotform forms commonly render
+ * required-field labels as "First Name*" or "First Name:" rather than
+ * the bare label, and exact string equality silently failed to match
+ * any of these, falling all the way through to the email-local-part
+ * fallback (this was the concrete cause of leads arriving with the
+ * email address as their name). Matches if either string contains the
+ * other after normalizing whitespace/punctuation.
+ */
 function findByQuestionLabel(answers: Record<string, string>, labels: string[]): string | undefined {
-  const lowerMap = new Map(Object.entries(answers).map(([k, v]) => [k.toLowerCase(), v]));
+  const entries = Object.entries(answers).map(([k, v]) => [normalizeQuestionText(k), v] as const);
   for (const label of labels) {
-    const v = lowerMap.get(label.toLowerCase());
-    if (v) return v;
+    const target = normalizeQuestionText(label);
+    for (const [key, value] of entries) {
+      if (key === target || key.includes(target)) return value;
+    }
   }
   return undefined;
 }

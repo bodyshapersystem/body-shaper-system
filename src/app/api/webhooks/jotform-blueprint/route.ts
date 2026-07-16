@@ -72,6 +72,13 @@ export async function POST(request: NextRequest) {
   }
 
   const { firstName, lastName } = answers ? extractNameFromAnswers(answers) : extractName(raw);
+  if (!firstName) {
+    console.warn("[jotform-blueprint] Could not extract a first name from submission", {
+      rawSubmissionId,
+      usedApiAnswers: !!answers,
+      answerQuestionTexts: answers ? Object.keys(answers) : null,
+    });
+  }
   const phone = answers ? extractContactFromAnswers(answers, ["Phone Number", "Phone"]) ?? extractContactField(raw, ["phone"]) : extractContactField(raw, ["phone"]);
   const city = answers
     ? extractContactFromAnswers(answers, ["Which area are you located in?", "City"]) ?? extractContactField(raw, ["city"])
