@@ -3022,3 +3022,27 @@
   .bbp-section-title{ font-size:20px; }
   .bbp-composition-heading{ font-size:22px; }
 }
+
+/* ---------- Portal Onboarding gate (Milestone 45) ---------- */
+.onb-shell{ min-height:100dvh; display:flex; align-items:center; justify-content:center; background:var(--ivory,#F7F4EF); padding:24px; }
+.onb-card{ max-width:440px; width:100%; background:#fff; border:1px solid rgba(43,38,34,0.08); border-radius:18px; padding:40px 32px; text-align:center; box-shadow:0 12px 32px rgba(43,38,34,0.06); }
+.onb-eyebrow{ font-family:var(--sans); font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:#8a7f74; margin:0 0 10px; }
+.onb-title{ font-family:var(--serif); font-size:28px; color:#2B2622; margin:0 0 8px; }
+.onb-sub{ font-family:var(--sans); font-size:13.5px; color:#8a7f74; margin:0 0 28px; }
+
+.onb-progress{ margin-bottom:28px; }
+.onb-progress-label{ font-family:var(--sans); font-size:11px; letter-spacing:.05em; text-transform:uppercase; color:#8a7f74; display:block; margin-bottom:8px; }
+.onb-progress-track{ height:6px; border-radius:3px; background:rgba(0,0,0,0.06); overflow:hidden; }
+.onb-progress-fill{ height:100%; background:var(--cat,#5C1A1F); border-radius:3px; transition:width .4s ease; }
+
+.onb-step-title{ font-family:var(--serif); font-size:19px; color:#2B2622; margin:0 0 8px; }
+.onb-step-sub{ font-family:var(--sans); font-size:13px; color:#8a7f74; line-height:1.6; margin:0 0 22px; }
+.onb-cta{ display:inline-block; background:var(--cat,#5C1A1F); color:#F6F3EE; font-family:var(--sans); font-size:12.5px; letter-spacing:.5px; text-transform:uppercase; text-decoration:none; padding:14px 36px; border-radius:6px; margin-bottom:16px; transition:opacity .15s; }
+.onb-cta:hover{ opacity:.88; }
+.onb-poll-hint{ font-family:var(--sans); font-size:11.5px; color:#8a7f74; font-style:italic; }
+
+.onb-complete .onb-emoji{ font-size:40px; margin:0 0 12px; }
+.onb-complete .onb-title{ margin-bottom:6px; }
+.onb-loading-line{ font-family:var(--sans); font-size:12.5px; color:#8a7f74; margin:20px 0 16px; }
+.onb-spinner{ width:28px; height:28px; border-radius:50%; border:2px solid rgba(92,26,31,0.15); border-top-color:var(--cat,#5C1A1F); margin:0 auto; animation:onbSpin .8s linear infinite; }
+@keyframes onbSpin{ to{ transform:rotate(360deg); } }
