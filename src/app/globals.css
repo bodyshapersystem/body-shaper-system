@@ -3345,3 +3345,10 @@
 .trk-motivation-card{ background:#6B4E3D; color:#F6F3EE; border-radius:14px; padding:20px; min-width:200px; display:flex; flex-direction:column; justify-content:center; gap:8px; font-family:var(--serif); font-size:14px; font-style:italic; text-align:center; }
 .trk-motivation-card p:first-child{ font-size:18px; color:#C9A876; }
 @media (max-width:760px){ .trk-achievements-row{ flex-direction:column; } }
+
+/* ---------- Client Portal Dashboard v2 (Milestone 60) ---------- */
+.pv2-hero{ background:var(--ivory,#F7F4EF); border-radius:20px; padding:36px 28px; margin-bottom:20px; }
+.pv2-hero-eyebrow{ font-family:var(--serif); font-size:26px; color:#2B2622; margin:0; }
+.pv2-hero-title{ font-family:var(--serif); font-style:italic; font-size:34px; color:#6B4E3D; margin:0 0 14px; }
+.pv2-hero-sub{ font-family:var(--sans); font-size:13.5px; color:#8a7f74; margin:0 0 10px; }
+.pv2-hero-week{ font-family:var(--sans); font-size:13px; color:#6B4E3D; margin:0; }
