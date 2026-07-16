@@ -185,6 +185,9 @@ export default async function HubSettingsPage() {
                   { name: "paymentNotifications", label: "Payment Notifications", checked: user.paymentNotifications },
                   { name: "leadNotifications", label: "Lead Notifications", checked: user.leadNotifications },
                   { name: "weeklyReports", label: "Weekly Reports", checked: user.weeklyReports },
+                  { name: "notifyPortalActivated", label: "Notify me when a client activates the Portal", checked: user.notifyPortalActivated },
+                  { name: "notifyWaiverCompleted", label: "Notify me when a Waiver is completed", checked: user.notifyWaiverCompleted },
+                  { name: "notifyBlueprintCompleted", label: "Notify me when the Blueprint Assessment is completed", checked: user.notifyBlueprintCompleted },
                 ] as const
               ).map((item) => (
                 <label key={item.name} className="settings-toggle-row">

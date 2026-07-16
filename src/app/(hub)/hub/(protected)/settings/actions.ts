@@ -147,6 +147,9 @@ export async function updateNotificationPreferences(formData: FormData) {
       paymentNotifications: formData.get("paymentNotifications") === "on",
       leadNotifications: formData.get("leadNotifications") === "on",
       weeklyReports: formData.get("weeklyReports") === "on",
+      notifyPortalActivated: formData.get("notifyPortalActivated") === "on",
+      notifyWaiverCompleted: formData.get("notifyWaiverCompleted") === "on",
+      notifyBlueprintCompleted: formData.get("notifyBlueprintCompleted") === "on",
     },
   });
   revalidatePath("/hub/settings");

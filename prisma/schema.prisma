@@ -98,6 +98,9 @@ model User {
   paymentNotifications    Boolean @default(true)
   leadNotifications       Boolean @default(true)
   weeklyReports           Boolean @default(true)
+  notifyPortalActivated   Boolean @default(true)
+  notifyWaiverCompleted   Boolean @default(true)
+  notifyBlueprintCompleted Boolean @default(true)
 
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
@@ -229,6 +232,7 @@ model Client {
   blueprintAssessments BlueprintAssessment[]
   bodyMeasurements     BodyMeasurement[]
   photos               Photo[]
+  notifications        Notification[]
   formSubmissions      FormSubmission[]
   progressSnapshots    ProgressSnapshot[]
   appointments   Appointment[]
@@ -564,6 +568,29 @@ enum DocumentCategory {
   PROGRESS_PHOTOS
   RENPHO_REPORTS
   ADDITIONAL_FILES
+}
+
+enum NotificationCategory {
+  PORTAL
+  FORMS
+  APPOINTMENTS
+  PAYMENTS
+  DOCUMENTS
+  REWARDS
+  GENERAL
+}
+
+model Notification {
+  id          String               @id @default(cuid())
+  clientId    String?
+  client      Client?              @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  category    NotificationCategory
+  description String
+  linkUrl     String?
+  readAt      DateTime?
+  createdAt   DateTime             @default(now())
+
+  @@map("notifications")
 }
 
 model Document {

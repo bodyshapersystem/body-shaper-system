@@ -11,6 +11,7 @@ import {
 import InvitationPanel from "./InvitationPanel";
 import DeleteClientButton from "./DeleteClientButton";
 import { getBusinessTimezone, formatDateInTimezone, formatTimeInTimezone } from "@/lib/format-datetime";
+import { CATEGORY_ICONS as NOTIFICATION_ICONS } from "@/lib/notifications";
 import BlueprintAssessmentTab from "./BlueprintAssessmentTab";
 import BlueprintReport from "./BlueprintReport";
 import DocumentUploadSheet from "./DocumentUploadSheet";
@@ -72,7 +73,7 @@ export default async function ClientDetailPage({
 
   if (!client) notFound();
 
-  const [overview, appointments, payments, clientNotes, specialist, timezone] = await Promise.all([
+  const [overview, appointments, payments, clientNotes, specialist, timezone, clientNotifications] = await Promise.all([
     getClientOverviewSummary(id),
     prisma.appointment.findMany({ where: { clientId: id }, orderBy: { startsAt: "desc" } }),
     prisma.payment.findMany({ where: { clientId: id }, orderBy: { createdAt: "desc" } }),
@@ -81,6 +82,7 @@ export default async function ClientDetailPage({
       ? prisma.user.findUnique({ where: { id: client.blueprintAssessments[0].validatedById } })
       : Promise.resolve(null),
     getBusinessTimezone(),
+    prisma.notification.findMany({ where: { clientId: id }, orderBy: { createdAt: "desc" } }),
   ]);
 
   const tab: Tab = TABS.includes(tabParam as Tab) ? (tabParam as Tab) : "overview";
@@ -524,23 +526,38 @@ export default async function ClientDetailPage({
       )}
 
       {tab === "journey" && (
-        <ul style={{ display: "flex", flexDirection: "column", gap: 10, fontSize: 13.5 }}>
-          <li>Lead created — {client.lead.createdAt.toLocaleString()}</li>
-          {client.lead.convertedAt && <li>Converted to client — {client.lead.convertedAt.toLocaleString()}</li>}
-          {client.blueprintAssessments.map((bp) => (
-            <li key={bp.id}>
-              Blueprint Assessment™ v{bp.version} ({bp.status}) — {bp.createdAt.toLocaleString()}
-            </li>
-          ))}
-          {client.blueprintAssessments
-            .filter((bp) => bp.validatedAt)
-            .map((bp) => (
-              <li key={`${bp.id}-validated`}>Blueprint Validated (v{bp.version}) — {bp.validatedAt!.toLocaleString()}</li>
+        <>
+          <h3 className="dash-section-title">Activity Log</h3>
+          {clientNotifications.length === 0 ? (
+            <p className="dash-empty">No activity recorded yet.</p>
+          ) : (
+            <ul style={{ display: "flex", flexDirection: "column", gap: 8, fontSize: 13.5, marginBottom: 24 }}>
+              {clientNotifications.map((n) => (
+                <li key={n.id}>
+                  {NOTIFICATION_ICONS[n.category] ?? "🔔"} {n.description} — <span className="pay-history-meta">{n.createdAt.toLocaleString()}</span>
+                </li>
+              ))}
+            </ul>
+          )}
+          <h3 className="dash-section-title">Milestones</h3>
+          <ul style={{ display: "flex", flexDirection: "column", gap: 10, fontSize: 13.5 }}>
+            <li>Lead created — {client.lead.createdAt.toLocaleString()}</li>
+            {client.lead.convertedAt && <li>Converted to client — {client.lead.convertedAt.toLocaleString()}</li>}
+            {client.blueprintAssessments.map((bp) => (
+              <li key={bp.id}>
+                Blueprint Assessment™ v{bp.version} ({bp.status}) — {bp.createdAt.toLocaleString()}
+              </li>
             ))}
-          {client.measurements.map((m) => (
-            <li key={m.id}>Measurement scan recorded — {m.createdAt.toLocaleString()}</li>
-          ))}
-        </ul>
+            {client.blueprintAssessments
+              .filter((bp) => bp.validatedAt)
+              .map((bp) => (
+                <li key={`${bp.id}-validated`}>Blueprint Validated (v{bp.version}) — {bp.validatedAt!.toLocaleString()}</li>
+              ))}
+            {client.measurements.map((m) => (
+              <li key={m.id}>Measurement scan recorded — {m.createdAt.toLocaleString()}</li>
+            ))}
+          </ul>
+        </>
       )}
     </div>
   );

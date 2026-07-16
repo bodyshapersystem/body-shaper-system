@@ -9,6 +9,7 @@ import { randomUUID } from "crypto";
 import { z } from "zod";
 import type { LeadStatus, PaymentStatus } from "@prisma/client";
 import { sendWelcomeActivationEmail } from "@/lib/email/service";
+import { createNotification } from "@/lib/notifications";
 import { linkAssessmentToClient } from "@/lib/blueprint-assessments";
 import { fetchAndStoreJotformSubmissionPdf } from "@/lib/jotform-pdf";
 
@@ -318,6 +319,13 @@ async function finishConversion(
     email: lead.email,
     activationUrl,
     invitationId: result.invite.id,
+  });
+
+  await createNotification({
+    clientId: result.client.id,
+    category: "GENERAL",
+    description: `${lead.firstName} ${lead.lastName} was converted to a Client and invited to activate their Portal`,
+    linkUrl: `/hub/clients/${result.client.id}`,
   });
 
   revalidatePath(`/hub/clients/${result.client.id}`);

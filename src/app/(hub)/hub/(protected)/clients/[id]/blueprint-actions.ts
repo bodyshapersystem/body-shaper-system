@@ -5,6 +5,7 @@ import { getCurrentHubUser, hasPermission } from "@/lib/permissions";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { revalidatePath } from "next/cache";
 import { recordStrategyChange, getActiveAssessmentForClient } from "@/lib/blueprint-assessments";
+import { createNotification } from "@/lib/notifications";
 import type { PhotoType, Visibility, BodyType } from "@prisma/client";
 
 const VALID_BODY_TYPES: BodyType[] = ["hourglass", "pear", "apple", "rectangle", "inverted_triangle"];
@@ -318,6 +319,17 @@ export async function validateAssessment(clientId: string, formData: FormData) {
   });
 
   revalidatePath(`/hub/clients/${clientId}`);
+
+  const validatedClient = await prisma.client.findUnique({ where: { id: clientId } });
+  if (validatedClient) {
+    await createNotification({
+      clientId,
+      category: "FORMS",
+      description: `${validatedClient.firstName} ${validatedClient.lastName}'s Body Blueprint™ Assessment was validated`,
+      linkUrl: `/hub/clients/${clientId}?tab=blueprint`,
+    });
+  }
+
   return { success: true };
 }
 

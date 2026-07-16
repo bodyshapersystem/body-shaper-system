@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { getCurrentHubUser, hasPermission } from "@/lib/permissions";
 import { getBusinessTimezone, formatDateInTimezone, formatTimeInTimezone } from "@/lib/format-datetime";
+import { computeJourneyStatus } from "@/lib/journey-status";
 
 export const dynamic = "force-dynamic";
 
@@ -65,6 +66,9 @@ export default async function HubClientsPage({
           orderBy: { version: "desc" },
           take: 1,
         },
+        user: { select: { portalStatus: true } },
+        documents: { where: { category: "CONSENT_TREATMENT" } },
+        rewardsAccount: true,
       },
     }),
     prisma.client.count({ where }),
@@ -85,6 +89,13 @@ export default async function HubClientsPage({
       const planTotalCents = assessment?.planTotalCents ?? null;
       const paidCents = paidAgg._sum.amountCents ?? 0;
       const balanceCents = planTotalCents !== null ? Math.max(planTotalCents - paidCents, 0) : pendingAgg._sum.amountCents ?? 0;
+      const journey = computeJourneyStatus({
+        portalActive: c.user?.portalStatus === "ACTIVE",
+        hasWaiver: c.documents.length > 0,
+        assessmentValidated: !!assessment && assessment.status !== "BASELINE_PENDING" && assessment.status !== "BASELINE_COMPLETED",
+        hasCompletedAppointment: completedCount > 0,
+        tier: c.rewardsAccount?.tier ?? "Standard",
+      });
 
       return {
         id: c.id,
@@ -94,6 +105,8 @@ export default async function HubClientsPage({
         system: assessment?.recommendedSystem ?? "Not set",
         totalSessions,
         completedCount,
+        journeyStatus: journey.status,
+        journeyIcon: journey.icon,
         progressPercent: totalSessions !== null && totalSessions > 0 ? Math.round((completedCount / totalSessions) * 100) : null,
         balanceCents,
         nextAppt,
@@ -159,6 +172,7 @@ export default async function HubClientsPage({
             <tr style={{ textAlign: "left", borderBottom: "1px solid rgba(0,0,0,0.1)" }}>
               <th style={{ padding: "10px 8px" }}>Client</th>
               <th style={{ padding: "10px 8px" }}>Status</th>
+              <th style={{ padding: "10px 8px" }}>Journey Status</th>
               <th style={{ padding: "10px 8px" }}>Plan</th>
               <th style={{ padding: "10px 8px" }}>Progress</th>
               <th style={{ padding: "10px 8px" }}>Balance</th>
@@ -175,6 +189,9 @@ export default async function HubClientsPage({
                 </td>
                 <td style={{ padding: "10px 8px" }}>
                   <span className={`dash-status dash-status-${r.status.toLowerCase()}`}>{r.status}</span>
+                </td>
+                <td style={{ padding: "10px 8px", whiteSpace: "nowrap" }}>
+                  {r.journeyIcon} {r.journeyStatus}
                 </td>
                 <td style={{ padding: "10px 8px" }}>
                   {r.system}

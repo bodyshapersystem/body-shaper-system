@@ -3245,3 +3245,20 @@
   .cap-layout{ grid-template-columns:1fr; }
   .cap-week-grid{ grid-template-columns:repeat(2,1fr); }
 }
+
+/* ---------- Notification Center (Milestone 53) ---------- */
+.notif-toolbar{ display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:20px; }
+.notif-filters{ display:flex; gap:8px; flex-wrap:wrap; }
+.notif-filter-pill{ font-family:var(--sans); font-size:11.5px; padding:7px 14px; border-radius:20px; border:1px solid rgba(0,0,0,0.1); background:#fff; color:#2B2622; cursor:pointer; }
+.notif-filter-pill-active{ background:var(--olive,#6D7A64); color:#fff; border-color:var(--olive,#6D7A64); }
+
+.notif-list{ display:flex; flex-direction:column; gap:2px; }
+.notif-item{ display:flex; align-items:flex-start; gap:12px; padding:14px 16px; border-radius:10px; background:#fff; }
+.notif-item-unread{ background:rgba(109,122,100,0.06); border-left:3px solid var(--olive,#6D7A64); }
+.notif-icon{ font-size:18px; line-height:1.4; }
+.notif-body{ flex:1; min-width:0; }
+.notif-desc{ font-family:var(--sans); font-size:13.5px; color:#2B2622; margin:0 0 3px; }
+.notif-meta{ font-family:var(--sans); font-size:11px; color:#8a7f74; margin:0; }
+.notif-actions{ display:flex; flex-direction:column; align-items:flex-end; gap:6px; white-space:nowrap; }
+.notif-link{ font-family:var(--sans); font-size:12px; color:var(--olive,#6D7A64); text-decoration:none; }
+.notif-mark-read{ font-family:var(--sans); font-size:10.5px; color:#8a7f74; background:none; border:none; cursor:pointer; text-decoration:underline; }

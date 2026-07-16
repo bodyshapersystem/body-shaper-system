@@ -5,6 +5,7 @@ import { getCurrentHubUser, hasPermission } from "@/lib/permissions";
 import { revalidatePath } from "next/cache";
 import type { PaymentMethod, PaymentRecordStatus, PaymentType, PaymentOrigin } from "@prisma/client";
 import { sendPaymentConfirmationEmail } from "@/lib/email/service";
+import { createNotification } from "@/lib/notifications";
 
 export async function createPayment(formData: FormData) {
   const user = await getCurrentHubUser();
@@ -50,6 +51,12 @@ export async function createPayment(formData: FormData) {
         amountLabel: `$${(payment.amountCents / 100).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
         portalUrl: "https://www.bodyshapersystem.com/portal/payments",
       }).catch(() => undefined);
+      await createNotification({
+        clientId,
+        category: "PAYMENTS",
+        description: `Payment received from ${client.firstName} ${client.lastName} — $${(payment.amountCents / 100).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+        linkUrl: `/hub/clients/${clientId}?tab=payments`,
+      });
     }
   }
 
@@ -289,6 +296,12 @@ export async function payInstallment(paymentId: string, formData: FormData) {
         amountLabel: `$${(amountCents / 100).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
         portalUrl: "https://www.bodyshapersystem.com/portal/payments",
       }).catch(() => undefined);
+      await createNotification({
+        clientId: existing.clientId,
+        category: "PAYMENTS",
+        description: `Payment received from ${client.firstName} ${client.lastName} — $${(amountCents / 100).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+        linkUrl: `/hub/clients/${existing.clientId}?tab=payments`,
+      });
     }
   }
 

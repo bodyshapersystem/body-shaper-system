@@ -2,6 +2,7 @@
 
 import { prisma } from "@/lib/prisma";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
+import { createNotification } from "@/lib/notifications";
 import { redirect } from "next/navigation";
 
 export async function activatePortalAccount(token: string, formData: FormData) {
@@ -54,6 +55,13 @@ export async function activatePortalAccount(token: string, formData: FormData) {
   }
 
   await prisma.user.update({ where: { id: invite.client.user.id }, data: { portalStatus: "ACTIVE" } });
+
+  await createNotification({
+    clientId: invite.client.id,
+    category: "PORTAL",
+    description: `${invite.client.firstName} ${invite.client.lastName} activated their Client Portal`,
+    linkUrl: `/hub/clients/${invite.client.id}`,
+  });
 
   redirect("/portal/login?activated=1");
 }

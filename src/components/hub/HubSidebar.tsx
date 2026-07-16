@@ -10,6 +10,7 @@ const NAV_GROUPS = [
     label: "Workspace",
     items: [
       { href: "/hub/dashboard", label: "Dashboard", icon: "grid" },
+      { href: "/hub/notifications", label: "Notifications", icon: "bell" },
       { href: "/hub/leads", label: "Leads", icon: "target" },
       { href: "/hub/clients", label: "Clients", icon: "people" },
     ],
@@ -94,6 +95,13 @@ function NavIcon({ name }: { name: string }) {
       return (
         <svg {...common}>
           <path d="M4 12a8 8 0 1 1 3.3 6.4L4 19.5l1.2-3A7.9 7.9 0 0 1 4 12Z" stroke="currentColor" strokeWidth="1.1" />
+        </svg>
+      );
+    case "bell":
+      return (
+        <svg {...common}>
+          <path d="M12 4a5 5 0 0 0-5 5v3.5L5 16h14l-2-3.5V9a5 5 0 0 0-5-5Z" stroke="currentColor" strokeWidth="1.1" />
+          <path d="M10 18a2 2 0 0 0 4 0" stroke="currentColor" strokeWidth="1.1" />
         </svg>
       );
     case "ruler":

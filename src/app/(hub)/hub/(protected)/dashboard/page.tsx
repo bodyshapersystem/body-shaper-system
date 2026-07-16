@@ -5,6 +5,16 @@ import Link from "next/link";
 import BlueprintWaves from "@/components/BlueprintWaves";
 import { formatTimeInTimezone } from "@/lib/format-datetime";
 
+const NOTIFICATION_ICONS: Record<string, string> = {
+  PORTAL: "🟢",
+  FORMS: "📝",
+  APPOINTMENTS: "📅",
+  PAYMENTS: "💳",
+  DOCUMENTS: "📋",
+  REWARDS: "⭐",
+  GENERAL: "🔔",
+};
+
 export const dynamic = "force-dynamic";
 
 function money(cents: number | null | undefined) {
@@ -38,12 +48,7 @@ export default async function HubDashboardPage() {
     newLeadsToday,
     activeClientsCount,
     blueprintsWaitingReview,
-    recentLeads,
-    recentClients,
-    recentPayments,
-    recentAppointmentsCompleted,
-    recentRewards,
-    recentValidatedAssessments,
+    recentNotifications,
     revenueThisMonthAgg,
     totalLeadsAllTime,
     convertedLeadsAllTime,
@@ -70,12 +75,7 @@ export default async function HubDashboardPage() {
     prisma.lead.count({ where: { status: "NEW", archivedAt: null, createdAt: { gte: startOfToday } } }),
     prisma.client.count({ where: { archivedAt: null } }),
     prisma.blueprintAssessment.count({ where: { status: "BASELINE_COMPLETED" } }),
-    prisma.lead.findMany({ orderBy: { createdAt: "desc" }, take: 5 }),
-    prisma.client.findMany({ orderBy: { createdAt: "desc" }, take: 5 }),
-    prisma.payment.findMany({ where: { status: "PAID" }, include: { client: true }, orderBy: { paidAt: "desc" }, take: 5 }),
-    prisma.appointment.findMany({ where: { status: "COMPLETED" }, include: { client: true }, orderBy: { updatedAt: "desc" }, take: 5 }),
-    prisma.rewardsTransaction.findMany({ include: { rewardsAccount: { include: { client: true } } }, orderBy: { createdAt: "desc" }, take: 5 }),
-    prisma.blueprintAssessment.findMany({ where: { status: "VALIDATED" }, include: { client: true }, orderBy: { validatedAt: "desc" }, take: 5 }),
+    prisma.notification.findMany({ orderBy: { createdAt: "desc" }, take: 5, include: { client: { select: { firstName: true, lastName: true } } } }),
     prisma.payment.aggregate({ where: { status: "PAID", paidAt: { gte: startOfMonth } }, _sum: { amountCents: true } }),
     prisma.lead.count({ where: { archivedAt: null } }),
     prisma.lead.count({ where: { status: "CONVERTED" } }),
@@ -143,16 +143,13 @@ export default async function HubDashboardPage() {
     }
   }
 
-  const activity = [
-    ...recentLeads.map((l) => ({ at: l.createdAt, text: `${l.firstName} ${l.lastName} submitted a new lead` })),
-    ...recentClients.map((c) => ({ at: c.createdAt, text: `${c.firstName} ${c.lastName} was activated as a client` })),
-    ...recentPayments.map((p) => ({ at: p.paidAt ?? p.createdAt, text: `Payment of ${money(p.amountCents)} received from ${p.client.firstName} ${p.client.lastName}` })),
-    ...recentAppointmentsCompleted.map((a) => ({ at: a.updatedAt, text: `${a.client.firstName} ${a.client.lastName} completed "${a.title}"` })),
-    ...recentRewards.filter((r) => r.rewardsAccount.client).map((r) => ({ at: r.createdAt, text: `${r.rewardsAccount.client!.firstName} ${r.rewardsAccount.client!.lastName} earned ${r.points} points — ${r.action}` })),
-    ...recentValidatedAssessments.filter((a) => a.client && a.validatedAt).map((a) => ({ at: a.validatedAt as Date, text: `${a.client!.firstName} ${a.client!.lastName}'s Body Blueprint™ was validated` })),
-  ]
-    .sort((a, b) => b.at.getTime() - a.at.getTime())
-    .slice(0, 8);
+  const activity = recentNotifications.map((n) => ({
+    id: n.id,
+    at: n.createdAt,
+    text: n.description,
+    linkUrl: n.linkUrl,
+    category: n.category,
+  }));
 
   const firstName = (user?.fullName ?? "").split(" ")[0] || "there";
   const business = await prisma.businessSettings.findUnique({ where: { id: "default" } });
@@ -259,15 +256,24 @@ export default async function HubDashboardPage() {
             <p className="dash-empty">No activity yet — it will appear here as leads, clients, and payments come in.</p>
           ) : (
             <ul className="dash-timeline">
-              {activity.map((a, i) => (
-                <li key={i}>
+              {activity.map((a) => (
+                <li key={a.id}>
                   <span className="dash-timeline-dot" aria-hidden="true" />
-                  <span className="dash-timeline-text">{a.text}</span>
+                  {a.linkUrl ? (
+                    <Link href={a.linkUrl} className="dash-timeline-text" style={{ textDecoration: "none", color: "inherit" }}>
+                      {NOTIFICATION_ICONS[a.category] ?? "🔔"} {a.text}
+                    </Link>
+                  ) : (
+                    <span className="dash-timeline-text">{NOTIFICATION_ICONS[a.category] ?? "🔔"} {a.text}</span>
+                  )}
                   <span className="dash-timeline-time">{timeAgo(a.at)}</span>
                 </li>
               ))}
             </ul>
           )}
+          <Link href="/hub/notifications" className="dash-view-btn" style={{ marginTop: 12, display: "inline-block" }}>
+            View All Notifications →
+          </Link>
         </div>
       </div>
 

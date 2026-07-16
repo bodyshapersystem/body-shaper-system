@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { getCurrentHubUser, hasPermission } from "@/lib/permissions";
 import { revalidatePath } from "next/cache";
 import { sendAppointmentConfirmationEmail } from "@/lib/email/service";
+import { createNotification } from "@/lib/notifications";
 import { getBusinessTimezone, formatDateInTimezone, formatTimeInTimezone } from "@/lib/format-datetime";
 
 export async function createAppointment(formData: FormData) {
@@ -68,6 +69,12 @@ export async function createAppointment(formData: FormData) {
       systemName: client.blueprintAssessments[0]?.recommendedSystem ?? undefined,
       portalUrl: "https://www.bodyshapersystem.com/portal/appointments",
     }).catch(() => undefined);
+    await createNotification({
+      clientId,
+      category: "APPOINTMENTS",
+      description: `Appointment confirmed for ${client.firstName} ${client.lastName} — ${title}`,
+      linkUrl: `/hub/appointments`,
+    });
   }
 
   revalidatePath("/hub/appointments");

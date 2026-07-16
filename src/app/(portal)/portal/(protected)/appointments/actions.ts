@@ -3,6 +3,7 @@
 import { getCurrentPortalClient } from "@/lib/permissions";
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
+import { createNotification } from "@/lib/notifications";
 
 /**
  * Real reschedule REQUEST — per direction, clients never edit
@@ -31,6 +32,13 @@ export async function requestReschedule(appointmentId: string, note: string) {
 
   await prisma.message.create({
     data: { threadId: thread.id, senderType: "CLIENT", body },
+  });
+
+  await createNotification({
+    clientId: client.id,
+    category: "APPOINTMENTS",
+    description: `${client.firstName} ${client.lastName} requested a reschedule for ${appointment.title} on ${dateLabel}`,
+    linkUrl: `/hub/clients/${client.id}?tab=messages`,
   });
 
   revalidatePath("/portal/messages");

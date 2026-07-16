@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { parseJotformPayload, extractContactField, extractSubmissionMeta } from "@/lib/jotform-webhook-utils";
 import { fetchAndStoreJotformSubmissionPdf } from "@/lib/jotform-pdf";
+import { createNotification } from "@/lib/notifications";
 import type { DocumentCategory } from "@prisma/client";
 
 // The PDF fetch (with retries) can take a while — give this route
@@ -117,6 +118,17 @@ export async function POST(request: NextRequest) {
   if (!result.success) {
     return NextResponse.json({ error: result.error }, { status: 502 });
   }
+
+  const NOTIFICATION_TEXT: Partial<Record<DocumentCategory, string>> = {
+    CONSENT_TREATMENT: `${client.firstName} ${client.lastName} signed their Waiver Form`,
+    POLICIES_APPOINTMENTS: `${client.firstName} ${client.lastName} completed their Policies & Consent Form`,
+  };
+  await createNotification({
+    clientId: client.id,
+    category: "FORMS",
+    description: NOTIFICATION_TEXT[category] ?? `${client.firstName} ${client.lastName} submitted ${CATEGORY_TITLES[category]}`,
+    linkUrl: `/hub/clients/${client.id}?tab=documents`,
+  });
 
   return NextResponse.json({ success: true, documentId: result.documentId, clientId: client.id });
 }
