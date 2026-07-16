@@ -20,7 +20,7 @@ type FinancialSummary = {
   lastName: string;
   system: string | null;
   currentSession: number;
-  totalSessions: number;
+  totalSessions: number | null;
   planTotalCents: number | null;
   paidCents: number;
   pendingCents: number;
