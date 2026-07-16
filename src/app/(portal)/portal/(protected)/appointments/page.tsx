@@ -89,7 +89,7 @@ export default async function PortalAppointmentsPage() {
       zone: client.city,
       arrivalWindowLabel: `${formatTimeInTimezone(arrivalStart, timezone)}–${formatTimeInTimezone(arrivalEnd, timezone)}`,
       studioAddress: business?.address ?? null,
-      paymentStatus: planFullyPaid ? "PACKAGE" : pendingPayment ? "PENDING" : "PAID",
+      paymentStatus: (planFullyPaid ? "PACKAGE" : pendingPayment ? "PENDING" : "PAID") as "PACKAGE" | "PENDING" | "PAID",
       calendarUrl,
     };
   }
