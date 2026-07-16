@@ -39,13 +39,15 @@ export default function DeleteClientButton({ clientId }: { clientId: string }) {
           setError(result.error);
           return;
         }
-        router.push("/hub/clients");
         router.refresh();
+        router.push("/hub/clients");
       } catch (e) {
         setError(e instanceof Error ? e.message : "Something went wrong deleting this client. Please try again.");
       }
     });
   }
+
+  const confirmMatches = confirmText.trim().toUpperCase() === "DELETE";
 
   const counts = preview?.success ? preview.counts : null;
   const totalRelated = counts ? Object.values(counts).reduce((a, b) => a + b, 0) : 0;
@@ -88,8 +90,18 @@ export default function DeleteClientButton({ clientId }: { clientId: string }) {
                 </p>
                 <label className="sched-label">
                   Type DELETE to confirm
-                  <input value={confirmText} onChange={(e) => setConfirmText(e.target.value)} className="sched-select" />
+                  <input
+                    value={confirmText}
+                    onChange={(e) => setConfirmText(e.target.value)}
+                    className="sched-select"
+                    autoCapitalize="characters"
+                    autoCorrect="off"
+                    autoComplete="off"
+                  />
                 </label>
+                {confirmText.length > 0 && !confirmMatches && (
+                  <p className="pay-history-meta" style={{ marginTop: 4 }}>Type exactly "DELETE" to enable the button below.</p>
+                )}
                 <div className="bp-sheet-actions">
                   <button type="button" className="sched-secondary-btn" onClick={() => setStep("closed")}>
                     Cancel
@@ -99,7 +111,7 @@ export default function DeleteClientButton({ clientId }: { clientId: string }) {
                     className="sched-cta"
                     style={{ background: "#a33" }}
                     onClick={handleDelete}
-                    disabled={isPending || confirmText !== "DELETE"}
+                    disabled={isPending || !confirmMatches}
                   >
                     {isPending ? "Deleting…" : `Delete Permanently (${totalRelated} related records)`}
                   </button>

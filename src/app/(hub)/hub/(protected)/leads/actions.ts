@@ -394,7 +394,7 @@ export async function deleteLeadPermanently(leadId: string, confirmationText: st
   if (!user || !hasPermission(user, "leads.archive")) {
     return { error: "You don't have permission to do this." };
   }
-  if (confirmationText !== "DELETE") return { error: 'Type "DELETE" exactly to confirm.' };
+  if (confirmationText.trim().toUpperCase() !== "DELETE") return { error: 'Type "DELETE" to confirm.' };
 
   const lead = await prisma.lead.findUnique({ where: { id: leadId }, include: { convertedClient: true } });
   if (!lead) return { error: "Lead not found." };

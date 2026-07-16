@@ -439,7 +439,7 @@ export async function deleteClientPermanently(clientId: string, confirmationText
   if (!user || !hasPermission(user, "clients.convert")) {
     return { error: "You don't have permission to do this." };
   }
-  if (confirmationText !== "DELETE") return { error: 'Type "DELETE" exactly to confirm.' };
+  if (confirmationText.trim().toUpperCase() !== "DELETE") return { error: 'Type "DELETE" to confirm.' };
 
   const client = await prisma.client.findUnique({ where: { id: clientId }, include: { user: true } });
   if (!client) return { error: "Client not found." };

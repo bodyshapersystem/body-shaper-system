@@ -101,7 +101,7 @@ export default function PhotoCaptureSheet({ clientId }: { clientId: string }) {
               </label>
               <label className="sched-label">
                 Photo
-                <input name="file" type="file" accept="image/*" capture="environment" required className="sched-select" />
+                <input name="file" type="file" accept="image/*" required className="sched-select" />
               </label>
               {error && <p className="sched-error">{error}</p>}
               <div className="bp-sheet-actions">
