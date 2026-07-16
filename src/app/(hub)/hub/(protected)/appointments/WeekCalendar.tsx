@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
 import { CATEGORY_LABELS, type AppointmentColorCategory } from "@/lib/appointment-categories";
 import AppointmentDetailPanel from "./AppointmentDetailPanel";
 
@@ -27,6 +28,9 @@ export type CalendarEvent = {
   isFirstAppt: boolean;
   isVip: boolean;
   tier: string;
+  durationMinutes: number | null;
+  therapistName: string | null;
+  currentSessionNumber: number;
 };
 
 const DAY_LABELS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
@@ -35,7 +39,7 @@ const SLOT_HOURS = Array.from({ length: 27 }, (_, i) => 8 + i * 0.5).filter((h) 
 function fmtHour(h: number) {
   const hour = Math.floor(h);
   const min = h % 1 === 0 ? "00" : "30";
-  const period = hour >= 12 ? "PM" : "AM";
+  const period = hour >= 12 ? "pm" : "am";
   const displayHour = hour % 12 === 0 ? 12 : hour % 12;
   return `${displayHour}:${min} ${period}`;
 }
@@ -45,12 +49,22 @@ export default function WeekCalendar({
   events,
   timezone,
   canManage,
+  zones,
+  therapists,
+  currentFilters,
+  distinctSystems,
 }: {
   weekStartIso: string;
   events: CalendarEvent[];
   timezone: string;
   canManage: boolean;
+  zones: string[];
+  therapists: { id: string; fullName: string }[];
+  currentFilters: { zone?: string; status?: string; therapistId?: string; system?: string };
+  distinctSystems: string[];
 }) {
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const [selected, setSelected] = useState<CalendarEvent | null>(null);
   const weekStart = new Date(weekStartIso);
 
@@ -68,7 +82,7 @@ export default function WeekCalendar({
   }
 
   function timeInZone(iso: string) {
-    return new Intl.DateTimeFormat("en-US", { timeZone: timezone, hour: "numeric", minute: "2-digit" }).format(new Date(iso));
+    return new Intl.DateTimeFormat("en-US", { timeZone: timezone, hour: "numeric", minute: "2-digit" }).format(new Date(iso)).toLowerCase();
   }
 
   function hourFractionInZone(iso: string) {
@@ -81,7 +95,7 @@ export default function WeekCalendar({
   }
 
   function dateKeyInZone(iso: string) {
-    return new Intl.DateTimeFormat("en-CA", { timeZone: timezone }).format(new Date(iso)); // en-CA = YYYY-MM-DD
+    return new Intl.DateTimeFormat("en-CA", { timeZone: timezone }).format(new Date(iso));
   }
 
   const prevWeek = new Date(weekStart);
@@ -89,25 +103,76 @@ export default function WeekCalendar({
   const nextWeek = new Date(weekStart);
   nextWeek.setDate(nextWeek.getDate() + 7);
 
+  function updateFilter(key: string, value: string) {
+    const params = new URLSearchParams(searchParams.toString());
+    if (value) params.set(key, value);
+    else params.delete(key);
+    router.push(`/hub/appointments?${params.toString()}`);
+  }
+
   return (
     <div>
-      <div className="wk-toolbar">
-        <div className="wk-nav">
-          <Link href={`/hub/appointments?week=${prevWeek.toISOString().slice(0, 10)}`} className="wk-nav-btn">
-            ←
+      <div className="apt-toolbar">
+        <div className="apt-toolbar-left">
+          <Link href={`/hub/appointments?week=${prevWeek.toISOString().slice(0, 10)}`} className="apt-arrow-btn">
+            ‹
           </Link>
-          <span className="wk-nav-label">
-            {days[0].toLocaleDateString(undefined, { month: "short", day: "numeric" })} – {days[6].toLocaleDateString(undefined, { month: "short", day: "numeric" })}
+          <Link href={`/hub/appointments?week=${nextWeek.toISOString().slice(0, 10)}`} className="apt-arrow-btn">
+            ›
+          </Link>
+          <span className="apt-date-range">
+            {days[0].toLocaleDateString(undefined, { month: "short", day: "numeric" })} – {days[6].toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" })}
           </span>
-          <Link href={`/hub/appointments?week=${nextWeek.toISOString().slice(0, 10)}`} className="wk-nav-btn">
-            →
-          </Link>
         </div>
-        <div className="wk-legend">
-          <span><i className="wk-dot wk-dot-combined" /> Combined System</span>
-          <span><i className="wk-dot wk-dot-individual" /> Individual</span>
-          <span><i className="wk-dot wk-dot-consultation" /> Consultation / Blueprint</span>
+        <div className="apt-toolbar-filters">
+          <select className="apt-filter-select" value={currentFilters.therapistId ?? ""} onChange={(e) => updateFilter("therapistId", e.target.value)}>
+            <option value="">all therapists</option>
+            {therapists.map((t) => (
+              <option key={t.id} value={t.id}>{t.fullName}</option>
+            ))}
+          </select>
+          <select className="apt-filter-select" value={currentFilters.system ?? ""} onChange={(e) => updateFilter("system", e.target.value)}>
+            <option value="">all systems</option>
+            {distinctSystems.map((s) => (
+              <option key={s} value={s}>{s}</option>
+            ))}
+          </select>
+          <select className="apt-filter-select" value={currentFilters.status ?? ""} onChange={(e) => updateFilter("status", e.target.value)}>
+            <option value="">all status</option>
+            <option value="SCHEDULED">Scheduled</option>
+            <option value="COMPLETED">Completed</option>
+            <option value="CANCELLED">Cancelled</option>
+            <option value="NO_SHOW">No-Show</option>
+          </select>
+          <select className="apt-filter-select" value={currentFilters.zone ?? ""} onChange={(e) => updateFilter("zone", e.target.value)}>
+            <option value="">all zones</option>
+            {zones.map((z) => (
+              <option key={z} value={z}>{z}</option>
+            ))}
+          </select>
         </div>
+        <div className="apt-view-tabs">
+          <button type="button" className="apt-view-tab" disabled title="Day view coming soon">day</button>
+          <button type="button" className="apt-view-tab apt-view-tab-active">week</button>
+          <button type="button" className="apt-view-tab" disabled title="Month view coming soon">month</button>
+        </div>
+      </div>
+
+      <div className="apt-zone-row">
+        <span className="apt-zone-label">zone filter:</span>
+        <button type="button" className={`apt-zone-pill ${!currentFilters.zone ? "apt-zone-pill-active" : ""}`} onClick={() => updateFilter("zone", "")}>
+          all
+        </button>
+        {zones.map((z) => (
+          <button
+            key={z}
+            type="button"
+            className={`apt-zone-pill ${currentFilters.zone === z ? "apt-zone-pill-active" : ""}`}
+            onClick={() => updateFilter("zone", z)}
+          >
+            {z.toLowerCase()}
+          </button>
+        ))}
       </div>
 
       <div className="wk-grid-wrap">
@@ -116,7 +181,7 @@ export default function WeekCalendar({
           {days.map((d, i) => (
             <div key={i} className={`wk-day-head ${isToday(d) ? "wk-day-head-today" : ""}`}>
               <span className="wk-day-label">{DAY_LABELS[i]}</span>
-              <span className="wk-day-num">{d.getDate()}</span>
+              <span className="wk-day-num">{d.toLocaleDateString(undefined, { month: "short", day: "numeric" })}</span>
             </div>
           ))}
 
@@ -147,6 +212,13 @@ export default function WeekCalendar({
             </div>
           ))}
         </div>
+      </div>
+
+      <div className="wk-legend-bottom">
+        <span><i className="wk-dot wk-dot-combined" /> combined systems</span>
+        <span><i className="wk-dot wk-dot-individual" /> individual treatments</span>
+        <span><i className="wk-dot wk-dot-consultation" /> evaluations / blueprint</span>
+        <span><i className="wk-dot wk-dot-blocked" /> blocked / unavailable</span>
       </div>
 
       {selected && (

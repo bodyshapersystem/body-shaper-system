@@ -23,6 +23,10 @@ export default function AppointmentDetailPanel({
 
   const initials = `${event.firstName[0]}${event.lastName[0] ?? ""}`.toUpperCase();
   const startDate = new Date(event.startsAt);
+  const endDate = event.endsAt ? new Date(event.endsAt) : null;
+  const timeRange = endDate
+    ? `${startDate.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" }).toLowerCase()} – ${endDate.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" }).toLowerCase()}`
+    : startDate.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" }).toLowerCase();
 
   function handleComplete() {
     startTransition(async () => {
@@ -60,75 +64,76 @@ export default function AppointmentDetailPanel({
   }
 
   return (
-    <div className="bp-sheet-overlay" onClick={onClose}>
-      <div className="bp-sheet" onClick={(e) => e.stopPropagation()}>
-        <div className="bp-sheet-handle" />
+    <div className="apd-overlay" onClick={onClose}>
+      <div className="apd-panel" onClick={(e) => e.stopPropagation()}>
+        <div className="apd-time-row">
+          <span className="apd-time-range">{timeRange}</span>
+          <button type="button" className="apd-close" onClick={onClose} aria-label="Close">×</button>
+        </div>
 
         <div className="apd-header">
-          <div className="cl-avatar" style={{ width: 52, height: 52, fontSize: 18 }}>
+          <div className="cl-avatar" style={{ width: 56, height: 56, fontSize: 18 }}>
             {initials}
           </div>
           <div>
-            <h3 className="apd-name">{event.clientName}</h3>
-            <div className="apd-badges">
-              <span className={`dash-status dash-status-${event.status.toLowerCase()}`}>{event.status}</span>
-              {event.isVip && <span className="apd-badge">⭐ {event.tier}</span>}
-              {event.isFirstAppt && <span className="apd-badge">📍 First Appointment</span>}
+            <div className="apd-name-row">
+              <h3 className="apd-name">{event.clientName}</h3>
+              <span className={`apd-status-pill apd-status-${event.status.toLowerCase()}`}>{event.status.toLowerCase()}</span>
             </div>
+            <p className="apd-contact-line">{event.phone ?? "—"}</p>
+            <p className="apd-contact-line">{event.email}</p>
           </div>
         </div>
 
-        <div className="cl-summary-list" style={{ marginBottom: 20 }}>
-          <div className="cl-summary-row"><span>Phone</span><span>{event.phone ?? "—"}</span></div>
-          <div className="cl-summary-row"><span>Email</span><span>{event.email}</span></div>
-          <div className="cl-summary-row"><span>Treatment</span><span>{event.title}</span></div>
-          <div className="cl-summary-row"><span>Type</span><span>{CATEGORY_LABELS[event.category]}</span></div>
-          {event.system && <div className="cl-summary-row"><span>Personalized System™</span><span>{event.system}</span></div>}
-          <div className="cl-summary-row">
-            <span>Date</span>
-            <span>{startDate.toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric" })}</span>
+        <div className="apd-detail-list">
+          <div className="apd-detail-row"><span>system / treatment</span><strong>{event.title}</strong></div>
+          <div className="apd-detail-row"><span>appointment type</span><strong>Mobile Appointment</strong></div>
+          {event.totalSessions !== null && (
+            <div className="apd-detail-row"><span>session</span><strong>{event.currentSessionNumber} of {event.totalSessions}</strong></div>
+          )}
+          {event.durationMinutes && (
+            <div className="apd-detail-row"><span>duration</span><strong>{event.durationMinutes} min</strong></div>
+          )}
+          <div className="apd-detail-row"><span>date</span><strong>{startDate.toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric", year: "numeric" })}</strong></div>
+          <div className="apd-detail-row"><span>time</span><strong>{timeRange}</strong></div>
+          <div className="apd-detail-row"><span>service zone</span><strong>{event.zone ?? "Not set"}</strong></div>
+          <div className="apd-detail-row">
+            <span>payment status</span>
+            <strong className={event.paymentStatus === "PAID" ? "apd-paid" : event.paymentStatus === "PENDING" ? "apd-pending" : ""}>
+              {event.paymentStatus === "PAID" ? "Paid" : event.paymentStatus === "PENDING" ? "Pending" : "—"}
+            </strong>
           </div>
-          <div className="cl-summary-row"><span>Service Zone</span><span>{event.zone ? `📍 ${event.zone}` : "Not set"}</span></div>
-          <div className="cl-summary-row">
-            <span>Payment Status</span>
-            <span>
-              {event.paymentStatus === "PAID" ? "💳 Paid" : event.paymentStatus === "PENDING" ? "⚠️ Pending" : "—"}
-            </span>
-          </div>
-          <div className="cl-summary-row">
-            <span>Waiver</span>
-            <span>{event.hasWaiver ? "Signed" : "📄 Missing"}</span>
-          </div>
-          {event.notes && <div className="cl-summary-row"><span>Notes</span><span>{event.notes}</span></div>}
+          {event.therapistName && <div className="apd-detail-row"><span>therapist</span><strong>{event.therapistName}</strong></div>}
+          {event.notes && <div className="apd-detail-row apd-detail-row-notes"><span>notes</span><strong>{event.notes}</strong></div>}
         </div>
 
         {canManage && (
           <div className="apd-actions">
-            <Link href={`/hub/clients/${event.clientId}?tab=messages`} className="dash-view-btn">
-              Message Client
+            <Link href={`/hub/clients/${event.clientId}`} className="apd-btn-primary">
+              edit appointment
             </Link>
-            <button type="button" className="dash-view-btn" onClick={handleComplete} disabled={isPending}>
-              Mark as Completed
-            </button>
-            <button type="button" className="dash-view-btn" onClick={() => setRescheduling((v) => !v)}>
-              Reschedule
+            <button type="button" className="apd-btn-secondary" onClick={() => setRescheduling((v) => !v)}>
+              reschedule
             </button>
             {rescheduling && (
-              <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
+              <div style={{ display: "flex", gap: 8, marginBottom: 4 }}>
                 <input type="datetime-local" value={newStart} onChange={(e) => setNewStart(e.target.value)} className="sched-select" />
                 <button type="button" className="sched-cta" onClick={handleReschedule} disabled={isPending || !newStart}>
                   Save
                 </button>
               </div>
             )}
-            <Link href={`/hub/clients/${event.clientId}`} className="sched-cta" style={{ textAlign: "center" }}>
-              Edit Appointment
+            <Link href={`/hub/clients/${event.clientId}?tab=messages`} className="apd-btn-secondary">
+              message client
             </Link>
-            <button type="button" className="dash-view-btn" style={{ color: "#a33", borderColor: "rgba(163,51,51,0.3)" }} onClick={handleCancel} disabled={isPending}>
-              Cancel Appointment
+            <button type="button" className="apd-btn-secondary" onClick={handleComplete} disabled={isPending}>
+              mark as completed
             </button>
-            <button type="button" className="dash-view-btn" style={{ color: "#a33", borderColor: "rgba(163,51,51,0.3)" }} onClick={handleDelete} disabled={isPending}>
-              Delete Permanently
+            <button type="button" className="apd-btn-danger" onClick={handleCancel} disabled={isPending}>
+              cancel appointment
+            </button>
+            <button type="button" className="apd-btn-danger" onClick={handleDelete} disabled={isPending}>
+              delete permanently
             </button>
           </div>
         )}
