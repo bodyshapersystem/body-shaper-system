@@ -121,10 +121,13 @@ export default async function HubClientsPage({
 
   return (
     <div className="cat-body portal-page">
-      <div className="portal-page-head">
-        <p className="portal-eyebrow">client management</p>
-        <h1>clients.</h1>
-        <p className="dash-subtitle">Manage your active clients and their journey.</p>
+      <div className="portal-page-head" style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 12 }}>
+        <div>
+          <p className="portal-eyebrow">client management</p>
+          <h1>clients.</h1>
+          <p className="dash-subtitle">Manage your active clients and their journey.</p>
+        </div>
+        <Link href="/hub/clients/import" className="dash-view-btn">+ Import Clients</Link>
       </div>
 
       <div className="pd-stats" style={{ marginBottom: 32 }}>

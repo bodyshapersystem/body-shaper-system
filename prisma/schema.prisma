@@ -224,6 +224,12 @@ model Client {
   city           String?
   membershipTier String  @default("Standard")
   clientType     ClientType @default(STANDARD) // controls whether the Content Release Agreement applies
+  address                String? // full street address — distinct from `city` (Service Zone)
+  birthday               DateTime?
+  importedLastAppointmentAt DateTime? // historical, from legacy import — real appointments use the Appointment table instead
+  importedLastTreatment     String?
+  importedLifetimeValueCents Int?
+  importSource               String? // e.g. "CSV Import 2026-07-16" — null for normal onboarding-created clients
   pausedAt       DateTime? // treatment temporarily paused — null = not paused
 
   createdAt   DateTime  @default(now())
