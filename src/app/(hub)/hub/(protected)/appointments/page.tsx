@@ -17,25 +17,52 @@ function startOfWeek(d: Date) {
   return date;
 }
 
+function startOfDay(d: Date) {
+  const date = new Date(d);
+  date.setHours(0, 0, 0, 0);
+  return date;
+}
+
+function startOfMonth(d: Date) {
+  return new Date(d.getFullYear(), d.getMonth(), 1);
+}
+
 export default async function HubAppointmentsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ week?: string; zone?: string; status?: string; therapistId?: string; system?: string }>;
+  searchParams: Promise<{ view?: string; week?: string; date?: string; month?: string; zone?: string; status?: string; therapistId?: string; system?: string }>;
 }) {
   const user = await getCurrentHubUser();
   if (!user) redirect("/hub/login");
   const canManage = hasPermission(user, "appointments.manage");
   const timezone = await getBusinessTimezone();
 
-  const { week: weekParam, zone, status, therapistId, system } = await searchParams;
-  const weekStart = weekParam ? startOfWeek(new Date(weekParam)) : startOfWeek(new Date());
-  const weekEnd = new Date(weekStart);
-  weekEnd.setDate(weekEnd.getDate() + 7);
+  const { view: viewParam, week: weekParam, date: dateParam, month: monthParam, zone, status, therapistId, system } = await searchParams;
+  const view = (viewParam === "day" || viewParam === "month" ? viewParam : "week") as "day" | "week" | "month";
 
-  const [weekAppointments, allAppointments, clients, therapists] = await Promise.all([
+  // Real date range per view — this is what actually gets fetched from
+  // the database (not just what's displayed), so switching views
+  // genuinely queries a different window rather than filtering
+  // client-side from a fixed week fetch.
+  let rangeStart: Date;
+  let rangeEnd: Date;
+  if (view === "day") {
+    rangeStart = startOfDay(dateParam ? new Date(dateParam) : new Date());
+    rangeEnd = new Date(rangeStart);
+    rangeEnd.setDate(rangeEnd.getDate() + 1);
+  } else if (view === "month") {
+    rangeStart = startOfMonth(monthParam ? new Date(monthParam) : new Date());
+    rangeEnd = new Date(rangeStart.getFullYear(), rangeStart.getMonth() + 1, 1);
+  } else {
+    rangeStart = weekParam ? startOfWeek(new Date(weekParam)) : startOfWeek(new Date());
+    rangeEnd = new Date(rangeStart);
+    rangeEnd.setDate(rangeEnd.getDate() + 7);
+  }
+
+  const [rangeAppointments, allAppointments, clients, therapists] = await Promise.all([
     prisma.appointment.findMany({
       where: {
-        startsAt: { gte: weekStart, lt: weekEnd },
+        startsAt: { gte: rangeStart, lt: rangeEnd },
         ...(status ? { status: status as "SCHEDULED" | "COMPLETED" | "CANCELLED" | "NO_SHOW" } : {}),
         ...(therapistId ? { createdById: therapistId } : {}),
       },
@@ -70,7 +97,7 @@ export default async function HubAppointmentsPage({
 
   const therapistNameById = new Map(therapists.map((t) => [t.id, t.fullName]));
 
-  let events = weekAppointments.map((a) => {
+  let events = rangeAppointments.map((a) => {
     const category = categorizeAppointment(a.title, a.technologies as string[] | null);
     const recSystem = a.client.blueprintAssessments[0]?.recommendedSystem ?? null;
     const totalSessions = a.client.blueprintAssessments[0]?.validatedSessionCount ?? null;
@@ -127,7 +154,8 @@ export default async function HubAppointmentsPage({
       </div>
 
       <WeekCalendar
-        weekStartIso={weekStart.toISOString()}
+        view={view}
+        rangeStartIso={rangeStart.toISOString()}
         events={events}
         timezone={timezone}
         canManage={canManage}

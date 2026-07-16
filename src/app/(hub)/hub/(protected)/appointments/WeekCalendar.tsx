@@ -35,7 +35,7 @@ export type CalendarEvent = {
 
 const DAY_LABELS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 const SLOT_HOURS = Array.from({ length: 27 }, (_, i) => 8 + i * 0.5).filter((h) => h <= 21); // 8:00–21:00, 30-min
-const HOURLY_SLOTS = Array.from({ length: 14 }, (_, i) => 8 + i); // 8:00–21:00, whole hours only (mobile)
+const HOURLY_SLOTS = Array.from({ length: 14 }, (_, i) => 8 + i); // 8:00–21:00, whole hours only (mobile / day view)
 
 function fmtHour(h: number) {
   const hour = Math.floor(h);
@@ -45,8 +45,13 @@ function fmtHour(h: number) {
   return `${displayHour}:${min} ${period}`;
 }
 
+function toDateParam(d: Date) {
+  return d.toISOString().slice(0, 10);
+}
+
 export default function WeekCalendar({
-  weekStartIso,
+  view,
+  rangeStartIso,
   events,
   timezone,
   canManage,
@@ -55,7 +60,8 @@ export default function WeekCalendar({
   currentFilters,
   distinctSystems,
 }: {
-  weekStartIso: string;
+  view: "day" | "week" | "month";
+  rangeStartIso: string;
   events: CalendarEvent[];
   timezone: string;
   canManage: boolean;
@@ -68,7 +74,7 @@ export default function WeekCalendar({
   const searchParams = useSearchParams();
   const [selected, setSelected] = useState<CalendarEvent | null>(null);
   const [isMobile, setIsMobile] = useState(false);
-  const weekStart = new Date(weekStartIso);
+  const rangeStart = new Date(rangeStartIso);
 
   useEffect(() => {
     const check = () => setIsMobile(window.innerWidth <= 760);
@@ -77,18 +83,8 @@ export default function WeekCalendar({
     return () => window.removeEventListener("resize", check);
   }, []);
 
-  const days = Array.from({ length: 7 }, (_, i) => {
-    const d = new Date(weekStart);
-    d.setDate(d.getDate() + i);
-    return d;
-  });
-
   const today = new Date();
   const isToday = (d: Date) => d.toDateString() === today.toDateString();
-
-  function dateKey(d: Date) {
-    return d.toISOString().slice(0, 10);
-  }
 
   function timeInZone(iso: string) {
     return new Intl.DateTimeFormat("en-US", { timeZone: timezone, hour: "numeric", minute: "2-digit" }).format(new Date(iso)).toLowerCase();
@@ -107,11 +103,6 @@ export default function WeekCalendar({
     return new Intl.DateTimeFormat("en-CA", { timeZone: timezone }).format(new Date(iso));
   }
 
-  const prevWeek = new Date(weekStart);
-  prevWeek.setDate(prevWeek.getDate() - 7);
-  const nextWeek = new Date(weekStart);
-  nextWeek.setDate(nextWeek.getDate() + 7);
-
   function updateFilter(key: string, value: string) {
     const params = new URLSearchParams(searchParams.toString());
     if (value) params.set(key, value);
@@ -119,19 +110,61 @@ export default function WeekCalendar({
     router.push(`/hub/appointments?${params.toString()}`);
   }
 
-  return (
-    <div>
+  function filterQuery() {
+    const params = new URLSearchParams();
+    if (currentFilters.zone) params.set("zone", currentFilters.zone);
+    if (currentFilters.status) params.set("status", currentFilters.status);
+    if (currentFilters.therapistId) params.set("therapistId", currentFilters.therapistId);
+    if (currentFilters.system) params.set("system", currentFilters.system);
+    return params.toString();
+  }
+
+  // ---------- Navigation targets, per view ----------
+  let prevHref = "";
+  let nextHref = "";
+  let rangeLabel = "";
+  const fq = filterQuery();
+  const fqSuffix = fq ? `&${fq}` : "";
+
+  if (view === "day") {
+    const prev = new Date(rangeStart);
+    prev.setDate(prev.getDate() - 1);
+    const next = new Date(rangeStart);
+    next.setDate(next.getDate() + 1);
+    prevHref = `/hub/appointments?view=day&date=${toDateParam(prev)}${fqSuffix}`;
+    nextHref = `/hub/appointments?view=day&date=${toDateParam(next)}${fqSuffix}`;
+    rangeLabel = rangeStart.toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric", year: "numeric" });
+  } else if (view === "month") {
+    const prev = new Date(rangeStart.getFullYear(), rangeStart.getMonth() - 1, 1);
+    const next = new Date(rangeStart.getFullYear(), rangeStart.getMonth() + 1, 1);
+    prevHref = `/hub/appointments?view=month&month=${toDateParam(prev)}${fqSuffix}`;
+    nextHref = `/hub/appointments?view=month&month=${toDateParam(next)}${fqSuffix}`;
+    rangeLabel = rangeStart.toLocaleDateString(undefined, { month: "long", year: "numeric" });
+  } else {
+    const prev = new Date(rangeStart);
+    prev.setDate(prev.getDate() - 7);
+    const next = new Date(rangeStart);
+    next.setDate(next.getDate() + 7);
+    const weekEnd = new Date(rangeStart);
+    weekEnd.setDate(weekEnd.getDate() + 6);
+    prevHref = `/hub/appointments?week=${toDateParam(prev)}${fqSuffix}`;
+    nextHref = `/hub/appointments?week=${toDateParam(next)}${fqSuffix}`;
+    rangeLabel = `${rangeStart.toLocaleDateString(undefined, { month: "short", day: "numeric" })} – ${weekEnd.toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" })}`;
+  }
+
+  function viewTabHref(v: "day" | "week" | "month") {
+    if (v === "day") return `/hub/appointments?view=day&date=${toDateParam(today)}${fqSuffix}`;
+    if (v === "month") return `/hub/appointments?view=month&month=${toDateParam(today)}${fqSuffix}`;
+    return `/hub/appointments${fq ? `?${fq}` : ""}`;
+  }
+
+  const toolbar = (
+    <>
       <div className="apt-toolbar">
         <div className="apt-toolbar-left">
-          <Link href={`/hub/appointments?week=${prevWeek.toISOString().slice(0, 10)}`} className="apt-arrow-btn">
-            ‹
-          </Link>
-          <Link href={`/hub/appointments?week=${nextWeek.toISOString().slice(0, 10)}`} className="apt-arrow-btn">
-            ›
-          </Link>
-          <span className="apt-date-range">
-            {days[0].toLocaleDateString(undefined, { month: "short", day: "numeric" })} – {days[6].toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" })}
-          </span>
+          <Link href={prevHref} className="apt-arrow-btn">‹</Link>
+          <Link href={nextHref} className="apt-arrow-btn">›</Link>
+          <span className="apt-date-range">{rangeLabel}</span>
         </div>
         <div className="apt-toolbar-filters">
           <select className="apt-filter-select" value={currentFilters.therapistId ?? ""} onChange={(e) => updateFilter("therapistId", e.target.value)}>
@@ -161,9 +194,9 @@ export default function WeekCalendar({
           </select>
         </div>
         <div className="apt-view-tabs">
-          <button type="button" className="apt-view-tab" disabled title="Day view coming soon">day</button>
-          <button type="button" className="apt-view-tab apt-view-tab-active">week</button>
-          <button type="button" className="apt-view-tab" disabled title="Month view coming soon">month</button>
+          <Link href={viewTabHref("day")} className={`apt-view-tab ${view === "day" ? "apt-view-tab-active" : ""}`}>day</Link>
+          <Link href={viewTabHref("week")} className={`apt-view-tab ${view === "week" ? "apt-view-tab-active" : ""}`}>week</Link>
+          <Link href={viewTabHref("month")} className={`apt-view-tab ${view === "month" ? "apt-view-tab-active" : ""}`}>month</Link>
         </div>
       </div>
 
@@ -183,7 +216,114 @@ export default function WeekCalendar({
           </button>
         ))}
       </div>
+    </>
+  );
 
+  const legend = (
+    <div className="wk-legend-bottom">
+      <span><i className="wk-dot wk-dot-combined" /> combined systems</span>
+      <span><i className="wk-dot wk-dot-individual" /> individual treatments</span>
+      <span><i className="wk-dot wk-dot-consultation" /> evaluations / blueprint</span>
+      <span><i className="wk-dot wk-dot-blocked" /> blocked / unavailable</span>
+    </div>
+  );
+
+  const detailPanel = selected && (
+    <AppointmentDetailPanel event={selected} canManage={canManage} onClose={() => setSelected(null)} />
+  );
+
+  // ---------- DAY VIEW ----------
+  if (view === "day") {
+    const dayKey = toDateParam(rangeStart);
+    return (
+      <div>
+        {toolbar}
+        <div className="wk-grid-wrap">
+          <div className="apt-day-list">
+            {HOURLY_SLOTS.map((h) => {
+              const slotEvents = events.filter((e) => dateKeyInZone(e.startsAt) === dayKey && Math.floor(hourFractionInZone(e.startsAt)) === h);
+              return (
+                <div key={h} className="apt-day-row">
+                  <div className="apt-day-row-label">{fmtHour(h)}</div>
+                  <div className="apt-day-row-events">
+                    {slotEvents.length === 0 && <span className="apt-day-row-empty">—</span>}
+                    {slotEvents.map((e) => (
+                      <button key={e.id} type="button" className={`apt-day-card wk-event-${e.category}`} onClick={() => setSelected(e)}>
+                        <span className="wk-event-time">{timeInZone(e.startsAt)}</span>
+                        <span className="wk-event-client">{e.firstName} {e.lastName[0]}.</span>
+                        <span className="wk-event-treatment">{e.title}</span>
+                        {e.zone && <span className="wk-event-zone">📍 {e.zone}</span>}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+        {legend}
+        {detailPanel}
+      </div>
+    );
+  }
+
+  // ---------- MONTH VIEW ----------
+  if (view === "month") {
+    const monthStart = rangeStart;
+    const firstGridDay = new Date(monthStart);
+    const startWeekday = (firstGridDay.getDay() + 6) % 7; // Monday=0
+    firstGridDay.setDate(firstGridDay.getDate() - startWeekday);
+    const gridDays = Array.from({ length: 42 }, (_, i) => {
+      const d = new Date(firstGridDay);
+      d.setDate(d.getDate() + i);
+      return d;
+    });
+    const inCurrentMonth = (d: Date) => d.getMonth() === monthStart.getMonth();
+
+    return (
+      <div>
+        {toolbar}
+        <div className="apt-month-grid">
+          {DAY_LABELS.map((label) => (
+            <div key={label} className="apt-month-headcell">{label}</div>
+          ))}
+          {gridDays.map((d, i) => {
+            const key = toDateParam(d);
+            const dayEvents = events.filter((e) => dateKeyInZone(e.startsAt) === key);
+            return (
+              <Link
+                key={i}
+                href={`/hub/appointments?view=day&date=${key}${fqSuffix}`}
+                className={`apt-month-cell ${!inCurrentMonth(d) ? "apt-month-cell-outside" : ""} ${isToday(d) ? "apt-month-cell-today" : ""}`}
+              >
+                <span className="apt-month-daynum">{d.getDate()}</span>
+                <div className="apt-month-chips">
+                  {dayEvents.slice(0, 3).map((e) => (
+                    <span key={e.id} className={`apt-month-chip wk-event-${e.category}`}>
+                      {timeInZone(e.startsAt)} {e.firstName}
+                    </span>
+                  ))}
+                  {dayEvents.length > 3 && <span className="apt-month-more">+{dayEvents.length - 3} more</span>}
+                </div>
+              </Link>
+            );
+          })}
+        </div>
+        {legend}
+      </div>
+    );
+  }
+
+  // ---------- WEEK VIEW (default) ----------
+  const days = Array.from({ length: 7 }, (_, i) => {
+    const d = new Date(rangeStart);
+    d.setDate(d.getDate() + i);
+    return d;
+  });
+
+  return (
+    <div>
+      {toolbar}
       <div className="wk-grid-wrap">
         <div className={`wk-grid ${isMobile ? "wk-grid-mobile" : ""}`} style={{ gridTemplateColumns: `${isMobile ? "44px" : "56px"} repeat(7, 1fr)` }}>
           <div className="wk-corner" />
@@ -198,7 +338,7 @@ export default function WeekCalendar({
             <div key={`row-${h}`} className="wk-row-contents" style={{ display: "contents" }}>
               <div className="wk-hour-label">{isMobile || h % 1 === 0 ? fmtHour(h) : ""}</div>
               {days.map((d, i) => {
-                const key = dateKey(d);
+                const key = toDateParam(d);
                 const slotEvents = events.filter((e) => {
                   if (dateKeyInZone(e.startsAt) !== key) return false;
                   const frac = hourFractionInZone(e.startsAt);
@@ -226,21 +366,8 @@ export default function WeekCalendar({
           ))}
         </div>
       </div>
-
-      <div className="wk-legend-bottom">
-        <span><i className="wk-dot wk-dot-combined" /> combined systems</span>
-        <span><i className="wk-dot wk-dot-individual" /> individual treatments</span>
-        <span><i className="wk-dot wk-dot-consultation" /> evaluations / blueprint</span>
-        <span><i className="wk-dot wk-dot-blocked" /> blocked / unavailable</span>
-      </div>
-
-      {selected && (
-        <AppointmentDetailPanel
-          event={selected}
-          canManage={canManage}
-          onClose={() => setSelected(null)}
-        />
-      )}
+      {legend}
+      {detailPanel}
     </div>
   );
 }

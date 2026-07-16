@@ -3171,3 +3171,33 @@
 @media (max-width:760px){
   .apd-panel{ max-width:100%; }
 }
+
+/* ---------- Appointments — Day & Month views (Milestone 51) ---------- */
+.apt-day-list{ display:flex; flex-direction:column; }
+.apt-day-row{ display:grid; grid-template-columns:70px 1fr; border-top:1px solid rgba(0,0,0,0.06); min-height:44px; }
+.apt-day-row:first-child{ border-top:none; }
+.apt-day-row-label{ font-family:var(--sans); font-size:11px; color:#8a7f74; padding:10px 10px 10px 0; text-align:right; }
+.apt-day-row-events{ display:flex; flex-direction:column; gap:6px; padding:8px 10px; }
+.apt-day-row-empty{ color:rgba(0,0,0,0.15); font-family:var(--sans); font-size:11px; }
+.apt-day-card{ display:flex; align-items:center; gap:10px; text-align:left; border:none; border-left:4px solid; border-radius:6px; padding:8px 12px; background:#fff; box-shadow:0 1px 3px rgba(0,0,0,0.06); cursor:pointer; font-family:var(--sans); }
+.apt-day-card .wk-event-time{ font-size:11px; }
+.apt-day-card .wk-event-client{ font-size:13px; }
+.apt-day-card .wk-event-treatment{ font-size:11px; color:#5a5148; }
+.apt-day-card .wk-event-zone{ font-size:10px; color:#8a7f74; }
+
+.apt-month-grid{ display:grid; grid-template-columns:repeat(7,1fr); border:1px solid rgba(0,0,0,0.07); border-radius:14px; overflow:hidden; }
+.apt-month-headcell{ font-family:var(--sans); font-size:10px; letter-spacing:.05em; text-transform:uppercase; color:#8a7f74; text-align:center; padding:10px 4px; background:var(--ivory,#F7F4EF); border-bottom:1px solid rgba(0,0,0,0.07); }
+.apt-month-cell{ min-height:96px; padding:6px; border-top:1px solid rgba(0,0,0,0.05); border-left:1px solid rgba(0,0,0,0.05); text-decoration:none; color:inherit; display:block; transition:background .15s; }
+.apt-month-cell:hover{ background:rgba(109,122,100,0.06); }
+.apt-month-cell-outside{ opacity:.35; }
+.apt-month-cell-today{ background:rgba(109,122,100,0.1); }
+.apt-month-daynum{ font-family:var(--serif); font-size:13px; color:#2B2622; display:block; margin-bottom:4px; }
+.apt-month-chips{ display:flex; flex-direction:column; gap:2px; }
+.apt-month-chip{ font-family:var(--sans); font-size:8.5px; padding:2px 5px; border-radius:4px; border-left:3px solid; background:rgba(0,0,0,0.03); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.apt-month-more{ font-family:var(--sans); font-size:8.5px; color:#8a7f74; padding-left:5px; }
+
+@media (max-width:760px){
+  .apt-month-cell{ min-height:64px; }
+  .apt-month-daynum{ font-size:11px; }
+  .apt-month-chip{ font-size:7px; }
+}
