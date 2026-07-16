@@ -234,6 +234,7 @@ model Client {
   bodyMeasurements     BodyMeasurement[]
   photos               Photo[]
   notifications        Notification[]
+  dailyTrackers        DailyTracker[]
   formSubmissions      FormSubmission[]
   progressSnapshots    ProgressSnapshot[]
   appointments   Appointment[]
@@ -592,6 +593,32 @@ model Notification {
   createdAt   DateTime             @default(now())
 
   @@map("notifications")
+}
+
+model DailyTracker {
+  id        String   @id @default(cuid())
+  clientId  String
+  client    Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  date      DateTime // normalized to midnight UTC — one row per client per calendar day
+
+  waterGlasses      Int      @default(0) // 0-8
+  steps             Int?
+  stepsGoal         Int      @default(8000)
+  sleepHours        Float?
+  sleepQuality      String? // Poor | Fair | Good | Excellent
+  compressionWorn   Boolean?
+  compressionHours  Float?
+  moodCheckIn       String? // GREAT | OKAY | BLOATED
+  moodNote          String?
+  symptoms          String[] @default([])
+  dailyNote         String?
+  weightLbs         Float?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([clientId, date])
+  @@map("daily_trackers")
 }
 
 model Document {

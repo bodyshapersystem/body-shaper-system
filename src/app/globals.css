@@ -3276,3 +3276,72 @@
 .doc-card-link{ font-family:var(--sans); font-size:11.5px; color:var(--cat,#5C1A1F); text-decoration:underline; }
 .doc-client-card{ display:flex; align-items:center; gap:12px; background:#fff; border-radius:14px; padding:16px; box-shadow:0 2px 10px rgba(0,0,0,0.05); text-decoration:none; color:inherit; }
 .doc-progress-label{ font-family:var(--sans); font-size:11px; letter-spacing:.05em; text-transform:uppercase; color:#8a7f74; margin:0 0 8px; }
+
+/* ---------- Daily Trackers™ (Milestone 55) ---------- */
+.trk-hero{ background:var(--ivory,#F7F4EF); border-radius:20px; padding:36px 28px; text-align:center; margin-bottom:20px; }
+.trk-hero-eyebrow{ font-family:var(--sans); font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:#6B4E3D; margin:0 0 6px; }
+.trk-hero-title{ font-family:var(--serif); font-size:32px; color:#2B2622; margin:0 0 2px; }
+.trk-hero-sub{ font-family:var(--serif); font-size:18px; font-style:italic; color:#6B4E3D; margin:0 0 12px; }
+.trk-hero-support{ font-family:var(--sans); font-size:13px; color:#8a7f74; max-width:420px; margin:0 auto; }
+
+.trk-summary-bar{ display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-bottom:24px; }
+.trk-summary-bar > div{ background:#fff; border-radius:14px; padding:16px; text-align:center; box-shadow:0 2px 8px rgba(107,78,61,0.06); }
+.trk-summary-label{ font-family:var(--sans); font-size:10.5px; letter-spacing:.05em; text-transform:uppercase; color:#8a7f74; margin:0 0 6px; }
+.trk-summary-value{ font-family:var(--serif); font-size:20px; color:#2B2622; margin:0; }
+
+.trk-grid{ display:grid; grid-template-columns:repeat(auto-fill, minmax(260px, 1fr)); gap:16px; margin-bottom:24px; }
+.trk-card{ background:#fff; border-radius:16px; padding:20px; box-shadow:0 2px 10px rgba(107,78,61,0.06); }
+.trk-card-title{ font-family:var(--serif); font-size:15.5px; color:#2B2622; margin:0 0 12px; }
+
+.trk-water-circles{ display:flex; gap:6px; margin-bottom:8px; flex-wrap:wrap; }
+.trk-water-dot{ width:22px; height:22px; border-radius:50%; border:1.5px solid #6B4E3D; display:inline-block; }
+.trk-water-dot-filled{ background:#6B4E3D; }
+.trk-water-btns{ display:flex; gap:8px; margin-top:10px; }
+.trk-round-btn{ width:36px; height:36px; border-radius:50%; border:1px solid rgba(107,78,61,0.3); background:#fff; color:#6B4E3D; font-size:18px; cursor:pointer; }
+
+.trk-progress-circle{ width:100px; height:100px; border-radius:50%; display:flex; align-items:center; justify-content:center; margin-bottom:10px; }
+.trk-progress-circle-inner{ width:78px; height:78px; border-radius:50%; background:#fff; display:flex; flex-direction:column; align-items:center; justify-content:center; }
+.trk-progress-circle-inner strong{ font-family:var(--serif); font-size:16px; color:#2B2622; }
+.trk-progress-circle-inner span{ font-family:var(--sans); font-size:9.5px; color:#8a7f74; }
+
+.trk-mood-row{ display:flex; gap:8px; }
+.trk-mood-btn{ flex:1; display:flex; flex-direction:column; align-items:center; gap:4px; padding:12px 6px; border-radius:10px; border:1px solid rgba(107,78,61,0.15); background:#fff; cursor:pointer; font-family:var(--sans); font-size:11px; color:#2B2622; }
+.trk-mood-btn-active{ background:rgba(107,78,61,0.08); border-color:#6B4E3D; }
+
+.trk-symptom-list{ display:flex; flex-direction:column; gap:8px; }
+.trk-symptom-row{ display:flex; align-items:center; gap:8px; font-family:var(--sans); font-size:13px; color:#2B2622; }
+
+.trk-weight-value{ font-family:var(--serif); font-size:22px; color:#2B2622; margin:0 0 12px; }
+.trk-link-btn{ display:block; margin-top:8px; font-family:var(--sans); font-size:11.5px; color:#6B4E3D; text-decoration:underline; background:none; border:none; cursor:pointer; padding:0; text-align:left; }
+
+.trk-recovery-card{ background:#fff; border-radius:18px; padding:28px; text-align:center; box-shadow:0 4px 16px rgba(107,78,61,0.08); margin-bottom:24px; }
+.trk-recovery-label{ font-family:var(--sans); font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:#C9A876; margin:0 0 6px; }
+.trk-recovery-value{ font-family:var(--serif); font-size:42px; color:#2B2622; margin:0; }
+.trk-recovery-tier{ font-family:var(--sans); font-size:13px; color:#6B4E3D; margin:4px 0 10px; }
+
+.trk-two-col{ display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:24px; }
+.trk-checklist{ list-style:none; padding:0; margin:0; text-align:left; font-family:var(--sans); font-size:12.5px; color:#2B2622; display:flex; flex-direction:column; gap:6px; }
+
+.trk-achievement-grid{ display:grid; grid-template-columns:repeat(auto-fill, minmax(160px, 1fr)); gap:12px; margin-bottom:32px; }
+.trk-achievement-card{ background:#fff; border-radius:14px; padding:16px; display:flex; flex-direction:column; align-items:center; gap:8px; text-align:center; font-family:var(--sans); font-size:11.5px; color:#2B2622; box-shadow:0 2px 8px rgba(107,78,61,0.06); }
+.trk-achievement-card-locked{ opacity:.35; }
+
+.trk-cta-bar{ background:#6B4E3D; color:#F6F3EE; border-radius:18px; padding:28px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px; }
+.trk-cta-bar h3{ font-family:var(--serif); font-size:19px; margin:0 0 4px; }
+.trk-cta-bar p{ font-family:var(--sans); font-size:12.5px; color:rgba(246,243,238,0.8); margin:0; max-width:360px; }
+
+.trk-week-dots{ display:flex; justify-content:space-between; }
+.trk-week-day{ display:flex; flex-direction:column; align-items:center; gap:6px; }
+.trk-week-circle{ width:20px; height:20px; border-radius:50%; border:1.5px solid #6B4E3D; display:inline-block; }
+.trk-week-circle-filled{ background:#6B4E3D; }
+.trk-week-label{ font-family:var(--sans); font-size:9.5px; color:#8a7f74; }
+
+@media (max-width:760px){
+  .trk-summary-bar{ grid-template-columns:repeat(2,1fr); }
+  .trk-two-col{ grid-template-columns:1fr; }
+}
+
+.trk-achievements-row{ display:flex; gap:16px; align-items:stretch; flex-wrap:wrap; }
+.trk-motivation-card{ background:#6B4E3D; color:#F6F3EE; border-radius:14px; padding:20px; min-width:200px; display:flex; flex-direction:column; justify-content:center; gap:8px; font-family:var(--serif); font-size:14px; font-style:italic; text-align:center; }
+.trk-motivation-card p:first-child{ font-size:18px; color:#C9A876; }
+@media (max-width:760px){ .trk-achievements-row{ flex-direction:column; } }
