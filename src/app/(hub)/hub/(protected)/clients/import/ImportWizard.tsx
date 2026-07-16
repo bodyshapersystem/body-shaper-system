@@ -8,11 +8,12 @@ import { bulkImportClients, type ImportRow, type ImportResult } from "./import-a
 
 const TARGET_FIELDS: { key: keyof ImportRow; label: string; required?: boolean }[] = [
   { key: "firstName", label: "First Name", required: true },
-  { key: "lastName", label: "Last Name", required: true },
-  { key: "email", label: "Email", required: true },
+  { key: "lastName", label: "Last Name" },
+  { key: "email", label: "Email" },
   { key: "phone", label: "Phone" },
   { key: "address", label: "Address" },
   { key: "city", label: "Service Zone" },
+  { key: "state", label: "State" },
   { key: "birthday", label: "Birthday" },
   { key: "lastAppointment", label: "Last Appointment" },
   { key: "lastTreatment", label: "Last Treatment" },
@@ -97,6 +98,14 @@ export default function ImportWizard() {
       for (const target of TARGET_FIELDS) {
         const sourceCol = mapping[target.key];
         if (sourceCol && raw[sourceCol]) (row as Record<string, string>)[target.key] = raw[sourceCol];
+      }
+      // Real-world messy data fix: some exports cram "First Last" into
+      // just the First Name column with Last Name left blank — split
+      // on the first space rather than leaving Last Name empty.
+      if (row.firstName && !row.lastName && row.firstName.trim().includes(" ")) {
+        const parts = row.firstName.trim().split(/\s+/);
+        row.firstName = parts[0];
+        row.lastName = parts.slice(1).join(" ");
       }
       return row as ImportRow;
     });
@@ -198,7 +207,12 @@ export default function ImportWizard() {
       {step === "done" && result && (
         <>
           <h3 style={{ fontFamily: "var(--sans)", fontSize: 13, marginBottom: 12 }}>Import Complete</h3>
-          <p className="pay-history-meta" style={{ marginBottom: 8 }}>✅ {result.successCount} clients imported successfully.</p>
+          <p className="pay-history-meta" style={{ marginBottom: 8 }}>✅ {result.successCount} clients imported (paused) with real Portal accounts.</p>
+          {result.contactOnlyCount > 0 && (
+            <p className="pay-history-meta" style={{ marginBottom: 8 }}>
+              📇 {result.contactOnlyCount} contacts saved without a Portal account (no email on file) — stored for future SMS outreach.
+            </p>
+          )}
           {result.failures.length > 0 && (
             <>
               <p className="sched-error" style={{ marginBottom: 8 }}>⚠️ {result.failures.length} rows skipped:</p>

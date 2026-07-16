@@ -12,6 +12,7 @@ export type ImportRow = {
   phone?: string;
   address?: string;
   city?: string; // Service Zone
+  state?: string;
   birthday?: string; // ISO date string
   lastAppointment?: string; // ISO date string
   lastTreatment?: string;
@@ -21,6 +22,7 @@ export type ImportRow = {
 
 export type ImportResult = {
   successCount: number;
+  contactOnlyCount: number;
   failures: { row: number; email: string; reason: string }[];
 };
 
@@ -39,19 +41,40 @@ export async function bulkImportClients(rows: ImportRow[]): Promise<ImportResult
   if (!user || !hasPermission(user, "clients.convert")) {
     return { error: "You don't have permission to import clients." };
   }
-  if (rows.length > 500) {
-    return { error: "Please import in batches of 500 or fewer at a time." };
+  if (rows.length > 1000) {
+    return { error: "Please import in batches of 1000 or fewer at a time." };
   }
 
   const admin = createSupabaseAdminClient();
   const failures: ImportResult["failures"] = [];
   let successCount = 0;
+  let contactOnlyCount = 0;
 
   for (let i = 0; i < rows.length; i++) {
     const row = rows[i];
     try {
-      if (!row.email || !row.firstName || !row.lastName) {
-        failures.push({ row: i + 1, email: row.email ?? "—", reason: "Missing required First Name, Last Name, or Email." });
+      if (!row.firstName) {
+        failures.push({ row: i + 1, email: row.email ?? "—", reason: "Missing First Name." });
+        continue;
+      }
+
+      // No email on file — Lead and Client both require one (can't
+      // fabricate a fake address), so this becomes a simple contact
+      // record instead, for future SMS outreach.
+      if (!row.email) {
+        await prisma.importedContact.create({
+          data: {
+            firstName: row.firstName,
+            lastName: row.lastName || null,
+            phone: row.phone || null,
+            address: row.address || null,
+            city: row.city || null,
+            state: row.state || null,
+            notes: row.notes || null,
+            source: `CSV/Excel Import ${new Date().toLocaleDateString()} — no email on file`,
+          },
+        });
+        contactOnlyCount += 1;
         continue;
       }
 
@@ -131,5 +154,5 @@ export async function bulkImportClients(rows: ImportRow[]): Promise<ImportResult
   }
 
   revalidatePath("/hub/clients");
-  return { successCount, failures };
+  return { successCount, contactOnlyCount, failures };
 }

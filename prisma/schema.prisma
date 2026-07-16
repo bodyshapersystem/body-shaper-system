@@ -590,6 +590,14 @@ enum NotificationCategory {
   GENERAL
 }
 
+/**
+ * Simple, standalone list for legacy contacts that only have a phone
+ * number (no email) — genuinely can't become a Lead or Client since
+ * both require email in this schema, and no email means no email
+ * campaign could reach them anyway. Kept deliberately lightweight,
+ * ready for a future SMS campaign feature (per the CRM roadmap) -
+ * not wired into Leads/Clients/Notifications at all today.
+ */
 model Notification {
   id          String               @id @default(cuid())
   clientId    String?
@@ -627,6 +635,21 @@ model DailyTracker {
 
   @@unique([clientId, date])
   @@map("daily_trackers")
+}
+
+model ImportedContact {
+  id        String   @id @default(cuid())
+  firstName String
+  lastName  String?
+  phone     String?
+  address   String?
+  city      String?
+  state     String?
+  notes     String?
+  source    String? // e.g. "CSV Import 2026-07-16 — no email on file"
+  createdAt DateTime @default(now())
+
+  @@map("imported_contacts")
 }
 
 model Document {
