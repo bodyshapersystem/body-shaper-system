@@ -31,7 +31,7 @@ export default function OnboardingFlow({
       setChecking(true);
       const result = await checkOnboardingStatus();
       setChecking(false);
-      if (!result.success) return;
+      if ("error" in result) return;
 
       if (result.isComplete) {
         setStep("done");
