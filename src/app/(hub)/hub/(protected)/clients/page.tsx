@@ -107,6 +107,7 @@ export default async function HubClientsPage({
         completedCount,
         journeyStatus: journey.status,
         journeyIcon: journey.icon,
+        clientType: c.clientType,
         progressPercent: totalSessions !== null && totalSessions > 0 ? Math.round((completedCount / totalSessions) * 100) : null,
         balanceCents,
         nextAppt,
@@ -189,6 +190,8 @@ export default async function HubClientsPage({
                 </td>
                 <td style={{ padding: "10px 8px" }}>
                   <span className={`dash-status dash-status-${r.status.toLowerCase()}`}>{r.status}</span>
+                  {r.clientType === "VIP" && <span className="dash-status" style={{ marginLeft: 4 }}>⭐</span>}
+                  {r.clientType === "AMBASSADOR" && <span className="dash-status" style={{ marginLeft: 4 }}>🤍</span>}
                 </td>
                 <td style={{ padding: "10px 8px", whiteSpace: "nowrap" }}>
                   {r.journeyIcon} {r.journeyStatus}

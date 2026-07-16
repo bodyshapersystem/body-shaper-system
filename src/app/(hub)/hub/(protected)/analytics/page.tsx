@@ -81,6 +81,10 @@ export default async function HubAnalyticsPage({ searchParams }: { searchParams:
     prisma.client.count({ where: { archivedAt: { not: null } } }),
   ]);
 
+  // ---------- Collaboration value — kept entirely separate from revenue, per direction ----------
+  const collaborations = await prisma.collaboration.findMany({ select: { treatmentValueCents: true, clientContributionCents: true } });
+  const totalCollaborationValueCents = collaborations.reduce((sum, c) => sum + (c.treatmentValueCents - c.clientContributionCents), 0);
+
   // ---------- KPI Row ----------
   const revenueThisMonth = revenueThisMonthAgg._sum.amountCents ?? 0;
   const revenueLastMonth = revenueLastMonthAgg._sum.amountCents ?? 0;
@@ -256,6 +260,11 @@ export default async function HubAnalyticsPage({ searchParams }: { searchParams:
               {growthVsLastMonth >= 0 ? "↑" : "↓"} {Math.abs(growthVsLastMonth)}% vs last month
             </span>
           )}
+        </div>
+        <div className="pd-stat">
+          <span className="pd-stat-label">Marketing Investment (Collaborations)</span>
+          <strong>{money(totalCollaborationValueCents)}</strong>
+          <span className="pd-stat-label" style={{ marginTop: 4 }}>Not counted as revenue</span>
         </div>
         <div className="pd-stat">
           <span className="pd-stat-label">Active Clients</span>

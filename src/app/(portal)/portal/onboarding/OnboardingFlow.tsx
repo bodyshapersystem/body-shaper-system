@@ -9,14 +9,16 @@ export default function OnboardingFlow({
   initialStep,
   agreementUrl,
   consentUrl,
+  totalSteps = 2,
 }: {
   firstName: string;
-  initialStep: 1 | 2;
+  initialStep: 1 | 2 | 3;
   agreementUrl: string;
   consentUrl: string;
+  totalSteps?: number;
 }) {
   const router = useRouter();
-  const [step, setStep] = useState<1 | 2 | "done">(initialStep);
+  const [step, setStep] = useState<1 | 2 | 3 | "done">(initialStep);
   const [checking, setChecking] = useState(false);
   const pollRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -35,8 +37,8 @@ export default function OnboardingFlow({
 
       if (result.isComplete) {
         setStep("done");
-      } else if (result.currentStep === 2 && step === 1) {
-        setStep(2);
+      } else if (result.currentStep !== step && result.currentStep <= 3) {
+        setStep(result.currentStep as 1 | 2 | 3);
       }
     }, 4000);
 
@@ -65,7 +67,12 @@ export default function OnboardingFlow({
     );
   }
 
-  const isStep1 = step === 1;
+  const stepTitles: Record<1 | 2 | 3, { title: string; sub: string }> = {
+    1: { title: "Complete your Client Agreement.", sub: "Review and sign your Client Agreement & Policies — this opens in a new tab." },
+    2: { title: "Complete your Medical Consent.", sub: "Review and sign your Medical Consent — this opens in a new tab." },
+    3: { title: "Content Release Agreement", sub: "This document is being finalized by our team — we'll notify you the moment it's ready to sign." },
+  };
+  const current = stepTitles[step];
 
   return (
     <div className="onb-card">
@@ -74,23 +81,25 @@ export default function OnboardingFlow({
       <p className="onb-sub">Before accessing your portal, let's complete your onboarding.</p>
 
       <div className="onb-progress">
-        <span className="onb-progress-label">Step {isStep1 ? 1 : 2} of 2</span>
+        <span className="onb-progress-label">Step {step} of {totalSteps}</span>
         <div className="onb-progress-track">
-          <div className="onb-progress-fill" style={{ width: isStep1 ? "50%" : "100%" }} />
+          <div className="onb-progress-fill" style={{ width: `${(step / totalSteps) * 100}%` }} />
         </div>
       </div>
 
       <div className="onb-step-body">
-        <h2 className="onb-step-title">{isStep1 ? "Complete your Client Agreement." : "Complete your Medical Consent."}</h2>
-        <p className="onb-step-sub">
-          {isStep1
-            ? "Review and sign your Client Agreement & Policies — this opens in a new tab."
-            : "Review and sign your Medical Consent — this opens in a new tab."}
-        </p>
-        <a href={isStep1 ? agreementUrl : consentUrl} className="onb-cta">
-          Continue
-        </a>
-        <p className="onb-poll-hint">{checking ? "Checking…" : "You'll be brought back here automatically once it's submitted."}</p>
+        <h2 className="onb-step-title">{current.title}</h2>
+        <p className="onb-step-sub">{current.sub}</p>
+        {step === 3 ? (
+          <a href="/portal/messages" className="onb-cta">Message Your Specialist</a>
+        ) : (
+          <a href={step === 1 ? agreementUrl : consentUrl} className="onb-cta">
+            Continue
+          </a>
+        )}
+        {step !== 3 && (
+          <p className="onb-poll-hint">{checking ? "Checking…" : "You'll be brought back here automatically once it's submitted."}</p>
+        )}
       </div>
     </div>
   );

@@ -93,6 +93,13 @@ export default async function HubDashboardPage() {
     }),
   ]);
 
+  // ---------- Collaborations widget: real counts, separate query to avoid touching the large Promise.all above ----------
+  const [activeCollaborations, pendingDeliverables, completedCollaborations] = await Promise.all([
+    prisma.collaboration.count({ where: { client: { archivedAt: null } } }),
+    prisma.collaboration.count({ where: { agreementStatus: "PENDING" } }),
+    prisma.collaboration.count({ where: { agreementStatus: "SIGNED" } }),
+  ]);
+
   // ---------- Transformation Spotlight: real, or honest empty state ----------
   const weightByClient = new Map<string, { first: number; last: number; firstDate: Date; lastDate: Date }>();
   for (const m of weightHistory) {
@@ -276,6 +283,27 @@ export default async function HubDashboardPage() {
           </Link>
         </div>
       </div>
+
+      {/* ---------- Collaborations ---------- */}
+      {activeCollaborations > 0 && (
+        <>
+          <h3 className="dash-section-title">Collaborations & Ambassadors</h3>
+          <div className="cl-overview-grid" style={{ marginBottom: 24 }}>
+            <div className="pd-card" style={{ textAlign: "center" }}>
+              <p className="pay-history-meta">Active Collaborations</p>
+              <p style={{ fontFamily: "var(--serif)", fontSize: 28 }}>{activeCollaborations}</p>
+            </div>
+            <div className="pd-card" style={{ textAlign: "center" }}>
+              <p className="pay-history-meta">Pending Deliverables</p>
+              <p style={{ fontFamily: "var(--serif)", fontSize: 28 }}>{pendingDeliverables}</p>
+            </div>
+            <div className="pd-card" style={{ textAlign: "center" }}>
+              <p className="pay-history-meta">Completed Collaborations</p>
+              <p style={{ fontFamily: "var(--serif)", fontSize: 28 }}>{completedCollaborations}</p>
+            </div>
+          </div>
+        </>
+      )}
 
       {/* ---------- Transformation Spotlight ---------- */}
       <h3 className="dash-section-title">Transformation Spotlight™</h3>

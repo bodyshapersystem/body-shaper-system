@@ -156,7 +156,7 @@ type ConversionResult = {
 
 const SITE_URL = "https://www.bodyshapersystem.com";
 
-export async function convertLeadToClient(leadId: string): Promise<ConversionResult> {
+export async function convertLeadToClient(leadId: string, clientType: "STANDARD" | "VIP" | "AMBASSADOR" = "STANDARD"): Promise<ConversionResult> {
   const user = await getCurrentHubUser();
   if (!user || !hasPermission(user, "clients.convert")) {
     return { error: "You don't have permission to convert leads." };
@@ -201,18 +201,19 @@ export async function convertLeadToClient(leadId: string): Promise<ConversionRes
       const { data: list } = await admin.auth.admin.listUsers();
       const found = list?.users.find((u) => u.email?.toLowerCase() === lead.email.toLowerCase());
       if (!found) return { error: `Auth account exists for ${lead.email} but could not be found.` };
-      return await finishConversion(lead, found.id, user.id);
+      return await finishConversion(lead, found.id, user.id, clientType);
     }
     return { error: authError?.message ?? "Failed to create portal auth account." };
   }
 
-  return await finishConversion(lead, authData.user.id, user.id);
+  return await finishConversion(lead, authData.user.id, user.id, clientType);
 }
 
 async function finishConversion(
   lead: { id: string; firstName: string; lastName: string; email: string; phone: string | null; city: string | null },
   authUserId: string,
-  convertedById: string
+  convertedById: string,
+  clientType: "STANDARD" | "VIP" | "AMBASSADOR" = "STANDARD"
 ): Promise<ConversionResult> {
   const token = randomUUID();
   const expiresAt = new Date(Date.now() + 1000 * 60 * 60 * 24); // 24 hours
@@ -244,6 +245,7 @@ async function finishConversion(
         phone: lead.phone,
         city: lead.city,
         createdById: convertedById,
+        clientType,
       },
     });
 
@@ -313,13 +315,27 @@ async function finishConversion(
   // hold a database transaction open). If sending fails, the client
   // and invitation still exist untouched — the Hub shows the failure
   // and offers "Resend Invitation", per the no-silent-failure rule.
-  const emailResult = await sendWelcomeActivationEmail({
-    clientId: result.client.id,
-    firstName: lead.firstName,
-    email: lead.email,
-    activationUrl,
-    invitationId: result.invite.id,
-  });
+  // Ambassador Welcome Email: per direction, "do not create it yet -
+  // simply prepare the automation." This branch point is ready for a
+  // distinct Ambassador-version template once approved; today it
+  // sends the same real Welcome email as Standard clients rather than
+  // fabricating Ambassador-specific copy that hasn't been designed.
+  const emailResult =
+    clientType === "AMBASSADOR"
+      ? await sendWelcomeActivationEmail({
+          clientId: result.client.id,
+          firstName: lead.firstName,
+          email: lead.email,
+          activationUrl,
+          invitationId: result.invite.id,
+        }) // TODO: swap for sendAmbassadorWelcomeActivationEmail() once that template is approved
+      : await sendWelcomeActivationEmail({
+          clientId: result.client.id,
+          firstName: lead.firstName,
+          email: lead.email,
+          activationUrl,
+          invitationId: result.invite.id,
+        });
 
   await createNotification({
     clientId: result.client.id,

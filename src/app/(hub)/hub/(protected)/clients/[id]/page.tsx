@@ -6,11 +6,12 @@ import {
   sendOwnerMessage,
   getClientOverviewSummary,
   toggleClientPause,
-  setClientType,
   addClientNote,
 } from "./actions";
 import InvitationPanel from "./InvitationPanel";
 import DeleteClientButton from "./DeleteClientButton";
+import CollaborationSheet from "./CollaborationSheet";
+import ClientTypeSelect from "./ClientTypeSelect";
 import { getBusinessTimezone, formatDateInTimezone, formatTimeInTimezone } from "@/lib/format-datetime";
 import { CATEGORY_ICONS as NOTIFICATION_ICONS } from "@/lib/notifications";
 import BlueprintAssessmentTab from "./BlueprintAssessmentTab";
@@ -74,7 +75,7 @@ export default async function ClientDetailPage({
 
   if (!client) notFound();
 
-  const [overview, appointments, payments, clientNotes, specialist, timezone, clientNotifications] = await Promise.all([
+  const [overview, appointments, payments, clientNotes, specialist, timezone, clientNotifications, collaboration, staff] = await Promise.all([
     getClientOverviewSummary(id),
     prisma.appointment.findMany({ where: { clientId: id }, orderBy: { startsAt: "desc" } }),
     prisma.payment.findMany({ where: { clientId: id }, orderBy: { createdAt: "desc" } }),
@@ -84,6 +85,8 @@ export default async function ClientDetailPage({
       : Promise.resolve(null),
     getBusinessTimezone(),
     prisma.notification.findMany({ where: { clientId: id }, orderBy: { createdAt: "desc" } }),
+    prisma.collaboration.findUnique({ where: { clientId: id } }),
+    prisma.user.findMany({ where: { roleId: { not: "role_client" } }, orderBy: { fullName: "asc" }, select: { id: true, fullName: true } }),
   ]);
 
   const tab: Tab = TABS.includes(tabParam as Tab) ? (tabParam as Tab) : "overview";
@@ -126,6 +129,8 @@ export default async function ClientDetailPage({
                     {client.firstName} {client.lastName}
                   </strong>
                   <span className={`dash-status dash-status-${(overview?.status ?? "active").toLowerCase()}`}>{overview?.status ?? "Active"}</span>
+                  {client.clientType === "VIP" && <span className="dash-status">⭐ VIP</span>}
+                  {client.clientType === "AMBASSADOR" && <span className="dash-status">🤍 Ambassador</span>}
                 </div>
                 <p className="cl-header-contact">
                   {client.email} {client.phone && `· ${client.phone}`}
@@ -149,16 +154,7 @@ export default async function ClientDetailPage({
               )}
               {hasPermission(user, "clients.convert") && <DeleteClientButton clientId={client.id} />}
               {hasPermission(user, "clients.convert") && (
-                <form
-                  action={async () => {
-                    "use server";
-                    await setClientType(client.id, client.clientType === "AMBASSADOR" ? "STANDARD" : "AMBASSADOR");
-                  }}
-                >
-                  <button type="submit" className="cl-subtle-action">
-                    {client.clientType === "AMBASSADOR" ? "Remove Ambassador Status" : "Mark as Ambassador"}
-                  </button>
-                </form>
+                <ClientTypeSelect clientId={client.id} clientType={client.clientType} />
               )}
             </div>
 
@@ -193,6 +189,11 @@ export default async function ClientDetailPage({
 
       {tab === "overview" && overview && (
         <div className="cl-overview-grid">
+          {client.clientType === "AMBASSADOR" && (
+            <div style={{ gridColumn: "1 / -1" }}>
+              <CollaborationSheet clientId={client.id} collaboration={collaboration} staff={staff} />
+            </div>
+          )}
           <div className="pd-card">
             <h3 style={{ fontFamily: "var(--sans)", fontSize: 13, marginBottom: 16 }}>Client Summary</h3>
             <div className="cl-summary-list">

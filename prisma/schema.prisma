@@ -110,6 +110,7 @@ model User {
   leadsCreated      Lead[]              @relation("LeadCreatedBy")
   leadStatusChanges LeadStatusHistory[]
   clientRecord      Client?
+  managedCollaborations Collaboration[]
 
   @@map("users")
 }
@@ -235,6 +236,7 @@ model Client {
   photos               Photo[]
   notifications        Notification[]
   dailyTrackers        DailyTracker[]
+  collaboration        Collaboration?
   formSubmissions      FormSubmission[]
   progressSnapshots    ProgressSnapshot[]
   appointments   Appointment[]
@@ -714,7 +716,43 @@ enum AppointmentLocationType {
 
 enum ClientType {
   STANDARD
+  VIP
   AMBASSADOR
+}
+
+enum CollaborationType {
+  INFLUENCER
+  CREATOR
+  AMBASSADOR
+  MODEL
+  PARTNERSHIP
+  CUSTOM
+}
+
+enum AgreementStatus {
+  PENDING
+  SIGNED
+  NOT_REQUIRED
+}
+
+model Collaboration {
+  id                 String            @id @default(cuid())
+  clientId           String            @unique
+  client             Client            @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  collaborationType  CollaborationType @default(AMBASSADOR)
+  treatmentValueCents Int              @default(0) // retail value of the treatment(s) given
+  clientContributionCents Int          @default(0) // what the client actually paid — $0 = fully complimentary
+  campaignName       String?
+  instagramHandle    String?
+  deliverables       String?
+  internalNotes      String?
+  managerId          String?
+  manager            User?             @relation(fields: [managerId], references: [id])
+  agreementStatus    AgreementStatus   @default(PENDING)
+  createdAt          DateTime          @default(now())
+  updatedAt          DateTime          @updatedAt
+
+  @@map("collaborations")
 }
 
 model Appointment {

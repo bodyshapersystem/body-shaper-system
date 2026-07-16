@@ -468,7 +468,7 @@ export async function deleteClientPermanently(clientId: string, confirmationText
  * Real Client Type toggle — controls whether the Content Release
  * Agreement appears in Documents at all (Ambassador only).
  */
-export async function setClientType(clientId: string, clientType: "STANDARD" | "AMBASSADOR") {
+export async function setClientType(clientId: string, clientType: "STANDARD" | "VIP" | "AMBASSADOR") {
   const user = await getCurrentHubUser();
   if (!user || !hasPermission(user, "clients.convert")) {
     return { error: "You don't have permission to change this." };

@@ -26,6 +26,7 @@ export default function LeadConversionPanel({
   const [emailSent, setEmailSent] = useState<boolean | null>(null);
   const [emailError, setEmailError] = useState<string | null>(null);
   const [error, setError] = useState("");
+  const [clientType, setClientType] = useState<"STANDARD" | "VIP" | "AMBASSADOR">("STANDARD");
 
   function handlePaymentChange(e: React.ChangeEvent<HTMLSelectElement>) {
     const value = e.target.value as PaymentStatus;
@@ -37,7 +38,7 @@ export default function LeadConversionPanel({
   function handleConvert() {
     setError("");
     startTransition(async () => {
-      const result = await convertLeadToClient(leadId);
+      const result = await convertLeadToClient(leadId, clientType);
       if (result?.error) {
         setError(result.error);
         return;
@@ -83,6 +84,18 @@ export default function LeadConversionPanel({
 
       {canConvert && (
         <div>
+          <label className="sched-label" style={{ marginBottom: 12, display: "block" }}>
+            Client Type
+            <select
+              value={clientType}
+              onChange={(e) => setClientType(e.target.value as "STANDARD" | "VIP" | "AMBASSADOR")}
+              className="sched-select"
+            >
+              <option value="STANDARD">Standard Client</option>
+              <option value="VIP">⭐ VIP Client</option>
+              <option value="AMBASSADOR">🤍 Collab / Ambassador</option>
+            </select>
+          </label>
           <button
             type="button"
             onClick={handleConvert}
