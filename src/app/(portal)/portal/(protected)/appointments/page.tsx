@@ -1,38 +1,117 @@
-"use client";
+import { redirect } from "next/navigation";
+import { getCurrentPortalClient } from "@/lib/permissions";
+import { prisma } from "@/lib/prisma";
+import { getBusinessTimezone, formatDateInTimezone, formatTimeInTimezone } from "@/lib/format-datetime";
+import { categorizeAppointment } from "@/lib/appointment-categories";
+import { buildGoogleCalendarUrl } from "@/lib/google-calendar";
+import ClientAppointmentsView from "./ClientAppointmentsView";
 
-const APPOINTMENTS = [
-  { date: "May 24, 2025", time: "10:00 AM", type: "Exilis + EMS", status: "Confirmed" },
-  { date: "May 29, 2025", time: "2:00 PM", type: "Endospheres", status: "Confirmed" },
-  { date: "Jun 3, 2025", time: "4:00 PM", type: "Lymphatic Drainage", status: "Pending" },
-];
+export const dynamic = "force-dynamic";
 
-export default function AppointmentsPage() {
+export default async function PortalAppointmentsPage() {
+  const client = await getCurrentPortalClient();
+  if (!client) redirect("/portal/login");
+
+  const [appointments, timezone, business] = await Promise.all([
+    prisma.appointment.findMany({ where: { clientId: client.id, status: { not: "CANCELLED" } }, orderBy: { startsAt: "asc" } }),
+    getBusinessTimezone(),
+    prisma.businessSettings.findUnique({ where: { id: "default" } }),
+  ]);
+
+  const now = new Date();
+  const completedCount = appointments.filter((a) => a.status === "COMPLETED").length;
+  const assessment = client.blueprintAssessments[0];
+  const totalSessions = assessment?.validatedSessionCount ?? null;
+  const remaining = totalSessions !== null ? Math.max(totalSessions - completedCount, 0) : null;
+  const progressPercent = totalSessions !== null && totalSessions > 0 ? Math.round((completedCount / totalSessions) * 100) : null;
+
+  const [paidAgg, pendingPayment] = await Promise.all([
+    prisma.payment.aggregate({ where: { clientId: client.id, status: "PAID" }, _sum: { amountCents: true } }),
+    prisma.payment.findFirst({ where: { clientId: client.id, status: "PENDING" }, orderBy: { createdAt: "desc" } }),
+  ]);
+  const planTotalCents = assessment?.planTotalCents ?? null;
+  const paidCents = paidAgg._sum.amountCents ?? 0;
+  const planFullyPaid = planTotalCents !== null && paidCents >= planTotalCents;
+
+  const events = appointments.map((a) => {
+    const category = categorizeAppointment(a.title, a.technologies as string[] | null);
+    return {
+      id: a.id,
+      title: a.title,
+      startsAt: a.startsAt.toISOString(),
+      endsAt: a.endsAt?.toISOString() ?? null,
+      status: a.status,
+      category,
+      locationType: a.locationType,
+      durationMinutes: a.estimatedMinutes,
+    };
+  });
+
+  const nextAppointment = appointments.find((a) => a.status === "SCHEDULED" && a.startsAt >= now) ?? null;
+
+  let nextAppointmentDetail = null;
+  if (nextAppointment) {
+    const start = nextAppointment.startsAt;
+    const end = nextAppointment.endsAt ?? new Date(start.getTime() + (nextAppointment.estimatedMinutes ?? 60) * 60000);
+    // Real arrival window: ±15 min around the scheduled start — computed, not a separate stored field.
+    const arrivalStart = new Date(start.getTime() - 15 * 60000);
+    const arrivalEnd = new Date(start.getTime() + 15 * 60000);
+
+    const currentSessionNumber = completedCount + 1;
+
+    const locationText =
+      nextAppointment.locationType === "HOME"
+        ? `${client.city ?? "Your location"} (At Your Home)`
+        : business?.address ?? "Studio Location";
+
+    const calendarUrl = buildGoogleCalendarUrl({
+      title: `${nextAppointment.title} — Body Shaper System™`,
+      startsAt: start,
+      endsAt: end,
+      locationText,
+      detailsText: `${nextAppointment.title} with Body Shaper System™.${
+        nextAppointment.locationType === "HOME"
+          ? ` Arrival window: ${formatTimeInTimezone(arrivalStart, timezone)}–${formatTimeInTimezone(arrivalEnd, timezone)}.`
+          : ""
+      } Preparation instructions: https://www.bodyshapersystem.com/portal/appointments/preparation`,
+    });
+
+    nextAppointmentDetail = {
+      id: nextAppointment.id,
+      title: nextAppointment.title,
+      dateLabel: formatDateInTimezone(start, timezone, { weekday: "long", month: "long", day: "numeric" }),
+      timeLabel: formatTimeInTimezone(start, timezone),
+      durationMinutes: nextAppointment.estimatedMinutes,
+      system: assessment?.recommendedSystem ?? null,
+      currentSessionNumber,
+      totalSessions,
+      locationType: nextAppointment.locationType,
+      zone: client.city,
+      arrivalWindowLabel: `${formatTimeInTimezone(arrivalStart, timezone)}–${formatTimeInTimezone(arrivalEnd, timezone)}`,
+      studioAddress: business?.address ?? null,
+      paymentStatus: planFullyPaid ? "PACKAGE" : pendingPayment ? "PENDING" : "PAID",
+      calendarUrl,
+    };
+  }
+
   return (
     <div className="cat-body portal-page">
       <div className="portal-page-head">
-        <p className="portal-eyebrow">Manage Your Schedule</p>
+        <p className="portal-eyebrow">your schedule</p>
         <h1>appointments.</h1>
-        <p className="portal-page-sub">View, reschedule and prepare for your upcoming sessions.</p>
+        <p className="portal-page-sub">View your upcoming sessions and stay on track.</p>
       </div>
 
-      <div className="simple-card">
-        <h3>Upcoming Appointments</h3>
-        <table className="simple-table">
-          <tbody>
-            {APPOINTMENTS.map((a) => (
-              <tr key={a.date}>
-                <td>{a.date}</td>
-                <td>{a.time}</td>
-                <td>{a.type}</td>
-                <td><span className="simple-pill">{a.status}</span></td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-        <button type="button" className="dt-btn dt-btn-primary" style={{ marginTop: "20px" }}>
-          book new appointment
-        </button>
-      </div>
+      <ClientAppointmentsView
+        events={events}
+        timezone={timezone}
+        nextAppointment={nextAppointmentDetail}
+        completedCount={completedCount}
+        remaining={remaining}
+        totalSessions={totalSessions}
+        progressPercent={progressPercent}
+        currentSystem={assessment?.recommendedSystem ?? null}
+      />
     </div>
   );
 }

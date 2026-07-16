@@ -3201,3 +3201,47 @@
   .apt-month-daynum{ font-size:11px; }
   .apt-month-chip{ font-size:7px; }
 }
+
+/* ---------- Client Portal Appointments (Milestone 52) ---------- */
+.cap-layout{ display:grid; grid-template-columns:1fr 340px; gap:24px; align-items:start; }
+.cap-main{ min-width:0; }
+.cap-side{ display:flex; flex-direction:column; gap:20px; }
+
+.cap-view-tabs{ display:flex; gap:2px; background:rgba(107,78,61,0.08); border-radius:8px; padding:3px; width:fit-content; margin-bottom:18px; }
+.cap-view-tab{ font-family:var(--sans); font-size:11.5px; padding:7px 16px; border-radius:6px; border:none; background:transparent; color:#8a7f74; cursor:pointer; text-transform:lowercase; }
+.cap-view-tab-active{ background:#6B4E3D; color:#fff; }
+
+.cap-list{ display:flex; flex-direction:column; gap:10px; }
+.cap-card{ background:#fff; border-radius:14px; padding:16px 18px; border-left:4px solid; box-shadow:0 2px 8px rgba(107,78,61,0.06); }
+.cap-card-past{ opacity:.6; border-left-color:#c9bdb0 !important; }
+.cap-card-time{ font-family:var(--sans); font-size:11px; color:#8a7f74; margin-bottom:4px; }
+.cap-card-title{ font-family:var(--serif); font-size:16px; color:#2B2622; margin-bottom:4px; }
+.cap-card-meta{ font-family:var(--sans); font-size:11.5px; color:#8a7f74; }
+.cap-past-label{ font-family:var(--sans); font-size:11px; letter-spacing:.05em; text-transform:uppercase; color:#8a7f74; margin:18px 0 4px; }
+
+.cap-week-grid{ display:grid; grid-template-columns:repeat(7,1fr); gap:10px; }
+.cap-week-col{ background:#fff; border-radius:12px; padding:10px; min-height:120px; box-shadow:0 2px 8px rgba(107,78,61,0.05); }
+.cap-week-daylabel{ font-family:var(--serif); font-size:13px; color:#2B2622; margin-bottom:8px; }
+.cap-week-chip{ font-family:var(--sans); font-size:10px; padding:5px 7px; border-radius:6px; border-left:3px solid; background:rgba(0,0,0,0.03); margin-bottom:5px; }
+
+.cap-next-card, .cap-consistency-card{ background:#fff; border-radius:18px; padding:24px 22px; box-shadow:0 6px 20px rgba(107,78,61,0.08); border:1px solid rgba(107,78,61,0.08); }
+.cap-next-eyebrow{ font-family:var(--sans); font-size:10.5px; letter-spacing:.1em; text-transform:uppercase; color:#C9A876; margin:0 0 6px; }
+.cap-next-title{ font-family:var(--serif); font-size:20px; color:#2B2622; margin:0 0 16px; }
+.cap-next-row{ display:flex; justify-content:space-between; gap:10px; padding:7px 0; border-bottom:1px solid rgba(107,78,61,0.08); font-family:var(--sans); font-size:12.5px; }
+.cap-next-row span{ color:#8a7f74; }
+.cap-next-row strong{ color:#2B2622; font-weight:600; text-align:right; }
+.cap-next-divider{ height:1px; background:rgba(107,78,61,0.1); margin:14px 0; }
+.cap-prep-link{ display:inline-block; font-family:var(--sans); font-size:12px; color:#6B4E3D; text-decoration:underline; margin-top:6px; }
+
+.cap-gcal-btn{ display:block; text-align:center; font-family:var(--sans); font-size:12.5px; color:#6B4E3D; border:1.5px solid #6B4E3D; border-radius:10px; padding:12px; margin-top:18px; text-decoration:none; transition:background .15s; }
+.cap-gcal-btn:hover{ background:rgba(107,78,61,0.06); }
+.cap-primary-btn{ display:block; width:100%; text-align:center; font-family:var(--sans); font-size:12.5px; background:#6B4E3D; color:#fff; border:none; border-radius:10px; padding:13px; margin-top:12px; cursor:pointer; }
+.cap-secondary-btn{ display:block; text-align:center; font-family:var(--sans); font-size:12.5px; background:none; color:#6B4E3D; border:1px solid rgba(107,78,61,0.25); border-radius:10px; padding:12px; margin-top:10px; text-decoration:none; cursor:pointer; }
+.cap-info-bar{ margin-top:18px; padding:12px 14px; background:rgba(201,168,118,0.12); border-radius:10px; font-family:var(--sans); font-size:12px; color:#7a6435; }
+
+.cap-consistency-title{ font-family:var(--serif); font-size:16px; color:#2B2622; margin:0 0 14px; }
+
+@media (max-width:900px){
+  .cap-layout{ grid-template-columns:1fr; }
+  .cap-week-grid{ grid-template-columns:repeat(2,1fr); }
+}

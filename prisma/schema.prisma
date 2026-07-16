@@ -652,6 +652,11 @@ enum AppointmentStatus {
   NO_SHOW
 }
 
+enum AppointmentLocationType {
+  HOME
+  STUDIO
+}
+
 model Appointment {
   id               String            @id @default(cuid())
   clientId         String
@@ -660,6 +665,7 @@ model Appointment {
   startsAt         DateTime
   endsAt           DateTime?
   status           AppointmentStatus @default(SCHEDULED)
+  locationType     AppointmentLocationType @default(HOME) // chosen by the therapist when scheduling — this business is mobile-first, so Home is the sensible default
   technologies     Json? // array of selected technology objects for this session
   estimatedMinutes Int?
   notes            String?

@@ -75,6 +75,7 @@ export default function AppointmentScheduler({ clients }: { clients: ClientOptio
 
   const [selectedTechs, setSelectedTechs] = useState<TechSelection[]>([]);
   const [notes, setNotes] = useState("");
+  const [locationType, setLocationType] = useState<"HOME" | "STUDIO">("HOME");
 
   const today = useMemo(() => new Date(), []);
   const tomorrow = useMemo(() => {
@@ -143,6 +144,7 @@ export default function AppointmentScheduler({ clients }: { clients: ClientOptio
     formData.set("clientId", clientId);
     formData.set("title", title);
     formData.set("startsAt", startsAt.toISOString());
+    formData.set("locationType", locationType);
     if (notes) formData.set("notes", notes);
     if (selectedTechs.length > 0) formData.set("technologies", JSON.stringify(selectedTechs));    if (estimatedDuration > 0) formData.set("estimatedMinutes", String(estimatedDuration));
 
@@ -313,6 +315,23 @@ export default function AppointmentScheduler({ clients }: { clients: ClientOptio
               <span>Estimated Duration</span>
               <strong>{estimatedDuration || 0} min</strong>
               <span className="sched-tech-count">{selectedTechs.length} selected</span>
+            </div>
+            <label className="sched-label">Location</label>
+            <div style={{ display: "flex", gap: 10, marginBottom: 14 }}>
+              <button
+                type="button"
+                className={locationType === "HOME" ? "sched-cta" : "sched-secondary-btn"}
+                onClick={() => setLocationType("HOME")}
+              >
+                🏡 At Client's Home
+              </button>
+              <button
+                type="button"
+                className={locationType === "STUDIO" ? "sched-cta" : "sched-secondary-btn"}
+                onClick={() => setLocationType("STUDIO")}
+              >
+                🏢 Studio Location
+              </button>
             </div>
             <label className="sched-label sched-notes-label" htmlFor="session-notes">
               Session Notes (optional)

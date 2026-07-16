@@ -19,6 +19,8 @@ export async function createAppointment(formData: FormData) {
   const notes = (formData.get("notes") as string) || undefined;
   const technologiesRaw = (formData.get("technologies") as string) || undefined;
   const estimatedMinutesRaw = formData.get("estimatedMinutes");
+  const locationTypeRaw = String(formData.get("locationType") || "HOME");
+  const locationType = locationTypeRaw === "STUDIO" ? "STUDIO" : "HOME";
 
   if (!clientId || !title || !startsAtRaw) {
     return { error: "Client, title, and start time are required." };
@@ -42,6 +44,7 @@ export async function createAppointment(formData: FormData) {
       endsAt: endsAtRaw ? new Date(endsAtRaw) : undefined,
       technologies,
       estimatedMinutes: estimatedMinutesRaw ? Number(estimatedMinutesRaw) : undefined,
+      locationType,
       notes,
       createdById: user.id,
     },
@@ -74,7 +77,7 @@ export async function createAppointment(formData: FormData) {
 
 export async function updateAppointment(
   appointmentId: string,
-  data: { startsAt?: string; endsAt?: string; status?: "SCHEDULED" | "COMPLETED" | "CANCELLED" | "NO_SHOW"; notes?: string }
+  data: { startsAt?: string; endsAt?: string; status?: "SCHEDULED" | "COMPLETED" | "CANCELLED" | "NO_SHOW"; notes?: string; locationType?: "HOME" | "STUDIO" }
 ) {
   const user = await getCurrentHubUser();
   if (!user || !hasPermission(user, "appointments.manage")) {
@@ -88,6 +91,7 @@ export async function updateAppointment(
       endsAt: data.endsAt ? new Date(data.endsAt) : undefined,
       status: data.status,
       notes: data.notes,
+      locationType: data.locationType,
     },
   });
 
