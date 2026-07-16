@@ -463,3 +463,18 @@ export async function deleteClientPermanently(clientId: string, confirmationText
   revalidatePath("/hub/clients");
   return { success: true };
 }
+
+/**
+ * Real Client Type toggle — controls whether the Content Release
+ * Agreement appears in Documents at all (Ambassador only).
+ */
+export async function setClientType(clientId: string, clientType: "STANDARD" | "AMBASSADOR") {
+  const user = await getCurrentHubUser();
+  if (!user || !hasPermission(user, "clients.convert")) {
+    return { error: "You don't have permission to change this." };
+  }
+  await prisma.client.update({ where: { id: clientId }, data: { clientType } });
+  revalidatePath(`/hub/clients/${clientId}`);
+  revalidatePath("/hub/documents");
+  return { success: true };
+}

@@ -2,6 +2,8 @@ import { getCurrentPortalClient } from "@/lib/permissions";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
+import { getRequiredDocsForClient } from "@/lib/document-checklist";
+import PortalDocumentsView from "./PortalDocumentsView";
 
 export const dynamic = "force-dynamic";
 
@@ -9,13 +11,6 @@ export default async function DocumentsPage() {
   const client = await getCurrentPortalClient();
   if (!client) redirect("/portal/login");
 
-  // Re-query with documents included (getCurrentPortalClient only
-  // preloads the latest blueprint/measurement for the dashboard).
-  // Only documents the Owner has explicitly marked Client Visible —
-  // previously this had no visibility filter at all, meaning any
-  // internal-only document (e.g. an internal note or receipt) was
-  // already exposed here. Now the Owner Hub and Client Hub share the
-  // same vault, with visibility as the one real difference.
   const documents = await prisma.document.findMany({
     where: { clientId: client.id, visibility: "CLIENT_VISIBLE" },
     orderBy: { uploadedAt: "desc" },
@@ -25,39 +20,43 @@ export default async function DocumentsPage() {
   const withUrls = await Promise.all(
     documents.map(async (doc) => {
       const { data } = await admin.storage.from("client-documents").createSignedUrl(doc.storagePath, 60 * 10);
-      return { ...doc, url: data?.signedUrl ?? null };
+      return {
+        id: doc.id,
+        title: doc.title,
+        category: doc.category,
+        uploadedAt: doc.uploadedAt.toISOString(),
+        url: data?.signedUrl ?? null,
+      };
     })
   );
+
+  const requiredDefs = getRequiredDocsForClient(client.clientType === "AMBASSADOR");
+  const requiredDocs = requiredDefs.map((def) => {
+    const match = withUrls.find((d) => d.category === def.category);
+    return { ...def, completed: !!match, completedAt: match?.uploadedAt ?? null, url: match?.url ?? null };
+  });
+
+  const requiredCategories = new Set(requiredDefs.map((d) => d.category));
+  const sharedFiles = withUrls.filter((d) => !requiredCategories.has(d.category as never));
+
+  const completedCount = requiredDocs.filter((d) => d.completed).length;
+  const progressPercent = requiredDocs.length > 0 ? Math.round((completedCount / requiredDocs.length) * 100) : 100;
 
   return (
     <div className="cat-body portal-page">
       <div className="portal-page-head">
-        <p className="portal-eyebrow">Your Guides &amp; Forms</p>
+        <p className="portal-eyebrow">your files</p>
         <h1>documents.</h1>
-        <p className="portal-page-sub">Access your guides, forms and important resources.</p>
+        <p className="portal-page-sub">Your signed forms, agreements and important files — all in one place.</p>
       </div>
 
-      <div className="simple-card">
-        {withUrls.length === 0 ? (
-          <p style={{ opacity: 0.6 }}>No documents yet.</p>
-        ) : (
-          <ul className="simple-list">
-            {withUrls.map((doc) => (
-              <li key={doc.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 10 }}>
-                <span>{doc.title}</span>
-                {doc.url ? (
-                  <a href={doc.url} target="_blank" rel="noopener noreferrer">
-                    View →
-                  </a>
-                ) : (
-                  <span style={{ opacity: 0.5 }}>Unavailable</span>
-                )}
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
+      <PortalDocumentsView
+        requiredDocs={requiredDocs}
+        sharedFiles={sharedFiles}
+        progressPercent={progressPercent}
+        completedCount={completedCount}
+        totalRequired={requiredDocs.length}
+      />
     </div>
   );
 }
-

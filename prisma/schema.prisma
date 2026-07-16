@@ -222,6 +222,7 @@ model Client {
   phone          String?
   city           String?
   membershipTier String  @default("Standard")
+  clientType     ClientType @default(STANDARD) // controls whether the Content Release Agreement applies
   pausedAt       DateTime? // treatment temporarily paused — null = not paused
 
   createdAt   DateTime  @default(now())
@@ -682,6 +683,11 @@ enum AppointmentStatus {
 enum AppointmentLocationType {
   HOME
   STUDIO
+}
+
+enum ClientType {
+  STANDARD
+  AMBASSADOR
 }
 
 model Appointment {

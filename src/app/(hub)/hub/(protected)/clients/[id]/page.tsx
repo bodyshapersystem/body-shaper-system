@@ -6,6 +6,7 @@ import {
   sendOwnerMessage,
   getClientOverviewSummary,
   toggleClientPause,
+  setClientType,
   addClientNote,
 } from "./actions";
 import InvitationPanel from "./InvitationPanel";
@@ -147,6 +148,18 @@ export default async function ClientDetailPage({
                 </form>
               )}
               {hasPermission(user, "clients.convert") && <DeleteClientButton clientId={client.id} />}
+              {hasPermission(user, "clients.convert") && (
+                <form
+                  action={async () => {
+                    "use server";
+                    await setClientType(client.id, client.clientType === "AMBASSADOR" ? "STANDARD" : "AMBASSADOR");
+                  }}
+                >
+                  <button type="submit" className="cl-subtle-action">
+                    {client.clientType === "AMBASSADOR" ? "Remove Ambassador Status" : "Mark as Ambassador"}
+                  </button>
+                </form>
+              )}
             </div>
 
             <InvitationPanel
