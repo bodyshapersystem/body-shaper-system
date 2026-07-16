@@ -14,26 +14,36 @@ export default function DeleteLeadButton({ leadId }: { leadId: string }) {
 
   function openPreview() {
     setError("");
+    setStep("preview");
     startTransition(async () => {
-      const result = await getLeadDeletionPreview(leadId);
-      if (result?.error) {
-        setError(result.error);
-        return;
+      try {
+        const result = await getLeadDeletionPreview(leadId);
+        if (result?.error) {
+          setError(result.error);
+          setPreview(null);
+          return;
+        }
+        setPreview(result);
+      } catch (e) {
+        setError(e instanceof Error ? e.message : "Couldn't load the deletion preview. Please try again.");
       }
-      setPreview(result);
-      setStep("preview");
     });
   }
 
   function handleDelete() {
     setError("");
     startTransition(async () => {
-      const result = await deleteLeadPermanently(leadId, confirmText);
-      if (result?.error) {
-        setError(result.error);
-        return;
+      try {
+        const result = await deleteLeadPermanently(leadId, confirmText);
+        if (result?.error) {
+          setError(result.error);
+          return;
+        }
+        router.push("/hub/leads");
+        router.refresh();
+      } catch (e) {
+        setError(e instanceof Error ? e.message : "Something went wrong deleting this lead. Please try again.");
       }
-      router.push("/hub/leads");
     });
   }
 
@@ -53,6 +63,7 @@ export default function DeleteLeadButton({ leadId }: { leadId: string }) {
               Delete {preview?.success ? preview.leadName : "Lead"} Permanently
             </h3>
             {error && <p className="sched-error">{error}</p>}
+            {!counts && !error && <p className="pay-history-meta">Loading preview…</p>}
             {counts && (
               <>
                 <p className="pay-history-meta" style={{ marginBottom: 12 }}>

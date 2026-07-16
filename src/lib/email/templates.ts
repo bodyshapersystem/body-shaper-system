@@ -268,14 +268,15 @@ export function buildWelcomeActivationEmail(params: {
   welcomeGuideUrl?: string;
 }): { subject: string; html: string } {
   const { firstName, activationUrl } = params;
-  const name = firstName?.trim() || "there"; // elegant fallback — never a username/email
+  const name = firstName?.trim() || "beautiful"; // per direction: fallback "Hello beautiful," never a username/email
+  const greeting = firstName?.trim() ? `Hi ${firstName.trim()}` : "Hello beautiful";
   return {
-    subject: "Welcome to Body Shaper System™",
+    subject: `Welcome to Body Shaper System™, ${name}`,
     html: emailShell({
       headline: "welcome.",
       subheadlineLines: ["YOUR JOURNEY WITH", "BODY SHAPER SYSTEM™ BEGINS NOW."],
       bodyParagraphs: [
-        `Hi ${name}, welcome — I'm so glad you're here.`,
+        `${greeting}, welcome — I'm so glad you're here.`,
         "Your Client Portal has been prepared for you, with your Body Blueprint™, appointments, progress, and documents all in one place.",
       ],
       infoMomentIcon: "⏱",
@@ -296,14 +297,15 @@ export function buildBodyBlueprintCompletedEmail(params: {
   portalUrl: string;
 }): { subject: string; html: string } {
   const { firstName, portalUrl } = params;
-  const name = firstName?.trim() || "there";
+  const name = firstName?.trim() || "beautiful";
+  const greeting = firstName?.trim() ? `Hi ${firstName.trim()}` : "Hello beautiful";
   return {
-    subject: "Your Body Blueprint™ is ready",
+    subject: `Good news, ${name} — your Body Blueprint™ is ready`,
     html: emailShell({
       headline: "it's ready.",
       subheadlineLines: ["YOUR PERSONALIZED", "BODY BLUEPRINT™ STRATEGY."],
       bodyParagraphs: [
-        `Hi ${name}, your Body Blueprint™ is ready — your personalized goals, recommended system, and treatment plan are now available in your Client Portal.`,
+        `${greeting}, your Body Blueprint™ is ready — your personalized goals, recommended system, and treatment plan are now available in your Client Portal.`,
       ],
       featureCard: { variant: "A", icon: "✦", text: "Every recommendation begins with understanding." },
       featureCardIcon: "✦",
@@ -315,14 +317,15 @@ export function buildBodyBlueprintCompletedEmail(params: {
 }
 
 export function buildBlueprintReceivedEmail(params: { firstName: string }): { subject: string; html: string } {
-  const name = params.firstName?.trim() || "there"; // elegant fallback — never a username/email
+  const name = params.firstName?.trim() || "beautiful";
+  const greeting = params.firstName?.trim() ? `Hi ${params.firstName.trim()}` : "Hello beautiful"; // per direction: fallback "Hello beautiful," never a username/email
   return {
-    subject: "Your Blueprint is now under review",
+    subject: `Good news, ${name} — your Body Blueprint™ is under review`,
     html: emailShell({
       headline: "under review.",
       subheadlineLines: ["YOUR BLUEPRINT IS NOW", "UNDER REVIEW."],
       bodyParagraphs: [
-        `Thank you for taking the first step toward your transformation, ${name}.`,
+        `${greeting}, thank you for taking the first step toward your transformation.`,
         "Our team is now personally reviewing your Blueprint to create the most effective strategy for your body, your goals, and your lifestyle.",
       ],
       infoMomentIcon: "⏱",
@@ -340,13 +343,14 @@ export function buildPaymentConfirmationEmail(params: {
   portalUrl: string;
 }): { subject: string; html: string } {
   const { firstName, amountLabel, portalUrl } = params;
-  const name = firstName?.trim() || "there";
+  const name = firstName?.trim() || "beautiful";
+  const greeting = firstName?.trim() ? `Hi ${firstName.trim()}` : "Hello beautiful";
   return {
-    subject: "Payment confirmed — Body Shaper System™",
+    subject: `Payment received, ${name}`,
     html: emailShell({
       headline: "thank you.",
       subheadlineLines: ["YOUR PAYMENT HAS BEEN", "RECEIVED AND CONFIRMED."],
-      bodyParagraphs: [`Hi ${name}, this confirms your payment below. Thank you for trusting Body Shaper System™ with your transformation.`],
+      bodyParagraphs: [`${greeting}, this confirms your payment below. Thank you for trusting Body Shaper System™ with your transformation.`],
       featureCard: { variant: "D", stat: amountLabel, statLabel: "Amount Confirmed" },
       featureCardIcon: "✦",
       ctaLabel: "View My Portal",
@@ -365,7 +369,8 @@ export function buildAppointmentConfirmationEmail(params: {
   portalUrl: string;
 }): { subject: string; html: string } {
   const { firstName, sessionTitle, dateLabel, timeLabel, systemName, portalUrl } = params;
-  const name = firstName?.trim() || "there";
+  const name = firstName?.trim() || "beautiful";
+  const greeting = firstName?.trim() ? `Hi ${firstName.trim()}` : "Hello beautiful";
   const rows = [
     { label: "Session", value: sessionTitle },
     { label: "Date", value: dateLabel },
@@ -373,11 +378,11 @@ export function buildAppointmentConfirmationEmail(params: {
   ];
   if (systemName) rows.push({ label: "System", value: systemName });
   return {
-    subject: `Your session is confirmed — ${dateLabel}`,
+    subject: `Your session is confirmed, ${name}`,
     html: emailShell({
       headline: "see you soon.",
       subheadlineLines: ["YOUR SESSION HAS BEEN", "SCHEDULED AND CONFIRMED."],
-      bodyParagraphs: [`Hi ${name}, your session has been scheduled. Here are the details:`],
+      bodyParagraphs: [`${greeting}, your session has been scheduled. Here are the details:`],
       featureCard: { variant: "B", rows },
       featureCardIcon: "⏱",
       ctaLabel: "View My Appointments",

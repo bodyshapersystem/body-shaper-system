@@ -129,9 +129,9 @@ export async function getClientSessionContext(clientId: string) {
   if (!client) return null;
 
   const assessment = client.blueprintAssessments[0];
-  const totalSessions = assessment?.validatedSessionCount ?? 8;
-  const currentSession = Math.min(completedCount + 1, totalSessions);
-  const progressPercent = Math.round((completedCount / totalSessions) * 100);
+  const totalSessions = assessment?.validatedSessionCount ?? null;
+  const currentSession = totalSessions !== null ? Math.min(completedCount + 1, totalSessions) : completedCount + 1;
+  const progressPercent = totalSessions !== null && totalSessions > 0 ? Math.round((completedCount / totalSessions) * 100) : null;
 
   return {
     firstName: client.firstName,

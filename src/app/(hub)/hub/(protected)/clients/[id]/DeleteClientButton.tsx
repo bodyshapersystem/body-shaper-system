@@ -14,26 +14,36 @@ export default function DeleteClientButton({ clientId }: { clientId: string }) {
 
   function openPreview() {
     setError("");
+    setStep("preview");
     startTransition(async () => {
-      const result = await getClientDeletionPreview(clientId);
-      if (result?.error) {
-        setError(result.error);
-        return;
+      try {
+        const result = await getClientDeletionPreview(clientId);
+        if (result?.error) {
+          setError(result.error);
+          setPreview(null);
+          return;
+        }
+        setPreview(result);
+      } catch (e) {
+        setError(e instanceof Error ? e.message : "Couldn't load the deletion preview. Please try again.");
       }
-      setPreview(result);
-      setStep("preview");
     });
   }
 
   function handleDelete() {
     setError("");
     startTransition(async () => {
-      const result = await deleteClientPermanently(clientId, confirmText);
-      if (result?.error) {
-        setError(result.error);
-        return;
+      try {
+        const result = await deleteClientPermanently(clientId, confirmText);
+        if (result?.error) {
+          setError(result.error);
+          return;
+        }
+        router.push("/hub/clients");
+        router.refresh();
+      } catch (e) {
+        setError(e instanceof Error ? e.message : "Something went wrong deleting this client. Please try again.");
       }
-      router.push("/hub/clients");
     });
   }
 
@@ -54,6 +64,7 @@ export default function DeleteClientButton({ clientId }: { clientId: string }) {
               Delete {preview?.success ? preview.clientName : "Client"} Permanently
             </h3>
             {error && <p className="sched-error">{error}</p>}
+            {!counts && !error && <p className="pay-history-meta">Loading preview…</p>}
             {counts && (
               <>
                 <p className="pay-history-meta" style={{ marginBottom: 12 }}>

@@ -290,7 +290,7 @@ export default function PaymentRecorder({ clients }: { clients: ClientOption[] }
             </h3>
             {summary.system && <p className="sched-system">{summary.system}</p>}
             <p className="sched-session-line">
-              Session {summary.currentSession} of {summary.totalSessions}
+              {summary.totalSessions !== null ? `Session ${summary.currentSession} of ${summary.totalSessions}` : `Session ${summary.currentSession} · plan not set yet`}
             </p>
 
             {summary.planTotalCents === null ? (

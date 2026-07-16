@@ -78,7 +78,7 @@ export default async function HubClientsPage({
         prisma.appointment.findFirst({ where: { clientId: c.id, status: "SCHEDULED", startsAt: { gte: new Date() } }, orderBy: { startsAt: "asc" } }),
       ]);
 
-      const totalSessions = assessment?.validatedSessionCount ?? 8;
+      const totalSessions = assessment?.validatedSessionCount ?? null;
       const derivedStatus = c.pausedAt ? "Paused" : assessment?.status === "COMPLETED" ? "Completed" : "Active";
       const planTotalCents = assessment?.planTotalCents ?? null;
       const paidCents = paidAgg._sum.amountCents ?? 0;
@@ -92,7 +92,7 @@ export default async function HubClientsPage({
         system: assessment?.recommendedSystem ?? "Not set",
         totalSessions,
         completedCount,
-        progressPercent: totalSessions > 0 ? Math.round((completedCount / totalSessions) * 100) : 0,
+        progressPercent: totalSessions !== null && totalSessions > 0 ? Math.round((completedCount / totalSessions) * 100) : null,
         balanceCents,
         nextAppt,
         status: derivedStatus,
@@ -176,10 +176,10 @@ export default async function HubClientsPage({
                 </td>
                 <td style={{ padding: "10px 8px" }}>
                   {r.system}
-                  <div className="pay-history-meta">{r.totalSessions} sessions</div>
+                  <div className="pay-history-meta">{r.totalSessions !== null ? `${r.totalSessions} sessions` : "Plan not set"}</div>
                 </td>
                 <td style={{ padding: "10px 8px" }}>
-                  {r.completedCount} of {r.totalSessions} · {r.progressPercent}%
+                  {r.totalSessions !== null ? `${r.completedCount} of ${r.totalSessions} · ${r.progressPercent}%` : `${r.completedCount} completed`}
                 </td>
                 <td style={{ padding: "10px 8px" }}>{r.balanceCents > 0 ? money(r.balanceCents) : "$0.00"}</td>
                 <td style={{ padding: "10px 8px" }}>

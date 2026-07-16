@@ -233,8 +233,8 @@ export default async function BlueprintReport({
   const visibleObservations =
     mode === "client" ? assessment.specialistObservations.filter((o) => o.visibility === "CLIENT_VISIBLE") : assessment.specialistObservations;
 
-  const totalSessions = assessment.validatedSessionCount ?? 8;
-  const completionPercent = totalSessions > 0 ? Math.round((completedCount / totalSessions) * 100) : 0;
+  const totalSessions = assessment.validatedSessionCount ?? null;
+  const completionPercent = totalSessions !== null && totalSessions > 0 ? Math.round((completedCount / totalSessions) * 100) : null;
   const paidCents = paidAgg._sum.amountCents ?? 0;
   const planTotalCents = assessment.planTotalCents;
   const balanceCents = planTotalCents !== null ? Math.max(planTotalCents - paidCents, 0) : null;
@@ -348,9 +348,9 @@ export default async function BlueprintReport({
           <div className="bbp-completion-card">
             <div>
               <p className="bbp-hero-meta-label" style={{ color: "rgba(241,235,225,0.6)" }}>Program Completion</p>
-              <p className="bbp-completion-value">{completionPercent}%</p>
+              <p className="bbp-completion-value">{completionPercent !== null ? `${completionPercent}%` : "—"}</p>
               <p style={{ fontFamily: "var(--sans)", fontSize: 10, color: "rgba(241,235,225,0.6)", marginTop: 2 }}>
-                {completedCount} of {totalSessions} sessions
+                {totalSessions !== null ? `${completedCount} of ${totalSessions} sessions` : `${completedCount} sessions completed · plan not set yet`}
               </p>
             </div>
             <TargetMarkIcon size={32} />
@@ -663,13 +663,13 @@ export default async function BlueprintReport({
               <div
                 style={{
                   position: "absolute", inset: 0, borderRadius: "100%",
-                  background: `conic-gradient(var(--bbp-gold-dark) ${completionPercent}%, transparent 0)`,
+                  background: `conic-gradient(var(--bbp-gold-dark) ${completionPercent ?? 0}%, transparent 0)`,
                   mask: "radial-gradient(circle, transparent 58%, black 60%)",
                   WebkitMask: "radial-gradient(circle, transparent 58%, black 60%)",
                 }}
               />
               <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "var(--serif)", fontSize: 15 }}>
-                {completionPercent}%
+                {completionPercent !== null ? `${completionPercent}%` : "—"}
               </div>
             </div>
             <div>

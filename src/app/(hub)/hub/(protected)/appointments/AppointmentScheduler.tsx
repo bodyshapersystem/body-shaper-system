@@ -11,8 +11,8 @@ type SessionContext = {
   lastName: string;
   system: string | null;
   currentSession: number;
-  totalSessions: number;
-  progressPercent: number;
+  totalSessions: number | null;
+  progressPercent: number | null;
   specialistName: string;
   durationMinutes: number;
 };
@@ -258,12 +258,16 @@ export default function AppointmentScheduler({ clients }: { clients: ClientOptio
               onChange={(e) => setSessionOverride(e.target.value === "" ? "" : Number(e.target.value))}
               className="sched-inline-input sched-session-input"
             />{" "}
-            of {context.totalSessions}
+            {context.totalSessions !== null ? `of ${context.totalSessions}` : "· plan not set yet"}
           </p>
-          <div className="sched-progress-track">
-            <div className="sched-progress-fill" style={{ width: `${Math.min(context.progressPercent, 100)}%` }} />
-          </div>
-          <p className="sched-progress-label">{context.progressPercent}% Complete</p>
+          {context.totalSessions !== null && (
+            <>
+              <div className="sched-progress-track">
+                <div className="sched-progress-fill" style={{ width: `${Math.min(context.progressPercent ?? 0, 100)}%` }} />
+              </div>
+              <p className="sched-progress-label">{context.progressPercent}% Complete</p>
+            </>
+          )}
           <div className="sched-summary-meta">
             <div>
               <span>Specialist</span>

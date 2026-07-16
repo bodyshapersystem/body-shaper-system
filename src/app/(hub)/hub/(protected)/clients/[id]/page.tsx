@@ -185,7 +185,7 @@ export default async function ClientDetailPage({
               </div>
               <div className="cl-summary-row">
                 <span>Total Sessions</span>
-                <span>{overview.totalSessions}</span>
+                <span>{overview.totalSessions ?? "Not set"}</span>
               </div>
               <div className="cl-summary-row">
                 <span>Completed</span>
@@ -193,7 +193,7 @@ export default async function ClientDetailPage({
               </div>
               <div className="cl-summary-row">
                 <span>Remaining</span>
-                <span>{overview.remaining}</span>
+                <span>{overview.remaining ?? "—"}</span>
               </div>
               <div className="cl-summary-row">
                 <span>Plan Value</span>
@@ -225,11 +225,11 @@ export default async function ClientDetailPage({
                 <div
                   className="cl-ring"
                   style={{
-                    background: `conic-gradient(#5C1A1F ${overview.overallProgressPercent}%, rgba(92,26,31,0.15) 0)`,
+                    background: `conic-gradient(#5C1A1F ${overview.overallProgressPercent ?? 0}%, rgba(92,26,31,0.15) 0)`,
                   }}
                 >
                   <div className="cl-ring-inner">
-                    <strong>{overview.overallProgressPercent}%</strong>
+                    <strong>{overview.overallProgressPercent !== null ? `${overview.overallProgressPercent}%` : "—"}</strong>
                     <span>Overall</span>
                   </div>
                 </div>
@@ -240,7 +240,7 @@ export default async function ClientDetailPage({
                   </span>
                   <span>
                     <span className="cl-ring-legend-dot" style={{ background: "rgba(92,26,31,0.15)" }} />
-                    {overview.remaining} Remaining
+                    {overview.remaining ?? "—"} Remaining
                   </span>
                   <span>
                     <span className="cl-ring-legend-dot" style={{ background: "#93650f" }} />

@@ -332,13 +332,13 @@ export async function getClientOverviewSummary(clientId: string) {
   if (!client) return null;
 
   const assessment = client.blueprintAssessments[0];
-  const totalSessions = assessment?.validatedSessionCount ?? 8;
-  const remaining = Math.max(totalSessions - completedCount, 0);
+  const totalSessions = assessment?.validatedSessionCount ?? null;
+  const remaining = totalSessions !== null ? Math.max(totalSessions - completedCount, 0) : null;
   const planTotalCents = assessment?.planTotalCents ?? null;
   const paidCents = paidAgg._sum.amountCents ?? 0;
   const pendingCents = pendingAgg._sum.amountCents ?? 0;
   const balanceCents = planTotalCents !== null ? Math.max(planTotalCents - paidCents, 0) : null;
-  const overallProgressPercent = totalSessions > 0 ? Math.round((completedCount / totalSessions) * 100) : 0;
+  const overallProgressPercent = totalSessions !== null && totalSessions > 0 ? Math.round((completedCount / totalSessions) * 100) : null;
 
   return {
     system: assessment?.recommendedSystem ?? null,

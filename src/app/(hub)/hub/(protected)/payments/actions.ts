@@ -104,8 +104,8 @@ export async function getClientFinancialSummary(clientId: string) {
   if (!client) return null;
 
   const assessment = client.blueprintAssessments[0];
-  const totalSessions = assessment?.validatedSessionCount ?? 8;
-  const currentSession = Math.min(completedSessionCount + 1, totalSessions);
+  const totalSessions = assessment?.validatedSessionCount ?? null;
+  const currentSession = totalSessions !== null ? Math.min(completedSessionCount + 1, totalSessions) : completedSessionCount + 1;
   const planTotalCents = assessment?.planTotalCents ?? null;
   const paidCents = paidAgg._sum.amountCents ?? 0;
   const pendingCents = pendingAgg._sum.amountCents ?? 0;
