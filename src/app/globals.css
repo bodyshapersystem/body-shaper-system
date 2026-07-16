@@ -3089,7 +3089,16 @@
 .apd-actions{ display:flex; flex-direction:column; gap:10px; }
 
 @media (max-width:760px){
-  .wk-grid{ min-width:640px; }
+  .wk-grid-wrap{ overflow-x:visible; border-radius:10px; }
+  .wk-grid-mobile{ min-width:0; width:100%; }
+  .wk-grid-mobile .wk-day-head{ padding:6px 1px; }
+  .wk-grid-mobile .wk-day-label{ font-size:8px; }
+  .wk-grid-mobile .wk-day-num{ font-size:11px; }
+  .wk-grid-mobile .wk-hour-label{ font-size:8px; padding:2px 3px; }
+  .wk-grid-mobile .wk-cell{ min-height:30px; }
+  .wk-grid-mobile .wk-event{ padding:2px 2px; border-left-width:3px; }
+  .wk-grid-mobile .wk-event-time{ font-size:7px; }
+  .wk-grid-mobile .wk-event-client{ font-size:8.5px; line-height:1.1; }
 }
 
 /* ---------- Appointments — mockup-matched redesign (Milestone 49) ---------- */

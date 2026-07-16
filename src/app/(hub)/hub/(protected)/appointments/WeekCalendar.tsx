@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { CATEGORY_LABELS, type AppointmentColorCategory } from "@/lib/appointment-categories";
@@ -35,6 +35,7 @@ export type CalendarEvent = {
 
 const DAY_LABELS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 const SLOT_HOURS = Array.from({ length: 27 }, (_, i) => 8 + i * 0.5).filter((h) => h <= 21); // 8:00–21:00, 30-min
+const HOURLY_SLOTS = Array.from({ length: 14 }, (_, i) => 8 + i); // 8:00–21:00, whole hours only (mobile)
 
 function fmtHour(h: number) {
   const hour = Math.floor(h);
@@ -66,7 +67,15 @@ export default function WeekCalendar({
   const router = useRouter();
   const searchParams = useSearchParams();
   const [selected, setSelected] = useState<CalendarEvent | null>(null);
+  const [isMobile, setIsMobile] = useState(false);
   const weekStart = new Date(weekStartIso);
+
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth <= 760);
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, []);
 
   const days = Array.from({ length: 7 }, (_, i) => {
     const d = new Date(weekStart);
@@ -176,7 +185,7 @@ export default function WeekCalendar({
       </div>
 
       <div className="wk-grid-wrap">
-        <div className="wk-grid" style={{ gridTemplateColumns: `56px repeat(7, 1fr)` }}>
+        <div className={`wk-grid ${isMobile ? "wk-grid-mobile" : ""}`} style={{ gridTemplateColumns: `${isMobile ? "44px" : "56px"} repeat(7, 1fr)` }}>
           <div className="wk-corner" />
           {days.map((d, i) => (
             <div key={i} className={`wk-day-head ${isToday(d) ? "wk-day-head-today" : ""}`}>
@@ -185,12 +194,16 @@ export default function WeekCalendar({
             </div>
           ))}
 
-          {SLOT_HOURS.map((h) => (
+          {(isMobile ? HOURLY_SLOTS : SLOT_HOURS).map((h) => (
             <div key={`row-${h}`} className="wk-row-contents" style={{ display: "contents" }}>
-              <div className="wk-hour-label">{h % 1 === 0 ? fmtHour(h) : ""}</div>
+              <div className="wk-hour-label">{isMobile || h % 1 === 0 ? fmtHour(h) : ""}</div>
               {days.map((d, i) => {
                 const key = dateKey(d);
-                const slotEvents = events.filter((e) => dateKeyInZone(e.startsAt) === key && Math.abs(hourFractionInZone(e.startsAt) - h) < 0.01);
+                const slotEvents = events.filter((e) => {
+                  if (dateKeyInZone(e.startsAt) !== key) return false;
+                  const frac = hourFractionInZone(e.startsAt);
+                  return isMobile ? Math.floor(frac) === h : Math.abs(frac - h) < 0.01;
+                });
                 return (
                   <div key={`${key}-${h}`} className={`wk-cell ${isToday(d) ? "wk-cell-today" : ""}`}>
                     {slotEvents.map((e) => (
@@ -202,8 +215,8 @@ export default function WeekCalendar({
                       >
                         <span className="wk-event-time">{timeInZone(e.startsAt)}</span>
                         <span className="wk-event-client">{e.firstName} {e.lastName[0]}.</span>
-                        <span className="wk-event-treatment">{e.title}</span>
-                        {e.zone && <span className="wk-event-zone">📍 {e.zone}</span>}
+                        {!isMobile && <span className="wk-event-treatment">{e.title}</span>}
+                        {!isMobile && e.zone && <span className="wk-event-zone">📍 {e.zone}</span>}
                       </button>
                     ))}
                   </div>
