@@ -3,6 +3,7 @@ import { getCurrentHubUser } from "@/lib/permissions";
 import { getPhotoSignedUrl } from "../clients/[id]/blueprint-actions";
 import Link from "next/link";
 import BlueprintWaves from "@/components/BlueprintWaves";
+import { formatTimeInTimezone } from "@/lib/format-datetime";
 
 export const dynamic = "force-dynamic";
 
@@ -229,7 +230,7 @@ export default async function HubDashboardPage() {
                   const system = a.client.blueprintAssessments[0]?.recommendedSystem;
                   return (
                     <tr key={a.id}>
-                      <td>{a.startsAt.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}</td>
+                      <td>{formatTimeInTimezone(a.startsAt, timezone)}</td>
                       <td>
                         {a.client.firstName} {a.client.lastName}
                       </td>

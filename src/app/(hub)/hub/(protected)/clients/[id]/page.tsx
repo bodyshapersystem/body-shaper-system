@@ -10,6 +10,7 @@ import {
 } from "./actions";
 import InvitationPanel from "./InvitationPanel";
 import DeleteClientButton from "./DeleteClientButton";
+import { getBusinessTimezone, formatDateInTimezone, formatTimeInTimezone } from "@/lib/format-datetime";
 import BlueprintAssessmentTab from "./BlueprintAssessmentTab";
 import BlueprintReport from "./BlueprintReport";
 import DocumentUploadSheet from "./DocumentUploadSheet";
@@ -71,7 +72,7 @@ export default async function ClientDetailPage({
 
   if (!client) notFound();
 
-  const [overview, appointments, payments, clientNotes, specialist] = await Promise.all([
+  const [overview, appointments, payments, clientNotes, specialist, timezone] = await Promise.all([
     getClientOverviewSummary(id),
     prisma.appointment.findMany({ where: { clientId: id }, orderBy: { startsAt: "desc" } }),
     prisma.payment.findMany({ where: { clientId: id }, orderBy: { createdAt: "desc" } }),
@@ -79,6 +80,7 @@ export default async function ClientDetailPage({
     client.blueprintAssessments?.[0]?.validatedById
       ? prisma.user.findUnique({ where: { id: client.blueprintAssessments[0].validatedById } })
       : Promise.resolve(null),
+    getBusinessTimezone(),
   ]);
 
   const tab: Tab = TABS.includes(tabParam as Tab) ? (tabParam as Tab) : "overview";
@@ -211,7 +213,7 @@ export default async function ClientDetailPage({
                 <span>Next Appointment</span>
                 <span>
                   {overview.nextAppointment
-                    ? `${overview.nextAppointment.startsAt.toLocaleDateString()} · ${overview.nextAppointment.startsAt.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}`
+                    ? `${formatDateInTimezone(overview.nextAppointment.startsAt, timezone)} · ${formatTimeInTimezone(overview.nextAppointment.startsAt, timezone)}`
                     : "No upcoming"}
                 </span>
               </div>
@@ -423,7 +425,7 @@ export default async function ClientDetailPage({
               {appointments.map((a) => (
                 <li key={a.id} className="sess-card">
                   <div className="sess-card-head">
-                    <span className="sess-card-number">{a.startsAt.toLocaleDateString()}</span>
+                    <span className="sess-card-number">{formatDateInTimezone(a.startsAt, timezone)}</span>
                     <span className={`dash-status dash-status-${a.status.toLowerCase()}`}>{a.status}</span>
                   </div>
                   <p className="sess-card-date">{a.title}</p>

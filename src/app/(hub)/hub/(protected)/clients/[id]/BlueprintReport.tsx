@@ -5,6 +5,7 @@ import BodyTypeIllustration from "@/components/BodyTypeIllustration";
 import { TargetMarkIcon } from "./BlueprintIcons";
 import { BODY_TYPE_CONTENT } from "@/lib/body-types";
 import { getPhotoSignedUrl } from "./blueprint-actions";
+import { getBusinessTimezone, formatDateInTimezone } from "@/lib/format-datetime";
 
 type ClientWithBlueprint = Prisma.ClientGetPayload<{
   include: {
@@ -213,13 +214,14 @@ export default async function BlueprintReport({
   const assessment = client.blueprintAssessments[0];
   if (!assessment) return null;
 
-  const [completedCount, nextAppointment, paidAgg, specialist, completedAppointments, paidPayments] = await Promise.all([
+  const [completedCount, nextAppointment, paidAgg, specialist, completedAppointments, paidPayments, timezone] = await Promise.all([
     prisma.appointment.count({ where: { clientId, status: "COMPLETED" } }),
     prisma.appointment.findFirst({ where: { clientId, status: "SCHEDULED", startsAt: { gte: new Date() } }, orderBy: { startsAt: "asc" } }),
     prisma.payment.aggregate({ where: { clientId, status: "PAID" }, _sum: { amountCents: true } }),
     assessment.validatedById ? prisma.user.findUnique({ where: { id: assessment.validatedById } }) : Promise.resolve(null),
     prisma.appointment.findMany({ where: { clientId, status: "COMPLETED" }, orderBy: { startsAt: "asc" } }),
     prisma.payment.findMany({ where: { clientId, status: "PAID" }, orderBy: { paidAt: "asc" } }),
+    getBusinessTimezone(),
   ]);
   const nextPendingPayment = await prisma.payment.findFirst({
     where: { clientId, status: { in: ["PENDING", "PARTIAL"] } },
@@ -312,7 +314,7 @@ export default async function BlueprintReport({
                 {assessment.recommendedSystem && <span className="bbp-badge">{assessment.recommendedSystem}</span>}
                 <span className="bbp-badge">{STATUS_LABELS[assessment.status] ?? assessment.status}</span>
               </div>
-              <p className="bbp-hero-sub">Client since {client.createdAt.toLocaleDateString()}</p>
+              <p className="bbp-hero-sub">Client since {formatDateInTimezone(client.createdAt, timezone)}</p>
               <p className="bbp-hero-message">
                 {assessment.status === "COMPLETED"
                   ? "Your transformation program is complete — review your full journey below."
@@ -322,11 +324,11 @@ export default async function BlueprintReport({
             <div className="bbp-hero-meta">
               <div>
                 <p className="bbp-hero-meta-label">Blueprint Created</p>
-                <p className="bbp-hero-meta-value">{assessment.createdAt.toLocaleDateString()}</p>
+                <p className="bbp-hero-meta-value">{formatDateInTimezone(assessment.createdAt, timezone)}</p>
               </div>
               <div>
                 <p className="bbp-hero-meta-label">Last Updated</p>
-                <p className="bbp-hero-meta-value">{assessment.updatedAt.toLocaleDateString()}</p>
+                <p className="bbp-hero-meta-value">{formatDateInTimezone(assessment.updatedAt, timezone)}</p>
               </div>
               <div>
                 <p className="bbp-hero-meta-label">Specialist</p>
@@ -573,7 +575,7 @@ export default async function BlueprintReport({
           <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
             {visibleObservations.slice(0, 4).map((obs) => (
               <div key={obs.id} className="cl-note-card">
-                <p className="cl-note-meta">{obs.createdAt.toLocaleDateString()}</p>
+                <p className="cl-note-meta">{formatDateInTimezone(obs.createdAt, timezone)}</p>
                 <p className="cl-note-content">{obs.body}</p>
               </div>
             ))}
@@ -677,7 +679,7 @@ export default async function BlueprintReport({
                 {nextAppointment ? "Next session" : "No session scheduled"}
               </p>
               <p style={{ fontFamily: "var(--sans)", fontSize: 11, color: "var(--bbp-muted)", marginTop: 2 }}>
-                {nextAppointment ? nextAppointment.startsAt.toLocaleDateString() : "Schedule the next session to set a milestone"}
+                {nextAppointment ? formatDateInTimezone(nextAppointment.startsAt, timezone) : "Schedule the next session to set a milestone"}
               </p>
               <Link href="/hub/appointments" className="bbp-composition-cta" style={{ display: "inline-flex", marginTop: 8, color: "var(--charcoal)", borderColor: "var(--bbp-line)", fontSize: 10 }}>
                 view plan →
@@ -701,7 +703,7 @@ export default async function BlueprintReport({
                 </span>
                 <div className="bbp-journey-body">
                   <p className="bbp-journey-title">{j.label}</p>
-                  <p className="bbp-journey-date">{j.at.toLocaleDateString()}</p>
+                  <p className="bbp-journey-date">{formatDateInTimezone(j.at, timezone)}</p>
                 </div>
               </li>
             ))}
@@ -770,7 +772,7 @@ export default async function BlueprintReport({
         <div className="bbp-finance-meta">
           <div>
             <span>Next Payment</span>
-            <strong>{nextPendingPayment ? (nextPendingPayment.dueDate ? nextPendingPayment.dueDate.toLocaleDateString() : "Due date not set") : "None scheduled"}</strong>
+            <strong>{nextPendingPayment ? (nextPendingPayment.dueDate ? formatDateInTimezone(nextPendingPayment.dueDate, timezone) : "Due date not set") : "None scheduled"}</strong>
           </div>
           <div>
             <span>Payment Method</span>

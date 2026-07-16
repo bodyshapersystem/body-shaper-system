@@ -4,6 +4,8 @@ import { prisma } from "@/lib/prisma";
 import { getCurrentHubUser, hasPermission } from "@/lib/permissions";
 import { cancelAppointment } from "./actions";
 import AppointmentScheduler from "./AppointmentScheduler";
+import DeleteAppointmentButton from "./DeleteAppointmentButton";
+import { getBusinessTimezone, formatDateInTimezone, formatTimeInTimezone } from "@/lib/format-datetime";
 
 export const dynamic = "force-dynamic";
 
@@ -11,6 +13,7 @@ export default async function HubAppointmentsPage() {
   const user = await getCurrentHubUser();
   if (!user) redirect("/hub/login");
   const canManage = hasPermission(user, "appointments.manage");
+  const timezone = await getBusinessTimezone();
 
   const [allAppointments, clients] = await Promise.all([
     prisma.appointment.findMany({
@@ -114,8 +117,8 @@ export default async function HubAppointmentsPage() {
                 <span className={`dash-status dash-status-${a.status.toLowerCase()}`}>{a.status}</span>
               </div>
               <p className="sess-card-date">
-                {a.startsAt.toLocaleDateString(undefined, { month: "long", day: "numeric" })} ·{" "}
-                {a.startsAt.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}
+                {formatDateInTimezone(a.startsAt, timezone, { month: "long", day: "numeric" })} ·{" "}
+                {formatTimeInTimezone(a.startsAt, timezone)}
               </p>
               <p className="sess-card-client">
                 <Link href={`/hub/clients/${a.clientId}`}>
@@ -149,6 +152,7 @@ export default async function HubAppointmentsPage() {
                       </button>
                     </form>
                   )}
+                  {canManage && <DeleteAppointmentButton appointmentId={a.id} />}
                 </div>
               </div>
             </div>
@@ -177,8 +181,13 @@ export default async function HubAppointmentsPage() {
                 <span className={`dash-status dash-status-${a.status.toLowerCase()}`}>{a.status}</span>
               </div>
               <p className="sess-card-date">
-                {a.startsAt.toLocaleDateString(undefined, { month: "long", day: "numeric" })} — {a.client.firstName} {a.client.lastName}
+                {formatDateInTimezone(a.startsAt, timezone, { month: "long", day: "numeric" })} — {a.client.firstName} {a.client.lastName}
               </p>
+              {canManage && (
+                <div style={{ marginTop: 8 }}>
+                  <DeleteAppointmentButton appointmentId={a.id} />
+                </div>
+              )}
             </div>
           ))}
         </div>

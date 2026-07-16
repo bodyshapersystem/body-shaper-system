@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { getCurrentHubUser, hasPermission } from "@/lib/permissions";
 import { revalidatePath } from "next/cache";
 import { sendAppointmentConfirmationEmail } from "@/lib/email/service";
+import { getBusinessTimezone, formatDateInTimezone, formatTimeInTimezone } from "@/lib/format-datetime";
 
 export async function createAppointment(formData: FormData) {
   const user = await getCurrentHubUser();
@@ -53,13 +54,14 @@ export async function createAppointment(formData: FormData) {
     include: { blueprintAssessments: { orderBy: { version: "desc" }, take: 1 } },
   });
   if (client) {
+    const timezone = await getBusinessTimezone();
     await sendAppointmentConfirmationEmail({
       clientId,
       firstName: client.firstName,
       email: client.email,
       sessionTitle: title,
-      dateLabel: appointment.startsAt.toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric" }),
-      timeLabel: appointment.startsAt.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" }),
+      dateLabel: formatDateInTimezone(appointment.startsAt, timezone, { weekday: "long", month: "long", day: "numeric" }),
+      timeLabel: formatTimeInTimezone(appointment.startsAt, timezone),
       systemName: client.blueprintAssessments[0]?.recommendedSystem ?? undefined,
       portalUrl: "https://www.bodyshapersystem.com/portal/appointments",
     }).catch(() => undefined);
@@ -143,4 +145,21 @@ export async function getClientSessionContext(clientId: string) {
     specialistName: user.fullName,
     durationMinutes: 75,
   };
+}
+
+/**
+ * Real permanent delete for a test Appointment — separate from
+ * cancelAppointment() (which just sets status=CANCELLED, a
+ * reversible business action, not deletion). Removes the row
+ * entirely so it stops showing up anywhere, for cleaning up test data.
+ */
+export async function deleteAppointmentPermanently(appointmentId: string) {
+  const user = await getCurrentHubUser();
+  if (!user || !hasPermission(user, "appointments.manage")) {
+    return { error: "You don't have permission to delete appointments." };
+  }
+  await prisma.appointment.delete({ where: { id: appointmentId } });
+  revalidatePath("/hub/appointments");
+  revalidatePath("/hub/dashboard");
+  return { success: true };
 }

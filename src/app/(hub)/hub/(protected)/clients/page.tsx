@@ -2,6 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { getCurrentHubUser, hasPermission } from "@/lib/permissions";
+import { getBusinessTimezone, formatDateInTimezone, formatTimeInTimezone } from "@/lib/format-datetime";
 
 export const dynamic = "force-dynamic";
 
@@ -20,6 +21,7 @@ export default async function HubClientsPage({
   if (!user || !hasPermission(user, "clients.view")) {
     redirect("/hub/dashboard");
   }
+  const timezone = await getBusinessTimezone();
 
   const { q, status, page: pageParam } = await searchParams;
   const page = Math.max(Number(pageParam) || 1, 1);
@@ -184,7 +186,7 @@ export default async function HubClientsPage({
                 <td style={{ padding: "10px 8px" }}>{r.balanceCents > 0 ? money(r.balanceCents) : "$0.00"}</td>
                 <td style={{ padding: "10px 8px" }}>
                   {r.nextAppt
-                    ? `${r.nextAppt.startsAt.toLocaleDateString()} · ${r.nextAppt.startsAt.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}`
+                    ? `${formatDateInTimezone(r.nextAppt.startsAt, timezone)} · ${formatTimeInTimezone(r.nextAppt.startsAt, timezone)}`
                     : "No upcoming"}
                 </td>
                 <td style={{ padding: "10px 8px" }}>
