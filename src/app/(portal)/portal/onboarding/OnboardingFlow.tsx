@@ -87,10 +87,10 @@ export default function OnboardingFlow({
             ? "Review and sign your Client Agreement & Policies — this opens in a new tab."
             : "Review and sign your Medical Consent — this opens in a new tab."}
         </p>
-        <a href={isStep1 ? agreementUrl : consentUrl} target="_blank" rel="noopener noreferrer" className="onb-cta">
+        <a href={isStep1 ? agreementUrl : consentUrl} className="onb-cta">
           Continue
         </a>
-        <p className="onb-poll-hint">{checking ? "Checking…" : "We'll detect your signature automatically once it's submitted."}</p>
+        <p className="onb-poll-hint">{checking ? "Checking…" : "You'll be brought back here automatically once it's submitted."}</p>
       </div>
     </div>
   );

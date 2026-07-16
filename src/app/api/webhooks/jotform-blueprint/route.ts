@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { sendBlueprintReceivedEmail } from "@/lib/email/service";
 import { createOrUpdateDraftAssessment } from "@/lib/blueprint-assessments";
-import { parseJotformPayload, extractContactField, extractName, fetchJotformSubmissionAnswers, extractNameFromAnswers, extractContactFromAnswers } from "@/lib/jotform-webhook-utils";
+import { parseJotformPayload, extractContactField, extractName, fetchJotformSubmissionAnswers, fetchMostRecentSubmissionAnswers, extractNameFromAnswers, extractContactFromAnswers } from "@/lib/jotform-webhook-utils";
 import type { Prisma } from "@prisma/client";
 
 /**
@@ -62,7 +62,16 @@ export async function POST(request: NextRequest) {
   // "beautyboxmia" and "Unknown" name bugs. Falls back to the
   // raw-payload heuristics only if the API call itself fails (e.g.
   // JOTFORM_API_KEY missing, network issue, or submissionId absent).
-  const answers = rawSubmissionId ? await fetchJotformSubmissionAnswers(rawSubmissionId) : null;
+  let answers = rawSubmissionId ? await fetchJotformSubmissionAnswers(rawSubmissionId) : null;
+
+  // Second-chance fallback: extracting a submissionId out of the raw
+  // webhook payload has repeatedly proven fragile across forms/payload
+  // shapes. If that path came up empty, fetch this form's own most
+  // recent submission directly — since the webhook fires immediately
+  // after a real submission, that IS the one that just came in.
+  if (!answers) {
+    answers = await fetchMostRecentSubmissionAnswers(process.env.JOTFORM_BLUEPRINT_FORM_ID || "261875936820064");
+  }
 
   const email = answers
     ? extractContactFromAnswers(answers, ["Email Address", "Email", "email"]) ?? extractContactField(raw, ["email"])

@@ -154,6 +154,48 @@ export function extractContactFromAnswers(answers: Record<string, string>, label
   return findByQuestionLabel(answers, labels);
 }
 
+/**
+ * More reliable fallback than extracting a submissionId from the raw
+ * webhook payload (which has repeatedly proven fragile across
+ * different forms/payload shapes): fetch the form's own MOST RECENT
+ * submission directly from Jotform's API. Since the webhook fires
+ * immediately after a real submission, the newest submission for this
+ * form IS the one that just came in. Requires JOTFORM_API_KEY.
+ */
+export async function fetchMostRecentSubmissionAnswers(formId: string): Promise<Record<string, string> | null> {
+  const apiKey = process.env.JOTFORM_API_KEY;
+  if (!apiKey || !formId) return null;
+
+  try {
+    const res = await fetch(
+      `https://api.jotform.com/form/${formId}/submissions?apiKey=${apiKey}&limit=1&orderby=created_at&direction=DESC`,
+      { cache: "no-store" }
+    );
+    if (!res.ok) return null;
+    const json = await res.json();
+    const submission = json?.content?.[0];
+    const answers = submission?.answers as Record<string, { text?: string; answer?: unknown }> | undefined;
+    if (!answers) return null;
+
+    const byQuestionText: Record<string, string> = {};
+    for (const field of Object.values(answers)) {
+      if (!field?.text) continue;
+      const value = field.answer;
+      if (typeof value === "string" && value.trim()) {
+        byQuestionText[field.text] = value.trim();
+      } else if (value && typeof value === "object") {
+        const joined = Object.values(value as Record<string, unknown>)
+          .filter((v): v is string => typeof v === "string" && v.trim().length > 0)
+          .join(" ");
+        if (joined.trim()) byQuestionText[field.text] = joined.trim();
+      }
+    }
+    return byQuestionText;
+  } catch {
+    return null;
+  }
+}
+
 export function extractContactField(raw: Record<string, unknown>, patterns: string[]): string | undefined {
   const entries = Object.entries(raw).sort(([a], [b]) => Number(isLikelyQuestionKey(b)) - Number(isLikelyQuestionKey(a)));
   for (const [key, value] of entries) {
