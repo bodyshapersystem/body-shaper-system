@@ -7,7 +7,7 @@ import RewardsView from "./RewardsView";
 
 export const dynamic = "force-dynamic";
 
-export default async function RewardsPage() {
+export default async function RewardsPage({ searchParams }: { searchParams: Promise<{ tab?: string }> }) {
   const client = await getCurrentPortalClient();
   if (!client) redirect("/portal/login");
   if (!client.rewardsAccount) {
@@ -17,6 +17,12 @@ export default async function RewardsPage() {
       </div>
     );
   }
+  const { tab } = await searchParams;
+  const activeTab = (tab === "experiences" || tab === "missions" || tab === "privileges" ? tab : "overview") as
+    | "overview"
+    | "experiences"
+    | "missions"
+    | "privileges";
 
   const [catalogItems, missions, recentTransactions, completions, assessment, partners] = await Promise.all([
     prisma.rewardCatalogItem.findMany({ where: { available: true }, orderBy: { creditCost: "asc" } }),
@@ -65,6 +71,7 @@ export default async function RewardsPage() {
       categoryIcons={CATEGORY_ICONS}
       partners={partners.map((p) => ({ id: p.id, name: p.name, category: p.category, creditValue: p.creditValue, notes: p.notes }))}
       memberSince={client.createdAt.toLocaleDateString(undefined, { month: "long", year: "numeric" })}
+      activeTab={activeTab}
     />
   );
 }

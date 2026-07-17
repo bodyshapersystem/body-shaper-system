@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { requestRedemption, completeMission } from "./actions";
 
 type CatalogItem = { id: string; name: string; description: string | null; category: string; creditCost: number; imageUrl: string | null };
@@ -49,6 +50,7 @@ export default function RewardsView({
   categoryIcons,
   partners,
   memberSince,
+  activeTab,
 }: {
   firstName: string;
   tier: string;
@@ -64,9 +66,10 @@ export default function RewardsView({
   categoryIcons: Record<string, string>;
   partners: PartnerItem[];
   memberSince: string;
+  activeTab: "overview" | "experiences" | "missions" | "privileges";
 }) {
   const router = useRouter();
-  const [tab, setTab] = useState<"overview" | "experiences" | "missions" | "privileges">("overview");
+  const tab = activeTab;
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
   const [message, setMessage] = useState("");
@@ -113,10 +116,10 @@ export default function RewardsView({
 
       {/* ---------- Tabs ---------- */}
       <div className="rw-tabs">
-        <button type="button" className={`rw-tab ${tab === "overview" ? "rw-tab-active" : ""}`} onClick={() => setTab("overview")}>🏠 Overview</button>
-        <button type="button" className={`rw-tab ${tab === "experiences" ? "rw-tab-active" : ""}`} onClick={() => setTab("experiences")}>🎁 Unlock Experiences</button>
-        <button type="button" className={`rw-tab ${tab === "missions" ? "rw-tab-active" : ""}`} onClick={() => setTab("missions")}>🎯 Secret Missions</button>
-        <button type="button" className={`rw-tab ${tab === "privileges" ? "rw-tab-active" : ""}`} onClick={() => setTab("privileges")}>👑 Privileges</button>
+        <Link href="/portal/rewards?tab=overview" className={`rw-tab ${tab === "overview" ? "rw-tab-active" : ""}`}>🏠 Overview</Link>
+        <Link href="/portal/rewards?tab=experiences" className={`rw-tab ${tab === "experiences" ? "rw-tab-active" : ""}`}>🎁 Unlock Experiences</Link>
+        <Link href="/portal/rewards?tab=missions" className={`rw-tab ${tab === "missions" ? "rw-tab-active" : ""}`}>🎯 Secret Missions</Link>
+        <Link href="/portal/rewards?tab=privileges" className={`rw-tab ${tab === "privileges" ? "rw-tab-active" : ""}`}>👑 Privileges</Link>
       </div>
 
       {/* ---------- Hero banner ---------- */}
@@ -165,7 +168,7 @@ export default function RewardsView({
                   <>
                     <p className="rw-next-reward-name">{next.name}</p>
                     <p className="rw-next-reward-pts">{next.creditCost.toLocaleString()} PTS</p>
-                    <button type="button" className="rw-dark-btn" onClick={() => { setTab("experiences"); setSelectedCategory(next.category); }}>View Reward</button>
+                    <Link href="/portal/rewards?tab=experiences" className="rw-dark-btn" style={{ display: "block", textAlign: "center", textDecoration: "none" }}>View Reward</Link>
                   </>
                 ) : (
                   <p className="pay-history-meta">You've unlocked everything in our current catalog!</p>
@@ -182,7 +185,7 @@ export default function RewardsView({
                   </div>
                 ))}
               </div>
-              <button type="button" className="trk-link-btn" onClick={() => setTab("missions")}>View All Missions →</button>
+              <Link href="/portal/rewards?tab=missions" className="trk-link-btn">View All Missions →</Link>
             </div>
           </div>
 

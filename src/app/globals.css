@@ -3446,3 +3446,28 @@
   .rw-overview-row{ grid-template-columns:1fr; }
   .rw-hero-banner{ flex-direction:column; text-align:center; }
 }
+
+/* ---------- Rewards Society Sidebar (Milestone 68) ---------- */
+.rw-sidebar{
+  width:250px; flex-shrink:0;
+  background-color:#3A0F16;
+  color:#F1E4C8; padding:0;
+  display:flex; flex-direction:column; position:sticky; top:0; height:100dvh;
+  overflow:hidden;
+}
+.rw-sidebar-inner{ padding:28px 20px 20px; display:flex; flex-direction:column; height:100%; }
+.rw-sidebar-word{ font-family:var(--serif,'Cormorant Garamond',serif); font-size:19px; line-height:1.2; letter-spacing:.04em; text-transform:uppercase; color:#C9A876; margin-bottom:2px; }
+.rw-sidebar-society{ font-family:var(--sans); font-size:9.5px; letter-spacing:.2em; color:rgba(241,228,200,0.55); margin-top:6px; }
+.rw-sidebar-nav{ list-style:none; margin:32px 0 0; padding:0; display:flex; flex-direction:column; gap:4px; }
+.rw-sidebar-nav a{ display:block; padding:11px 14px; border-radius:8px; font-family:var(--sans); font-size:13px; color:rgba(241,228,200,0.75); text-decoration:none; }
+.rw-sidebar-nav a.active{ background:rgba(201,168,118,0.16); color:#F1E4C8; }
+.rw-sidebar-nav a:hover{ color:#F1E4C8; }
+.rw-sidebar-footer{ margin-top:auto; }
+.rw-sidebar-quote{ font-family:var(--serif); font-style:italic; font-size:14px; color:rgba(241,228,200,0.7); line-height:1.5; margin:0 0 20px; }
+.rw-sidebar-seal{ width:36px; height:36px; border-radius:50%; border:1px solid rgba(201,168,118,0.5); display:flex; align-items:center; justify-content:center; font-family:var(--serif); font-size:13px; color:#C9A876; }
+.rw-sidebar-mobile-bar{ background:#3A0F16; }
+
+@media (max-width:900px){
+  .rw-sidebar{ position:fixed; left:-260px; z-index:60; transition:left .2s; box-shadow:0 0 30px rgba(0,0,0,0.3); }
+  .rw-sidebar.psb-open{ left:0; }
+}
