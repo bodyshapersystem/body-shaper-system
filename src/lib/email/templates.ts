@@ -426,3 +426,162 @@ export function buildAppointmentConfirmationEmail(params: {
     }),
   };
 }
+
+export function buildRewardUnlockedEmail(params: {
+  firstName: string;
+  rewardLabel: string;
+  portalUrl: string;
+}): { subject: string; html: string } {
+  const { firstName, rewardLabel, portalUrl } = params;
+  const name = firstName?.trim() || "beautiful";
+  const greeting = firstName?.trim() ? `Hi ${firstName.trim()}` : "Hello beautiful";
+  return {
+    subject: `You did it, ${name} — reward unlocked!`,
+    html: emailShell({
+      eyebrowScript: "you did it.",
+      headline: "reward",
+      headlineAccent: "unlocked!",
+      subheadlineLines: ["BECAUSE YOUR COMMITMENT", "DESERVES TO BE CELEBRATED."],
+      bodyParagraphs: [
+        `${greeting}, thank you for being part of the Body Shaper System™ experience.`,
+        "As a valued client, you've earned an exclusive reward that brings you even closer to your results.",
+      ],
+      featureCard: { variant: "A", icon: "🎁", text: `You've unlocked <strong>${rewardLabel}</strong> as part of your transformation journey. Check your Client Portal to see your reward and how to redeem it.` },
+      featureCardIcon: "🎁",
+      ctaLabel: "Access My Reward",
+      ctaUrl: portalUrl,
+      closingText: "Every milestone matters — we're so glad to celebrate this one with you.",
+    }),
+  };
+}
+
+export function buildSystemCompletedEmail(params: {
+  firstName: string;
+  systemName: string;
+  portalUrl: string;
+}): { subject: string; html: string } {
+  const { firstName, systemName, portalUrl } = params;
+  const name = firstName?.trim() || "beautiful";
+  const greeting = firstName?.trim() ? `Hi ${firstName.trim()}` : "Hello beautiful";
+  return {
+    subject: `Congratulations, ${name} — you completed your ${systemName}!`,
+    html: emailShell({
+      eyebrowScript: "congratulations!",
+      headline: "you did it.",
+      headlineAccent: `you completed your ${systemName}!`,
+      subheadlineLines: ["YOUR RESULTS ARE", "WORTH CELEBRATING."],
+      bodyParagraphs: [
+        `${greeting}, this is more than the end of a program — it's the beginning of your next chapter.`,
+        "Your dedication, consistency, and trust in the Body Shaper System™ process made this transformation possible. We are so proud of you.",
+      ],
+      featureCard: { variant: "A", icon: "✨", text: "Your transformation doesn't stop here. Let's keep building on your results and elevating your next level." },
+      featureCardIcon: "✨",
+      ctaLabel: "View My Next Steps",
+      ctaUrl: portalUrl,
+      closingText: "Thank you for trusting us with your journey — we can't wait to see what's next for you.",
+    }),
+  };
+}
+
+export function buildSessionReminderEmail(params: {
+  firstName: string;
+  sessionTitle: string;
+  timeLabel: string;
+  locationLabel: string;
+  portalUrl: string;
+}): { subject: string; html: string } {
+  const { firstName, sessionTitle, timeLabel, locationLabel, portalUrl } = params;
+  const name = firstName?.trim() || "beautiful";
+  const greeting = firstName?.trim() ? `Hi ${firstName.trim()}` : "Hello beautiful";
+  return {
+    subject: `Just a reminder, ${name} — your session is tomorrow`,
+    html: emailShell({
+      eyebrowScript: "just a reminder.",
+      headline: sessionTitle,
+      headlineAccent: "is tomorrow.",
+      subheadlineLines: ["WE CAN'T WAIT", "TO SEE YOU."],
+      bodyParagraphs: [`${greeting}, this is a friendly reminder that your session is coming up.`],
+      featureCard: {
+        variant: "C",
+        pairs: [
+          { label: "Time", value: timeLabel },
+          { label: "Location", value: locationLabel },
+        ],
+      },
+      featureCardIcon: "📅",
+      ctaLabel: "View My Appointment Details",
+      ctaUrl: portalUrl,
+      closingText: "If you need to make any changes, please contact your concierge as soon as possible.",
+    }),
+  };
+}
+
+export function buildNewDocumentAvailableEmail(params: {
+  firstName: string;
+  documentTitle: string;
+  portalUrl: string;
+}): { subject: string; html: string } {
+  const { firstName, documentTitle, portalUrl } = params;
+  const name = firstName?.trim() || "beautiful";
+  const greeting = firstName?.trim() ? `Hi ${firstName.trim()}` : "Hello beautiful";
+  return {
+    subject: `New document available, ${name}`,
+    html: emailShell({
+      eyebrowScript: "new update.",
+      headline: "new document",
+      headlineAccent: "available.",
+      subheadlineLines: ["STAY INFORMED.", "STAY ON TRACK."],
+      bodyParagraphs: [
+        `${greeting}, a new document — <strong>${documentTitle}</strong> — has been added to your Client Portal.`,
+        "Please review it at your earliest convenience.",
+      ],
+      featureCard: { variant: "A", icon: "📄", text: "Log in to your Client Portal to access and review the new document." },
+      featureCardIcon: "📄",
+      ctaLabel: "Go To My Portal",
+      ctaUrl: portalUrl,
+      closingText: "Thank you for being part of your transformation — we're here for you, every step of the way.",
+    }),
+  };
+}
+
+/**
+ * Ambassador Welcome — real content, matching the approved mockup's
+ * copy and 5-step onboarding journey (docs/mockups/emails/ambassador-
+ * welcome.png). Deliberately NOT replicating that mockup's bespoke
+ * hero-photo-background + numbered-circle-with-arrows layout: a
+ * background-image-behind-text hero is unreliable across email
+ * clients (Outlook ignores background-image entirely), and risks a
+ * broken/shifted layout in production email. Uses the same reliable
+ * master shell as every other real email instead, with the real
+ * Ambassador-specific copy and journey steps as text content.
+ */
+export function buildAmbassadorWelcomeEmail(params: {
+  firstName: string;
+  activationUrl: string;
+}): { subject: string; html: string } {
+  const { firstName, activationUrl } = params;
+  const name = firstName?.trim() || "beautiful";
+  const greeting = firstName?.trim() ? `Hi ${firstName.trim()}` : "Hello beautiful";
+  return {
+    subject: `Welcome, ${name} — you're now a Body Shaper System™ Ambassador`,
+    html: emailShell({
+      eyebrowScript: "welcome,",
+      headline: name,
+      headlineAccent: "you're now part of something we're building with intention.",
+      subheadlineLines: ["WE'RE THRILLED TO WELCOME YOU AS A", "BODY SHAPER SYSTEM™ AMBASSADOR."],
+      bodyParagraphs: [
+        `${greeting}, as an Ambassador you'll enjoy your personalized experience (the same premium onboarding as every client), your real journey (guided every step while creating authentic content together), exclusive rewards, and your own Ambassador Portal.`,
+      ],
+      featureCard: {
+        variant: "A",
+        icon: "✦",
+        text: "Your onboarding journey: 1) Prepare for Your Experience 2) Body Blueprint™ Assessment 3) Almost Done 4) Content Release Agreement (Ambassador-exclusive) 5) Activate Your Ambassador Portal.",
+      },
+      featureCardIcon: "✦",
+      ctaLabel: "Begin My Ambassador Journey",
+      ctaUrl: activationUrl,
+      closingText: "We're excited to grow together — thank you for trusting Body Shaper System™ and for becoming part of this new chapter.",
+      signatureName: "Emmy Branger",
+    }),
+  };
+}

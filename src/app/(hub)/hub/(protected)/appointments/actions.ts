@@ -3,7 +3,7 @@
 import { prisma } from "@/lib/prisma";
 import { getCurrentHubUser, hasPermission } from "@/lib/permissions";
 import { revalidatePath } from "next/cache";
-import { sendAppointmentConfirmationEmail } from "@/lib/email/service";
+import { sendAppointmentConfirmationEmail, sendSystemCompletedEmail } from "@/lib/email/service";
 import { createNotification } from "@/lib/notifications";
 import { getBusinessTimezone, formatDateInTimezone, formatTimeInTimezone } from "@/lib/format-datetime";
 
@@ -91,7 +91,7 @@ export async function updateAppointment(
     return { error: "You don't have permission to edit appointments." };
   }
 
-  await prisma.appointment.update({
+  const updated = await prisma.appointment.update({
     where: { id: appointmentId },
     data: {
       startsAt: data.startsAt ? new Date(data.startsAt) : undefined,
@@ -101,6 +101,36 @@ export async function updateAppointment(
       locationType: data.locationType,
     },
   });
+
+  // Real "System Completed" trigger — fires once, the moment
+  // completed sessions first reach the client's real total session
+  // count (never re-fires on later completed appointments).
+  if (data.status === "COMPLETED") {
+    const client = await prisma.client.findUnique({
+      where: { id: updated.clientId },
+      include: { blueprintAssessments: { orderBy: { version: "desc" }, take: 1 } },
+    });
+    const assessment = client?.blueprintAssessments[0];
+    const totalSessions = assessment?.validatedSessionCount ?? null;
+    if (client && totalSessions !== null) {
+      const completedCount = await prisma.appointment.count({ where: { clientId: client.id, status: "COMPLETED" } });
+      if (completedCount === totalSessions) {
+        await sendSystemCompletedEmail({
+          clientId: client.id,
+          firstName: client.firstName,
+          email: client.email,
+          systemName: assessment?.recommendedSystem ?? "Personalized System™",
+          portalUrl: "https://www.bodyshapersystem.com/portal/dashboard",
+        }).catch(() => undefined);
+        await createNotification({
+          clientId: client.id,
+          category: "GENERAL",
+          description: `${client.firstName} ${client.lastName} completed their ${assessment?.recommendedSystem ?? "Personalized System™"}`,
+          linkUrl: `/hub/clients/${client.id}`,
+        });
+      }
+    }
+  }
 
   revalidatePath("/hub/appointments");
   revalidatePath("/hub/dashboard");

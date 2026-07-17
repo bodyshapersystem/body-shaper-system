@@ -7,6 +7,11 @@ import {
   buildPaymentConfirmationEmail,
   buildBlueprintReceivedEmail,
   buildAppointmentConfirmationEmail,
+  buildRewardUnlockedEmail,
+  buildSystemCompletedEmail,
+  buildSessionReminderEmail,
+  buildNewDocumentAvailableEmail,
+  buildAmbassadorWelcomeEmail,
 } from "./templates";
 
 /**
@@ -25,7 +30,17 @@ import {
  * ever gets imported into a Client Component by mistake).
  */
 
-type EmailTemplateName = "WELCOME_ACTIVATION" | "BODY_BLUEPRINT_COMPLETED" | "PAYMENT_CONFIRMATION" | "BLUEPRINT_RECEIVED" | "APPOINTMENT_CONFIRMATION";
+type EmailTemplateName =
+  | "WELCOME_ACTIVATION"
+  | "BODY_BLUEPRINT_COMPLETED"
+  | "PAYMENT_CONFIRMATION"
+  | "BLUEPRINT_RECEIVED"
+  | "APPOINTMENT_CONFIRMATION"
+  | "REWARD_UNLOCKED"
+  | "SYSTEM_COMPLETED"
+  | "SESSION_REMINDER"
+  | "NEW_DOCUMENT_AVAILABLE"
+  | "AMBASSADOR_WELCOME";
 
 async function logAndSend(params: {
   clientId?: string;
@@ -219,4 +234,84 @@ export async function sendAppointmentConfirmationEmail(params: {
     subject,
     html,
   });
+}
+
+/** Sent when a client earns a real reward (points/tier change). */
+export async function sendRewardUnlockedEmail(params: {
+  clientId: string;
+  firstName: string;
+  email: string;
+  rewardLabel: string;
+  portalUrl: string;
+}) {
+  const { clientId, firstName, email, rewardLabel, portalUrl } = params;
+  const { subject, html } = buildRewardUnlockedEmail({ firstName, rewardLabel, portalUrl });
+  return logAndSend({ clientId, template: "REWARD_UNLOCKED", sender: SENDERS.concierge, recipient: email, subject, html });
+}
+
+/** Sent when a client completes all sessions in their Personalized System™. */
+export async function sendSystemCompletedEmail(params: {
+  clientId: string;
+  firstName: string;
+  email: string;
+  systemName: string;
+  portalUrl: string;
+}) {
+  const { clientId, firstName, email, systemName, portalUrl } = params;
+  const { subject, html } = buildSystemCompletedEmail({ firstName, systemName, portalUrl });
+  return logAndSend({ clientId, template: "SYSTEM_COMPLETED", sender: SENDERS.concierge, recipient: email, subject, html });
+}
+
+/** Sent by the daily reminder cron for appointments happening tomorrow. */
+export async function sendSessionReminderEmail(params: {
+  clientId: string;
+  firstName: string;
+  email: string;
+  sessionTitle: string;
+  timeLabel: string;
+  locationLabel: string;
+  portalUrl: string;
+}) {
+  const { clientId, firstName, email, sessionTitle, timeLabel, locationLabel, portalUrl } = params;
+  const { subject, html } = buildSessionReminderEmail({ firstName, sessionTitle, timeLabel, locationLabel, portalUrl });
+  return logAndSend({ clientId, template: "SESSION_REMINDER", sender: SENDERS.concierge, recipient: email, subject, html });
+}
+
+/** Sent when the Owner uploads a new CLIENT_VISIBLE document. */
+export async function sendNewDocumentAvailableEmail(params: {
+  clientId: string;
+  firstName: string;
+  email: string;
+  documentTitle: string;
+  portalUrl: string;
+}) {
+  const { clientId, firstName, email, documentTitle, portalUrl } = params;
+  const { subject, html } = buildNewDocumentAvailableEmail({ firstName, documentTitle, portalUrl });
+  return logAndSend({ clientId, template: "NEW_DOCUMENT_AVAILABLE", sender: SENDERS.concierge, recipient: email, subject, html });
+}
+
+/** Sent instead of the Standard welcome email when Client Type = Ambassador. */
+export async function sendAmbassadorWelcomeEmail(params: {
+  clientId: string;
+  firstName: string;
+  email: string;
+  activationUrl: string;
+  invitationId: string;
+}) {
+  const { clientId, firstName, email, activationUrl, invitationId } = params;
+  const { subject, html } = buildAmbassadorWelcomeEmail({ firstName, activationUrl });
+
+  const result = await logAndSend({ clientId, template: "AMBASSADOR_WELCOME", sender: SENDERS.concierge, recipient: email, subject, html });
+
+  await prisma.portalInvitation.update({
+    where: { id: invitationId },
+    data: { lastSentAt: new Date(), attemptCount: { increment: 1 } },
+  });
+
+  const client = await prisma.client.findUnique({ where: { id: clientId }, include: { user: true } });
+  if (client && client.user.portalStatus !== "ACTIVE") {
+    await prisma.user.update({ where: { id: client.userId }, data: { portalStatus: result.success ? "INVITATION_SENT" : "FAILED" } });
+  }
+
+  return result;
 }

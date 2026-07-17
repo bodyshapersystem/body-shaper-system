@@ -1,0 +1,6 @@
+-- Milestone 63: 5 new real email templates + triggers.
+ALTER TYPE "EmailTemplate" ADD VALUE 'REWARD_UNLOCKED';
+ALTER TYPE "EmailTemplate" ADD VALUE 'SYSTEM_COMPLETED';
+ALTER TYPE "EmailTemplate" ADD VALUE 'SESSION_REMINDER';
+ALTER TYPE "EmailTemplate" ADD VALUE 'NEW_DOCUMENT_AVAILABLE';
+ALTER TYPE "EmailTemplate" ADD VALUE 'AMBASSADOR_WELCOME';

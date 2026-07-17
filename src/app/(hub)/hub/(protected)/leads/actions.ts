@@ -8,7 +8,7 @@ import { revalidatePath } from "next/cache";
 import { randomUUID } from "crypto";
 import { z } from "zod";
 import type { LeadStatus, PaymentStatus } from "@prisma/client";
-import { sendWelcomeActivationEmail } from "@/lib/email/service";
+import { sendWelcomeActivationEmail, sendAmbassadorWelcomeEmail } from "@/lib/email/service";
 import { createNotification } from "@/lib/notifications";
 import { linkAssessmentToClient } from "@/lib/blueprint-assessments";
 import { fetchAndStoreJotformSubmissionPdf } from "@/lib/jotform-pdf";
@@ -315,20 +315,18 @@ async function finishConversion(
   // hold a database transaction open). If sending fails, the client
   // and invitation still exist untouched — the Hub shows the failure
   // and offers "Resend Invitation", per the no-silent-failure rule.
-  // Ambassador Welcome Email: per direction, "do not create it yet -
-  // simply prepare the automation." This branch point is ready for a
-  // distinct Ambassador-version template once approved; today it
-  // sends the same real Welcome email as Standard clients rather than
-  // fabricating Ambassador-specific copy that hasn't been designed.
+  // Ambassador Welcome Email: now real — uses the approved
+  // Ambassador-specific template (docs/mockups/emails/ambassador-
+  // welcome.png), distinct from the Standard client welcome email.
   const emailResult =
     clientType === "AMBASSADOR"
-      ? await sendWelcomeActivationEmail({
+      ? await sendAmbassadorWelcomeEmail({
           clientId: result.client.id,
           firstName: lead.firstName,
           email: lead.email,
           activationUrl,
           invitationId: result.invite.id,
-        }) // TODO: swap for sendAmbassadorWelcomeActivationEmail() once that template is approved
+        })
       : await sendWelcomeActivationEmail({
           clientId: result.client.id,
           firstName: lead.firstName,

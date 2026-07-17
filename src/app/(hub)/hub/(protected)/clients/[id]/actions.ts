@@ -4,7 +4,8 @@ import { prisma } from "@/lib/prisma";
 import { getCurrentHubUser, hasPermission } from "@/lib/permissions";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { revalidatePath } from "next/cache";
-import { sendWelcomeActivationEmail } from "@/lib/email/service";
+import { sendWelcomeActivationEmail, sendNewDocumentAvailableEmail } from "@/lib/email/service";
+import { createNotification } from "@/lib/notifications";
 import { randomUUID } from "crypto";
 import type { DocumentCategory, Visibility } from "@prisma/client";
 import {
@@ -196,6 +197,25 @@ export async function recordClientDocument(
       uploadedById: user.id,
     },
   });
+
+  if (data.visibility === "CLIENT_VISIBLE") {
+    const client = await prisma.client.findUnique({ where: { id: clientId } });
+    if (client) {
+      await sendNewDocumentAvailableEmail({
+        clientId,
+        firstName: client.firstName,
+        email: client.email,
+        documentTitle: data.title,
+        portalUrl: "https://www.bodyshapersystem.com/portal/documents",
+      }).catch(() => undefined);
+      await createNotification({
+        clientId,
+        category: "DOCUMENTS",
+        description: `New document "${data.title}" shared with ${client.firstName} ${client.lastName}`,
+        linkUrl: `/hub/clients/${clientId}?tab=documents`,
+      });
+    }
+  }
 
   revalidatePath(`/hub/clients/${clientId}`);
   revalidatePath("/hub/documents");

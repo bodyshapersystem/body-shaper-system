@@ -3,6 +3,8 @@
 import { prisma } from "@/lib/prisma";
 import { getCurrentHubUser, hasPermission } from "@/lib/permissions";
 import { revalidatePath } from "next/cache";
+import { sendRewardUnlockedEmail } from "@/lib/email/service";
+import { createNotification } from "@/lib/notifications";
 
 export async function addRewardsTransaction(formData: FormData) {
   const user = await getCurrentHubUser();
@@ -31,6 +33,25 @@ export async function addRewardsTransaction(formData: FormData) {
       data: { pointsBalance: { increment: points } },
     }),
   ]);
+
+  if (points > 0) {
+    const client = await prisma.client.findUnique({ where: { id: clientId } });
+    if (client) {
+      await sendRewardUnlockedEmail({
+        clientId,
+        firstName: client.firstName,
+        email: client.email,
+        rewardLabel: action,
+        portalUrl: "https://www.bodyshapersystem.com/portal/rewards",
+      }).catch(() => undefined);
+      await createNotification({
+        clientId,
+        category: "REWARDS",
+        description: `${client.firstName} ${client.lastName} unlocked a reward — ${action}`,
+        linkUrl: `/hub/clients/${clientId}`,
+      });
+    }
+  }
 
   revalidatePath("/hub/rewards");
   return { success: true };
