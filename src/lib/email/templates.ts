@@ -94,18 +94,34 @@ function highlightMoment(icon: string, html: string): string {
   </table>`;
 }
 
-function needAnythingCard(): string {
-  return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border:1px solid ${COLORS.sand};border-radius:6px;margin:0 0 26px;">
+/** Icon centered inside a thin rose-outlined circle — matches the
+ * mockup's line-art icon circles (payment/concierge/clock cards). */
+function iconCircle(icon: string, size = 64): string {
+  return `<table role="presentation" cellpadding="0" cellspacing="0" style="width:${size}px;height:${size}px;">
+    <tr><td align="center" valign="middle" style="width:${size}px;height:${size}px;border:1px solid ${COLORS.rose};border-radius:50%;font-size:${Math.round(size * 0.4)}px;">${icon}</td></tr>
+  </table>`;
+}
+
+/** Rounded sand card with a circled icon on the left and content on
+ * the right — matches the "payment details" / "need anything?" cards
+ * in the newer approved mockups. */
+function iconCard(icon: string, headingHtml: string, bodyHtml: string): string {
+  return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:${COLORS.sandLight};border-radius:10px;margin:0 0 20px;">
     <tr>
-      <td width="24" style="font-size:0;">&nbsp;</td>
-      <td width="34" valign="top" style="padding:18px 0;font-size:22px;">🎧</td>
-      <td width="14" style="font-size:0;">&nbsp;</td>
-      <td valign="top" style="padding:18px 0;font-family:Arial,sans-serif;font-size:13.5px;line-height:1.6;color:${COLORS.charcoal};">
-        Need anything in the meantime?<br />Your <strong>Body Shaper Concierge™</strong> is here to help.
+      <td width="26" style="font-size:0;">&nbsp;</td>
+      <td width="64" valign="top" style="padding:22px 0;">${iconCircle(icon)}</td>
+      <td width="18" style="font-size:0;">&nbsp;</td>
+      <td valign="top" style="padding:22px 0;font-family:Arial,sans-serif;font-size:14px;line-height:1.6;color:${COLORS.charcoal};">
+        ${headingHtml ? `<p style="font-family:Georgia,serif;font-size:17px;color:${COLORS.rose};margin:0 0 6px;">${headingHtml}</p>` : ""}
+        ${bodyHtml}
       </td>
-      <td width="24" style="font-size:0;">&nbsp;</td>
+      <td width="26" style="font-size:0;">&nbsp;</td>
     </tr>
   </table>`;
+}
+
+function needAnythingCard(): string {
+  return iconCard("🎧", "need anything?", `Your <strong>Body Shaper System Concierge™</strong> is here to help.`);
 }
 
 type FeatureCard =
@@ -134,7 +150,9 @@ function renderFeatureCardInline(card: FeatureCard): string {
  * footer (location + website), and the 3-item tagline bar.
  */
 function emailShell(params: {
+  eyebrowScript?: string;
   headline: string;
+  headlineAccent?: string;
   subheadlineLines: string[];
   bodyParagraphs: string[];
   infoMomentIcon?: string;
@@ -148,7 +166,9 @@ function emailShell(params: {
   signatureName?: string;
 }): string {
   const {
+    eyebrowScript,
     headline,
+    headlineAccent,
     subheadlineLines,
     bodyParagraphs,
     infoMomentIcon,
@@ -194,7 +214,14 @@ function emailShell(params: {
           <!-- Headline + subheadline -->
           <tr>
             <td style="padding:0 40px;">
-              <h1 style="font-family:Georgia,serif;font-size:52px;line-height:1;color:${COLORS.charcoal};margin:0 0 18px;font-weight:normal;">${headline}</h1>
+              ${
+                eyebrowScript
+                  ? `<p style="font-family:Georgia,serif;font-style:italic;font-size:22px;color:${COLORS.rose};margin:0 0 6px;">${eyebrowScript}</p>`
+                  : ""
+              }
+              <h1 style="font-family:Georgia,serif;font-size:48px;line-height:1.05;color:${COLORS.charcoal};margin:0 0 18px;font-weight:normal;">${headline}${
+    headlineAccent ? `<br /><span style="font-style:italic;color:${COLORS.rose};">${headlineAccent}</span>` : ""
+  }</h1>
               <p style="font-family:Arial,sans-serif;font-size:13px;letter-spacing:2px;text-transform:uppercase;color:${COLORS.mocha};line-height:1.6;margin:0 0 20px;">
                 ${subheadlineLines.join("<br />")}
               </p>
@@ -273,7 +300,9 @@ export function buildWelcomeActivationEmail(params: {
   return {
     subject: `Welcome to Body Shaper System™, ${name}`,
     html: emailShell({
-      headline: "welcome.",
+      eyebrowScript: "welcome.",
+      headline: "your transformation",
+      headlineAccent: "officially starts today.",
       subheadlineLines: ["YOUR JOURNEY WITH", "BODY SHAPER SYSTEM™ BEGINS NOW."],
       bodyParagraphs: [
         `${greeting}, welcome — I'm so glad you're here.`,
@@ -302,7 +331,9 @@ export function buildBodyBlueprintCompletedEmail(params: {
   return {
     subject: `Good news, ${name} — your Body Blueprint™ is ready`,
     html: emailShell({
-      headline: "it's ready.",
+      eyebrowScript: "you're making progress.",
+      headline: "your plan",
+      headlineAccent: "is ready for you.",
       subheadlineLines: ["YOUR PERSONALIZED", "BODY BLUEPRINT™ STRATEGY."],
       bodyParagraphs: [
         `${greeting}, your Body Blueprint™ is ready — your personalized goals, recommended system, and treatment plan are now available in your Client Portal.`,
@@ -348,7 +379,9 @@ export function buildPaymentConfirmationEmail(params: {
   return {
     subject: `Payment received, ${name}`,
     html: emailShell({
-      headline: "thank you.",
+      eyebrowScript: "thank you.",
+      headline: "payment",
+      headlineAccent: "received.",
       subheadlineLines: ["YOUR PAYMENT HAS BEEN", "RECEIVED AND CONFIRMED."],
       bodyParagraphs: [`${greeting}, this confirms your payment below. Thank you for trusting Body Shaper System™ with your transformation.`],
       featureCard: { variant: "D", stat: amountLabel, statLabel: "Amount Confirmed" },
@@ -380,7 +413,9 @@ export function buildAppointmentConfirmationEmail(params: {
   return {
     subject: `Your session is confirmed, ${name}`,
     html: emailShell({
-      headline: "see you soon.",
+      eyebrowScript: "you're all set.",
+      headline: "your session",
+      headlineAccent: "is confirmed.",
       subheadlineLines: ["YOUR SESSION HAS BEEN", "SCHEDULED AND CONFIRMED."],
       bodyParagraphs: [`${greeting}, your session has been scheduled. Here are the details:`],
       featureCard: { variant: "B", rows },
