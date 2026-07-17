@@ -3370,3 +3370,12 @@
 
 .rw-reward-card{ background:#fff; border-radius:14px; padding:18px; box-shadow:0 2px 8px rgba(107,78,61,0.06); }
 .rw-locked{ font-family:var(--sans); font-size:11.5px; color:#b8863f; }
+
+/* ---------- Rewards — 4-tab restructure (Milestone 65) ---------- */
+.rw-tabs{ display:flex; gap:4px; background:rgba(122,46,56,0.06); border-radius:10px; padding:4px; width:fit-content; margin-bottom:24px; flex-wrap:wrap; }
+.rw-tab{ font-family:var(--sans); font-size:12px; padding:9px 18px; border-radius:8px; border:none; background:transparent; color:#6B4E3D; cursor:pointer; }
+.rw-tab-active{ background:#7A2E38; color:#fff; }
+
+.rw-editorial-card{ background:linear-gradient(160deg,#fff, #F7F1EA); border-radius:16px; padding:22px; box-shadow:0 3px 12px rgba(107,78,61,0.08); border:1px solid rgba(201,168,118,0.25); }
+.rw-mission-card{ background:#fff; border-radius:16px; padding:20px; box-shadow:0 2px 10px rgba(107,78,61,0.06); border-left:3px solid #C9A876; }
+.rw-reward-locked{ opacity:.72; }

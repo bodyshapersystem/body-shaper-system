@@ -18,12 +18,13 @@ export default async function RewardsPage() {
     );
   }
 
-  const [catalogItems, missions, recentTransactions, completions, assessment] = await Promise.all([
+  const [catalogItems, missions, recentTransactions, completions, assessment, partners] = await Promise.all([
     prisma.rewardCatalogItem.findMany({ where: { available: true }, orderBy: { creditCost: "asc" } }),
     prisma.mission.findMany({ where: { active: true }, orderBy: { creditReward: "asc" } }),
     prisma.rewardsTransaction.findMany({ where: { rewardsAccountId: client.rewardsAccount.id }, orderBy: { createdAt: "desc" }, take: 15 }),
     prisma.missionCompletion.findMany({ where: { rewardsAccountId: client.rewardsAccount.id, status: { in: ["PENDING", "APPROVED"] } } }),
     prisma.blueprintAssessment.findFirst({ where: { clientId: client.id }, orderBy: { version: "desc" } }),
+    prisma.partner.findMany({ where: { active: true }, orderBy: { name: "asc" } }),
   ]);
 
   const admin = createSupabaseAdminClient();
@@ -63,6 +64,7 @@ export default async function RewardsPage() {
         transactions={recentTransactions.map((t) => ({ id: t.id, points: t.points, action: t.action, createdAt: t.createdAt.toISOString() }))}
         categoryLabels={CATEGORY_LABELS}
         categoryIcons={CATEGORY_ICONS}
+        partners={partners.map((p) => ({ id: p.id, name: p.name, category: p.category, creditValue: p.creditValue, notes: p.notes }))}
       />
     </div>
   );
