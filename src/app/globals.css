@@ -3368,7 +3368,7 @@
 .rw-category-card{ background:#fff; border-radius:14px; padding:24px 14px; display:flex; flex-direction:column; align-items:center; gap:10px; border:none; cursor:pointer; font-family:var(--serif); font-size:14px; color:#2B2622; box-shadow:0 2px 8px rgba(107,78,61,0.06); }
 .rw-category-card:hover{ box-shadow:0 4px 14px rgba(107,78,61,0.12); }
 
-.rw-reward-card{ background:#fff; border-radius:14px; padding:18px; box-shadow:0 2px 8px rgba(107,78,61,0.06); }
+.rw-reward-card{ background:#fff; border-radius:14px; padding:18px; box-shadow:0 2px 8px rgba(107,78,61,0.06); border:1px solid rgba(201,168,118,0.25); }
 .rw-locked{ font-family:var(--sans); font-size:11.5px; color:#b8863f; }
 
 /* ---------- Rewards — 4-tab restructure (Milestone 65) ---------- */

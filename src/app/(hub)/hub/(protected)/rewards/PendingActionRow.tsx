@@ -19,7 +19,7 @@ export function RedemptionRow({ id, clientName, itemName, creditsCost }: { id: s
     <div className="cap-card" style={{ borderLeftColor: "#C9A876", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 10 }}>
       <div>
         <div className="cap-card-title">{clientName}</div>
-        <div className="cap-card-meta">{itemName} — {creditsCost} credits</div>
+        <div className="cap-card-meta">{itemName} — {creditsCost} PTS</div>
       </div>
       <div style={{ display: "flex", gap: 8 }}>
         <button type="button" className="dash-view-btn" disabled={isPending} onClick={() => handle(fulfillRedemption)}>Fulfill</button>
@@ -44,7 +44,7 @@ export function MissionReviewRow({ id, clientName, missionName, creditReward }: 
     <div className="cap-card" style={{ borderLeftColor: "#6D7A64", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 10 }}>
       <div>
         <div className="cap-card-title">{clientName}</div>
-        <div className="cap-card-meta">{missionName} — {creditReward} credits</div>
+        <div className="cap-card-meta">{missionName} — {creditReward} PTS</div>
       </div>
       <div style={{ display: "flex", gap: 8 }}>
         <button type="button" className="dash-view-btn" disabled={isPending} onClick={() => handle(approveMissionCompletion)}>Approve</button>

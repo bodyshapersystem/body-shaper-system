@@ -44,20 +44,20 @@ export default async function HubRewardsPage({ searchParams }: { searchParams: P
         <p className="dash-subtitle">The Body Shaper System Society™ — manage members, catalog, and missions.</p>
       </div>
 
-      <div className="apt-view-tabs" style={{ marginBottom: 24, width: "fit-content" }}>
-        <Link href="/hub/rewards?tab=dashboard" className={`apt-view-tab ${activeTab === "dashboard" ? "apt-view-tab-active" : ""}`}>Dashboard</Link>
-        <Link href="/hub/rewards?tab=members" className={`apt-view-tab ${activeTab === "members" ? "apt-view-tab-active" : ""}`}>Members</Link>
-        <Link href="/hub/rewards?tab=catalog" className={`apt-view-tab ${activeTab === "catalog" ? "apt-view-tab-active" : ""}`}>Catalog</Link>
-        <Link href="/hub/rewards?tab=missions" className={`apt-view-tab ${activeTab === "missions" ? "apt-view-tab-active" : ""}`}>Missions</Link>
-        <Link href="/hub/rewards?tab=partners" className={`apt-view-tab ${activeTab === "partners" ? "apt-view-tab-active" : ""}`}>Partners</Link>
+      <div className="rw-tabs" style={{ marginBottom: 24 }}>
+        <Link href="/hub/rewards?tab=dashboard" className={`rw-tab ${activeTab === "dashboard" ? "rw-tab-active" : ""}`}>Dashboard</Link>
+        <Link href="/hub/rewards?tab=members" className={`rw-tab ${activeTab === "members" ? "rw-tab-active" : ""}`}>Members</Link>
+        <Link href="/hub/rewards?tab=catalog" className={`rw-tab ${activeTab === "catalog" ? "rw-tab-active" : ""}`}>Catalog</Link>
+        <Link href="/hub/rewards?tab=missions" className={`rw-tab ${activeTab === "missions" ? "rw-tab-active" : ""}`}>Missions</Link>
+        <Link href="/hub/rewards?tab=partners" className={`rw-tab ${activeTab === "partners" ? "rw-tab-active" : ""}`}>Partners</Link>
       </div>
 
       {activeTab === "dashboard" && (
         <>
           <div className="doc-card-grid" style={{ marginBottom: 28 }}>
             <div className="pd-stat"><span className="pd-stat-label">Total Members</span><strong>{totalMembers}</strong></div>
-            <div className="pd-stat"><span className="pd-stat-label">Total Credits Issued</span><strong>{totalCreditsIssued.toLocaleString()}</strong></div>
-            <div className="pd-stat"><span className="pd-stat-label">Credits Redeemed</span><strong>{(totalCreditsRedeemed._sum.creditsCost ?? 0).toLocaleString()}</strong></div>
+            <div className="pd-stat"><span className="pd-stat-label">Total PTS Issued</span><strong>{totalCreditsIssued.toLocaleString()}</strong></div>
+            <div className="pd-stat"><span className="pd-stat-label">PTS Redeemed</span><strong>{(totalCreditsRedeemed._sum.creditsCost ?? 0).toLocaleString()}</strong></div>
             <div className="pd-stat"><span className="pd-stat-label">Pending Redemptions</span><strong>{pendingRedemptions.length}</strong></div>
           </div>
 
@@ -102,7 +102,7 @@ export default async function HubRewardsPage({ searchParams }: { searchParams: P
                 <div className="cl-avatar" style={{ width: 40, height: 40, fontSize: 13 }}>{m.client.firstName[0]}{m.client.lastName[0]}</div>
                 <div>
                   <p className="doc-card-title">{m.client.firstName} {m.client.lastName}</p>
-                  <p className="pay-history-meta">{m.tier} · {m.lifetimePoints.toLocaleString()} lifetime credits</p>
+                  <p className="pay-history-meta">{m.tier} · {m.lifetimePoints.toLocaleString()} lifetime PTS</p>
                 </div>
               </Link>
             ))}

@@ -65,7 +65,7 @@ export default function MembersTab({ accounts, canManage }: { accounts: Account[
             <tr>
               <th style={{ padding: "10px 8px" }}>Name</th>
               <th style={{ padding: "10px 8px" }}>Tier</th>
-              <th style={{ padding: "10px 8px" }}>Credits</th>
+              <th style={{ padding: "10px 8px" }}>PTS</th>
               <th style={{ padding: "10px 8px" }}>Status</th>
               <th style={{ padding: "10px 8px" }}>Last Activity</th>
             </tr>
@@ -92,8 +92,8 @@ export default function MembersTab({ accounts, canManage }: { accounts: Account[
               <button type="button" className="apd-close" onClick={() => setSelected(null)}>×</button>
             </div>
             <div className="apd-detail-list">
-              <div className="apd-detail-row"><span>current credits</span><strong>{selected.pointsBalance.toLocaleString()}</strong></div>
-              <div className="apd-detail-row"><span>lifetime credits</span><strong>{selected.lifetimePoints.toLocaleString()}</strong></div>
+              <div className="apd-detail-row"><span>current PTS</span><strong>{selected.pointsBalance.toLocaleString()}</strong></div>
+              <div className="apd-detail-row"><span>lifetime PTS</span><strong>{selected.lifetimePoints.toLocaleString()}</strong></div>
               <div className="apd-detail-row"><span>current tier</span><strong>{selected.tier}</strong></div>
               <div className="apd-detail-row"><span>status</span><strong>{selected.suspended ? "Suspended" : "Active"}</strong></div>
             </div>
@@ -103,8 +103,8 @@ export default function MembersTab({ accounts, canManage }: { accounts: Account[
                 <input placeholder="Points" type="number" value={pointsInput} onChange={(e) => setPointsInput(e.target.value)} className="sched-select" style={{ marginBottom: 8 }} />
                 <input placeholder="Reason (e.g. Referral bonus)" value={actionInput} onChange={(e) => setActionInput(e.target.value)} className="sched-select" style={{ marginBottom: 8 }} />
                 <div style={{ display: "flex", gap: 8 }}>
-                  <button type="button" className="apd-btn-secondary" style={{ flex: 1 }} disabled={isPending} onClick={() => handleAdjust(1)}>Add Credits</button>
-                  <button type="button" className="apd-btn-secondary" style={{ flex: 1 }} disabled={isPending} onClick={() => handleAdjust(-1)}>Remove Credits</button>
+                  <button type="button" className="apd-btn-secondary" style={{ flex: 1 }} disabled={isPending} onClick={() => handleAdjust(1)}>Add PTS</button>
+                  <button type="button" className="apd-btn-secondary" style={{ flex: 1 }} disabled={isPending} onClick={() => handleAdjust(-1)}>Remove PTS</button>
                 </div>
 
                 <p className="apd-detail-row" style={{ marginTop: 14, borderBottom: "none" }}><span>Move Tier</span></p>
