@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { usePathname, useSearchParams } from "next/navigation";
+import { usePathname } from "next/navigation";
 import ProfileLogout from "@/components/ProfileLogout";
 
 const NAV = [
@@ -87,13 +87,6 @@ function NavIcon({ name }: { name: string }) {
   }
 }
 
-const REWARDS_NAV = [
-  { href: "/portal/rewards?tab=overview", label: "Overview", tab: "overview" },
-  { href: "/portal/rewards?tab=experiences", label: "Unlock Experiences", tab: "experiences" },
-  { href: "/portal/rewards?tab=missions", label: "Secret Missions", tab: "missions" },
-  { href: "/portal/rewards?tab=privileges", label: "Privileges", tab: "privileges" },
-];
-
 export default function ClientSidebar({
   name,
   tier,
@@ -104,48 +97,11 @@ export default function ClientSidebar({
   logoutAction?: () => Promise<void>;
 }) {
   const pathname = usePathname();
-  const searchParams = useSearchParams();
   const [mobileOpen, setMobileOpen] = useState(false);
 
   useEffect(() => {
     setMobileOpen(false);
   }, [pathname]);
-
-  const isRewards = pathname === "/portal/rewards";
-  if (isRewards) {
-    const activeTab = searchParams.get("tab") ?? "overview";
-    return (
-      <>
-        <div className="psb-mobile-bar rw-sidebar-mobile-bar">
-          <button type="button" className="psb-mobile-toggle" aria-label={mobileOpen ? "Close menu" : "Open menu"} aria-expanded={mobileOpen} onClick={() => setMobileOpen((v) => !v)}>
-            <span /><span /><span />
-          </button>
-        </div>
-        {mobileOpen && <div className="psb-backdrop" onClick={() => setMobileOpen(false)} aria-hidden="true" />}
-        <nav className={`rw-sidebar ${mobileOpen ? "psb-open" : ""}`}>
-          <div className="rw-sidebar-inner">
-            <div className="rw-sidebar-word">
-              body<br />shaper<br />system
-              <div className="rw-sidebar-society">society™</div>
-            </div>
-            <ul className="rw-sidebar-nav">
-              {REWARDS_NAV.map((item) => (
-                <li key={item.tab}>
-                  <Link href={item.href} className={activeTab === item.tab ? "active" : ""} onClick={() => setMobileOpen(false)}>
-                    {item.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-            <div className="rw-sidebar-footer">
-              <p className="rw-sidebar-quote">&ldquo;Your body transformation journey deserves extraordinary rewards.&rdquo;</p>
-              <div className="rw-sidebar-seal">BS</div>
-            </div>
-          </div>
-        </nav>
-      </>
-    );
-  }
 
   return (
     <>
