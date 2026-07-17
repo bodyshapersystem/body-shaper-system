@@ -2,7 +2,11 @@
 
 Reference mockups for the Rewards tab, branded "body rewards." / "THE BODY SHAPER SOCIETY™".
 
-## Received
+## ⚠️ Approved direction: see `v3-society/`
+The concepts below (`overview.png`, `overview-v2-full.png`, `secret-missions.png`, `unlock-experiences.png` in this folder) are earlier explorations. **Emmy has approved a new direction** — a 4-tab "premium members club" concept (Overview / Unlock Experiences / Secret Missions / Privileges) with full written spec. See `v3-society/SPEC.md` and its mockups before building anything.
+
+## Earlier explorations (v1/v2 — superseded)
+
 - `overview.png` — Rewards overview: balance (Body Credits™/BC), tier progress (Silver → Gold), active secret mission card, ways to earn BC table, featured experience, new drops, secret mission preview, recent activity
 - `overview-v2-full.png` — Denser single-page variant combining overview + ways to earn + unlock experiences + secret missions + tier ladder (bronze/silver/gold/platinum/society elite) + society rules + mission guide + invite & earn — likely a "kitchen sink" concept to pull sections from rather than a literal single page
 - `secret-missions.png` — Secret Missions tab: active mission (with countdown timer + progress), mission rules, how-it-works examples, mission history, completed missions, upcoming/locked missions
