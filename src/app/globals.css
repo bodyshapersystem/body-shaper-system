@@ -3379,3 +3379,70 @@
 .rw-editorial-card{ background:linear-gradient(160deg,#fff, #F7F1EA); border-radius:16px; padding:22px; box-shadow:0 3px 12px rgba(107,78,61,0.08); border:1px solid rgba(201,168,118,0.25); }
 .rw-mission-card{ background:#fff; border-radius:16px; padding:20px; box-shadow:0 2px 10px rgba(107,78,61,0.06); border-left:3px solid #C9A876; }
 .rw-reward-locked{ opacity:.72; }
+
+/* ---------- Rewards — Body Shaper System Society™ v3 (Milestone 66) ---------- */
+.rw-page{ --rw-burgundy:#4A1620; --rw-gold:#C9A876; }
+.rw-topbar{ display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:12px; margin-bottom:16px; }
+.rw-points-pill{ background:#fff; border-radius:12px; padding:10px 18px; text-align:center; box-shadow:0 2px 8px rgba(107,78,61,0.08); }
+.rw-points-pill span{ display:block; font-family:var(--serif); font-size:17px; color:#2B2622; }
+.rw-points-pill span small{ font-family:var(--sans); font-size:10px; color:#8a7f74; }
+.rw-points-pill small{ display:block; font-family:var(--sans); font-size:10px; color:#7A2E38; margin-top:2px; }
+
+.rw-tabs{ display:flex; gap:4px; background:rgba(74,22,32,0.06); border-radius:10px; padding:4px; width:fit-content; margin-bottom:20px; flex-wrap:wrap; }
+.rw-tab{ font-family:var(--sans); font-size:12px; padding:9px 16px; border-radius:8px; border:none; background:transparent; color:#4A1620; cursor:pointer; white-space:nowrap; }
+.rw-tab-active{ background:#4A1620; color:#fff; }
+
+.rw-hero-banner{ background:linear-gradient(135deg,#EDE3D5,#E4D4BE); border-radius:18px; padding:32px; display:flex; justify-content:space-between; align-items:center; gap:24px; margin-bottom:24px; flex-wrap:wrap; }
+.rw-hero-banner-title{ font-family:var(--serif); font-size:26px; color:#2B2622; margin:0 0 10px; line-height:1.2; }
+.rw-hero-banner-sub{ font-family:var(--sans); font-size:13px; color:#5a5148; line-height:1.6; margin:0; }
+
+.rw-membership-card{ width:220px; height:130px; background:linear-gradient(135deg,#5C1A24,#3A0F16); border-radius:12px; box-shadow:0 10px 30px rgba(0,0,0,0.25); display:flex; flex-direction:column; justify-content:center; padding:20px; flex-shrink:0; }
+.rw-membership-card-the{ font-family:var(--sans); font-size:9px; letter-spacing:.15em; text-transform:uppercase; color:#C9A876; margin:0; }
+.rw-membership-card-name{ font-family:var(--serif); font-size:19px; color:#F1E4C8; margin:2px 0; line-height:1.15; }
+.rw-membership-card-society{ font-family:var(--sans); font-size:9px; letter-spacing:.2em; text-transform:uppercase; color:#C9A876; margin:0; }
+
+.rw-stat-grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-bottom:20px; }
+.rw-stat-card{ background:#fff; border-radius:14px; padding:18px; box-shadow:0 2px 8px rgba(107,78,61,0.06); }
+.rw-stat-label{ font-family:var(--sans); font-size:10px; letter-spacing:.05em; text-transform:uppercase; color:#8a7f74; margin:0 0 8px; }
+.rw-stat-value{ font-family:var(--serif); font-size:26px; color:#2B2622; margin:0 0 6px; }
+.rw-stat-value small{ font-family:var(--sans); font-size:11px; color:#8a7f74; }
+.rw-stat-foot{ font-family:var(--sans); font-size:11px; color:#8a7f74; margin:0; }
+
+.rw-overview-row{ display:grid; grid-template-columns:1fr 1.2fr; gap:16px; margin-bottom:20px; }
+.rw-next-reward-card{ background:#fff; border-radius:14px; padding:20px; box-shadow:0 2px 8px rgba(107,78,61,0.06); }
+.rw-next-reward-eyebrow{ font-family:var(--sans); font-size:10px; letter-spacing:.05em; text-transform:uppercase; color:#C9A876; margin:0 0 8px; }
+.rw-next-reward-name{ font-family:var(--serif); font-size:19px; color:#2B2622; margin:0 0 6px; }
+.rw-next-reward-pts{ font-family:var(--serif); font-size:15px; color:#7A2E38; margin:0 0 14px; }
+.rw-ways-card{ background:#fff; border-radius:14px; padding:20px; box-shadow:0 2px 8px rgba(107,78,61,0.06); }
+.rw-ways-grid{ display:grid; grid-template-columns:1fr 1fr; gap:8px 16px; margin-bottom:10px; }
+.rw-ways-row{ display:flex; justify-content:space-between; font-family:var(--sans); font-size:12px; color:#2B2622; padding:6px 0; border-bottom:1px solid rgba(0,0,0,0.05); }
+.rw-ways-row strong{ color:#C9A876; }
+
+.rw-activity-card{ background:#fff; border-radius:14px; padding:20px; box-shadow:0 2px 8px rgba(107,78,61,0.06); margin-bottom:20px; }
+.rw-activity-row{ display:grid; grid-template-columns:repeat(auto-fit, minmax(160px,1fr)); gap:16px; }
+.rw-activity-item{ display:flex; gap:10px; align-items:flex-start; }
+.rw-activity-icon{ width:36px; height:36px; border-radius:50%; background:rgba(201,168,118,0.15); display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+
+.rw-pill-row{ display:flex; gap:8px; flex-wrap:wrap; margin-bottom:20px; }
+.rw-pill{ font-family:var(--sans); font-size:12px; padding:8px 16px; border-radius:20px; border:1px solid rgba(0,0,0,0.1); background:#fff; color:#2B2622; cursor:pointer; white-space:nowrap; }
+.rw-pill-active{ background:#4A1620; color:#fff; border-color:#4A1620; }
+
+.rw-grid{ display:grid; grid-template-columns:repeat(auto-fill, minmax(220px, 1fr)); gap:16px; margin-bottom:24px; }
+.rw-item-card{ background:#fff; border-radius:14px; padding:14px; box-shadow:0 2px 8px rgba(107,78,61,0.06); }
+.rw-item-image{ width:100%; height:130px; border-radius:10px; background:rgba(74,22,32,0.06) center/cover no-repeat; margin-bottom:10px; position:relative; }
+.rw-mission-image{ background:linear-gradient(135deg,#4A1620,#7A2E38); }
+.rw-item-badge{ position:absolute; top:8px; left:8px; background:#fff; border-radius:8px; padding:4px 10px; font-family:var(--sans); font-size:10.5px; font-weight:600; color:#2B2622; }
+.rw-item-locked-overlay{ position:absolute; inset:0; background:rgba(43,38,34,0.55); border-radius:10px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px; color:#fff; font-family:var(--sans); font-size:11px; text-align:center; }
+.rw-lock-icon{ font-size:20px; }
+.rw-status-badge{ position:absolute; top:8px; right:8px; border-radius:8px; padding:4px 10px; font-family:var(--sans); font-size:9.5px; letter-spacing:.05em; font-weight:600; }
+.rw-status-unlocked{ background:#fff; color:#2f6b3a; }
+.rw-status-locked{ background:rgba(43,38,34,0.75); color:#fff; }
+
+.rw-dark-btn{ display:block; width:100%; text-align:center; font-family:var(--sans); font-size:12px; background:#2B1015; color:#fff; border:none; border-radius:10px; padding:11px; cursor:pointer; }
+.rw-bottom-bar{ background:rgba(201,168,118,0.12); border-radius:12px; padding:16px 20px; font-family:var(--sans); font-size:12.5px; color:#5a5148; margin-bottom:20px; }
+
+@media (max-width:900px){
+  .rw-stat-grid{ grid-template-columns:repeat(2,1fr); }
+  .rw-overview-row{ grid-template-columns:1fr; }
+  .rw-hero-banner{ flex-direction:column; text-align:center; }
+}

@@ -3,7 +3,6 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { requestRedemption, completeMission } from "./actions";
-import { TIERS } from "@/lib/rewards";
 
 type CatalogItem = { id: string; name: string; description: string | null; category: string; creditCost: number; imageUrl: string | null };
 type MissionItem = { id: string; name: string; description: string | null; creditReward: number; type: string; alreadyDone: boolean };
@@ -11,18 +10,28 @@ type Transaction = { id: string; points: number; action: string; createdAt: stri
 type PartnerItem = { id: string; name: string; category: string | null; creditValue: number | null; notes: string | null };
 
 const MISSION_ICONS: Record<string, string> = {
-  weekly: "📅",
-  zodiac: "✨",
-  secret: "🔮",
-  social: "📸",
-  referral: "🤝",
-  birthday: "🎂",
-  seasonal: "🍂",
+  weekly: "📅", zodiac: "♊", secret: "🎁", social: "📸", referral: "🤝", birthday: "🎂", seasonal: "🍂",
 };
-
 function missionIcon(name: string): string {
   const key = Object.keys(MISSION_ICONS).find((k) => name.toLowerCase().includes(k));
   return key ? MISSION_ICONS[key] : "✦";
+}
+
+const HERO_COPY: Record<string, { title: string; sub: string }> = {
+  overview: { title: "Welcome to\nThe Body Shaper System Society™", sub: "Your loyalty. Your commitment. Your transformation.\nWe reward every step of your journey." },
+  experiences: { title: "Treat yourself. You've earned it.", sub: "Explore our curated collection of treatments, experiences, and privileges designed to elevate your journey." },
+  missions: { title: "Your journey. Your missions.", sub: "New missions drop every week.\nStay consistent, earn more, unlock more." },
+  privileges: { title: "You're not just a client,\nyou're part of something exclusive.", sub: "As a valued member of The Body Shaper System Society™, you unlock a world of privileges designed to elevate your transformation journey." },
+};
+
+function MembershipCard() {
+  return (
+    <div className="rw-membership-card">
+      <p className="rw-membership-card-the">the</p>
+      <p className="rw-membership-card-name">body shaper<br />system</p>
+      <p className="rw-membership-card-society">society™</p>
+    </div>
+  );
 }
 
 export default function RewardsView({
@@ -39,6 +48,7 @@ export default function RewardsView({
   categoryLabels,
   categoryIcons,
   partners,
+  memberSince,
 }: {
   firstName: string;
   tier: string;
@@ -53,6 +63,7 @@ export default function RewardsView({
   categoryLabels: Record<string, string>;
   categoryIcons: Record<string, string>;
   partners: PartnerItem[];
+  memberSince: string;
 }) {
   const router = useRouter();
   const [tab, setTab] = useState<"overview" | "experiences" | "missions" | "privileges">("overview");
@@ -75,188 +86,244 @@ export default function RewardsView({
     setMessage("");
     startTransition(async () => {
       const result = await completeMission(missionId);
-      if (result?.success) {
-        setMessage(result.pending ? "Submitted for review — credits will be added once approved." : "Mission complete — credits added!");
-      } else {
-        setMessage(result?.error ?? "Something went wrong.");
-      }
+      if (result?.success) setMessage(result.pending ? "Submitted for review — points added once approved." : "Mission complete — points added!");
+      else setMessage(result?.error ?? "Something went wrong.");
       router.refresh();
     });
   }
 
   const progressPercent = creditsToNext !== null ? Math.round((lifetimePoints / (lifetimePoints + creditsToNext)) * 100) : 100;
+  const hero = HERO_COPY[tab];
 
   return (
-    <>
-      {/* ---------- Hero ---------- */}
-      <div className="rw-hero">
-        <p className="rw-hero-eyebrow">welcome to</p>
-        <h1 className="rw-hero-title">The Body Shaper System Society™</h1>
-        <p className="rw-hero-sub">
-          Your transformation now comes with exclusive experiences, privileges and rewards designed exclusively for our members.
-        </p>
-      </div>
-
-      <div className="rw-summary-bar">
-        <div><p className="rw-summary-label">Current Tier</p><p className="rw-summary-value">{tier}</p></div>
-        <div><p className="rw-summary-label">Body Credits™</p><p className="rw-summary-value">{pointsBalance.toLocaleString()}</p></div>
-        <div><p className="rw-summary-label">Lifetime Credits</p><p className="rw-summary-value">{lifetimePoints.toLocaleString()}</p></div>
-        <div><p className="rw-summary-label">Next Unlock</p><p className="rw-summary-value" style={{ fontSize: 15 }}>{nextTier ? `${creditsToNext} to ${nextTier}` : "Top Tier"}</p></div>
+    <div className="cat-body portal-page rw-page">
+      {/* ---------- Top bar ---------- */}
+      <div className="rw-topbar">
+        <div>
+          <p className="portal-eyebrow">rewards</p>
+          <h1 style={{ margin: 0 }}>The Body Shaper System Society™</h1>
+        </div>
+        <div className="rw-points-pill">
+          <span>⭐ {pointsBalance.toLocaleString()} <small>PTS</small></span>
+          <small>{tier} Member</small>
+        </div>
       </div>
 
       {message && <p className="pay-history-meta" style={{ marginBottom: 16 }}>{message}</p>}
 
       {/* ---------- Tabs ---------- */}
       <div className="rw-tabs">
-        <button type="button" className={`rw-tab ${tab === "overview" ? "rw-tab-active" : ""}`} onClick={() => setTab("overview")}>Overview</button>
-        <button type="button" className={`rw-tab ${tab === "experiences" ? "rw-tab-active" : ""}`} onClick={() => setTab("experiences")}>Unlock Experiences</button>
-        <button type="button" className={`rw-tab ${tab === "missions" ? "rw-tab-active" : ""}`} onClick={() => setTab("missions")}>Secret Missions</button>
-        <button type="button" className={`rw-tab ${tab === "privileges" ? "rw-tab-active" : ""}`} onClick={() => setTab("privileges")}>Privileges</button>
+        <button type="button" className={`rw-tab ${tab === "overview" ? "rw-tab-active" : ""}`} onClick={() => setTab("overview")}>🏠 Overview</button>
+        <button type="button" className={`rw-tab ${tab === "experiences" ? "rw-tab-active" : ""}`} onClick={() => setTab("experiences")}>🎁 Unlock Experiences</button>
+        <button type="button" className={`rw-tab ${tab === "missions" ? "rw-tab-active" : ""}`} onClick={() => setTab("missions")}>🎯 Secret Missions</button>
+        <button type="button" className={`rw-tab ${tab === "privileges" ? "rw-tab-active" : ""}`} onClick={() => setTab("privileges")}>👑 Privileges</button>
+      </div>
+
+      {/* ---------- Hero banner ---------- */}
+      <div className="rw-hero-banner">
+        <div>
+          <h2 className="rw-hero-banner-title">{hero.title.split("\n").map((l, i) => <span key={i} style={{ display: "block" }}>{l}</span>)}</h2>
+          <p className="rw-hero-banner-sub">{hero.sub.split("\n").map((l, i) => <span key={i} style={{ display: "block" }}>{l}</span>)}</p>
+        </div>
+        <MembershipCard />
       </div>
 
       {/* ---------- OVERVIEW ---------- */}
       {tab === "overview" && (
         <>
-          <div className="doc-card-grid" style={{ marginBottom: 28 }}>
-            <div className="rw-editorial-card">
-              <h3 className="trk-card-title">Membership Level</h3>
-              <p style={{ fontFamily: "var(--serif)", fontSize: 24, color: "#7A2E38", margin: "0 0 10px" }}>{tier}</p>
-              <p className="pay-history-meta">{currentSystem ?? "Your personalized membership"}</p>
+          <div className="rw-stat-grid">
+            <div className="rw-stat-card">
+              <p className="rw-stat-label">YOUR POINTS</p>
+              <p className="rw-stat-value">{pointsBalance.toLocaleString()} <small>PTS</small></p>
+              <p className="rw-stat-foot">⭐ Keep going, you're doing amazing.</p>
             </div>
-            <div className="rw-editorial-card">
-              <h3 className="trk-card-title">Next Reward to Unlock</h3>
-              {creditsToNext !== null ? (
-                <>
-                  <div className="onb-progress-track" style={{ marginBottom: 8 }}>
-                    <div className="onb-progress-fill" style={{ width: `${progressPercent}%`, background: "linear-gradient(90deg,#C9A876,#7A2E38)" }} />
+            <div className="rw-stat-card">
+              <p className="rw-stat-label">MEMBERSHIP LEVEL</p>
+              <p className="rw-stat-value" style={{ fontSize: 22 }}>{tier} Member</p>
+              <p className="rw-stat-foot">You're valued. You're recognized.</p>
+            </div>
+            <div className="rw-stat-card">
+              <p className="rw-stat-label">PROGRESS TO NEXT REWARD {creditsToNext !== null && <span style={{ float: "right" }}>{creditsToNext} PTS TO GO</span>}</p>
+              <div className="onb-progress-track" style={{ margin: "10px 0 6px" }}>
+                <div className="onb-progress-fill" style={{ width: `${progressPercent}%`, background: "linear-gradient(90deg,#C9A876,#7A2E38)" }} />
+              </div>
+              <p className="rw-stat-foot">{lifetimePoints.toLocaleString()} / {(lifetimePoints + (creditsToNext ?? 0)).toLocaleString()} PTS · {progressPercent}%</p>
+            </div>
+            <div className="rw-stat-card">
+              <p className="rw-stat-label">MEMBER SINCE</p>
+              <p className="rw-stat-value" style={{ fontSize: 20 }}>{memberSince}</p>
+              <p className="rw-stat-foot">Thank you for being part of our Society.</p>
+            </div>
+          </div>
+
+          <div className="rw-overview-row">
+            <div className="rw-next-reward-card">
+              <p className="rw-next-reward-eyebrow">NEXT REWARD TO UNLOCK</p>
+              {(() => {
+                const next = catalogItems.filter((i) => i.creditCost > pointsBalance).sort((a, b) => a.creditCost - b.creditCost)[0];
+                return next ? (
+                  <>
+                    <p className="rw-next-reward-name">{next.name}</p>
+                    <p className="rw-next-reward-pts">{next.creditCost.toLocaleString()} PTS</p>
+                    <button type="button" className="rw-dark-btn" onClick={() => { setTab("experiences"); setSelectedCategory(next.category); }}>View Reward</button>
+                  </>
+                ) : (
+                  <p className="pay-history-meta">You've unlocked everything in our current catalog!</p>
+                );
+              })()}
+            </div>
+            <div className="rw-ways-card">
+              <p className="rw-stat-label" style={{ marginBottom: 10 }}>WAYS TO EARN POINTS</p>
+              <div className="rw-ways-grid">
+                {missions.slice(0, 6).map((m) => (
+                  <div key={m.id} className="rw-ways-row">
+                    <span>{missionIcon(m.name)} {m.name}</span>
+                    <strong>+{m.creditReward} PTS</strong>
                   </div>
-                  <p className="pay-history-meta">{creditsToNext} credits to {nextTier}</p>
-                </>
-              ) : (
-                <p className="pay-history-meta">You've reached our top membership tier.</p>
-              )}
-            </div>
-            <div className="rw-editorial-card">
-              <h3 className="trk-card-title">Body Credits™</h3>
-              <p style={{ fontFamily: "var(--serif)", fontSize: 28, color: "#6B4E3D", margin: "0 0 6px" }}>{pointsBalance.toLocaleString()}</p>
-              <a href="#activity" className="trk-link-btn">View History →</a>
+                ))}
+              </div>
+              <button type="button" className="trk-link-btn" onClick={() => setTab("missions")}>View All Missions →</button>
             </div>
           </div>
 
-          <h3 className="dash-section-title">Ways to Earn Points</h3>
-          <div className="doc-card-grid" style={{ marginBottom: 28 }}>
-            {missions.slice(0, 3).map((m) => (
-              <div key={m.id} className="rw-reward-card">
-                <span style={{ fontSize: 22 }}>{missionIcon(m.name)}</span>
-                <p className="doc-card-title">{m.name}</p>
-                <p className="pay-history-meta">Earn {m.creditReward} credits</p>
-              </div>
-            ))}
-          </div>
-
-          <h3 className="dash-section-title" id="activity">Recent Activity</h3>
-          <div className="cap-list">
-            {transactions.length === 0 && <div className="module-empty">No activity yet.</div>}
-            {transactions.map((t) => (
-              <div key={t.id} className="cap-card" style={{ borderLeftColor: t.points > 0 ? "#C9A876" : "#c9bdb0" }}>
-                <div className="cap-card-time">{new Date(t.createdAt).toLocaleDateString(undefined, { month: "short", day: "numeric" })}</div>
-                <div className="cap-card-title">{t.points > 0 ? "+" : ""}{t.points}</div>
-                <div className="cap-card-meta">{t.action}</div>
-              </div>
-            ))}
+          <div className="rw-activity-card">
+            <p className="rw-stat-label" style={{ marginBottom: 14 }}>RECENT ACTIVITY</p>
+            <div className="rw-activity-row">
+              {transactions.slice(0, 4).map((t) => (
+                <div key={t.id} className="rw-activity-item">
+                  <span className="rw-activity-icon">{t.points > 0 ? "⭐" : "🎁"}</span>
+                  <div>
+                    <p className="doc-card-title" style={{ marginBottom: 2 }}>{t.action}</p>
+                    <p className="pay-history-meta">{t.points > 0 ? "+" : ""}{t.points} PTS · {new Date(t.createdAt).toLocaleDateString(undefined, { month: "short", day: "numeric" })}</p>
+                  </div>
+                </div>
+              ))}
+              {transactions.length === 0 && <div className="module-empty">No activity yet.</div>}
+            </div>
           </div>
         </>
       )}
 
       {/* ---------- UNLOCK EXPERIENCES ---------- */}
       {tab === "experiences" && (
-        !selectedCategory ? (
-          <div className="rw-category-grid">
+        <>
+          <div className="rw-pill-row">
+            <button type="button" className={`rw-pill ${!selectedCategory ? "rw-pill-active" : ""}`} onClick={() => setSelectedCategory(null)}>⭐ All Experiences</button>
             {categories.map((cat) => (
-              <button key={cat} type="button" className="rw-category-card" onClick={() => setSelectedCategory(cat)}>
-                <span style={{ fontSize: 28 }}>{categoryIcons[cat] ?? "✦"}</span>
-                <span>{categoryLabels[cat] ?? cat}</span>
+              <button key={cat} type="button" className={`rw-pill ${selectedCategory === cat ? "rw-pill-active" : ""}`} onClick={() => setSelectedCategory(cat)}>
+                {categoryIcons[cat] ?? "✦"} {categoryLabels[cat] ?? cat}
               </button>
             ))}
           </div>
-        ) : (
-          <>
-            <button type="button" className="cap-secondary-btn" style={{ display: "inline-block", width: "auto", marginBottom: 16 }} onClick={() => setSelectedCategory(null)}>
-              ← Back to Categories
-            </button>
-            <div className="doc-card-grid">
-              {catalogItems.filter((i) => i.category === selectedCategory).map((item) => {
-                const locked = pointsBalance < item.creditCost;
-                return (
-                  <div key={item.id} className={`rw-reward-card ${locked ? "rw-reward-locked" : ""}`}>
-                    {item.imageUrl ? (
-                      <img src={item.imageUrl} alt={item.name} style={{ width: "100%", height: 120, objectFit: "cover", borderRadius: 10, marginBottom: 10, filter: locked ? "blur(2px) grayscale(40%)" : "none" }} />
-                    ) : (
-                      <div style={{ width: "100%", height: 120, background: "rgba(107,78,61,0.06)", borderRadius: 10, marginBottom: 10 }} />
-                    )}
-                    <p className="doc-card-title">{item.name}</p>
-                    {item.description && <p className="pay-history-meta" style={{ marginBottom: 8 }}>{item.description}</p>}
-                    <p style={{ fontFamily: "var(--serif)", fontSize: 15, color: "#6B4E3D", marginBottom: 10 }}>{item.creditCost} Body Credits™</p>
-                    {locked ? (
-                      <p className="rw-locked">🔒 Unlock at {item.creditCost.toLocaleString()} Points</p>
-                    ) : (
-                      <button type="button" className="cap-primary-btn" onClick={() => handleRedeem(item.id)} disabled={isPending}>Redeem</button>
+
+          <div className="rw-grid">
+            {catalogItems.filter((i) => !selectedCategory || i.category === selectedCategory).map((item) => {
+              const locked = pointsBalance < item.creditCost;
+              return (
+                <div key={item.id} className="rw-item-card">
+                  <div className="rw-item-image" style={item.imageUrl ? { backgroundImage: `url(${item.imageUrl})` } : undefined}>
+                    {!locked && <span className="rw-item-badge">{item.creditCost.toLocaleString()} PTS</span>}
+                    {locked && (
+                      <div className="rw-item-locked-overlay">
+                        <span className="rw-lock-icon">🔒</span>
+                        <span>Unlock at<br />{item.creditCost.toLocaleString()} PTS</span>
+                      </div>
                     )}
                   </div>
-                );
-              })}
-            </div>
-          </>
-        )
+                  <p className="doc-card-title">{item.name}</p>
+                  {item.description && <p className="pay-history-meta" style={{ marginBottom: 8 }}>{item.description}</p>}
+                  {!locked && (
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                      <strong style={{ fontFamily: "var(--serif)", color: "#7A2E38" }}>{item.creditCost.toLocaleString()} PTS</strong>
+                      <button type="button" className="rw-dark-btn" style={{ width: "auto", padding: "8px 16px" }} onClick={() => handleRedeem(item.id)} disabled={isPending}>Redeem</button>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+
+          <div className="rw-bottom-bar">
+            <span>🎁 New rewards are added every month. Stay active, earn points, and unlock more exclusive experiences.</span>
+          </div>
+        </>
       )}
 
       {/* ---------- SECRET MISSIONS ---------- */}
       {tab === "missions" && (
-        <div className="doc-card-grid">
-          {missions.map((m) => (
-            <div key={m.id} className="rw-mission-card">
-              <span style={{ fontSize: 26 }}>{missionIcon(m.name)}</span>
-              <p className="doc-card-title">{m.name}</p>
-              {m.description && <p className="pay-history-meta" style={{ marginBottom: 8 }}>{m.description}</p>}
-              <p style={{ fontFamily: "var(--serif)", fontSize: 15, color: "#7A2E38", marginBottom: 10 }}>Earn {m.creditReward} Credits</p>
-              {m.alreadyDone ? (
-                <p className="pay-history-meta">✓ Completed</p>
-              ) : (
-                <button type="button" className="cap-secondary-btn" onClick={() => handleMission(m.id)} disabled={isPending}>
-                  {m.type === "MANUAL_APPROVAL" ? "Submit for Review" : "Claim"}
-                </button>
-              )}
+        <>
+          <div className="rw-pill-row">
+            <button type="button" className="rw-pill rw-pill-active">⭐ All Missions</button>
+          </div>
+
+          <p className="dash-section-title">Active Missions</p>
+          <div className="rw-grid">
+            {missions.map((m) => (
+              <div key={m.id} className="rw-item-card">
+                <div className="rw-item-image rw-mission-image">
+                  <span className="rw-item-badge">{missionIcon(m.name)} MISSION</span>
+                </div>
+                <p className="doc-card-title">{m.name}</p>
+                {m.description && <p className="pay-history-meta" style={{ marginBottom: 8 }}>{m.description}</p>}
+                <strong style={{ fontFamily: "var(--serif)", color: "#C9A876", display: "block", marginBottom: 10 }}>+{m.creditReward} PTS</strong>
+                {m.alreadyDone ? (
+                  <p className="pay-history-meta">✓ Completed</p>
+                ) : (
+                  <button type="button" className="rw-dark-btn" onClick={() => handleMission(m.id)} disabled={isPending}>
+                    {m.type === "MANUAL_APPROVAL" ? "Submit for Review" : "Start Mission"}
+                  </button>
+                )}
+              </div>
+            ))}
+          </div>
+
+          <div className="rw-overview-row">
+            <div className="rw-next-reward-card">
+              <p className="doc-card-title">Secret Challenge Drop</p>
+              <p className="pay-history-meta">Something special is coming... complete secret actions and earn big.</p>
             </div>
-          ))}
-        </div>
+            <div className="rw-ways-card">
+              <p className="rw-stat-label" style={{ marginBottom: 10 }}>YOUR MISSION STATS</p>
+              <div className="rw-stat-grid" style={{ gridTemplateColumns: "repeat(3,1fr)" }}>
+                <div><p className="rw-stat-value" style={{ fontSize: 20 }}>{transactions.filter((t) => t.points > 0).length}</p><p className="pay-history-meta">Missions Completed</p></div>
+                <div><p className="rw-stat-value" style={{ fontSize: 20 }}>{lifetimePoints.toLocaleString()}</p><p className="pay-history-meta">Points Earned</p></div>
+                <div><p className="rw-stat-value" style={{ fontSize: 20 }}>—</p><p className="pay-history-meta">Day Streak</p></div>
+              </div>
+            </div>
+          </div>
+        </>
       )}
 
       {/* ---------- PRIVILEGES ---------- */}
       {tab === "privileges" && (
         <>
-          <p className="pay-history-meta" style={{ marginBottom: 20 }}>
-            Exclusive member benefits — some unlock as your membership level grows.
-          </p>
-          <div className="doc-card-grid">
+          <div className="rw-pill-row">
+            <button type="button" className="rw-pill rw-pill-active">⭐ All Privileges</button>
+          </div>
+          <p className="dash-section-title">Your Exclusive Privileges</p>
+          <div className="rw-grid">
             {partners.map((p) => {
               const locked = p.creditValue !== null && lifetimePoints < p.creditValue;
               return (
-                <div key={p.id} className={`rw-editorial-card ${locked ? "rw-reward-locked" : ""}`}>
+                <div key={p.id} className="rw-item-card">
+                  <div className="rw-item-image">
+                    <span className={`rw-status-badge ${locked ? "rw-status-locked" : "rw-status-unlocked"}`}>{locked ? "LOCKED" : "UNLOCKED"}</span>
+                    {locked && <div className="rw-item-locked-overlay"><span className="rw-lock-icon">🔒</span></div>}
+                  </div>
                   <p className="doc-card-title">{p.name}</p>
-                  <p className="pay-history-meta" style={{ marginBottom: 8 }}>{p.category ?? "Member Benefit"}</p>
-                  {p.notes && <p className="pay-history-meta" style={{ marginBottom: 8 }}>{p.notes}</p>}
-                  {locked ? (
-                    <p className="rw-locked">🔒 Unlock at {p.creditValue?.toLocaleString()} lifetime credits</p>
-                  ) : (
-                    <p style={{ fontFamily: "var(--serif)", fontSize: 13, color: "#7A2E38" }}>✓ Available to you</p>
-                  )}
+                  <p className="pay-history-meta" style={{ marginBottom: 8 }}>{p.notes ?? p.category ?? "Member Benefit"}</p>
+                  <p className="pay-history-meta">{locked ? `UNLOCK AT ${p.creditValue?.toLocaleString()} PTS` : "EXCLUSIVE ACCESS"}</p>
                 </div>
               );
             })}
             {partners.length === 0 && <div className="module-empty">Member privileges are being finalized — check back soon.</div>}
           </div>
+
+          <div className="rw-bottom-bar">
+            <span>👑 The more you invest in yourself, the more you unlock. Reach higher levels and enjoy elevated privileges.</span>
+          </div>
         </>
       )}
-    </>
+    </div>
   );
 }

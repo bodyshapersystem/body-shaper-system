@@ -50,22 +50,21 @@ export default async function RewardsPage() {
   const completedMissionIds = new Set(completions.map((c) => c.missionId));
 
   return (
-    <div className="cat-body portal-page">
-      <RewardsView
-        firstName={client.firstName}
-        tier={client.rewardsAccount.tier}
-        pointsBalance={client.rewardsAccount.pointsBalance}
-        lifetimePoints={client.rewardsAccount.lifetimePoints}
-        nextTier={nextTier}
-        creditsToNext={creditsToNext}
-        currentSystem={assessment?.recommendedSystem ?? null}
-        catalogItems={catalogWithUrls}
-        missions={missions.map((m) => ({ ...m, alreadyDone: completedMissionIds.has(m.id) }))}
-        transactions={recentTransactions.map((t) => ({ id: t.id, points: t.points, action: t.action, createdAt: t.createdAt.toISOString() }))}
-        categoryLabels={CATEGORY_LABELS}
-        categoryIcons={CATEGORY_ICONS}
-        partners={partners.map((p) => ({ id: p.id, name: p.name, category: p.category, creditValue: p.creditValue, notes: p.notes }))}
-      />
-    </div>
+    <RewardsView
+      firstName={client.firstName}
+      tier={client.rewardsAccount.tier}
+      pointsBalance={client.rewardsAccount.pointsBalance}
+      lifetimePoints={client.rewardsAccount.lifetimePoints}
+      nextTier={nextTier}
+      creditsToNext={creditsToNext}
+      currentSystem={assessment?.recommendedSystem ?? null}
+      catalogItems={catalogWithUrls}
+      missions={missions.map((m) => ({ ...m, alreadyDone: completedMissionIds.has(m.id) }))}
+      transactions={recentTransactions.map((t) => ({ id: t.id, points: t.points, action: t.action, createdAt: t.createdAt.toISOString() }))}
+      categoryLabels={CATEGORY_LABELS}
+      categoryIcons={CATEGORY_ICONS}
+      partners={partners.map((p) => ({ id: p.id, name: p.name, category: p.category, creditValue: p.creditValue, notes: p.notes }))}
+      memberSince={client.createdAt.toLocaleDateString(undefined, { month: "long", year: "numeric" })}
+    />
   );
 }
