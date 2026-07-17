@@ -9,7 +9,9 @@ Reference mockups guiding visual parity work across the BSS Hub (Owner Hub + Cli
 - `appointments-v2.png` — revised appointments view (dark sidebar, welcome header, prep checklist, month calendar)
 - `daily-trackers.png` — Daily Trackers™ (hydration, movement, sleep, compression, nutrition, symptoms, weight, notes, recovery score, weekly consistency, achievements)
 
-**Pending (to be added):** blueprint tab, documents, payments, rewards, settings, profile, resources — client portal side.
+**Pending (to be added):** blueprint tab, documents, payments, settings, profile, resources — client portal side.
+
+**Received separately:** rewards tab mockups — see `rewards/` subfolder.
 
 ## Notes
 These are visual references only — used to guide UI parity work, not to be treated as source of truth for data/logic. Cross-check against approved BSS Design Library (Cormorant Garamond/Jost, ink/ivory/gold palette) before implementation. Where two versions of the same screen exist (v1/v2), confirm with Emmy which is the approved direction before building.
