@@ -44,5 +44,35 @@ export async function GET(request: NextRequest) {
     if (result.success) sentCount += 1;
   }
 
-  return NextResponse.json({ success: true, appointmentsFound: appointments.length, remindersSent: sentCount });
+  // Real automation: Birthday -> +100 Body Credits™ (fires once per
+  // year — guarded by checking no "Birthday" transaction already
+  // exists in the last 300 days, since month/day repeats every year).
+  const today = new Date();
+  const clientsWithBirthday = await prisma.client.findMany({
+    where: { birthday: { not: null }, archivedAt: null },
+    include: { rewardsAccount: true },
+  });
+  let birthdaysAwarded = 0;
+  for (const c of clientsWithBirthday) {
+    if (!c.birthday || !c.rewardsAccount) continue;
+    if (c.birthday.getUTCMonth() !== today.getUTCMonth() || c.birthday.getUTCDate() !== today.getUTCDate()) continue;
+
+    const recentBirthdayBonus = await prisma.rewardsTransaction.findFirst({
+      where: { rewardsAccountId: c.rewardsAccount.id, action: "Birthday Bonus", createdAt: { gte: new Date(Date.now() - 300 * 86400000) } },
+    });
+    if (recentBirthdayBonus) continue;
+
+    const { computeTier } = await import("@/lib/rewards");
+    const newLifetime = c.rewardsAccount.lifetimePoints + 100;
+    await prisma.$transaction([
+      prisma.rewardsAccount.update({
+        where: { id: c.rewardsAccount.id },
+        data: { pointsBalance: { increment: 100 }, lifetimePoints: newLifetime, tier: computeTier(newLifetime) },
+      }),
+      prisma.rewardsTransaction.create({ data: { rewardsAccountId: c.rewardsAccount.id, points: 100, action: "Birthday Bonus" } }),
+    ]);
+    birthdaysAwarded += 1;
+  }
+
+  return NextResponse.json({ success: true, appointmentsFound: appointments.length, remindersSent: sentCount, birthdaysAwarded });
 }

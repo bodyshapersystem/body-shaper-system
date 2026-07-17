@@ -328,6 +328,22 @@ export async function validateAssessment(clientId: string, formData: FormData) {
       description: `${validatedClient.firstName} ${validatedClient.lastName}'s Body Blueprint™ Assessment was validated`,
       linkUrl: `/hub/clients/${clientId}?tab=blueprint`,
     });
+
+    // Real automation: Completed Blueprint™ -> +50 Body Credits™
+    const rewardsAccount = await prisma.rewardsAccount.findUnique({ where: { clientId } });
+    if (rewardsAccount) {
+      const { computeTier } = await import("@/lib/rewards");
+      const newLifetime = rewardsAccount.lifetimePoints + 50;
+      await prisma.$transaction([
+        prisma.rewardsAccount.update({
+          where: { id: rewardsAccount.id },
+          data: { pointsBalance: { increment: 50 }, lifetimePoints: newLifetime, tier: computeTier(newLifetime) },
+        }),
+        prisma.rewardsTransaction.create({
+          data: { rewardsAccountId: rewardsAccount.id, points: 50, action: "Completed Body Blueprint™" },
+        }),
+      ]);
+    }
   }
 
   return { success: true };

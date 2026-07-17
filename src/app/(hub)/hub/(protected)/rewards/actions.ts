@@ -5,6 +5,7 @@ import { getCurrentHubUser, hasPermission } from "@/lib/permissions";
 import { revalidatePath } from "next/cache";
 import { sendRewardUnlockedEmail } from "@/lib/email/service";
 import { createNotification } from "@/lib/notifications";
+import { computeTier } from "@/lib/rewards";
 
 export async function addRewardsTransaction(formData: FormData) {
   const user = await getCurrentHubUser();
@@ -24,13 +25,16 @@ export async function addRewardsTransaction(formData: FormData) {
   const account = await prisma.rewardsAccount.findUnique({ where: { clientId } });
   if (!account) return { error: "This client has no rewards account." };
 
+  const newLifetimePoints = points > 0 ? account.lifetimePoints + points : account.lifetimePoints;
+  const newTier = computeTier(newLifetimePoints);
+
   await prisma.$transaction([
     prisma.rewardsTransaction.create({
       data: { rewardsAccountId: account.id, points, action, notes, createdById: user.id },
     }),
     prisma.rewardsAccount.update({
       where: { id: account.id },
-      data: { pointsBalance: { increment: points } },
+      data: { pointsBalance: { increment: points }, lifetimePoints: newLifetimePoints, tier: newTier },
     }),
   ]);
 

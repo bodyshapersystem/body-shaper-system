@@ -2,83 +2,118 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { getCurrentHubUser, hasPermission } from "@/lib/permissions";
-import { addRewardsTransaction } from "./actions";
+import { CATEGORY_LABELS } from "@/lib/rewards";
+import MembersTab from "./MembersTab";
+import CatalogTab from "./CatalogTab";
+import MissionsTab from "./MissionsTab";
+import PartnersTab from "./PartnersTab";
+import { RedemptionRow, MissionReviewRow } from "./PendingActionRow";
 
 export const dynamic = "force-dynamic";
 
-export default async function HubRewardsPage() {
+export default async function HubRewardsPage({ searchParams }: { searchParams: Promise<{ tab?: string }> }) {
   const user = await getCurrentHubUser();
   if (!user) redirect("/hub/login");
   const canManage = hasPermission(user, "rewards.manage");
+  const { tab } = await searchParams;
+  const activeTab = tab ?? "dashboard";
 
-  const accounts = await prisma.rewardsAccount.findMany({
-    include: {
-      client: true,
-      transactions: { orderBy: { createdAt: "desc" }, take: 3 },
-    },
-    orderBy: { pointsBalance: "desc" },
-  });
+  const [accounts, clients, catalogItems, missions, partners, pendingCompletions, pendingRedemptions] = await Promise.all([
+    prisma.rewardsAccount.findMany({
+      include: { client: true, transactions: { orderBy: { createdAt: "desc" }, take: 3 } },
+      orderBy: { pointsBalance: "desc" },
+    }),
+    prisma.client.findMany({ where: { archivedAt: null }, orderBy: { firstName: "asc" } }),
+    prisma.rewardCatalogItem.findMany({ orderBy: { creditCost: "asc" } }),
+    prisma.mission.findMany({ orderBy: { creditReward: "asc" } }),
+    prisma.partner.findMany({ orderBy: { name: "asc" } }),
+    prisma.missionCompletion.findMany({ where: { status: "PENDING" }, include: { mission: true, rewardsAccount: { include: { client: true } } } }),
+    prisma.rewardRedemption.findMany({ where: { status: "PENDING" }, include: { rewardCatalogItem: true, rewardsAccount: { include: { client: true } } } }),
+  ]);
 
-  const clients = await prisma.client.findMany({ where: { archivedAt: null }, orderBy: { firstName: "asc" } });
+  const totalMembers = accounts.length;
+  const totalCreditsIssued = accounts.reduce((sum, a) => sum + a.lifetimePoints, 0);
+  const totalCreditsRedeemed = await prisma.rewardRedemption.aggregate({ where: { status: "FULFILLED" }, _sum: { creditsCost: true } });
+  const topMembers = [...accounts].sort((a, b) => b.lifetimePoints - a.lifetimePoints).slice(0, 5);
 
   return (
     <div className="cat-body portal-page">
       <div className="portal-page-head">
-        <p className="portal-eyebrow">Business</p>
+        <p className="portal-eyebrow">business</p>
         <h1>rewards™.</h1>
+        <p className="dash-subtitle">The Body Shaper System Society™ — manage members, catalog, and missions.</p>
       </div>
 
-      {canManage && (
-        <form
-          action={async (formData: FormData) => {
-            "use server";
-            await addRewardsTransaction(formData);
-          }}
-          style={{ display: "flex", gap: 10, flexWrap: "wrap", marginBottom: 32, maxWidth: 800 }}
-        >
-          <select name="clientId" required style={{ padding: 10 }}>
-            <option value="">Select client…</option>
-            {clients.map((c) => (
-              <option key={c.id} value={c.id}>
-                {c.firstName} {c.lastName}
-              </option>
+      <div className="apt-view-tabs" style={{ marginBottom: 24, width: "fit-content" }}>
+        <Link href="/hub/rewards?tab=dashboard" className={`apt-view-tab ${activeTab === "dashboard" ? "apt-view-tab-active" : ""}`}>Dashboard</Link>
+        <Link href="/hub/rewards?tab=members" className={`apt-view-tab ${activeTab === "members" ? "apt-view-tab-active" : ""}`}>Members</Link>
+        <Link href="/hub/rewards?tab=catalog" className={`apt-view-tab ${activeTab === "catalog" ? "apt-view-tab-active" : ""}`}>Catalog</Link>
+        <Link href="/hub/rewards?tab=missions" className={`apt-view-tab ${activeTab === "missions" ? "apt-view-tab-active" : ""}`}>Missions</Link>
+        <Link href="/hub/rewards?tab=partners" className={`apt-view-tab ${activeTab === "partners" ? "apt-view-tab-active" : ""}`}>Partners</Link>
+      </div>
+
+      {activeTab === "dashboard" && (
+        <>
+          <div className="doc-card-grid" style={{ marginBottom: 28 }}>
+            <div className="pd-stat"><span className="pd-stat-label">Total Members</span><strong>{totalMembers}</strong></div>
+            <div className="pd-stat"><span className="pd-stat-label">Total Credits Issued</span><strong>{totalCreditsIssued.toLocaleString()}</strong></div>
+            <div className="pd-stat"><span className="pd-stat-label">Credits Redeemed</span><strong>{(totalCreditsRedeemed._sum.creditsCost ?? 0).toLocaleString()}</strong></div>
+            <div className="pd-stat"><span className="pd-stat-label">Pending Redemptions</span><strong>{pendingRedemptions.length}</strong></div>
+          </div>
+
+          {pendingRedemptions.length > 0 && (
+            <>
+              <h3 className="dash-section-title">Pending Redemptions</h3>
+              <div className="cap-list" style={{ marginBottom: 28 }}>
+                {pendingRedemptions.map((r) => (
+                  <RedemptionRow
+                    key={r.id}
+                    id={r.id}
+                    clientName={`${r.rewardsAccount.client.firstName} ${r.rewardsAccount.client.lastName}`}
+                    itemName={r.rewardCatalogItem.name}
+                    creditsCost={r.creditsCost}
+                  />
+                ))}
+              </div>
+            </>
+          )}
+
+          {pendingCompletions.length > 0 && (
+            <>
+              <h3 className="dash-section-title">Pending Mission Reviews</h3>
+              <div className="cap-list" style={{ marginBottom: 28 }}>
+                {pendingCompletions.map((c) => (
+                  <MissionReviewRow
+                    key={c.id}
+                    id={c.id}
+                    clientName={`${c.rewardsAccount.client.firstName} ${c.rewardsAccount.client.lastName}`}
+                    missionName={c.mission.name}
+                    creditReward={c.mission.creditReward}
+                  />
+                ))}
+              </div>
+            </>
+          )}
+
+          <h3 className="dash-section-title">Top Members</h3>
+          <div className="doc-card-grid">
+            {topMembers.map((m) => (
+              <Link key={m.id} href={`/hub/rewards?tab=members&clientId=${m.clientId}`} className="doc-client-card">
+                <div className="cl-avatar" style={{ width: 40, height: 40, fontSize: 13 }}>{m.client.firstName[0]}{m.client.lastName[0]}</div>
+                <div>
+                  <p className="doc-card-title">{m.client.firstName} {m.client.lastName}</p>
+                  <p className="pay-history-meta">{m.tier} · {m.lifetimePoints.toLocaleString()} lifetime credits</p>
+                </div>
+              </Link>
             ))}
-          </select>
-          <input name="points" type="number" placeholder="Points (+/-)" required style={{ padding: 10, width: 140 }} />
-          <input name="action" placeholder="Action (e.g. Referral bonus)" required style={{ padding: 10, flex: 1 }} />
-          <input name="notes" placeholder="Notes" style={{ padding: 10, flex: 1 }} />
-          <button type="submit" className="auth-submit" style={{ width: "auto", padding: "10px 20px" }}>
-            Add
-          </button>
-        </form>
+          </div>
+        </>
       )}
 
-      {accounts.length === 0 ? (
-        <p style={{ opacity: 0.6 }}>No rewards accounts yet — they're created automatically when a Lead converts to a Client.</p>
-      ) : (
-        <ul style={{ display: "flex", flexDirection: "column", gap: 16, listStyle: "none", paddingLeft: 0 }}>
-          {accounts.map((acc) => (
-            <li key={acc.id} style={{ borderBottom: "1px solid rgba(0,0,0,0.08)", paddingBottom: 14, fontSize: 13.5 }}>
-              <strong>
-                <Link href={`/hub/clients/${acc.clientId}`}>
-                  {acc.client.firstName} {acc.client.lastName}
-                </Link>
-              </strong>{" "}
-              — {acc.pointsBalance} pts — {acc.tier}
-              {acc.transactions.length > 0 && (
-                <ul style={{ marginTop: 6, opacity: 0.7, paddingLeft: 16 }}>
-                  {acc.transactions.map((t) => (
-                    <li key={t.id}>
-                      {t.createdAt.toLocaleDateString()}: {t.points > 0 ? "+" : ""}
-                      {t.points} — {t.action}
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </li>
-          ))}
-        </ul>
-      )}
+      {activeTab === "members" && <MembersTab accounts={accounts} canManage={canManage} />}
+      {activeTab === "catalog" && <CatalogTab items={catalogItems} canManage={canManage} categoryLabels={CATEGORY_LABELS} />}
+      {activeTab === "missions" && <MissionsTab missions={missions} canManage={canManage} />}
+      {activeTab === "partners" && <PartnersTab partners={partners} canManage={canManage} />}
     </div>
   );
 }

@@ -707,13 +707,116 @@ model RewardsAccount {
   clientId      String   @unique
   client        Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
   pointsBalance Int      @default(0)
+  lifetimePoints Int     @default(0) // only ever increases — real basis for tier thresholds, unaffected by redemptions
   tier          String   @default("Standard")
+  suspended     Boolean  @default(false)
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
   transactions RewardsTransaction[]
+  redemptions  RewardRedemption[]
+  missionCompletions MissionCompletion[]
 
   @@map("rewards_accounts")
+}
+
+enum RewardCategory {
+  BEAUTY
+  WELLNESS
+  EXPERIENCES
+  HOLISTIC
+  VIP
+  PARTNER
+  MOMS
+  FOOD
+}
+
+model RewardCatalogItem {
+  id               String         @id @default(cuid())
+  name             String
+  description      String?
+  category         RewardCategory
+  creditCost       Int
+  imageStoragePath String?
+  available        Boolean        @default(true)
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+
+  redemptions RewardRedemption[]
+
+  @@map("reward_catalog_items")
+}
+
+enum RedemptionStatus {
+  PENDING
+  FULFILLED
+  CANCELLED
+}
+
+model RewardRedemption {
+  id                  String            @id @default(cuid())
+  rewardsAccountId    String
+  rewardsAccount      RewardsAccount    @relation(fields: [rewardsAccountId], references: [id], onDelete: Cascade)
+  rewardCatalogItemId String
+  rewardCatalogItem   RewardCatalogItem @relation(fields: [rewardCatalogItemId], references: [id])
+  creditsCost         Int
+  status              RedemptionStatus  @default(PENDING)
+  requestedAt         DateTime          @default(now())
+  fulfilledAt         DateTime?
+
+  @@map("reward_redemptions")
+}
+
+enum MissionType {
+  SELF_REPORT
+  MANUAL_APPROVAL
+}
+
+model Mission {
+  id           String      @id @default(cuid())
+  name         String
+  description  String?
+  creditReward Int
+  type         MissionType @default(SELF_REPORT)
+  active       Boolean     @default(true)
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+
+  completions MissionCompletion[]
+
+  @@map("missions")
+}
+
+enum CompletionStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+model MissionCompletion {
+  id               String           @id @default(cuid())
+  rewardsAccountId String
+  rewardsAccount   RewardsAccount   @relation(fields: [rewardsAccountId], references: [id], onDelete: Cascade)
+  missionId        String
+  mission          Mission          @relation(fields: [missionId], references: [id])
+  status           CompletionStatus @default(PENDING)
+  completedAt      DateTime         @default(now())
+  approvedAt       DateTime?
+
+  @@map("mission_completions")
+}
+
+model Partner {
+  id          String   @id @default(cuid())
+  name        String
+  category    String?
+  creditValue Int?
+  active      Boolean  @default(true)
+  notes       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("partners")
 }
 
 model RewardsTransaction {
