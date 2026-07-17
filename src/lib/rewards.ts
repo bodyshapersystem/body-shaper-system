@@ -11,7 +11,7 @@ export const TIERS = [
 ] as const;
 
 export function computeTier(lifetimePoints: number): string {
-  let current = TIERS[0].name;
+  let current: string = TIERS[0].name;
   for (const t of TIERS) {
     if (lifetimePoints >= t.threshold) current = t.name;
   }
