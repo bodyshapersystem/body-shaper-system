@@ -304,10 +304,12 @@ export default async function BlueprintReport({
       {/* ---------- Executive Summary ---------- */}
       <div className="bbp-hero">
         <div className="bbp-hero-welcome">
-          <div className="bbp-hero-avatar">
-            {client.firstName[0]}
-            {client.lastName[0]}
-          </div>
+          {mode === "owner" && (
+            <div className="bbp-hero-avatar">
+              {client.firstName[0]}
+              {client.lastName[0]}
+            </div>
+          )}
           <div className="bbp-hero-welcome-body">
             <div>
               <p className="bbp-hero-eyebrow">the body blueprint™</p>
