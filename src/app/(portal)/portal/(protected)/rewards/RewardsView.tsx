@@ -4,7 +4,6 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { requestRedemption, completeMission } from "./actions";
-import BrandOverlay from "@/components/BrandOverlay";
 
 type CatalogItem = { id: string; name: string; description: string | null; category: string; creditCost: number; imageUrl: string | null };
 type MissionItem = { id: string; name: string; description: string | null; creditReward: number; type: string; alreadyDone: boolean };
@@ -26,49 +25,16 @@ const HERO_COPY: Record<string, { title: string; sub: string }> = {
   privileges: { title: "You're not just a client,\nyou're part of something exclusive.", sub: "As a valued member of The Body Shaper System Society™, you unlock a world of privileges designed to elevate your transformation journey." },
 };
 
-// Elegant solid/gradient backgrounds per tab — no photography here.
-// (The Society reference mockups are full designed screenshots with
-// their own baked-in headlines/nav, not raw photography, so using them
-// as a CSS background behind our real text doubled every headline.
-// The membership card photo below is genuine product photography and
-// stays; the hero background is color only.)
-const HERO_GRADIENT: Record<string, string> = {
-  overview: "linear-gradient(135deg, #241512 0%, #3A1015 55%, #2A1210 100%)",
-  experiences: "linear-gradient(135deg, #EDE3D5, #E4D4BE)",
-  missions: "linear-gradient(135deg, #EDE3D5, #E4D4BE)",
-  privileges: "linear-gradient(135deg, #EDE3D5, #E4D4BE)",
+// Each tab's hero is the full designed Society image itself — not a
+// background behind separately-rendered text. These already contain
+// their own headline/copy/styling, so we display them as-is and skip
+// rendering HERO_COPY/BenefitsRow/MembershipCard over them.
+const HERO_IMAGE: Record<string, string> = {
+  overview: "/images/rewards/overview-bg.jpg",
+  experiences: "/images/rewards/experiences-bg.jpg",
+  missions: "/images/rewards/missions-bg.jpg",
+  privileges: "/images/rewards/privileges-bg.jpg",
 };
-
-function MembershipCard() {
-  return (
-    <img
-      src="/images/rewards/card-key.jpg"
-      alt="The Body Shaper System Society™ membership card"
-      className="rw-membership-card-photo"
-      style={{ position: "relative", zIndex: 1 }}
-    />
-  );
-}
-
-function BenefitsRow() {
-  const items = [
-    { label: "Exclusive\nBenefits", icon: <path d="M4 8 L7 4 L12 9 L17 4 L20 8 L18 18 H6 Z M6 8 H18" /> }, // crown
-    { label: "Curated\nExperiences", icon: <path d="M12 3 L13.8 9 L20 9 L15 13 L17 20 L12 16 L7 20 L9 13 L4 9 L10.2 9 Z" /> }, // sparkle
-    { label: "Member\nPrivileges", icon: <path d="M9 13 a4 4 0 1 1 0.01 0 Z M12.5 13 H21 M17 13 V17 M19.5 13 V16" /> }, // key
-    { label: "Priority\nAccess", icon: <path d="M12 3 L14 10 L21 12 L14 14 L12 21 L10 14 L3 12 L10 10 Z" /> }, // 4-point star
-    { label: "Secret\nRewards", icon: <><circle cx="12" cy="12" r="4.2" /><path d="M12 3 V5.5 M12 18.5 V21 M3 12 H5.5 M18.5 12 H21 M5.6 5.6 L7.3 7.3 M16.7 16.7 L18.4 18.4 M5.6 18.4 L7.3 16.7 M16.7 7.3 L18.4 5.6" /></>, }, // sun
-  ];
-  return (
-    <div className="rw-benefits-row">
-      {items.map((it, i) => (
-        <div className="rw-benefit" key={i}>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2">{it.icon}</svg>
-          <span>{it.label.split("\n").map((l, j) => <span key={j} style={{ display: "block" }}>{l}</span>)}</span>
-        </div>
-      ))}
-    </div>
-  );
-}
 
 export default function RewardsView({
   firstName,
@@ -149,19 +115,15 @@ export default function RewardsView({
 
       {message && <p className="pay-history-meta" style={{ marginBottom: 16 }}>{message}</p>}
 
-      {/* ---------- Hero banner ---------- */}
-      <div
-        className={`rw-hero-banner${tab === "overview" ? " rw-hero-banner-dark" : ""}`}
-        style={{ backgroundImage: HERO_GRADIENT[tab], position: "relative", overflow: "hidden" }}
-      >
-        <BrandOverlay motifs={["target", "ring", "contour"]} opacity={tab === "overview" ? 0.1 : 0.05} tone={tab === "overview" ? "gold" : "ink"} position="absolute" />
-        <div style={{ position: "relative", zIndex: 1 }}>
-          <h2 className="rw-hero-banner-title">{hero.title.split("\n").map((l, i) => <span key={i} style={{ display: "block" }}>{l}</span>)}</h2>
-          <p className="rw-hero-banner-sub">{hero.sub.split("\n").map((l, i) => <span key={i} style={{ display: "block" }}>{l}</span>)}</p>
-          {tab === "overview" && <BenefitsRow />}
-        </div>
-        <MembershipCard />
-      </div>
+      {/* ---------- Hero banner ----------
+           Each image below IS the complete designed hero for that tab
+           (own headline, own copy, own card art already in the photo) —
+           displayed as-is, not as a background behind separate text. */}
+      <img
+        src={HERO_IMAGE[tab]}
+        alt={hero.title.replace(/\n/g, " ")}
+        className="rw-hero-banner-img"
+      />
 
       {/* ---------- OVERVIEW ---------- */}
       {tab === "overview" && (
