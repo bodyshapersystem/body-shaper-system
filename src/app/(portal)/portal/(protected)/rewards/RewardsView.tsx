@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { requestRedemption, completeMission } from "./actions";
+import BrandOverlay from "@/components/BrandOverlay";
 
 type CatalogItem = { id: string; name: string; description: string | null; category: string; creditCost: number; imageUrl: string | null };
 type MissionItem = { id: string; name: string; description: string | null; creditReward: number; type: string; alreadyDone: boolean };
@@ -25,14 +26,17 @@ const HERO_COPY: Record<string, { title: string; sub: string }> = {
   privileges: { title: "You're not just a client,\nyou're part of something exclusive.", sub: "As a valued member of The Body Shaper System Society™, you unlock a world of privileges designed to elevate your transformation journey." },
 };
 
-// Real photography for each tab's hero banner — replaces the flat gradient.
-// Overview uses the dark moody "your journey, your rewards" shot, so its
-// hero text switches to light/gold via .rw-hero-banner-dark (see globals.css).
-const HERO_BG: Record<string, string> = {
-  overview: "/images/rewards/overview-bg.jpg",
-  experiences: "/images/rewards/experiences-bg.jpg",
-  missions: "/images/rewards/missions-bg.jpg",
-  privileges: "/images/rewards/privileges-bg.jpg",
+// Elegant solid/gradient backgrounds per tab — no photography here.
+// (The Society reference mockups are full designed screenshots with
+// their own baked-in headlines/nav, not raw photography, so using them
+// as a CSS background behind our real text doubled every headline.
+// The membership card photo below is genuine product photography and
+// stays; the hero background is color only.)
+const HERO_GRADIENT: Record<string, string> = {
+  overview: "linear-gradient(135deg, #241512 0%, #3A1015 55%, #2A1210 100%)",
+  experiences: "linear-gradient(135deg, #EDE3D5, #E4D4BE)",
+  missions: "linear-gradient(135deg, #EDE3D5, #E4D4BE)",
+  privileges: "linear-gradient(135deg, #EDE3D5, #E4D4BE)",
 };
 
 function MembershipCard() {
@@ -41,6 +45,7 @@ function MembershipCard() {
       src="/images/rewards/card-key.jpg"
       alt="The Body Shaper System Society™ membership card"
       className="rw-membership-card-photo"
+      style={{ position: "relative", zIndex: 1 }}
     />
   );
 }
@@ -147,9 +152,10 @@ export default function RewardsView({
       {/* ---------- Hero banner ---------- */}
       <div
         className={`rw-hero-banner${tab === "overview" ? " rw-hero-banner-dark" : ""}`}
-        style={{ backgroundImage: `linear-gradient(135deg, rgba(20,16,14,0.05), rgba(20,16,14,0.15)), url(${HERO_BG[tab]})` }}
+        style={{ backgroundImage: HERO_GRADIENT[tab], position: "relative", overflow: "hidden" }}
       >
-        <div>
+        <BrandOverlay motifs={["target", "ring", "contour"]} opacity={tab === "overview" ? 0.1 : 0.05} tone={tab === "overview" ? "gold" : "ink"} position="absolute" />
+        <div style={{ position: "relative", zIndex: 1 }}>
           <h2 className="rw-hero-banner-title">{hero.title.split("\n").map((l, i) => <span key={i} style={{ display: "block" }}>{l}</span>)}</h2>
           <p className="rw-hero-banner-sub">{hero.sub.split("\n").map((l, i) => <span key={i} style={{ display: "block" }}>{l}</span>)}</p>
           {tab === "overview" && <BenefitsRow />}
