@@ -364,7 +364,7 @@ export default async function BlueprintReport({
       <div style={{ marginTop: 32, marginBottom: 40 }}>
         <SectionLabel num="01" title="Your Body Composition" right="baseline overview" />
         <div className="bbp-composition">
-          <div className="bbp-card-dark bbp-composition-visual">
+          <div className={mode === "client" ? "bbp-card bbp-composition-visual" : "bbp-card-dark bbp-composition-visual"}>
             <div>
               <p className="bbp-composition-heading">your body<br />at a glance.</p>
               <p className="bbp-composition-copy">These numbers tell a story. We're here to rewrite it.</p>
@@ -372,9 +372,11 @@ export default async function BlueprintReport({
             <div className="bbp-composition-illustration">
               <BodyTypeIllustration bodyType={assessment.bodyType} maxHeight={230} />
             </div>
-            <Link href={`/hub/clients/${clientId}?tab=blueprint`} className="bbp-composition-cta">
-              view full analysis →
-            </Link>
+            {mode === "owner" && (
+              <Link href={`/hub/clients/${clientId}?tab=blueprint`} className="bbp-composition-cta">
+                view full analysis →
+              </Link>
+            )}
           </div>
 
           <div className="bbp-card" style={{ display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
@@ -462,7 +464,7 @@ export default async function BlueprintReport({
         </div>
 
         {/* 03 — Body Profile (bodyType is the single source of truth) */}
-        <div className="bbp-card-dark bbp-profile-card">
+        <div className={mode === "client" ? "bbp-card bbp-profile-card" : "bbp-card-dark bbp-profile-card"}>
           <p style={{ fontFamily: "var(--sans)", fontSize: 13 }}>
             <span className="bbp-section-num">03</span> <span className="bbp-section-div">|</span> body type
           </p>

@@ -15,7 +15,7 @@ const NAV: NavItem[] = [
   { href: "/portal/daily-trackers", label: "Daily Trackers", icon: "drop" },
   {
     href: "/portal/rewards",
-    label: "Body Rewards™",
+    label: "Rewards",
     icon: "star",
     children: [
       { href: "/portal/rewards/overview", label: "Overview" },

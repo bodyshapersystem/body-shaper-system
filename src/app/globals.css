@@ -3557,3 +3557,15 @@
   .rw-bottom-nav-active{ color:#C9A876 !important; }
   .rw-page{ padding-bottom:70px; }
 }
+
+/* ---------- Blueprint — light-card text overrides for Client Portal mode (Milestone 74) ---------- */
+/* When bbp-composition-visual / bbp-profile-card render on the LIGHT
+   .bbp-card (Client Portal) instead of .bbp-card-dark (Owner Hub),
+   the text inside needs dark-appropriate colors instead of the
+   near-white colors designed for the dark variant. */
+.bbp-card.bbp-composition-visual .bbp-composition-heading{ color:#2B2622; }
+.bbp-card.bbp-composition-visual .bbp-composition-copy{ color:rgba(43,38,34,0.65); }
+.bbp-card.bbp-composition-visual .bbp-section-num{ color:var(--bbp-gold-dark,#A9895C); }
+.bbp-card.bbp-profile-card .bbp-section-num{ color:var(--bbp-gold-dark,#A9895C); }
+.bbp-card.bbp-profile-card .bbp-profile-desc{ color:rgba(43,38,34,0.65); }
+.bbp-card.bbp-profile-card .bbp-focus-list li{ color:#2B2622; }
