@@ -109,10 +109,6 @@ export default function RewardsView({
           <p className="portal-eyebrow">rewards</p>
           <h1 style={{ margin: 0 }}>The Body Shaper System Society™</h1>
         </div>
-        <div className="rw-points-pill">
-          <span>⭐ {pointsBalance.toLocaleString()} <small>Society Points</small></span>
-          <small>{tier} Member</small>
-        </div>
       </div>
 
       {message && <p className="pay-history-meta" style={{ marginBottom: 16 }}>{message}</p>}
