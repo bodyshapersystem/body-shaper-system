@@ -263,19 +263,24 @@ export default function HubSidebar({ userName, roleName, avatarUrl }: { userName
                       );
                     }
 
-                    // Expandable parent (Rewards): the row itself only
-                    // toggles expansion — it never navigates on its own,
-                    // per the required collapsed/expanded behavior. Only
-                    // the child links change routes.
+                    // Expandable parent (Rewards): clicking it navigates
+                    // to the parent route (which redirects to Overview)
+                    // AND expands the children together, so Overview
+                    // opens immediately with the other 3 sub-pages
+                    // visible below — not a toggle-only, non-navigating
+                    // row.
                     const isOpen = !!expanded[item.href];
                     const parentActive = pathname.startsWith(item.href);
                     return (
                       <li key={item.href} className="psb-nav-parent">
-                        <button
-                          type="button"
+                        <Link
+                          href={item.href}
                           className={`psb-nav-toggle${parentActive ? " psb-nav-parent-active" : ""}`}
                           aria-expanded={isOpen}
-                          onClick={() => setExpanded((prev) => ({ ...prev, [item.href]: !prev[item.href] }))}
+                          onClick={() => {
+                            setExpanded((prev) => ({ ...prev, [item.href]: true }));
+                            setMobileOpen(false);
+                          }}
                         >
                           <span className="psb-icon">
                             <NavIcon name={item.icon} />
@@ -284,7 +289,7 @@ export default function HubSidebar({ userName, roleName, avatarUrl }: { userName
                           <span className={`psb-nav-caret${isOpen ? " psb-nav-caret-open" : ""}`} aria-hidden="true">
                             ›
                           </span>
-                        </button>
+                        </Link>
                         {isOpen && (
                           <ul className="psb-nav-children">
                             {item.children.map((child) => (

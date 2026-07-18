@@ -175,11 +175,14 @@ export default function ClientSidebar({
               const parentActive = pathname.startsWith(item.href);
               return (
                 <li key={item.href} className="psb-nav-parent">
-                  <button
-                    type="button"
+                  <Link
+                    href={item.href}
                     className={`psb-nav-toggle${parentActive ? " psb-nav-parent-active" : ""}`}
                     aria-expanded={isOpen}
-                    onClick={() => setExpanded((prev) => ({ ...prev, [item.href]: !prev[item.href] }))}
+                    onClick={() => {
+                      setExpanded((prev) => ({ ...prev, [item.href]: true }));
+                      setMobileOpen(false);
+                    }}
                   >
                     <span className="psb-icon">
                       <NavIcon name={item.icon} />
@@ -188,7 +191,7 @@ export default function ClientSidebar({
                     <span className={`psb-nav-caret${isOpen ? " psb-nav-caret-open" : ""}`} aria-hidden="true">
                       ›
                     </span>
-                  </button>
+                  </Link>
                   {isOpen && (
                     <ul className="psb-nav-children">
                       {item.children.map((child) => (
