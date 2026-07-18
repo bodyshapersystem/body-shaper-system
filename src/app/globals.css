@@ -3392,10 +3392,16 @@
 .rw-tab{ font-family:var(--sans); font-size:12px; padding:9px 16px; border-radius:8px; border:none; background:transparent; color:#4A1620; cursor:pointer; white-space:nowrap; }
 .rw-tab-active{ background:#4A1620; color:#fff; }
 
-.rw-hero-banner{ background:linear-gradient(135deg,#EDE3D5,#E4D4BE); border-radius:18px; padding:32px; display:flex; justify-content:space-between; align-items:center; gap:24px; margin-bottom:24px; flex-wrap:wrap; }
-.rw-hero-banner-title{ font-family:var(--serif); font-size:26px; color:#2B2622; margin:0 0 10px; line-height:1.2; }
-.rw-hero-banner-sub{ font-family:var(--sans); font-size:13px; color:#5a5148; line-height:1.6; margin:0; }
+.rw-hero-banner{ background-size:cover; background-position:center; border-radius:18px; padding:32px; display:flex; justify-content:space-between; align-items:center; gap:24px; margin-bottom:24px; flex-wrap:wrap; }
+.rw-hero-banner-title{ font-family:var(--serif); font-size:26px; color:#2B2622; margin:0 0 10px; line-height:1.2; text-shadow:0 1px 12px rgba(255,255,255,0.5); }
+.rw-hero-banner-sub{ font-family:var(--sans); font-size:13px; color:#5a5148; line-height:1.6; margin:0; text-shadow:0 1px 12px rgba(255,255,255,0.5); }
 
+/* Overview tab's hero uses the dark "your journey, your rewards" photo —
+   flip text to light/gold so it stays legible over that background. */
+.rw-hero-banner-dark .rw-hero-banner-title{ color:#F1E4C8; text-shadow:0 2px 16px rgba(0,0,0,0.55); }
+.rw-hero-banner-dark .rw-hero-banner-sub{ color:#D8CEC0; text-shadow:0 2px 16px rgba(0,0,0,0.55); }
+
+.rw-membership-card-photo{ width:220px; height:130px; object-fit:cover; border-radius:12px; box-shadow:0 10px 30px rgba(0,0,0,0.35); flex-shrink:0; }
 .rw-membership-card{ width:220px; height:130px; background:linear-gradient(135deg,#5C1A24,#3A0F16); border-radius:12px; box-shadow:0 10px 30px rgba(0,0,0,0.25); display:flex; flex-direction:column; justify-content:center; padding:20px; flex-shrink:0; }
 .rw-membership-card-the{ font-family:var(--sans); font-size:9px; letter-spacing:.15em; text-transform:uppercase; color:#C9A876; margin:0; }
 .rw-membership-card-name{ font-family:var(--serif); font-size:19px; color:#F1E4C8; margin:2px 0; line-height:1.15; }

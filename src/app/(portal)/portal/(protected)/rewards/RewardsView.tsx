@@ -25,13 +25,23 @@ const HERO_COPY: Record<string, { title: string; sub: string }> = {
   privileges: { title: "You're not just a client,\nyou're part of something exclusive.", sub: "As a valued member of The Body Shaper System Society™, you unlock a world of privileges designed to elevate your transformation journey." },
 };
 
+// Real photography for each tab's hero banner — replaces the flat gradient.
+// Overview uses the dark moody "your journey, your rewards" shot, so its
+// hero text switches to light/gold via .rw-hero-banner-dark (see globals.css).
+const HERO_BG: Record<string, string> = {
+  overview: "/images/rewards/overview-bg.jpg",
+  experiences: "/images/rewards/experiences-bg.jpg",
+  missions: "/images/rewards/missions-bg.jpg",
+  privileges: "/images/rewards/privileges-bg.jpg",
+};
+
 function MembershipCard() {
   return (
-    <div className="rw-membership-card">
-      <p className="rw-membership-card-the">the</p>
-      <p className="rw-membership-card-name">body shaper<br />system</p>
-      <p className="rw-membership-card-society">society™</p>
-    </div>
+    <img
+      src="/images/rewards/card-key.jpg"
+      alt="The Body Shaper System Society™ membership card"
+      className="rw-membership-card-photo"
+    />
   );
 }
 
@@ -123,7 +133,10 @@ export default function RewardsView({
       </div>
 
       {/* ---------- Hero banner ---------- */}
-      <div className="rw-hero-banner">
+      <div
+        className={`rw-hero-banner${tab === "overview" ? " rw-hero-banner-dark" : ""}`}
+        style={{ backgroundImage: `linear-gradient(135deg, rgba(20,16,14,0.05), rgba(20,16,14,0.15)), url(${HERO_BG[tab]})` }}
+      >
         <div>
           <h2 className="rw-hero-banner-title">{hero.title.split("\n").map((l, i) => <span key={i} style={{ display: "block" }}>{l}</span>)}</h2>
           <p className="rw-hero-banner-sub">{hero.sub.split("\n").map((l, i) => <span key={i} style={{ display: "block" }}>{l}</span>)}</p>
