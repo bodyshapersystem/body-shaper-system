@@ -3402,6 +3402,13 @@
 .rw-hero-banner-dark .rw-hero-banner-sub{ color:#D8CEC0; text-shadow:0 2px 16px rgba(0,0,0,0.55); }
 
 .rw-membership-card-photo{ width:220px; height:130px; object-fit:cover; border-radius:12px; box-shadow:0 10px 30px rgba(0,0,0,0.35); flex-shrink:0; }
+
+.rw-benefits-row{ display:flex; gap:26px; margin-top:22px; flex-wrap:wrap; }
+.rw-benefit{ display:flex; flex-direction:column; align-items:flex-start; gap:8px; min-width:80px; }
+.rw-benefit svg{ width:22px; height:22px; color:#C9A876; }
+.rw-benefit span{ font-family:var(--sans); font-size:10px; letter-spacing:.08em; text-transform:uppercase; color:#D8CEC0; line-height:1.4; }
+.rw-hero-banner:not(.rw-hero-banner-dark) .rw-benefit svg{ color:#8a6a3a; }
+.rw-hero-banner:not(.rw-hero-banner-dark) .rw-benefit span{ color:#5a5148; }
 .rw-membership-card{ width:220px; height:130px; background:linear-gradient(135deg,#5C1A24,#3A0F16); border-radius:12px; box-shadow:0 10px 30px rgba(0,0,0,0.25); display:flex; flex-direction:column; justify-content:center; padding:20px; flex-shrink:0; }
 .rw-membership-card-the{ font-family:var(--sans); font-size:9px; letter-spacing:.15em; text-transform:uppercase; color:#C9A876; margin:0; }
 .rw-membership-card-name{ font-family:var(--serif); font-size:19px; color:#F1E4C8; margin:2px 0; line-height:1.15; }
