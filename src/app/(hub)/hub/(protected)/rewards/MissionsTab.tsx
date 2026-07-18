@@ -39,7 +39,7 @@ export default function MissionsTab({ missions, canManage }: { missions: Mission
         {missions.map((m) => (
           <div key={m.id} className="rw-reward-card">
             <p className="doc-card-title">{m.name}</p>
-            <p className="pay-history-meta">{m.creditReward} PTS · {m.type === "MANUAL_APPROVAL" ? "Needs Owner Approval" : "Self-Report"} · {m.active ? "Active" : "Inactive"}</p>
+            <p className="pay-history-meta">{m.creditReward} Society Points · {m.type === "MANUAL_APPROVAL" ? "Needs Owner Approval" : "Self-Report"} · {m.active ? "Active" : "Inactive"}</p>
             {canManage && (
               <div style={{ display: "flex", gap: 10, marginTop: 8 }}>
                 <button type="button" className="doc-card-link" onClick={() => setEditing(m)}>Edit</button>
@@ -60,7 +60,7 @@ export default function MissionsTab({ missions, canManage }: { missions: Mission
               <label className="sched-label">Name<input name="name" defaultValue={editing !== "new" ? editing.name : ""} required className="sched-select" /></label>
               <label className="sched-label">Description<textarea name="description" defaultValue={editing !== "new" ? editing.description ?? "" : ""} rows={2} className="sched-textarea" /></label>
               <div className="bp-sheet-grid">
-                <label className="sched-label">PTS Reward<input name="creditReward" type="number" defaultValue={editing !== "new" ? editing.creditReward : ""} required className="sched-select" /></label>
+                <label className="sched-label">Society Points Reward<input name="creditReward" type="number" defaultValue={editing !== "new" ? editing.creditReward : ""} required className="sched-select" /></label>
                 <label className="sched-label">Type
                   <select name="type" defaultValue={editing !== "new" ? editing.type : "SELF_REPORT"} className="sched-select">
                     <option value="SELF_REPORT">Self-Report (instant)</option>

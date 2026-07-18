@@ -30,7 +30,7 @@ export default function PartnersTab({ partners, canManage }: { partners: Partner
   return (
     <>
       <p className="pay-history-meta" style={{ marginBottom: 16 }}>
-        Manage the businesses you collaborate with (Hydrafacial, blowouts, pilates, etc.) — assign a PTS value and toggle them on or off.
+        Manage the businesses you collaborate with (Hydrafacial, blowouts, pilates, etc.) — assign a Society Points value and toggle them on or off.
       </p>
       {canManage && (
         <button type="button" className="dash-view-btn" style={{ marginBottom: 20 }} onClick={() => setEditing("new")}>
@@ -42,7 +42,7 @@ export default function PartnersTab({ partners, canManage }: { partners: Partner
         {partners.map((p) => (
           <div key={p.id} className="rw-reward-card">
             <p className="doc-card-title">{p.name}</p>
-            <p className="pay-history-meta">{p.category ?? "General"} · {p.creditValue ? `${p.creditValue} PTS` : "No value set"} · {p.active ? "Active" : "Inactive"}</p>
+            <p className="pay-history-meta">{p.category ?? "General"} · {p.creditValue ? `${p.creditValue} Society Points` : "No value set"} · {p.active ? "Active" : "Inactive"}</p>
             {canManage && (
               <div style={{ display: "flex", gap: 10, marginTop: 8 }}>
                 <button type="button" className="doc-card-link" onClick={() => setEditing(p)}>Edit</button>
@@ -63,7 +63,7 @@ export default function PartnersTab({ partners, canManage }: { partners: Partner
               <label className="sched-label">Name<input name="name" defaultValue={editing !== "new" ? editing.name : ""} required className="sched-select" /></label>
               <div className="bp-sheet-grid">
                 <label className="sched-label">Category<input name="category" defaultValue={editing !== "new" ? editing.category ?? "" : ""} className="sched-select" placeholder="e.g. Beauty" /></label>
-                <label className="sched-label">PTS Value<input name="creditValue" type="number" defaultValue={editing !== "new" ? editing.creditValue ?? "" : ""} className="sched-select" /></label>
+                <label className="sched-label">Society Points Value<input name="creditValue" type="number" defaultValue={editing !== "new" ? editing.creditValue ?? "" : ""} className="sched-select" /></label>
               </div>
               <label className="sched-label">Notes<textarea name="notes" defaultValue={editing !== "new" ? editing.notes ?? "" : ""} rows={2} className="sched-textarea" /></label>
               <label className="sched-label" style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>

@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 import { getCurrentPortalClient } from "@/lib/permissions";
 import { prisma } from "@/lib/prisma";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
-import { nextTierInfo, CATEGORY_LABELS, CATEGORY_ICONS } from "@/lib/rewards";
+import { nextTierInfo, CATEGORY_LABELS, CATEGORY_ICONS, isEligibleForSignatureExperiences } from "@/lib/rewards";
 import RewardsView from "./RewardsView";
 
 export const dynamic = "force-dynamic";
@@ -54,6 +54,7 @@ export default async function RewardsPage({ searchParams }: { searchParams: Prom
 
   const { nextTier, creditsToNext } = nextTierInfo(client.rewardsAccount.lifetimePoints);
   const completedMissionIds = new Set(completions.map((c) => c.missionId));
+  const eligibleForSignature = await isEligibleForSignatureExperiences(client.id);
 
   return (
     <RewardsView
@@ -72,6 +73,7 @@ export default async function RewardsPage({ searchParams }: { searchParams: Prom
       partners={partners.map((p) => ({ id: p.id, name: p.name, category: p.category, creditValue: p.creditValue, notes: p.notes }))}
       memberSince={client.createdAt.toLocaleDateString(undefined, { month: "long", year: "numeric" })}
       activeTab={activeTab}
+      eligibleForSignature={eligibleForSignature}
     />
   );
 }

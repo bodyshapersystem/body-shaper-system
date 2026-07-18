@@ -57,7 +57,7 @@ export default function CatalogTab({ items, canManage, categoryLabels }: { items
         {items.map((item) => (
           <div key={item.id} className="rw-reward-card">
             <p className="doc-card-title">{item.name}</p>
-            <p className="pay-history-meta">{categoryLabels[item.category] ?? item.category} · {item.creditCost} PTS · {item.available ? "Available" : "Unavailable"}</p>
+            <p className="pay-history-meta">{categoryLabels[item.category] ?? item.category} · {item.creditCost} Society Points · {item.available ? "Available" : "Unavailable"}</p>
             {canManage && (
               <div style={{ display: "flex", gap: 10, marginTop: 8 }}>
                 <button type="button" className="doc-card-link" onClick={() => setEditing(item)}>Edit</button>
@@ -85,7 +85,7 @@ export default function CatalogTab({ items, canManage, categoryLabels }: { items
                     ))}
                   </select>
                 </label>
-                <label className="sched-label">PTS Cost<input name="creditCost" type="number" defaultValue={editing !== "new" ? editing.creditCost : ""} required className="sched-select" /></label>
+                <label className="sched-label">Society Points Cost<input name="creditCost" type="number" defaultValue={editing !== "new" ? editing.creditCost : ""} required className="sched-select" /></label>
               </div>
               <label className="sched-label" style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
                 <input type="checkbox" name="available" defaultChecked={editing === "new" ? true : editing.available} /> Available

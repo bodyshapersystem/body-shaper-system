@@ -61,6 +61,7 @@ export default function RewardsView({
   partners,
   memberSince,
   activeTab,
+  eligibleForSignature,
 }: {
   firstName: string;
   tier: string;
@@ -77,6 +78,7 @@ export default function RewardsView({
   partners: PartnerItem[];
   memberSince: string;
   activeTab: "overview" | "experiences" | "missions" | "privileges";
+  eligibleForSignature: boolean;
 }) {
   const router = useRouter();
   const tab = activeTab;
@@ -117,7 +119,7 @@ export default function RewardsView({
           <h1 style={{ margin: 0 }}>The Body Shaper System Society™</h1>
         </div>
         <div className="rw-points-pill">
-          <span>⭐ {pointsBalance.toLocaleString()} <small>PTS</small></span>
+          <span>⭐ {pointsBalance.toLocaleString()} <small>Society Points</small></span>
           <small>{tier} Member</small>
         </div>
       </div>
@@ -150,7 +152,7 @@ export default function RewardsView({
           <div className="rw-stat-grid">
             <div className="rw-stat-card">
               <p className="rw-stat-label">YOUR POINTS</p>
-              <p className="rw-stat-value">{pointsBalance.toLocaleString()} <small>PTS</small></p>
+              <p className="rw-stat-value">{pointsBalance.toLocaleString()} <small>Society Points</small></p>
               <p className="rw-stat-foot">⭐ Keep going, you're doing amazing.</p>
             </div>
             <div className="rw-stat-card">
@@ -159,11 +161,11 @@ export default function RewardsView({
               <p className="rw-stat-foot">You're valued. You're recognized.</p>
             </div>
             <div className="rw-stat-card">
-              <p className="rw-stat-label">PROGRESS TO NEXT REWARD {creditsToNext !== null && <span style={{ float: "right" }}>{creditsToNext} PTS TO GO</span>}</p>
+              <p className="rw-stat-label">PROGRESS TO NEXT REWARD {creditsToNext !== null && <span style={{ float: "right" }}>{creditsToNext} Society Points To Go</span>}</p>
               <div className="onb-progress-track" style={{ margin: "10px 0 6px" }}>
                 <div className="onb-progress-fill" style={{ width: `${progressPercent}%`, background: "linear-gradient(90deg,#C9A876,#7A2E38)" }} />
               </div>
-              <p className="rw-stat-foot">{lifetimePoints.toLocaleString()} / {(lifetimePoints + (creditsToNext ?? 0)).toLocaleString()} PTS · {progressPercent}%</p>
+              <p className="rw-stat-foot">{lifetimePoints.toLocaleString()} / {(lifetimePoints + (creditsToNext ?? 0)).toLocaleString()} Society Points · {progressPercent}%</p>
             </div>
             <div className="rw-stat-card">
               <p className="rw-stat-label">MEMBER SINCE</p>
@@ -180,7 +182,7 @@ export default function RewardsView({
                 return next ? (
                   <>
                     <p className="rw-next-reward-name">{next.name}</p>
-                    <p className="rw-next-reward-pts">{next.creditCost.toLocaleString()} PTS</p>
+                    <p className="rw-next-reward-pts">{next.creditCost.toLocaleString()} Society Points</p>
                     <Link href="/portal/rewards?tab=experiences" className="rw-dark-btn" style={{ display: "block", textAlign: "center", textDecoration: "none" }}>View Reward</Link>
                   </>
                 ) : (
@@ -194,7 +196,7 @@ export default function RewardsView({
                 {missions.slice(0, 6).map((m) => (
                   <div key={m.id} className="rw-ways-row">
                     <span>{missionIcon(m.name)} {m.name}</span>
-                    <strong>+{m.creditReward} PTS</strong>
+                    <strong>+{m.creditReward} Society Points</strong>
                   </div>
                 ))}
               </div>
@@ -210,7 +212,7 @@ export default function RewardsView({
                   <span className="rw-activity-icon">{t.points > 0 ? "⭐" : "🎁"}</span>
                   <div>
                     <p className="doc-card-title" style={{ marginBottom: 2 }}>{t.action}</p>
-                    <p className="pay-history-meta">{t.points > 0 ? "+" : ""}{t.points} PTS · {new Date(t.createdAt).toLocaleDateString(undefined, { month: "short", day: "numeric" })}</p>
+                    <p className="pay-history-meta">{t.points > 0 ? "+" : ""}{t.points} Society Points · {new Date(t.createdAt).toLocaleDateString(undefined, { month: "short", day: "numeric" })}</p>
                   </div>
                 </div>
               ))}
@@ -234,15 +236,19 @@ export default function RewardsView({
 
           <div className="rw-grid">
             {catalogItems.filter((i) => !selectedCategory || i.category === selectedCategory).map((item) => {
-              const locked = pointsBalance < item.creditCost;
+              const locked = item.category === "VIP" ? !eligibleForSignature || pointsBalance < item.creditCost : pointsBalance < item.creditCost;
               return (
                 <div key={item.id} className="rw-item-card">
                   <div className="rw-item-image" style={item.imageUrl ? { backgroundImage: `url(${item.imageUrl})` } : undefined}>
-                    {!locked && <span className="rw-item-badge">{item.creditCost.toLocaleString()} PTS</span>}
+                    {!locked && <span className="rw-item-badge">{item.creditCost.toLocaleString()} Society Points</span>}
                     {locked && (
                       <div className="rw-item-locked-overlay">
                         <span className="rw-lock-icon">🔒</span>
-                        <span>Unlock at<br />{item.creditCost.toLocaleString()} PTS</span>
+                        {item.category === "VIP" ? (
+                          <span>Locked</span>
+                        ) : (
+                          <span>Unlock at<br />{item.creditCost.toLocaleString()} Society Points</span>
+                        )}
                       </div>
                     )}
                   </div>
@@ -250,7 +256,7 @@ export default function RewardsView({
                   {item.description && <p className="pay-history-meta" style={{ marginBottom: 8 }}>{item.description}</p>}
                   {!locked && (
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                      <strong style={{ fontFamily: "var(--serif)", color: "#7A2E38" }}>{item.creditCost.toLocaleString()} PTS</strong>
+                      <strong style={{ fontFamily: "var(--serif)", color: "#7A2E38" }}>{item.creditCost.toLocaleString()} Society Points</strong>
                       <button type="button" className="rw-dark-btn" style={{ width: "auto", padding: "8px 16px" }} onClick={() => handleRedeem(item.id)} disabled={isPending}>Redeem</button>
                     </div>
                   )}
@@ -281,7 +287,7 @@ export default function RewardsView({
                 </div>
                 <p className="doc-card-title">{m.name}</p>
                 {m.description && <p className="pay-history-meta" style={{ marginBottom: 8 }}>{m.description}</p>}
-                <strong style={{ fontFamily: "var(--serif)", color: "#C9A876", display: "block", marginBottom: 10 }}>+{m.creditReward} PTS</strong>
+                <strong style={{ fontFamily: "var(--serif)", color: "#C9A876", display: "block", marginBottom: 10 }}>+{m.creditReward} Society Points</strong>
                 {m.alreadyDone ? (
                   <p className="pay-history-meta">✓ Completed</p>
                 ) : (
@@ -328,7 +334,7 @@ export default function RewardsView({
                   </div>
                   <p className="doc-card-title">{p.name}</p>
                   <p className="pay-history-meta" style={{ marginBottom: 8 }}>{p.notes ?? p.category ?? "Member Benefit"}</p>
-                  <p className="pay-history-meta">{locked ? `UNLOCK AT ${p.creditValue?.toLocaleString()} PTS` : "EXCLUSIVE ACCESS"}</p>
+                  <p className="pay-history-meta">{locked ? `UNLOCK AT ${p.creditValue?.toLocaleString()} Society Points` : "EXCLUSIVE ACCESS"}</p>
                 </div>
               );
             })}

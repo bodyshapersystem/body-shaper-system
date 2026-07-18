@@ -56,8 +56,8 @@ export default async function HubRewardsPage({ searchParams }: { searchParams: P
         <>
           <div className="doc-card-grid" style={{ marginBottom: 28 }}>
             <div className="pd-stat"><span className="pd-stat-label">Total Members</span><strong>{totalMembers}</strong></div>
-            <div className="pd-stat"><span className="pd-stat-label">Total PTS Issued</span><strong>{totalCreditsIssued.toLocaleString()}</strong></div>
-            <div className="pd-stat"><span className="pd-stat-label">PTS Redeemed</span><strong>{(totalCreditsRedeemed._sum.creditsCost ?? 0).toLocaleString()}</strong></div>
+            <div className="pd-stat"><span className="pd-stat-label">Total Society Points Issued</span><strong>{totalCreditsIssued.toLocaleString()}</strong></div>
+            <div className="pd-stat"><span className="pd-stat-label">Society Points Redeemed</span><strong>{(totalCreditsRedeemed._sum.creditsCost ?? 0).toLocaleString()}</strong></div>
             <div className="pd-stat"><span className="pd-stat-label">Pending Redemptions</span><strong>{pendingRedemptions.length}</strong></div>
           </div>
 
@@ -102,7 +102,7 @@ export default async function HubRewardsPage({ searchParams }: { searchParams: P
                 <div className="cl-avatar" style={{ width: 40, height: 40, fontSize: 13 }}>{m.client.firstName[0]}{m.client.lastName[0]}</div>
                 <div>
                   <p className="doc-card-title">{m.client.firstName} {m.client.lastName}</p>
-                  <p className="pay-history-meta">{m.tier} · {m.lifetimePoints.toLocaleString()} lifetime PTS</p>
+                  <p className="pay-history-meta">{m.tier} · {m.lifetimePoints.toLocaleString()} lifetime Society Points</p>
                 </div>
               </Link>
             ))}
