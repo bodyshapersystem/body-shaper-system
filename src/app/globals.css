@@ -3493,7 +3493,7 @@
 
 /* Society Points — brushed dark metal */
 .rw-card-metal{
-  background:linear-gradient(155deg,#3d3128 0%,#2B2B2B 55%,#1a1512 100%);
+  background:linear-gradient(155deg,#3d3128 0%,#2B2B2B 55%,#1a1512 100%) !important;
   box-shadow:0 8px 24px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.04);
   padding:22px 20px;
 }
@@ -3506,7 +3506,7 @@
 .rw-card-stone{
   background:
     radial-gradient(circle at 20% 30%, rgba(200,161,90,0.08), transparent 50%),
-    linear-gradient(145deg,#E6DED4,#C9B8A8);
+    linear-gradient(145deg,#E6DED4,#C9B8A8) !important;
   box-shadow:0 6px 18px rgba(110,91,77,0.1);
   padding:18px;
 }
@@ -3514,7 +3514,7 @@
 
 /* Progress — frosted glass */
 .rw-card-glass{
-  background:rgba(255,255,255,0.55);
+  background:rgba(255,255,255,0.55) !important;
   backdrop-filter:blur(14px);
   -webkit-backdrop-filter:blur(14px);
   border:1px solid rgba(255,255,255,0.6);
@@ -3527,7 +3527,7 @@
 
 /* Member Since — soft paper/linen (Cream/Sand) */
 .rw-card-paper{
-  background:linear-gradient(160deg,#F4F1ED,#E6DED4);
+  background:linear-gradient(160deg,#F4F1ED,#E6DED4) !important;
   box-shadow:0 6px 18px rgba(110,91,77,0.08);
   padding:18px;
 }
@@ -3596,7 +3596,7 @@
 .bbp-hero-client-photo{
   position:relative;
   background-image:
-    linear-gradient(100deg, rgba(247,244,239,0.97) 0%, rgba(247,244,239,0.88) 45%, rgba(247,244,239,0.55) 100%),
+    linear-gradient(100deg, rgba(247,244,239,0.92) 0%, rgba(247,244,239,0.55) 40%, rgba(247,244,239,0.15) 100%),
     url(/images/blueprint/hero-blueprint-experience.png);
   background-size:cover;
   background-position:center right;
