@@ -297,7 +297,7 @@ export default async function BlueprintReport({
   return (
     <div className="bbp-root">
       {/* ---------- Executive Summary ---------- */}
-      <div className="bbp-hero">
+      <div className={mode === "client" ? "bbp-hero bbp-hero-client-photo" : "bbp-hero"}>
         <div className="bbp-hero-welcome">
           <div className="bbp-hero-avatar">
             {client.firstName[0]}
