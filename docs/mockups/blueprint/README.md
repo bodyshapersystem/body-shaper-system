@@ -12,5 +12,8 @@ Reference mockups for the "01 | your body composition" section of the Body Bluep
 ## Hero / marketing reference
 - `hero-blueprint-experience.png` — "the blueprint experience" hero banner (rose/mocha palette, "advanced technology. personalized strategy. visible results." tagline, "YOUR JOURNEY. OUR SYSTEM." CTA pill, specialist photo reviewing a body composition assessment on tablet, feature icon row: personalized strategy / advanced technology / delivered to you / visible results)
 
+## ✅ FINAL — build exactly as shown
+- `measurements-card-FINAL.png` — the "measurements" card (cream marble background, "YOUR BASELINE STARTS HERE." eyebrow, body diagram with labeled measurement points — neck, bust, waist, abdomen, hips, right/left thigh, right/left calf, left arm — plus the "all measurements are taken by your specialist..." note box and gold wave motif in the corners). **Emmy has approved this as final — implement pixel-for-pixel as shown**, not just as a style reference.
+
 ## Notes
 These correspond to the `BodyType` enum / `BodyTypeSheet` owner control referenced in the Blueprint module. Visual reference only — copy and body-type logic should stay driven by real Prisma data, not hardcoded per type.
