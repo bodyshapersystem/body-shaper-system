@@ -303,7 +303,7 @@ export default async function BlueprintReport({
 
       {/* ---------- Executive Summary ---------- */}
       <div className="bbp-hero">
-        <div className="bbp-hero-welcome">
+        <div className={mode === "client" ? "bbp-hero-welcome rw-card-stone" : "bbp-hero-welcome"}>
           {mode === "owner" && (
             <div className="bbp-hero-avatar">
               {client.firstName[0]}
@@ -575,25 +575,6 @@ export default async function BlueprintReport({
         </div>
       </div>
 
-      {/* ---------- Clinical Analysis (real specialist observations — Owner Hub only, not shown to clients) ---------- */}
-      {mode === "owner" && (
-        <div style={{ marginBottom: 40 }}>
-          <SectionLabel num="07" title="Clinical Analysis" />
-          {visibleObservations.length === 0 ? (
-            <EmptyState title="no observations yet." sub="Specialist notes will appear here as they're recorded." />
-          ) : (
-            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-              {visibleObservations.slice(0, 4).map((obs) => (
-                <div key={obs.id} className="cl-note-card">
-                  <p className="cl-note-meta">{formatDateInTimezone(obs.createdAt, timezone)}</p>
-                  <p className="cl-note-content">{obs.body}</p>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      )}
-
       {/* ---------- Photo Gallery (real PhotoType slots + genuine before/after) ---------- */}
       <div style={{ marginBottom: 40 }}>
         <SectionLabel num="08" title="Photo Gallery" right="consistent · clear · comparable" />
@@ -755,53 +736,6 @@ export default async function BlueprintReport({
             </Link>
           ))}
         </div>
-      </div>
-
-      {/* ---------- Financial Summary ---------- */}
-      <div style={{ marginBottom: 24 }}>
-        <SectionLabel num="13" title="Financial Summary" />
-        <div className="bbp-finance-grid">
-          <div className="bbp-finance-card">
-            <span>System Value</span>
-            <strong>{planTotalCents !== null ? money(planTotalCents) : "Not set"}</strong>
-          </div>
-          <div className="bbp-finance-card">
-            <span>Paid</span>
-            <strong>{money(paidCents)}</strong>
-          </div>
-          <div className="bbp-finance-card">
-            <span>Remaining Balance</span>
-            <strong>{balanceCents !== null ? money(balanceCents) : "—"}</strong>
-          </div>
-        </div>
-
-        {planTotalCents !== null && planTotalCents > 0 && (
-          <div className="bbp-finance-progress">
-            <div className="bbp-finance-progress-track">
-              <div className="bbp-finance-progress-fill" style={{ width: `${Math.min(100, Math.round((paidCents / planTotalCents) * 100))}%` }} />
-            </div>
-            <span className="pay-history-meta">{Math.round((paidCents / planTotalCents) * 100)}% of plan paid</span>
-          </div>
-        )}
-
-        <div className="bbp-finance-meta">
-          <div>
-            <span>Next Payment</span>
-            <strong>{nextPendingPayment ? (nextPendingPayment.dueDate ? formatDateInTimezone(nextPendingPayment.dueDate, timezone) : "Due date not set") : "None scheduled"}</strong>
-          </div>
-          <div>
-            <span>Payment Method</span>
-            <strong>{lastPaymentMethod ? lastPaymentMethod.replace(/_/g, " ") : "Not on file"}</strong>
-          </div>
-        </div>
-
-        {mode === "owner" ? (
-          <Link href="/hub/payments" className="dash-view-btn" style={{ display: "inline-block", marginTop: 16 }}>Open Payments →</Link>
-        ) : (
-          <p className="pay-history-meta" style={{ marginTop: 16 }}>
-            Downloadable invoices aren't available yet — ask your specialist for a receipt if you need one.
-          </p>
-        )}
       </div>
 
       <div className="bbp-footer">
