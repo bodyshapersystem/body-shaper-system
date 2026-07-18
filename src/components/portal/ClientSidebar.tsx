@@ -5,12 +5,25 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import ProfileLogout from "@/components/ProfileLogout";
 
-const NAV = [
+type NavChild = { href: string; label: string };
+type NavItem = { href: string; label: string; icon: string; children?: NavChild[] };
+
+const NAV: NavItem[] = [
   { href: "/portal/dashboard", label: "Dashboard", icon: "grid" },
   { href: "/portal/blueprint", label: "My Body Blueprint™", icon: "brain" },
   { href: "/portal/appointments", label: "Appointments", icon: "calendar" },
   { href: "/portal/daily-trackers", label: "Daily Trackers", icon: "drop" },
-  { href: "/portal/rewards", label: "Body Rewards™", icon: "star" },
+  {
+    href: "/portal/rewards",
+    label: "Body Rewards™",
+    icon: "star",
+    children: [
+      { href: "/portal/rewards/overview", label: "Overview" },
+      { href: "/portal/rewards/experiences", label: "Unlock Experiences" },
+      { href: "/portal/rewards/missions", label: "Secret Missions" },
+      { href: "/portal/rewards/privileges", label: "Privileges" },
+    ],
+  },
   { href: "/portal/photos", label: "Progress Photos", icon: "camera" },
   { href: "/portal/documents", label: "Documents", icon: "doc" },
   { href: "/portal/messages", label: "Messages", icon: "chat" },
@@ -98,9 +111,20 @@ export default function ClientSidebar({
 }) {
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [expanded, setExpanded] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     setMobileOpen(false);
+  }, [pathname]);
+
+  useEffect(() => {
+    setExpanded((prev) => {
+      const next = { ...prev };
+      for (const item of NAV) {
+        if (item.children && pathname.startsWith(item.href)) next[item.href] = true;
+      }
+      return next;
+    });
   }, [pathname]);
 
   return (
@@ -133,16 +157,56 @@ export default function ClientSidebar({
           <span className="psb-rule" aria-hidden="true" />
           <ProfileLogout className="psb-profile psb-profile-top" name={name} tier={tier} onLogout={logoutAction} />
           <ul className="psb-nav">
-            {NAV.map((item) => (
-              <li key={item.href}>
-                <Link href={item.href} className={pathname === item.href ? "active" : ""} onClick={() => setMobileOpen(false)}>
-                  <span className="psb-icon">
-                    <NavIcon name={item.icon} />
-                  </span>
-                  {item.label}
-                </Link>
-              </li>
-            ))}
+            {NAV.map((item) => {
+              if (!item.children) {
+                return (
+                  <li key={item.href}>
+                    <Link href={item.href} className={pathname === item.href ? "active" : ""} onClick={() => setMobileOpen(false)}>
+                      <span className="psb-icon">
+                        <NavIcon name={item.icon} />
+                      </span>
+                      {item.label}
+                    </Link>
+                  </li>
+                );
+              }
+
+              const isOpen = !!expanded[item.href];
+              const parentActive = pathname.startsWith(item.href);
+              return (
+                <li key={item.href} className="psb-nav-parent">
+                  <button
+                    type="button"
+                    className={`psb-nav-toggle${parentActive ? " psb-nav-parent-active" : ""}`}
+                    aria-expanded={isOpen}
+                    onClick={() => setExpanded((prev) => ({ ...prev, [item.href]: !prev[item.href] }))}
+                  >
+                    <span className="psb-icon">
+                      <NavIcon name={item.icon} />
+                    </span>
+                    {item.label}
+                    <span className={`psb-nav-caret${isOpen ? " psb-nav-caret-open" : ""}`} aria-hidden="true">
+                      ›
+                    </span>
+                  </button>
+                  {isOpen && (
+                    <ul className="psb-nav-children">
+                      {item.children.map((child) => (
+                        <li key={child.href}>
+                          <Link
+                            href={child.href}
+                            className={pathname === child.href || pathname.startsWith(child.href + "/") ? "active" : ""}
+                            onClick={() => setMobileOpen(false)}
+                          >
+                            {child.label}
+                          </Link>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </li>
+              );
+            })}
           </ul>
         </div>
       </nav>
