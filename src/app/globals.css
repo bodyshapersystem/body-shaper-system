@@ -3593,13 +3593,11 @@
 }
 
 /* ---------- Blueprint hero — real photography for Client Portal only (Milestone 80) ---------- */
-.bbp-hero-client-photo{
-  position:relative;
+.bbp-hero-client-photo{ position:relative; }
+.bbp-hero-client-photo .bbp-hero-welcome{
   background-image:
-    linear-gradient(100deg, rgba(247,244,239,0.92) 0%, rgba(247,244,239,0.55) 40%, rgba(247,244,239,0.15) 100%),
-    url(/images/blueprint/hero-blueprint-experience.png);
-  background-size:cover;
-  background-position:center right;
-  border-radius:20px;
-  overflow:hidden;
+    linear-gradient(100deg, rgba(247,244,239,0.93) 0%, rgba(247,244,239,0.6) 45%, rgba(247,244,239,0.2) 100%),
+    url(/images/blueprint/hero-blueprint-experience.png) !important;
+  background-size:cover !important;
+  background-position:center right !important;
 }
