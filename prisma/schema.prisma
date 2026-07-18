@@ -148,6 +148,9 @@ model Lead {
   city      String?
   goals     String?
   source    String? // e.g. "website", "instagram", "referral", "jotform:lets-build-your-blueprint"
+  referredByClientId String? // the real Client whose referral link/code brought this lead in
+  referredByClient   Client? @relation("ClientReferrals", fields: [referredByClientId], references: [id])
+  referralRewardGranted Boolean @default(false) // guards against double-awarding the 250 Society Points
 
   status        LeadStatus    @default(NEW)
   paymentStatus PaymentStatus @default(NOT_REQUIRED)
@@ -243,6 +246,7 @@ model Client {
   notifications        Notification[]
   dailyTrackers        DailyTracker[]
   collaboration        Collaboration?
+  referrals            Lead[]           @relation("ClientReferrals")
   formSubmissions      FormSubmission[]
   progressSnapshots    ProgressSnapshot[]
   appointments   Appointment[]

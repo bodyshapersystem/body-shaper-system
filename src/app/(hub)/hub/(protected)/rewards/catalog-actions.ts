@@ -189,3 +189,63 @@ export async function toggleSuspendRewards(clientId: string) {
   revalidatePath(`/hub/clients/${clientId}`);
   return { success: true };
 }
+
+const DEFAULT_CATALOG: { name: string; description: string; category: string; creditCost: number }[] = [
+  // Body Shaper System Experiences
+  { name: "10 Extra Minutes", description: "Add 10 extra minutes to any treatment area during your session.", category: "EXPERIENCES", creditCost: 150 },
+  { name: "Evening Priority Booking", description: "Priority access to premium evening appointments whenever available.", category: "EXPERIENCES", creditCost: 200 },
+  { name: "Endospheres® Session", description: "One complimentary Endospheres treatment.", category: "EXPERIENCES", creditCost: 450 },
+  { name: "EMS Session", description: "One complimentary EMS treatment.", category: "EXPERIENCES", creditCost: 550 },
+  { name: "Exilis® Session", description: "One complimentary Exilis treatment.", category: "EXPERIENCES", creditCost: 700 },
+  { name: "30% OFF Your Next System", description: "Apply 30% off toward your next qualifying Body Shaper System.", category: "EXPERIENCES", creditCost: 1000 },
+  // Beauty Partners
+  { name: "Professional Blowout", description: "With our partner salon.", category: "BEAUTY", creditCost: 350 },
+  { name: "Manicure", description: "With our partner salon.", category: "BEAUTY", creditCost: 350 },
+  { name: "Pedicure", description: "With our partner salon.", category: "BEAUTY", creditCost: 350 },
+  { name: "Professional Spray Tan", description: "With our partner studio.", category: "BEAUTY", creditCost: 500 },
+  // Signature Experiences — locked, real hidden eligibility (see isEligibleForSignatureExperiences)
+  { name: "Lash Experience", description: "A luxury lash treatment, exclusively for our most dedicated members.", category: "VIP", creditCost: 800 },
+  { name: "Personal Training Session", description: "One complimentary session with a personal trainer.", category: "VIP", creditCost: 900 },
+  { name: "Therapeutic Massage at Home", description: "A therapeutic massage, brought to you.", category: "VIP", creditCost: 1000 },
+];
+
+const DEFAULT_MISSIONS: { name: string; description: string; creditReward: number; type: "SELF_REPORT" | "MANUAL_APPROVAL" }[] = [
+  { name: "Coffee Mission", description: "Visit your favorite coffee shop, post the approved story, and tag @bodyshapersystem_mia. Keep the story public for 24 hours.", creditReward: 15, type: "MANUAL_APPROVAL" },
+  { name: "Gym Check-In", description: "Share your workout, use the approved caption, and tag Body Shaper System.", creditReward: 15, type: "MANUAL_APPROVAL" },
+  { name: "Hydration Challenge", description: "Share your daily hydration, use the approved sticker, and tag us.", creditReward: 10, type: "MANUAL_APPROVAL" },
+  { name: "Wellness Sunday", description: "Share your Sunday wellness ritual — pilates, a walk, stretching, meditation, or matcha.", creditReward: 20, type: "MANUAL_APPROVAL" },
+  { name: "Transformation Story", description: "Share one positive change you've experienced since beginning your Body Shaper System journey. No before & after required.", creditReward: 25, type: "MANUAL_APPROVAL" },
+];
+
+/**
+ * Real, idempotent seed — only creates catalog items/missions that
+ * don't already exist by name, so this is always safe to run again
+ * (e.g. after adding a new item to the default list later). Not a
+ * one-time throwaway script; kept as a permanent, repeatable action.
+ */
+export async function seedDefaultRewardsCatalog() {
+  const user = await getCurrentHubUser();
+  if (!user || !hasPermission(user, "rewards.manage")) return { error: "You don't have permission to do this." };
+
+  let itemsCreated = 0;
+  for (const item of DEFAULT_CATALOG) {
+    const existing = await prisma.rewardCatalogItem.findFirst({ where: { name: item.name } });
+    if (!existing) {
+      await prisma.rewardCatalogItem.create({ data: item as never });
+      itemsCreated += 1;
+    }
+  }
+
+  let missionsCreated = 0;
+  for (const mission of DEFAULT_MISSIONS) {
+    const existing = await prisma.mission.findFirst({ where: { name: mission.name } });
+    if (!existing) {
+      await prisma.mission.create({ data: mission });
+      missionsCreated += 1;
+    }
+  }
+
+  revalidatePath("/hub/rewards");
+  revalidatePath("/portal/rewards");
+  return { success: true, itemsCreated, missionsCreated };
+}

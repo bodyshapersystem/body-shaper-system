@@ -6,6 +6,7 @@ import { revalidatePath } from "next/cache";
 import type { PaymentMethod, PaymentRecordStatus, PaymentType, PaymentOrigin } from "@prisma/client";
 import { sendPaymentConfirmationEmail } from "@/lib/email/service";
 import { createNotification } from "@/lib/notifications";
+import { awardReferralBonusIfQualifying } from "@/lib/rewards";
 
 export async function createPayment(formData: FormData) {
   const user = await getCurrentHubUser();
@@ -57,6 +58,7 @@ export async function createPayment(formData: FormData) {
         description: `Payment received from ${client.firstName} ${client.lastName} — $${(payment.amountCents / 100).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
         linkUrl: `/hub/clients/${clientId}?tab=payments`,
       });
+      await awardReferralBonusIfQualifying(clientId);
     }
   }
 
@@ -302,6 +304,7 @@ export async function payInstallment(paymentId: string, formData: FormData) {
         description: `Payment received from ${client.firstName} ${client.lastName} — $${(amountCents / 100).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
         linkUrl: `/hub/clients/${existing.clientId}?tab=payments`,
       });
+      await awardReferralBonusIfQualifying(existing.clientId);
     }
   }
 

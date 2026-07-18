@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { upsertRewardCatalogItem, deleteRewardCatalogItem } from "./catalog-actions";
+import { upsertRewardCatalogItem, deleteRewardCatalogItem, seedDefaultRewardsCatalog } from "./catalog-actions";
 
 type Item = { id: string; name: string; description: string | null; category: string; creditCost: number; available: boolean };
 
@@ -29,12 +29,28 @@ export default function CatalogTab({ items, canManage, categoryLabels }: { items
     });
   }
 
+  const [seedMessage, setSeedMessage] = useState("");
+
+  function handleSeed() {
+    startTransition(async () => {
+      const result = await seedDefaultRewardsCatalog();
+      setSeedMessage(result?.success ? `Added ${result.itemsCreated} rewards and ${result.missionsCreated} missions.` : result?.error ?? "Something went wrong.");
+      router.refresh();
+    });
+  }
+
   return (
     <>
       {canManage && (
-        <button type="button" className="dash-view-btn" style={{ marginBottom: 20 }} onClick={() => setEditing("new")}>
-          + Create Reward
-        </button>
+        <div style={{ display: "flex", gap: 10, marginBottom: 20, flexWrap: "wrap", alignItems: "center" }}>
+          <button type="button" className="dash-view-btn" onClick={() => setEditing("new")}>
+            + Create Reward
+          </button>
+          <button type="button" className="dash-view-btn" onClick={handleSeed} disabled={isPending}>
+            {isPending ? "Adding…" : "Add Default Body Shaper System Catalog"}
+          </button>
+          {seedMessage && <span className="pay-history-meta">{seedMessage}</span>}
+        </div>
       )}
 
       <div className="doc-card-grid">
