@@ -296,8 +296,13 @@ export default async function BlueprintReport({
 
   return (
     <div className="bbp-root">
+      {/* ---------- Hero Photo (Client Portal only) — its own block, stacked above the content, never overlapping the text ---------- */}
+      {mode === "client" && (
+        <img src="/images/blueprint/hero-blueprint-experience.png" alt="" className="bbp-hero-photo-block" />
+      )}
+
       {/* ---------- Executive Summary ---------- */}
-      <div className={mode === "client" ? "bbp-hero bbp-hero-client-photo" : "bbp-hero"}>
+      <div className="bbp-hero">
         <div className="bbp-hero-welcome">
           <div className="bbp-hero-avatar">
             {client.firstName[0]}
