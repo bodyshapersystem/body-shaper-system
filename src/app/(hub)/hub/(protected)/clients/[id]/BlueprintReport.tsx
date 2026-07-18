@@ -303,7 +303,7 @@ export default async function BlueprintReport({
 
       {/* ---------- Executive Summary ---------- */}
       <div className="bbp-hero">
-        <div className={mode === "client" ? "bbp-hero-welcome rw-card-stone" : "bbp-hero-welcome"}>
+        <div className={mode === "client" ? "bbp-hero-welcome bp-tex-taupe" : "bbp-hero-welcome"}>
           {mode === "owner" && (
             <div className="bbp-hero-avatar">
               {client.firstName[0]}
@@ -414,7 +414,10 @@ export default async function BlueprintReport({
                 ))}
               </div>
             ) : (
-              <EmptyState title="no composition data yet." sub="Record a RENPHO scan to populate this section of the Blueprint." />
+              <div style={{ textAlign: "center" }}>
+                <BodyTypeIllustration bodyType={assessment.bodyType} maxHeight={180} />
+                <EmptyState title="no composition data yet." sub="Record a RENPHO scan to populate this section of the Blueprint." />
+              </div>
             )}
             {latestRenpho && <p className="bbp-source-note">* body composition synchronized from RENPHO Health</p>}
           </div>
@@ -424,50 +427,93 @@ export default async function BlueprintReport({
       {/* ---------- Section 02 / 03 / 04 ---------- */}
       <div className="bbp-row-3" style={{ marginBottom: 40 }}>
         {/* 02 — Measurements */}
-        <div className="bbp-card bbp-panel">
-          <p className="bbp-panel-title" style={{ marginBottom: 14 }}>
-            <span className="bbp-section-num">02</span> <span className="bbp-section-div">|</span> your measurements
-          </p>
-          {latestBodyMeasurement ? (
-            <div className="bbp-measure-table">
-              <div className="bbp-measure-head">
-                <span />
-                <span>current</span>
-                <span>goal</span>
-                <span>diff</span>
+        <div className={mode === "client" ? "bbp-card bbp-panel bp-tex-cream bbp-measurements-final" : "bbp-card bbp-panel"}>
+          {mode === "client" ? (
+            <div className="bbp-mf-layout">
+              <div className="bbp-mf-text">
+                <p className="bbp-mf-mark">✦</p>
+                <span className="bbp-mf-rule" />
+                <h3 className="bbp-mf-headline">measurements</h3>
+                <span className="bbp-mf-rule-sm" />
+                <p className="bbp-mf-eyebrow">YOUR BASELINE STARTS HERE.</p>
+                <p className="bbp-mf-copy">
+                  Professional measurements will be recorded during your first Blueprint Session™ to create accurate progress tracking and visible results.
+                </p>
+                <div className="bbp-mf-note">
+                  <span className="bbp-mf-note-icon">✦</span>
+                  <p>All measurements are taken by your specialist using a consistent, professional method to ensure accuracy.</p>
+                </div>
               </div>
-              {(
-                [
-                  { label: "Waist", key: "waistCm" },
-                  { label: "High Waist", key: "highWaistCm" },
-                  { label: "Abdomen", key: "lowerAbdomenCm" },
-                  { label: "Hips", key: "hipsCm" },
-                  { label: "Chest", key: "chestCm" },
-                  { label: "Right Arm", key: "rightArmCm" },
-                  { label: "Left Arm", key: "leftArmCm" },
-                  { label: "Right Thigh", key: "rightThighCm" },
-                  { label: "Left Thigh", key: "leftThighCm" },
-                ] as const
-              ).map((m) => {
-                const current = latestBodyMeasurement[m.key];
-                const baseline = firstBodyMeasurement?.[m.key];
-                const d = delta(current, baseline);
-                return (
-                  <div className="bbp-measure-row" key={m.key}>
-                    <span>{m.label}</span>
-                    <span className="bbp-measure-current">{current != null ? current.toFixed(1) : "—"}</span>
-                    <span className="bbp-measure-goal">{baseline != null ? baseline.toFixed(1) : "—"}</span>
-                    <span className="bbp-measure-diff">{d !== null && d !== 0 ? `${d > 0 ? "+" : "−"}${Math.abs(d).toFixed(1)}` : "—"}</span>
-                  </div>
-                );
-              })}
+              <div className="bbp-mf-diagram">
+                <BodyTypeIllustration bodyType={assessment.bodyType} maxHeight={260} />
+                <div className="bbp-mf-points">
+                  {(
+                    [
+                      { label: "bust", key: "chestCm" },
+                      { label: "waist", key: "waistCm" },
+                      { label: "abdomen", key: "lowerAbdomenCm" },
+                      { label: "hips", key: "hipsCm" },
+                      { label: "right thigh", key: "rightThighCm" },
+                      { label: "left thigh", key: "leftThighCm" },
+                      { label: "left arm", key: "leftArmCm" },
+                    ] as const
+                  ).map((m) => (
+                    <div className="bbp-mf-point" key={m.key}>
+                      <span>{m.label}</span>
+                      <span className="bbp-mf-point-line" />
+                      <strong>{latestBodyMeasurement?.[m.key] != null ? `${latestBodyMeasurement[m.key]!.toFixed(1)} cm` : "—"}</strong>
+                    </div>
+                  ))}
+                </div>
+              </div>
             </div>
           ) : (
-            <EmptyState title="no measurements yet." sub="Record the client's first professional measurements to build their strategy." />
+            <>
+              <p className="bbp-panel-title" style={{ marginBottom: 14 }}>
+                <span className="bbp-section-num">02</span> <span className="bbp-section-div">|</span> your measurements
+              </p>
+              {latestBodyMeasurement ? (
+                <div className="bbp-measure-table">
+                  <div className="bbp-measure-head">
+                    <span />
+                    <span>current</span>
+                    <span>goal</span>
+                    <span>diff</span>
+                  </div>
+                  {(
+                    [
+                      { label: "Waist", key: "waistCm" },
+                      { label: "High Waist", key: "highWaistCm" },
+                      { label: "Abdomen", key: "lowerAbdomenCm" },
+                      { label: "Hips", key: "hipsCm" },
+                      { label: "Chest", key: "chestCm" },
+                      { label: "Right Arm", key: "rightArmCm" },
+                      { label: "Left Arm", key: "leftArmCm" },
+                      { label: "Right Thigh", key: "rightThighCm" },
+                      { label: "Left Thigh", key: "leftThighCm" },
+                    ] as const
+                  ).map((m) => {
+                    const current = latestBodyMeasurement[m.key];
+                    const baseline = firstBodyMeasurement?.[m.key];
+                    const d = delta(current, baseline);
+                    return (
+                      <div className="bbp-measure-row" key={m.key}>
+                        <span>{m.label}</span>
+                        <span className="bbp-measure-current">{current != null ? current.toFixed(1) : "—"}</span>
+                        <span className="bbp-measure-goal">{baseline != null ? baseline.toFixed(1) : "—"}</span>
+                        <span className="bbp-measure-diff">{d !== null && d !== 0 ? `${d > 0 ? "+" : "−"}${Math.abs(d).toFixed(1)}` : "—"}</span>
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : (
+                <EmptyState title="no measurements yet." sub="Record the client's first professional measurements to build their strategy." />
+              )}
+              <Link href={`/hub/clients/${clientId}?tab=blueprint`} className="bbp-composition-cta" style={{ display: "inline-flex", marginTop: 16, color: "var(--charcoal)", borderColor: "var(--bbp-line)" }}>
+                view full measurements →
+              </Link>
+            </>
           )}
-          <Link href={`/hub/clients/${clientId}?tab=blueprint`} className="bbp-composition-cta" style={{ display: "inline-flex", marginTop: 16, color: "var(--charcoal)", borderColor: "var(--bbp-line)" }}>
-            view full measurements →
-          </Link>
         </div>
 
         {/* 03 — Body Profile (bodyType is the single source of truth) */}
@@ -499,7 +545,7 @@ export default async function BlueprintReport({
         </div>
 
         {/* 04 — Personalized System (real fields: recommendedSystem, treatmentInterests, goals, frequency) */}
-        <div className={mode === "client" ? "bbp-card bbp-panel rw-card-stone" : "bbp-card bbp-panel"}>
+        <div className={mode === "client" ? "bbp-card bbp-panel bp-tex-taupe" : "bbp-card bbp-panel"}>
           <p className="bbp-panel-title" style={{ marginBottom: 14 }}>
             <span className="bbp-section-num">04</span> <span className="bbp-section-div">|</span> personalized system™
           </p>
@@ -534,7 +580,7 @@ export default async function BlueprintReport({
       {/* ---------- Section 05 / 06 ---------- */}
       <div className="bbp-row-2" style={{ marginBottom: 40 }}>
         {/* 05 — System Architecture (real fields: treatmentInterests, complementarySessions, homeCareGuidance) */}
-        <div className="bbp-card bbp-panel">
+        <div className={mode === "client" ? "bbp-card bbp-panel bp-tex-cream" : "bbp-card bbp-panel"}>
           <p className="bbp-panel-title">
             <span className="bbp-section-num">05</span> <span className="bbp-section-div">|</span> your system architecture™
           </p>
@@ -560,7 +606,7 @@ export default async function BlueprintReport({
         </div>
 
         {/* 06 — Why This System Was Selected (real specialist validation notes) */}
-        <div className={mode === "client" ? "bbp-card bbp-panel rw-card-glass" : "bbp-card bbp-panel"}>
+        <div className={mode === "client" ? "bbp-card bbp-panel bp-tex-glass" : "bbp-card bbp-panel"}>
           <p className="bbp-panel-title">
             <span className="bbp-section-num">06</span> <span className="bbp-section-div">|</span> why this system was selected
           </p>
@@ -644,7 +690,7 @@ export default async function BlueprintReport({
           </p>
         </div>
 
-        <div className="bbp-card bbp-panel">
+        <div className={mode === "client" ? "bbp-card bbp-panel bp-tex-taupe" : "bbp-card bbp-panel"}>
           <p className="bbp-panel-title" style={{ marginBottom: 14 }}>
             <span className="bbp-section-num">10</span> <span className="bbp-section-div">|</span> next milestone
           </p>
@@ -726,7 +772,7 @@ export default async function BlueprintReport({
             <Link
               key={action.title}
               href={action.href}
-              className={mode === "client" ? `bbp-action-card ${["rw-card-stone", "rw-card-paper", "rw-card-glass"][i % 3]}` : "bbp-action-card"}
+              className={mode === "client" ? `bbp-action-card ${["bp-tex-taupe", "bp-tex-cream", "bp-tex-olive"][i % 3]}` : "bbp-action-card"}
             >
               <span className="bbp-action-icon">
                 <QuickActionIcon name={action.icon} />
