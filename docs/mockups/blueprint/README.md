@@ -9,5 +9,8 @@ Reference mockups for the "01 | your body composition" section of the Body Bluep
 - `body-type-pear.png` — fat stored in hips/thighs/lower body; focus: inner/outer thighs, hips & glutes, cellulite reduction
 - `body-type-hourglass.png` — balanced proportions, defined waist; focus: waist definition, lower abdomen, skin firmness, overall tightening
 
+## Hero / marketing reference
+- `hero-blueprint-experience.png` — "the blueprint experience" hero banner (rose/mocha palette, "advanced technology. personalized strategy. visible results." tagline, "YOUR JOURNEY. OUR SYSTEM." CTA pill, specialist photo reviewing a body composition assessment on tablet, feature icon row: personalized strategy / advanced technology / delivered to you / visible results)
+
 ## Notes
 These correspond to the `BodyType` enum / `BodyTypeSheet` owner control referenced in the Blueprint module. Visual reference only — copy and body-type logic should stay driven by real Prisma data, not hardcoded per type.
