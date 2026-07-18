@@ -131,24 +131,28 @@ export default function RewardsView({
       {tab === "overview" && (
         <>
           <div className="rw-stat-grid">
-            <div className="rw-stat-card">
-              <p className="rw-stat-label">YOUR POINTS</p>
-              <p className="rw-stat-value">{pointsBalance.toLocaleString()} <small>Society Points</small></p>
-              <p className="rw-stat-foot">⭐ Keep going, you're doing amazing.</p>
+            <div className="rw-stat-card rw-card-metal">
+              <span className="rw-card-star">★</span>
+              <p className="rw-stat-label rw-label-on-dark">SOCIETY POINTS</p>
+              <p className="rw-stat-value rw-value-on-dark">{pointsBalance.toLocaleString()}</p>
+              <p className="rw-stat-foot rw-foot-on-dark">{tier} Member</p>
             </div>
-            <div className="rw-stat-card">
+            <div className="rw-stat-card rw-card-stone">
+              <span className="rw-card-watermark">✦</span>
               <p className="rw-stat-label">MEMBERSHIP LEVEL</p>
               <p className="rw-stat-value" style={{ fontSize: 22 }}>{tier} Member</p>
               <p className="rw-stat-foot">You're valued. You're recognized.</p>
             </div>
-            <div className="rw-stat-card">
+            <div className="rw-stat-card rw-card-glass">
               <p className="rw-stat-label">PROGRESS TO NEXT REWARD {creditsToNext !== null && <span style={{ float: "right" }}>{creditsToNext} Society Points To Go</span>}</p>
-              <div className="onb-progress-track" style={{ margin: "10px 0 6px" }}>
-                <div className="onb-progress-fill" style={{ width: `${progressPercent}%`, background: "linear-gradient(90deg,#C9A876,#7A2E38)" }} />
+              <div className="rw-progress-line">
+                <div className="rw-progress-line-fill" style={{ width: `${progressPercent}%` }} />
+                <span className="rw-progress-milestone" style={{ left: `${progressPercent}%` }}>🎁</span>
               </div>
               <p className="rw-stat-foot">{lifetimePoints.toLocaleString()} / {(lifetimePoints + (creditsToNext ?? 0)).toLocaleString()} Society Points · {progressPercent}%</p>
             </div>
-            <div className="rw-stat-card">
+            <div className="rw-stat-card rw-card-paper">
+              <span className="rw-card-icon-badge">📅</span>
               <p className="rw-stat-label">MEMBER SINCE</p>
               <p className="rw-stat-value" style={{ fontSize: 20 }}>{memberSince}</p>
               <p className="rw-stat-foot">Thank you for being part of our Society.</p>

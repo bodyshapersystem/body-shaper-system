@@ -3487,3 +3487,52 @@
   .rw-sidebar{ position:fixed; left:-260px; z-index:60; transition:left .2s; box-shadow:0 0 30px rgba(0,0,0,0.3); }
   .rw-sidebar.psb-open{ left:0; }
 }
+
+/* ---------- Rewards Overview — premium material cards (Milestone 72) ---------- */
+.rw-stat-card{ border-radius:22px; position:relative; overflow:hidden; }
+
+/* Society Points — brushed dark metal */
+.rw-card-metal{
+  background:linear-gradient(155deg,#2b2420 0%,#1a1512 55%,#100d0b 100%);
+  box-shadow:0 8px 24px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.04);
+  padding:22px 20px;
+}
+.rw-card-star{ position:absolute; top:16px; right:18px; color:#C9A876; font-size:16px; }
+.rw-label-on-dark{ color:rgba(241,228,200,0.55) !important; }
+.rw-value-on-dark{ color:#F1E4C8 !important; font-size:32px !important; }
+.rw-foot-on-dark{ color:#C9A876 !important; }
+
+/* Membership Level — travertine stone texture */
+.rw-card-stone{
+  background:
+    radial-gradient(circle at 20% 30%, rgba(201,168,118,0.08), transparent 50%),
+    linear-gradient(145deg,#EDE6D8,#E2D9C6);
+  box-shadow:0 6px 18px rgba(107,78,61,0.08);
+  padding:18px;
+}
+.rw-card-watermark{ position:absolute; top:8px; right:14px; font-size:46px; color:rgba(107,78,61,0.08); pointer-events:none; }
+
+/* Progress — frosted glass */
+.rw-card-glass{
+  background:rgba(255,255,255,0.55);
+  backdrop-filter:blur(14px);
+  -webkit-backdrop-filter:blur(14px);
+  border:1px solid rgba(255,255,255,0.6);
+  box-shadow:0 6px 18px rgba(107,78,61,0.08);
+  padding:18px;
+}
+.rw-progress-line{ position:relative; height:3px; background:rgba(43,38,34,0.1); border-radius:2px; margin:22px 4px 14px; }
+.rw-progress-line-fill{ position:absolute; top:0; left:0; height:100%; background:linear-gradient(90deg,#C9A876,#7A2E38); border-radius:2px; }
+.rw-progress-milestone{ position:absolute; top:50%; transform:translate(-50%,-50%); font-size:15px; background:#fff; border-radius:50%; width:26px; height:26px; display:flex; align-items:center; justify-content:center; box-shadow:0 2px 6px rgba(0,0,0,0.15); }
+
+/* Member Since — soft paper/linen */
+.rw-card-paper{
+  background:linear-gradient(160deg,#FBF8F2,#F3EDE1);
+  box-shadow:0 6px 18px rgba(107,78,61,0.06);
+  padding:18px;
+}
+.rw-card-icon-badge{ position:absolute; top:16px; right:18px; font-size:16px; opacity:.6; }
+
+@media (max-width:900px){
+  .rw-card-star, .rw-card-icon-badge{ top:12px; right:14px; }
+}
