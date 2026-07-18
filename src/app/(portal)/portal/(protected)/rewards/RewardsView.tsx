@@ -144,14 +144,6 @@ export default function RewardsView({
 
       {message && <p className="pay-history-meta" style={{ marginBottom: 16 }}>{message}</p>}
 
-      {/* ---------- Tabs ---------- */}
-      <div className="rw-tabs">
-        <Link href="/portal/rewards?tab=overview" className={`rw-tab ${tab === "overview" ? "rw-tab-active" : ""}`}>🏠 Overview</Link>
-        <Link href="/portal/rewards?tab=experiences" className={`rw-tab ${tab === "experiences" ? "rw-tab-active" : ""}`}>🎁 Unlock Experiences</Link>
-        <Link href="/portal/rewards?tab=missions" className={`rw-tab ${tab === "missions" ? "rw-tab-active" : ""}`}>🎯 Secret Missions</Link>
-        <Link href="/portal/rewards?tab=privileges" className={`rw-tab ${tab === "privileges" ? "rw-tab-active" : ""}`}>👑 Privileges</Link>
-      </div>
-
       {/* ---------- Hero banner ---------- */}
       <div
         className={`rw-hero-banner${tab === "overview" ? " rw-hero-banner-dark" : ""}`}
@@ -202,7 +194,7 @@ export default function RewardsView({
                   <>
                     <p className="rw-next-reward-name">{next.name}</p>
                     <p className="rw-next-reward-pts">{next.creditCost.toLocaleString()} PTS</p>
-                    <Link href="/portal/rewards?tab=experiences" className="rw-dark-btn" style={{ display: "block", textAlign: "center", textDecoration: "none" }}>View Reward</Link>
+                    <Link href="/portal/rewards/experiences" className="rw-dark-btn" style={{ display: "block", textAlign: "center", textDecoration: "none" }}>View Reward</Link>
                   </>
                 ) : (
                   <p className="pay-history-meta">You've unlocked everything in our current catalog!</p>
@@ -219,7 +211,7 @@ export default function RewardsView({
                   </div>
                 ))}
               </div>
-              <Link href="/portal/rewards?tab=missions" className="trk-link-btn">View All Missions →</Link>
+              <Link href="/portal/rewards/missions" className="trk-link-btn">View All Missions →</Link>
             </div>
           </div>
 
