@@ -499,7 +499,7 @@ export default async function BlueprintReport({
         </div>
 
         {/* 04 — Personalized System (real fields: recommendedSystem, treatmentInterests, goals, frequency) */}
-        <div className="bbp-card bbp-panel">
+        <div className={mode === "client" ? "bbp-card bbp-panel rw-card-stone" : "bbp-card bbp-panel"}>
           <p className="bbp-panel-title" style={{ marginBottom: 14 }}>
             <span className="bbp-section-num">04</span> <span className="bbp-section-div">|</span> personalized system™
           </p>
@@ -560,7 +560,7 @@ export default async function BlueprintReport({
         </div>
 
         {/* 06 — Why This System Was Selected (real specialist validation notes) */}
-        <div className="bbp-card bbp-panel">
+        <div className={mode === "client" ? "bbp-card bbp-panel rw-card-glass" : "bbp-card bbp-panel"}>
           <p className="bbp-panel-title">
             <span className="bbp-section-num">06</span> <span className="bbp-section-div">|</span> why this system was selected
           </p>
@@ -575,22 +575,24 @@ export default async function BlueprintReport({
         </div>
       </div>
 
-      {/* ---------- Clinical Analysis (real specialist observations — unchanged data source) ---------- */}
-      <div style={{ marginBottom: 40 }}>
-        <SectionLabel num="07" title="Clinical Analysis" />
-        {visibleObservations.length === 0 ? (
-          <EmptyState title="no observations yet." sub="Specialist notes will appear here as they're recorded." />
-        ) : (
-          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-            {visibleObservations.slice(0, 4).map((obs) => (
-              <div key={obs.id} className="cl-note-card">
-                <p className="cl-note-meta">{formatDateInTimezone(obs.createdAt, timezone)}</p>
-                <p className="cl-note-content">{obs.body}</p>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
+      {/* ---------- Clinical Analysis (real specialist observations — Owner Hub only, not shown to clients) ---------- */}
+      {mode === "owner" && (
+        <div style={{ marginBottom: 40 }}>
+          <SectionLabel num="07" title="Clinical Analysis" />
+          {visibleObservations.length === 0 ? (
+            <EmptyState title="no observations yet." sub="Specialist notes will appear here as they're recorded." />
+          ) : (
+            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+              {visibleObservations.slice(0, 4).map((obs) => (
+                <div key={obs.id} className="cl-note-card">
+                  <p className="cl-note-meta">{formatDateInTimezone(obs.createdAt, timezone)}</p>
+                  <p className="cl-note-content">{obs.body}</p>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
 
       {/* ---------- Photo Gallery (real PhotoType slots + genuine before/after) ---------- */}
       <div style={{ marginBottom: 40 }}>
@@ -735,12 +737,16 @@ export default async function BlueprintReport({
                 { href: "/portal/appointments", icon: "calendar" as const, title: "Appointments", desc: "View your schedule" },
                 { href: "/portal/documents", icon: "doc" as const, title: "Documents", desc: "Your forms & records" },
                 { href: "/portal/photos", icon: "camera" as const, title: "Progress Photos", desc: "See your transformation" },
-                { href: "/portal/rewards", icon: "star" as const, title: "Body Rewards™", desc: "Your points & perks" },
+                { href: "/portal/rewards", icon: "star" as const, title: "Rewards", desc: "Your points & perks" },
                 { href: "/portal/messages", icon: "mail" as const, title: "Message Specialist", desc: "Ask a question" },
                 { href: "/portal/profile", icon: "person" as const, title: "Profile", desc: "Your account details" },
               ]
-          ).map((action) => (
-            <Link key={action.title} href={action.href} className="bbp-action-card">
+          ).map((action, i) => (
+            <Link
+              key={action.title}
+              href={action.href}
+              className={mode === "client" ? `bbp-action-card ${["rw-card-stone", "rw-card-paper", "rw-card-glass"][i % 3]}` : "bbp-action-card"}
+            >
               <span className="bbp-action-icon">
                 <QuickActionIcon name={action.icon} />
               </span>
