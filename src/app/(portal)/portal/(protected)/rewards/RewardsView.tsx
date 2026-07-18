@@ -327,6 +327,22 @@ export default function RewardsView({
           </div>
         </>
       )}
+
+      {/* Mobile-only quick nav — hidden on desktop (sidebar handles nav there), shown as a persistent bottom bar on mobile per direction. */}
+      <nav className="rw-bottom-nav">
+        <Link href="/portal/rewards/overview" className={tab === "overview" ? "rw-bottom-nav-active" : ""}>
+          <span>✦</span>Overview
+        </Link>
+        <Link href="/portal/rewards/experiences" className={tab === "experiences" ? "rw-bottom-nav-active" : ""}>
+          <span>🔒</span>Unlock Experiences
+        </Link>
+        <Link href="/portal/rewards/missions" className={tab === "missions" ? "rw-bottom-nav-active" : ""}>
+          <span>🎯</span>Secret Missions
+        </Link>
+        <Link href="/portal/rewards/privileges" className={tab === "privileges" ? "rw-bottom-nav-active" : ""}>
+          <span>👑</span>Privileges
+        </Link>
+      </nav>
     </div>
   );
 }

@@ -32,7 +32,7 @@ export default async function PortalBlueprintPage() {
   if (!client) redirect("/portal/login");
 
   return (
-    <div className="cat-body portal-page">
+    <div className="cat-body portal-page bp-client-materials">
       {client.blueprintAssessments.length === 0 ? (
         <div className="bp-empty-state">
           <p>Your Body Blueprint™ isn't ready yet.</p>

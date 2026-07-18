@@ -3569,3 +3569,15 @@
 .bbp-card.bbp-profile-card .bbp-section-num{ color:var(--bbp-gold-dark,#A9895C); }
 .bbp-card.bbp-profile-card .bbp-profile-desc{ color:rgba(43,38,34,0.65); }
 .bbp-card.bbp-profile-card .bbp-focus-list li{ color:#2B2622; }
+
+/* ---------- Blueprint — subtle material variation for Client Portal only (Milestone 77) ---------- */
+/* Scoped strictly to .bp-client-materials (the Portal Blueprint page
+   wrapper) so the Owner Hub's established Blueprint styling is never
+   touched. Alternates a very subtle warm tint across the light
+   .bbp-card elements so not every card reads as identical flat white,
+   matching the "every card should feel different" direction from
+   Rewards — without restructuring the shared BlueprintReport
+   component's markup itself. */
+.bp-client-materials .bbp-card:nth-of-type(3n+1){ background:linear-gradient(160deg,#FBF8F3,#F3EDE1); }
+.bp-client-materials .bbp-card:nth-of-type(3n+2){ background:rgba(255,255,255,0.6); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px); }
+.bp-client-materials .bbp-card:nth-of-type(3n+3){ background:linear-gradient(145deg,#EDE6D8,#E2D9C6); }

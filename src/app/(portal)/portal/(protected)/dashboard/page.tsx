@@ -148,19 +148,19 @@ export default async function PortalDashboardPage() {
 
       {/* ---------- Hero Metrics ---------- */}
       <div className="trk-summary-bar" style={{ marginBottom: 24 }}>
-        <div>
+        <div className="rw-stat-card rw-card-stone" style={{ padding: 16 }}>
           <p className="trk-summary-label">Sessions Completed</p>
           <p className="trk-summary-value">{completedCount}</p>
         </div>
-        <div>
+        <div className="rw-stat-card rw-card-paper" style={{ padding: 16 }}>
           <p className="trk-summary-label">Sessions Remaining</p>
           <p className="trk-summary-value">{remaining ?? "—"}</p>
         </div>
-        <div>
-          <p className="trk-summary-label">Current System</p>
-          <p className="trk-summary-value" style={{ fontSize: 14 }}>{assessment?.recommendedSystem ?? "Not set"}</p>
+        <div className="rw-stat-card rw-card-metal" style={{ padding: 16 }}>
+          <p className="trk-summary-label rw-label-on-dark">Current System</p>
+          <p className="trk-summary-value rw-value-on-dark" style={{ fontSize: 14 }}>{assessment?.recommendedSystem ?? "Not set"}</p>
         </div>
-        <div>
+        <div className="rw-stat-card rw-card-glass" style={{ padding: 16 }}>
           <p className="trk-summary-label">Journey Progress</p>
           <p className="trk-summary-value">{progressPercent !== null ? `${progressPercent}%` : "—"}</p>
         </div>
@@ -170,7 +170,7 @@ export default async function PortalDashboardPage() {
         <div className="cap-main">
           <div className="doc-card-grid" style={{ marginBottom: 20 }}>
             {/* Card 1 — Today's Focus */}
-            <div className="trk-card">
+            <div className="rw-stat-card rw-card-paper" style={{ padding: 20 }}>
               <h3 className="trk-card-title">Today's Focus</h3>
               <p className="pay-history-meta" style={{ marginBottom: 14 }}>{focusText}</p>
               <div className="trk-water-circles">
@@ -182,7 +182,7 @@ export default async function PortalDashboardPage() {
             </div>
 
             {/* Card 2 — Next Milestone */}
-            <div className="trk-card" style={{ textAlign: "center" }}>
+            <div className="rw-stat-card rw-card-glass" style={{ padding: 20, textAlign: "center" }}>
               <h3 className="trk-card-title">Next Milestone</h3>
               <div className="trk-progress-circle" style={{ margin: "0 auto 10px", background: `conic-gradient(#6B4E3D ${milestonePercent}%, rgba(0,0,0,0.06) 0)` }}>
                 <div className="trk-progress-circle-inner"><strong>{milestonePercent}%</strong></div>
@@ -191,7 +191,7 @@ export default async function PortalDashboardPage() {
             </div>
 
             {/* Card 3 — Your Journey */}
-            <div className="trk-card">
+            <div className="rw-stat-card rw-card-stone" style={{ padding: 20 }}>
               <h3 className="trk-card-title">Your Journey</h3>
               <p style={{ fontFamily: "var(--serif)", fontSize: 15, color: "#6B4E3D", marginBottom: 4 }}>● {journeyPhase}</p>
               {totalSessions !== null && <p className="pay-history-meta" style={{ marginBottom: 10 }}>Week {weekNumber} of {Math.ceil(totalSessions / 1.5)}</p>}
