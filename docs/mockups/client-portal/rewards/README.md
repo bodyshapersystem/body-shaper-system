@@ -1,24 +1,44 @@
 # Client Portal — Rewards™ ("The Body Shaper Society™") Mockups
 
-Reference mockups for the Rewards tab, branded "body rewards." / "THE BODY SHAPER SOCIETY™".
+Reference mockups for the Rewards tab, branded "Rewards — The Body Shaper System Society™".
 
-## ⚠️ Approved direction: see `v3-society/`
-The concepts below (`overview.png`, `overview-v2-full.png`, `secret-missions.png`, `unlock-experiences.png` in this folder) are earlier explorations. **Emmy has approved a new direction** — a 4-tab "premium members club" concept (Overview / Unlock Experiences / Secret Missions / Privileges) with full written spec. See `v3-society/SPEC.md` and its mockups before building anything.
+## 🟢 MASTER DESIGN REFERENCE — `MASTER-DESIGN-REFERENCE.png`
 
-## Earlier explorations (v1/v2 — superseded)
+**This is the single source of truth for the visual design of the entire Rewards module**, per Emmy (confirmed as of this update). It supersedes every other mockup in this folder and its subfolders (`v3-society/`, `v4-editorial-hero/`, and the earlier explorations below) — those remain only as historical/exploratory context, not as build references.
 
-- `overview.png` — Rewards overview: balance (Body Credits™/BC), tier progress (Silver → Gold), active secret mission card, ways to earn BC table, featured experience, new drops, secret mission preview, recent activity
-- `overview-v2-full.png` — Denser single-page variant combining overview + ways to earn + unlock experiences + secret missions + tier ladder (bronze/silver/gold/platinum/society elite) + society rules + mission guide + invite & earn — likely a "kitchen sink" concept to pull sections from rather than a literal single page
-- `secret-missions.png` — Secret Missions tab: active mission (with countdown timer + progress), mission rules, how-it-works examples, mission history, completed missions, upcoming/locked missions
-- `unlock-experiences.png` — Unlock Experiences tab: redeemable experience categories (beauty, wellness, holistic) with BC cost per item, filters (all/available/coming soon/locked), locked categories (lifestyle, moms, elite collection)
+Use `MASTER-DESIGN-REFERENCE.png` to define the shared visual language across all four Rewards tabs:
+- Rewards Overview
+- Unlock Experiences
+- Secret Missions
+- Privileges
 
-**Pending:** History tab (transaction/redemption log) not yet seen as its own screen — may be covered by `view all` links in the above.
+Match consistently across every tab:
+- premium editorial aesthetic
+- materials (brushed black metal card, brass key, marble surfaces, silk/satin fabric, olive branch)
+- spacing
+- typography (serif headline + sans label/eyebrow, gold accent italics)
+- card hierarchy (dark hero card → stat cards → progress card → detail cards)
+- photography style (warm, moody, editorial still-life)
+- textures
+- shadows
+- luxury feeling
 
-## Key concepts introduced
-- **Body Credits™ (BC)** — the points currency
-- **Tiers** — Bronze → Silver → Gold → Platinum → Society Elite, with BC thresholds
-- **Secret Missions™** — time-limited, deadline-driven social/engagement tasks with a "keep the mystery alive" rule set (don't reveal mission details)
-- **Unlock Experiences** — a rewards catalog spanning beauty, wellness, holistic, lifestyle, moms, elite, and partner categories
+**Do not recreate the visual design differently per page.** Every Rewards screen should feel like it belongs to the same collection — the goal is an exclusive private members' club feeling, not a standard dashboard. This governs visual design only — it does not imply any change to existing functionality or layout structure already built (see `src/app/(portal)/portal/(protected)/rewards/` in the main repo, which already has `overview/` and `privileges/` pages in progress).
+
+Confirmed nav/tab set from this reference: **Overview / Unlock Experiences / Secret Missions / Privileges** (bottom nav on mobile). Terminology: **"PTS"** (points), tiers include at least "standard member".
+
+---
+
+## Historical / exploratory mockups (context only, not build references)
+
+### `v4-editorial-hero/`
+Hero imagery exploration using the same black-metal-card + brass-key visual language as the master reference above — likely an earlier pass at the same direction. Worth a quick diff against the master reference for reusable photography assets, but treat the master reference as final for layout/hierarchy.
+
+### `v3-society/`
+Earlier 4-tab "premium members club" concept + written spec (burgundy leather card design, different photography direction). Superseded by the master reference for visual design, though `v3-society/SPEC.md` may still hold useful *content/functional* notes (tab purposes, what each tab should contain) — just not the visual direction.
+
+### v1/v2 (loose files in this folder: `overview.png`, `overview-v2-full.png`, `secret-missions.png`, `unlock-experiences.png`)
+Earliest concepts using "Body Credits™ (BC)" terminology and a Bronze/Silver/Gold/Platinum/Society Elite tier ladder. Superseded — kept for historical reference only.
 
 ## Notes
-Visual reference only. Confirm with Emmy which overview layout (`overview.png` vs `overview-v2-full.png`) is the approved direction, and whether the Society Rules / Mission Guide / Invite & Earn blocks in the v2 concept should become their own dedicated screens or stay condensed on the overview.
+Visual reference only. For any new Rewards screen work, start from `MASTER-DESIGN-REFERENCE.png` and the real component code in `src/app/(portal)/portal/(protected)/rewards/`, not from the superseded folders above.
