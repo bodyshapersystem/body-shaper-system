@@ -3,6 +3,7 @@ import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { getCurrentHubUser } from "@/lib/permissions";
 import { RedemptionRow, MissionReviewRow } from "../PendingActionRow";
+import BulkBonusButton from "../BulkBonusButton";
 
 export const dynamic = "force-dynamic";
 
@@ -38,6 +39,10 @@ export default async function RewardsOverviewPage() {
         <p className="portal-eyebrow">business</p>
         <h1>rewards™.</h1>
         <p className="dash-subtitle">The Body Shaper System Society™ — overview, engagement snapshot, and pending actions.</p>
+      </div>
+
+      <div style={{ marginBottom: 20 }}>
+        <BulkBonusButton />
       </div>
 
       <div className="doc-card-grid" style={{ marginBottom: 28 }}>

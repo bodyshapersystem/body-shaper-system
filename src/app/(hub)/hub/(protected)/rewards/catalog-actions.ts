@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { getCurrentHubUser, hasPermission } from "@/lib/permissions";
 import { revalidatePath } from "next/cache";
 import type { RewardCategory } from "@prisma/client";
+import { computeTier } from "@/lib/rewards";
 
 export async function upsertRewardCatalogItem(formData: FormData) {
   const user = await getCurrentHubUser();
@@ -248,4 +249,51 @@ export async function seedDefaultRewardsCatalog() {
   revalidatePath("/hub/rewards");
   revalidatePath("/portal/rewards");
   return { success: true, itemsCreated, missionsCreated };
+}
+
+/**
+ * Real bulk bonus — awards a fixed number of Society Points to every
+ * real active client (not paused, not archived) that already has a
+ * RewardsAccount. Idempotent per client: skips anyone who already
+ * has a transaction with this exact action label, so it's safe to
+ * click again without double-awarding the same round of bonuses.
+ */
+export async function bulkAwardActiveClientBonus(points: number, label: string) {
+  const user = await getCurrentHubUser();
+  if (!user || !hasPermission(user, "rewards.manage")) return { error: "You don't have permission to do this." };
+  if (!Number.isFinite(points) || points <= 0) return { error: "Points must be a positive number." };
+  if (!label.trim()) return { error: "Please provide a label for this bonus." };
+
+  const activeAccounts = await prisma.rewardsAccount.findMany({
+    where: { client: { pausedAt: null, archivedAt: null } },
+  });
+
+  let awardedCount = 0;
+  let skippedCount = 0;
+
+  for (const account of activeAccounts) {
+    const alreadyAwarded = await prisma.rewardsTransaction.findFirst({
+      where: { rewardsAccountId: account.id, action: label },
+    });
+    if (alreadyAwarded) {
+      skippedCount += 1;
+      continue;
+    }
+
+    const newLifetime = account.lifetimePoints + points;
+    await prisma.$transaction([
+      prisma.rewardsAccount.update({
+        where: { id: account.id },
+        data: { pointsBalance: { increment: points }, lifetimePoints: newLifetime, tier: computeTier(newLifetime) },
+      }),
+      prisma.rewardsTransaction.create({
+        data: { rewardsAccountId: account.id, points, action: label, createdById: user.id },
+      }),
+    ]);
+    awardedCount += 1;
+  }
+
+  revalidatePath("/hub/rewards");
+  revalidatePath("/portal/rewards");
+  return { success: true, awardedCount, skippedCount };
 }
