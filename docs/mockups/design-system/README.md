@@ -29,5 +29,16 @@ Broader **material texture library** ("Piedra. Vidrio. Metal. Estética premium.
 ## `rewards-card-backgrounds.png`
 A **curated subset specifically for Rewards card surfaces**: piedra clara, travertino, piedra taupe, vidrio estriado, vidrio bronce, metal dorado cepillado, metal champagne, metal bronce oscuro, oro texturizado, piedra mate. This is the material set that should back the different card types in the Rewards module (points card, stat cards, progress card, etc.) per the `MASTER-DESIGN-REFERENCE.png` card hierarchy.
 
+## `textures-burgundy-olive-tint.png` / `textures-gold-cream-tint.png`
+Two more 15-tile texture sheets in the same stone/glass/metal/textured-paint pattern as `background-textures.png` and `rewards-card-backgrounds.png`, but recolored:
+- **burgundy-olive-tint**: same marble/glass/brushed-metal/textured-paint tiles rendered in burgundy and olive-green tones (for accent/seasonal card variants)
+- **gold-cream-tint**: same tile set rendered in warm gold/cream/bronze tones (stone, ribbed glass, smoke-glass-with-leaf-shadow, brushed gold, brushed silver, brushed bronze, gold leaf, light stone)
+
+These are color variants of the same underlying texture pattern — use them for card backgrounds that need a burgundy/olive or gold/cream accent instead of the neutral/rewards defaults above.
+
+## `brand-colors-swatches-clean.png`
+Same 9 solid brand colors + 9 stone-with-waves backgrounds as `brand-elements-colors.png`, without the header/label text — a clean crop, useful for pulling swatches directly without cropping out text.
+
+
 ## Notes
 These are texture/color references only, meant to be sourced as background-fill assets or CSS/gradient references — not layout mockups. Cross-check against `../client-portal/rewards/MASTER-DESIGN-REFERENCE.png` when applying the rewards-specific subset.
