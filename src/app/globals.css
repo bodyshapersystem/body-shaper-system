@@ -3536,3 +3536,24 @@
 @media (max-width:900px){
   .rw-card-star, .rw-card-icon-badge{ top:12px; right:14px; }
 }
+
+/* ---------- Rewards mobile bottom nav (Milestone 73) ---------- */
+.rw-bottom-nav{ display:none; }
+@media (max-width:760px){
+  .rw-bottom-nav{
+    display:flex; justify-content:space-around; align-items:center;
+    position:fixed; left:0; right:0; bottom:0; z-index:55;
+    background:linear-gradient(180deg,#241a15,#0f0b09);
+    padding:10px 6px 14px;
+    box-shadow:0 -4px 16px rgba(0,0,0,0.2);
+  }
+  .rw-bottom-nav a{
+    display:flex; flex-direction:column; align-items:center; gap:4px;
+    font-family:var(--sans); font-size:9px; letter-spacing:.02em;
+    color:rgba(241,228,200,0.55); text-decoration:none; text-align:center;
+    flex:1; padding:4px 2px;
+  }
+  .rw-bottom-nav a span{ font-size:15px; }
+  .rw-bottom-nav-active{ color:#C9A876 !important; }
+  .rw-page{ padding-bottom:70px; }
+}
