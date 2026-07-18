@@ -2,7 +2,7 @@ import { getCurrentPortalClient } from "@/lib/permissions";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
-import { getRequiredDocsForClient } from "@/lib/document-checklist";
+import { getRequiredDocsForClient, CLIENT_COMPLETABLE_FORM_URLS } from "@/lib/document-checklist";
 import PortalDocumentsView from "./PortalDocumentsView";
 
 export const dynamic = "force-dynamic";
@@ -33,7 +33,13 @@ export default async function DocumentsPage() {
   const requiredDefs = getRequiredDocsForClient(client.clientType === "AMBASSADOR");
   const requiredDocs = requiredDefs.map((def) => {
     const match = withUrls.find((d) => d.category === def.category);
-    return { ...def, completed: !!match, completedAt: match?.uploadedAt ?? null, url: match?.url ?? null };
+    const baseFormUrl = CLIENT_COMPLETABLE_FORM_URLS[def.category];
+    const formUrl = baseFormUrl
+      ? def.category === "CONSENT_TREATMENT"
+        ? `${baseFormUrl}?email=${encodeURIComponent(client.email)}`
+        : baseFormUrl
+      : null;
+    return { ...def, completed: !!match, completedAt: match?.uploadedAt ?? null, url: match?.url ?? null, formUrl };
   });
 
   const requiredCategories = new Set(requiredDefs.map((d) => d.category));

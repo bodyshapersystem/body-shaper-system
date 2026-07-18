@@ -9,6 +9,7 @@ type RequiredDoc = {
   completed: boolean;
   completedAt: string | null;
   url: string | null;
+  formUrl: string | null;
 };
 
 type SharedFile = {
@@ -39,6 +40,15 @@ export default function PortalDocumentsView({
     });
   }
 
+  // Smart Complete Now — the first still-incomplete required document
+  // that actually has a real form to complete. Categories without a
+  // real client-facing form (the Owner-uploaded Blueprint PDF, or the
+  // not-yet-built Content Release Agreement) are skipped rather than
+  // linking anywhere broken; the client never has to search for which
+  // one is next.
+  const nextActionable = requiredDocs.find((d) => !d.completed && d.formUrl);
+  const allComplete = progressPercent === 100;
+
   return (
     <div className="cap-layout">
       <div className="cap-main">
@@ -57,13 +67,23 @@ export default function PortalDocumentsView({
                     {new Date(doc.completedAt).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" })}
                   </p>
                 )}
+                {!doc.completed && !doc.formUrl && (
+                  <p className="pay-history-meta">Your specialist will upload this for you.</p>
+                )}
               </div>
-              {doc.url && (
-                <div className="doc-card-actions">
-                  <a href={doc.url} target="_blank" rel="noopener noreferrer" className="doc-card-link">View</a>
-                  <a href={doc.url} download className="doc-card-link">Download</a>
-                </div>
-              )}
+              <div className="doc-card-actions">
+                {doc.completed && doc.url && (
+                  <>
+                    <a href={doc.url} target="_blank" rel="noopener noreferrer" className="doc-card-link">View</a>
+                    <a href={doc.url} download className="doc-card-link">Download</a>
+                  </>
+                )}
+                {!doc.completed && doc.formUrl && (
+                  <a href={doc.formUrl} target="_blank" rel="noopener noreferrer" className="doc-card-link">
+                    {doc === nextActionable ? "Complete Now →" : "Continue Form →"}
+                  </a>
+                )}
+              </div>
             </div>
           ))}
         </div>
@@ -105,12 +125,21 @@ export default function PortalDocumentsView({
           <div className="onb-progress-track" style={{ marginBottom: 8 }}>
             <div className="onb-progress-fill" style={{ width: `${progressPercent}%` }} />
           </div>
-          {progressPercent === 100 ? (
-            <p className="pay-history-meta">All required documents have been completed.</p>
+          {allComplete ? (
+            <>
+              <p className="pay-history-meta" style={{ marginBottom: 10 }}>✓ All required documents completed</p>
+              <p className="pay-history-meta">Everything is complete. Your specialist already has everything needed for your journey.</p>
+            </>
           ) : (
             <>
               <p className="pay-history-meta">{progressPercent}% complete</p>
-              <Link href="/portal/appointments/preparation" className="cap-primary-btn">Complete Now</Link>
+              {nextActionable ? (
+                <a href={nextActionable.formUrl!} target="_blank" rel="noopener noreferrer" className="cap-primary-btn">
+                  Complete Now
+                </a>
+              ) : (
+                <p className="pay-history-meta" style={{ marginTop: 10 }}>Your specialist is finishing the rest — nothing more needed from you right now.</p>
+              )}
             </>
           )}
         </div>
