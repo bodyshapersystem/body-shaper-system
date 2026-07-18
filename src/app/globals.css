@@ -2068,6 +2068,30 @@
 .psb-nav a.active .psb-icon{ color:#F6F3EE; opacity:1; }
 .psb-icon svg{ width:100%; height:100%; }
 
+/* ---------- Expandable Rewards parent + child nav ---------- */
+.psb-nav-parent{ display:flex; flex-direction:column; }
+.psb-nav-toggle{
+  display:flex; align-items:center; gap:12px; padding:8px 10px; color:#2B2622; opacity:.85;
+  font-family:var(--sans,'Jost',sans-serif); font-size:12px; background:none; border:none; cursor:pointer;
+  width:fit-content; max-width:160px; text-align:left; -webkit-tap-highlight-color:transparent; border-radius:6px;
+  transition:color .18s ease, background .18s ease;
+}
+.psb-nav-toggle:hover{ opacity:1; background:rgba(107,82,64,0.06); }
+.psb-nav-toggle.psb-nav-parent-active{ opacity:1; color:#5C1A1F; font-weight:600; }
+.psb-nav-caret{ margin-left:auto; padding-left:8px; font-size:11px; color:#6B5240; transition:transform .18s ease; display:inline-block; }
+.psb-nav-caret-open{ transform:rotate(90deg); }
+.psb-nav-children{
+  list-style:none; display:flex; flex-direction:column; gap:8px;
+  margin:6px 0 4px 0; padding-left:20px; border-left:1px solid rgba(107,82,64,0.18);
+}
+.psb-nav-children a{
+  display:block; padding:0 8px; color:#2B2622; opacity:.72; text-decoration:none;
+  font-family:var(--sans,'Jost',sans-serif); font-size:11px; letter-spacing:.01em;
+  transition:color .18s ease, opacity .18s ease; -webkit-tap-highlight-color:transparent;
+}
+.psb-nav-children a:hover{ opacity:1; }
+.psb-nav-children a.active{ opacity:1; color:#5C1A1F; font-weight:600; }
+
 /* .psb-profile is only a spacing modifier over the shared
    .profile-logout component (src/components/ProfileLogout.tsx) —
    same visual design as the public site drawer's version. Now placed
