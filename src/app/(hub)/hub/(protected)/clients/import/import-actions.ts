@@ -140,7 +140,18 @@ export async function bulkImportClients(rows: ImportRow[]): Promise<ImportResult
           },
         });
 
-        await tx.rewardsAccount.create({ data: { clientId: client.id, pointsBalance: 0 } });
+        const rewardsAccount = await tx.rewardsAccount.create({
+          data: { clientId: client.id, pointsBalance: 100, lifetimePoints: 100 },
+        });
+        await tx.rewardsTransaction.create({
+          data: {
+            rewardsAccountId: rewardsAccount.id,
+            points: 100,
+            action: "Welcome Bonus",
+            notes: "Every new client starts with 100 points for their first Body Shaper System™.",
+            createdById: user.id,
+          },
+        });
 
         if (row.notes) {
           await tx.clientNote.create({ data: { clientId: client.id, authorId: user.id, content: row.notes } });
