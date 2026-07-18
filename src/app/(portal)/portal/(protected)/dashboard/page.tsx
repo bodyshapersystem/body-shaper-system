@@ -135,8 +135,8 @@ export default async function PortalDashboardPage() {
   return (
     <div className="cat-body portal-page">
       {/* ---------- Hero ---------- */}
-      <div className="pv2-hero">
-        <div>
+      <div className="pv2-hero pv2-hero-with-photo">
+        <div className="pv2-hero-text">
           <p className="pv2-hero-eyebrow">good morning,</p>
           <h1 className="pv2-hero-title">{client.firstName}.</h1>
           <p className="pv2-hero-sub">Everything you need for your transformation, in one place.</p>
@@ -144,6 +144,7 @@ export default async function PortalDashboardPage() {
             <p className="pv2-hero-week">✨ Week {weekNumber} of your {assessment.recommendedSystem}</p>
           )}
         </div>
+        <img src="/images/dashboard/hero-photography.png" alt="" className="pv2-hero-photo" />
       </div>
 
       {/* ---------- Hero Metrics ---------- */}

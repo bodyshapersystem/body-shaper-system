@@ -3581,3 +3581,13 @@
 .bp-client-materials .bbp-card:nth-of-type(3n+1){ background:linear-gradient(160deg,#FBF8F3,#F3EDE1); }
 .bp-client-materials .bbp-card:nth-of-type(3n+2){ background:rgba(255,255,255,0.6); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px); }
 .bp-client-materials .bbp-card:nth-of-type(3n+3){ background:linear-gradient(145deg,#EDE6D8,#E2D9C6); }
+
+/* ---------- Dashboard hero with real photography (Milestone 78) ---------- */
+.pv2-hero-with-photo{ display:flex; align-items:center; gap:32px; overflow:hidden; padding:0; }
+.pv2-hero-text{ padding:36px 0 36px 32px; flex:1; min-width:0; }
+.pv2-hero-photo{ height:220px; width:auto; max-width:45%; object-fit:cover; border-radius:0 20px 20px 0; flex-shrink:0; display:block; }
+@media (max-width:760px){
+  .pv2-hero-with-photo{ flex-direction:column; }
+  .pv2-hero-text{ padding:28px 24px 20px; }
+  .pv2-hero-photo{ max-width:100%; width:100%; height:160px; border-radius:0 0 20px 20px; }
+}
