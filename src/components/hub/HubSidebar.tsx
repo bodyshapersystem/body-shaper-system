@@ -5,7 +5,11 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { logoutHubUser } from "@/app/(hub)/hub/login/actions";
 
-const NAV_GROUPS = [
+type NavChild = { href: string; label: string };
+type NavItem = { href: string; label: string; icon: string; children?: NavChild[] };
+type NavGroup = { label: string; items: NavItem[] };
+
+const NAV_GROUPS: NavGroup[] = [
   {
     label: "Workspace",
     items: [
@@ -28,7 +32,17 @@ const NAV_GROUPS = [
   {
     label: "Business",
     items: [
-      { href: "/hub/rewards", label: "Rewards™", icon: "star" },
+      {
+        href: "/hub/rewards",
+        label: "Rewards™",
+        icon: "star",
+        children: [
+          { href: "/hub/rewards/overview", label: "Overview" },
+          { href: "/hub/rewards/experiences", label: "Unlock Experiences" },
+          { href: "/hub/rewards/missions", label: "Secret Missions" },
+          { href: "/hub/rewards/privileges", label: "Privileges" },
+        ],
+      },
       { href: "/hub/payments", label: "Payments", icon: "card" },
       { href: "/hub/analytics", label: "Analytics", icon: "chart" },
     ],
@@ -155,10 +169,26 @@ export default function HubSidebar({ userName, roleName, avatarUrl }: { userName
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
 
-  // Close the mobile drawer automatically whenever the route changes
-  // (covers link taps and the browser/system back button).
+  // Tracks which parent nav items (currently just Rewards) are expanded.
+  // Auto-expands whenever the current route is inside that parent, so a
+  // hard refresh or direct link lands with the sidebar already open —
+  // manual toggling still works for previewing children while elsewhere.
+  const [expanded, setExpanded] = useState<Record<string, boolean>>({});
+
   useEffect(() => {
     setMobileOpen(false);
+  }, [pathname]);
+
+  useEffect(() => {
+    setExpanded((prev) => {
+      const next = { ...prev };
+      for (const group of NAV_GROUPS) {
+        for (const item of group.items) {
+          if (item.children && pathname.startsWith(item.href)) next[item.href] = true;
+        }
+      }
+      return next;
+    });
   }, [pathname]);
 
   return (
@@ -219,16 +249,60 @@ export default function HubSidebar({ userName, roleName, avatarUrl }: { userName
               <li key={group.label} className="psb-nav-group">
                 <span className="psb-nav-group-label">{group.label}</span>
                 <ul>
-                  {group.items.map((item) => (
-                    <li key={item.href}>
-                      <Link href={item.href} className={pathname.startsWith(item.href) ? "active" : ""} onClick={() => setMobileOpen(false)}>
-                        <span className="psb-icon">
-                          <NavIcon name={item.icon} />
-                        </span>
-                        {item.label}
-                      </Link>
-                    </li>
-                  ))}
+                  {group.items.map((item) => {
+                    if (!item.children) {
+                      return (
+                        <li key={item.href}>
+                          <Link href={item.href} className={pathname.startsWith(item.href) ? "active" : ""} onClick={() => setMobileOpen(false)}>
+                            <span className="psb-icon">
+                              <NavIcon name={item.icon} />
+                            </span>
+                            {item.label}
+                          </Link>
+                        </li>
+                      );
+                    }
+
+                    // Expandable parent (Rewards): the row itself only
+                    // toggles expansion — it never navigates on its own,
+                    // per the required collapsed/expanded behavior. Only
+                    // the child links change routes.
+                    const isOpen = !!expanded[item.href];
+                    const parentActive = pathname.startsWith(item.href);
+                    return (
+                      <li key={item.href} className="psb-nav-parent">
+                        <button
+                          type="button"
+                          className={`psb-nav-toggle${parentActive ? " psb-nav-parent-active" : ""}`}
+                          aria-expanded={isOpen}
+                          onClick={() => setExpanded((prev) => ({ ...prev, [item.href]: !prev[item.href] }))}
+                        >
+                          <span className="psb-icon">
+                            <NavIcon name={item.icon} />
+                          </span>
+                          {item.label}
+                          <span className={`psb-nav-caret${isOpen ? " psb-nav-caret-open" : ""}`} aria-hidden="true">
+                            ›
+                          </span>
+                        </button>
+                        {isOpen && (
+                          <ul className="psb-nav-children">
+                            {item.children.map((child) => (
+                              <li key={child.href}>
+                                <Link
+                                  href={child.href}
+                                  className={pathname === child.href || pathname.startsWith(child.href + "/") ? "active" : ""}
+                                  onClick={() => setMobileOpen(false)}
+                                >
+                                  {child.label}
+                                </Link>
+                              </li>
+                            ))}
+                          </ul>
+                        )}
+                      </li>
+                    );
+                  })}
                 </ul>
               </li>
             ))}

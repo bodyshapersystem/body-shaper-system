@@ -45,6 +45,26 @@ function MembershipCard() {
   );
 }
 
+function BenefitsRow() {
+  const items = [
+    { label: "Exclusive\nBenefits", icon: <path d="M4 8 L7 4 L12 9 L17 4 L20 8 L18 18 H6 Z M6 8 H18" /> }, // crown
+    { label: "Curated\nExperiences", icon: <path d="M12 3 L13.8 9 L20 9 L15 13 L17 20 L12 16 L7 20 L9 13 L4 9 L10.2 9 Z" /> }, // sparkle
+    { label: "Member\nPrivileges", icon: <path d="M9 13 a4 4 0 1 1 0.01 0 Z M12.5 13 H21 M17 13 V17 M19.5 13 V16" /> }, // key
+    { label: "Priority\nAccess", icon: <path d="M12 3 L14 10 L21 12 L14 14 L12 21 L10 14 L3 12 L10 10 Z" /> }, // 4-point star
+    { label: "Secret\nRewards", icon: <><circle cx="12" cy="12" r="4.2" /><path d="M12 3 V5.5 M12 18.5 V21 M3 12 H5.5 M18.5 12 H21 M5.6 5.6 L7.3 7.3 M16.7 16.7 L18.4 18.4 M5.6 18.4 L7.3 16.7 M16.7 7.3 L18.4 5.6" /></>, }, // sun
+  ];
+  return (
+    <div className="rw-benefits-row">
+      {items.map((it, i) => (
+        <div className="rw-benefit" key={i}>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2">{it.icon}</svg>
+          <span>{it.label.split("\n").map((l, j) => <span key={j} style={{ display: "block" }}>{l}</span>)}</span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 export default function RewardsView({
   firstName,
   tier,
@@ -142,6 +162,7 @@ export default function RewardsView({
         <div>
           <h2 className="rw-hero-banner-title">{hero.title.split("\n").map((l, i) => <span key={i} style={{ display: "block" }}>{l}</span>)}</h2>
           <p className="rw-hero-banner-sub">{hero.sub.split("\n").map((l, i) => <span key={i} style={{ display: "block" }}>{l}</span>)}</p>
+          {tab === "overview" && <BenefitsRow />}
         </div>
         <MembershipCard />
       </div>
