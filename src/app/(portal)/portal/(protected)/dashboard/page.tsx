@@ -38,7 +38,10 @@ export default async function PortalDashboardPage() {
 
   const assessment = client.blueprintAssessments[0];
   const totalSessions = assessment?.validatedSessionCount ?? null;
-  const completedCount = appointments.filter((a) => a.status === "COMPLETED").length;
+  // Same real rule as the Owner Hub Blueprint report: an appointment
+  // counts once its time has passed, without needing a manual status
+  // flip first. NO_SHOW/CANCELLED are still never counted.
+  const completedCount = appointments.filter((a) => a.status === "COMPLETED" || (a.status === "SCHEDULED" && a.startsAt < new Date())).length;
   const remaining = totalSessions !== null ? Math.max(totalSessions - completedCount, 0) : null;
   const progressPercent = totalSessions !== null && totalSessions > 0 ? Math.round((completedCount / totalSessions) * 100) : null;
 

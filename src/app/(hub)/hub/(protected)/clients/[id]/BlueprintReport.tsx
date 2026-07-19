@@ -218,11 +218,21 @@ export default async function BlueprintReport({
   if (!assessment) return null;
 
   const [completedCount, nextAppointment, paidAgg, specialist, completedAppointments, paidPayments, timezone] = await Promise.all([
-    prisma.appointment.count({ where: { clientId, status: "COMPLETED" } }),
+    // Per direction: an appointment counts as done once its time has
+    // passed, without requiring the Owner to manually flip its status
+    // to Completed first. Still respects explicit CANCELLED/NO_SHOW
+    // (those are never counted) — only SCHEDULED-and-past-time or a
+    // real COMPLETED status both count.
+    prisma.appointment.count({
+      where: { clientId, OR: [{ status: "COMPLETED" }, { status: "SCHEDULED", startsAt: { lt: new Date() } }] },
+    }),
     prisma.appointment.findFirst({ where: { clientId, status: "SCHEDULED", startsAt: { gte: new Date() } }, orderBy: { startsAt: "asc" } }),
     prisma.payment.aggregate({ where: { clientId, status: "PAID" }, _sum: { amountCents: true } }),
     assessment.validatedById ? prisma.user.findUnique({ where: { id: assessment.validatedById } }) : Promise.resolve(null),
-    prisma.appointment.findMany({ where: { clientId, status: "COMPLETED" }, orderBy: { startsAt: "asc" } }),
+    prisma.appointment.findMany({
+      where: { clientId, OR: [{ status: "COMPLETED" }, { status: "SCHEDULED", startsAt: { lt: new Date() } }] },
+      orderBy: { startsAt: "asc" },
+    }),
     prisma.payment.findMany({ where: { clientId, status: "PAID" }, orderBy: { paidAt: "asc" } }),
     getBusinessTimezone(),
   ]);

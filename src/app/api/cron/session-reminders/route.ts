@@ -44,6 +44,17 @@ export async function GET(request: NextRequest) {
     if (result.success) sentCount += 1;
   }
 
+  // Real automation: auto-mark past SCHEDULED appointments as
+  // COMPLETED. Program Completion / Next Milestone already treat
+  // past-scheduled appointments as done at display time (no delay),
+  // but this keeps the actual Appointment.status field itself
+  // accurate too, so the real Appointments list reflects reality
+  // without the Owner needing to manually flip every session.
+  const pastScheduled = await prisma.appointment.updateMany({
+    where: { status: "SCHEDULED", startsAt: { lt: new Date() } },
+    data: { status: "COMPLETED" },
+  });
+
   // Real automation: Birthday -> +100 Body Credits™ (fires once per
   // year — guarded by checking no "Birthday" transaction already
   // exists in the last 300 days, since month/day repeats every year).
@@ -74,5 +85,5 @@ export async function GET(request: NextRequest) {
     birthdaysAwarded += 1;
   }
 
-  return NextResponse.json({ success: true, appointmentsFound: appointments.length, remindersSent: sentCount, birthdaysAwarded });
+  return NextResponse.json({ success: true, appointmentsFound: appointments.length, remindersSent: sentCount, birthdaysAwarded, autoCompletedAppointments: pastScheduled.count });
 }
