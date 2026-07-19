@@ -6,6 +6,7 @@ import { TargetMarkIcon } from "./BlueprintIcons";
 import { BODY_TYPE_CONTENT, getBodyTypeRationale } from "@/lib/body-types";
 import EditSystemDetailsSheet from "./EditSystemDetailsSheet";
 import RecordRenphoScanSheet from "./RecordRenphoScanSheet";
+import BodyTypeSheet from "./BodyTypeSheet";
 import { getPhotoSignedUrl } from "./blueprint-actions";
 import { getBusinessTimezone, formatDateInTimezone } from "@/lib/format-datetime";
 
@@ -303,7 +304,7 @@ export default async function BlueprintReport({
 
       {/* ---------- Executive Summary ---------- */}
       <div className="bbp-hero">
-        <div className="bbp-hero-welcome bp-tex-linen">
+        <div className="bbp-hero-welcome bp-tex-taupe">
           <div className="bbp-hero-welcome-body">
             <div>
               <p className="bbp-hero-eyebrow">the body blueprint™</p>
@@ -369,7 +370,8 @@ export default async function BlueprintReport({
             <RecordRenphoScanSheet clientId={clientId} assessmentId={assessment.id} />
           </div>
         )}
-        <div className="bbp-composition">
+        <div className="bbp-composition bbp-composition-archived">
+          {/* "your body at a glance" card archived per direction — kept as a comment, not deleted, in case it's revisited later:
           <div className="bbp-card bbp-composition-visual">
             <div>
               <p className="bbp-composition-heading">your body<br />at a glance.</p>
@@ -381,6 +383,7 @@ export default async function BlueprintReport({
               </Link>
             )}
           </div>
+          */}
 
           <div className="bbp-card" style={{ display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
             {latestRenpho ? (
@@ -468,8 +471,11 @@ export default async function BlueprintReport({
 
         {/* 03 — Body Profile (bodyType is the single source of truth) */}
         <div className="bbp-card bbp-profile-card">
-          <p style={{ fontFamily: "var(--sans)", fontSize: 13 }}>
-            <span className="bbp-section-num">03</span> <span className="bbp-section-div">|</span> body type
+          <p style={{ fontFamily: "var(--sans)", fontSize: 13, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <span>
+              <span className="bbp-section-num">03</span> <span className="bbp-section-div">|</span> body type
+            </span>
+            {mode === "owner" && <BodyTypeSheet clientId={clientId} currentBodyType={assessment.bodyType} />}
           </p>
           <div style={{ marginTop: 14 }}>
             <BodyTypeIllustration bodyType={assessment.bodyType} maxHeight={200} />
