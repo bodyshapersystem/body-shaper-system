@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Script from "next/script";
 import "./globals.css";
 import BrandOverlay, { type BrandOverlayMotif } from "@/components/BrandOverlay";
+import AnalyticsEventTracker from "@/components/AnalyticsEventTracker";
 
 const ALL_MOTIFS: BrandOverlayMotif[] = ["target", "dotgrid"];
 
@@ -121,6 +122,7 @@ export default function RootLayout({
         </Script>
       </head>
       <body>
+        <AnalyticsEventTracker />
         {/* Body Shaper System™ Brand Overlay — now a single reusable
             component (src/components/BrandOverlay.tsx). Increased to a
             warm gold/champagne foil at ~10% opacity so the brand
