@@ -2,7 +2,7 @@ import { getCurrentPortalClient } from "@/lib/permissions";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
-import { getBusinessTimezone, formatDateInTimezone, formatTimeInTimezone } from "@/lib/format-datetime";
+import { getBusinessTimezone, formatDateInTimezone, formatTimeInTimezone, getTimeBasedGreeting } from "@/lib/format-datetime";
 import { getPhotoSignedUrl } from "@/app/(hub)/hub/(protected)/clients/[id]/blueprint-actions";
 import { buildGoogleCalendarUrl } from "@/lib/google-calendar";
 import BookSessionButton from "./BookSessionButton";
@@ -137,7 +137,7 @@ export default async function PortalDashboardPage() {
       {/* ---------- Hero ---------- */}
       <div className="pv2-hero pv2-hero-with-photo">
         <div className="pv2-hero-text">
-          <p className="pv2-hero-eyebrow">good morning,</p>
+          <p className="pv2-hero-eyebrow">{getTimeBasedGreeting(timezone)},</p>
           <h1 className="pv2-hero-title">{client.firstName}.</h1>
           <p className="pv2-hero-sub">Everything you need for your transformation, in one place.</p>
           {assessment?.recommendedSystem && (

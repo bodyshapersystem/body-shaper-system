@@ -27,3 +27,16 @@ export function formatDateInTimezone(date: Date, timezone: string, options?: Int
 export function formatTimeInTimezone(date: Date, timezone: string): string {
   return new Intl.DateTimeFormat("en-US", { timeZone: timezone, hour: "numeric", minute: "2-digit" }).format(date);
 }
+
+/**
+ * Real time-of-day greeting, matching the business's actual timezone
+ * (not the server's UTC runtime clock) — same fix pattern as every
+ * other server-rendered time on the Dashboard. Returns "good morning"/
+ * "good afternoon"/"good evening" based on the real current hour.
+ */
+export function getTimeBasedGreeting(timezone: string): string {
+  const hour = Number(new Intl.DateTimeFormat("en-US", { timeZone: timezone, hour: "numeric", hour12: false }).format(new Date()));
+  if (hour < 12) return "good morning";
+  if (hour < 18) return "good afternoon";
+  return "good evening";
+}
