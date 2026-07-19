@@ -153,9 +153,9 @@ export default function WeekCalendar({
   }
 
   function viewTabHref(v: "day" | "week" | "month") {
-    if (v === "day") return `/hub/appointments?view=day&date=${toDateParam(today)}${fqSuffix}`;
-    if (v === "month") return `/hub/appointments?view=month&month=${toDateParam(today)}${fqSuffix}`;
-    return `/hub/appointments${fq ? `?${fq}` : ""}`;
+    if (v === "day") return `/hub/appointments?view=day&date=${toDateParam(rangeStart)}${fqSuffix}`;
+    if (v === "month") return `/hub/appointments?view=month&month=${toDateParam(rangeStart)}${fqSuffix}`;
+    return `/hub/appointments?view=week&week=${toDateParam(rangeStart)}${fq ? `&${fq}` : ""}`;
   }
 
   const toolbar = (
