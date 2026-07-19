@@ -303,7 +303,7 @@ export default async function BlueprintReport({
 
       {/* ---------- Executive Summary ---------- */}
       <div className="bbp-hero">
-        <div className={mode === "client" ? "bbp-hero-welcome bp-tex-taupe" : "bbp-hero-welcome"}>
+        <div className={mode === "client" ? "bbp-hero-welcome bp-tex-linen" : "bbp-hero-welcome"}>
           {mode === "owner" && (
             <div className="bbp-hero-avatar">
               {client.firstName[0]}
@@ -430,7 +430,7 @@ export default async function BlueprintReport({
         <div className={mode === "client" ? "bbp-card bbp-panel bp-tex-cream bbp-measurements-final" : "bbp-card bbp-panel"}>
           {mode === "client" ? (
             <div className="bbp-mf-layout">
-              <div className="bbp-mf-text">
+              <div className="bbp-mf-text bbp-mf-text-backing">
                 <p className="bbp-mf-mark">✦</p>
                 <span className="bbp-mf-rule" />
                 <h3 className="bbp-mf-headline">measurements</h3>

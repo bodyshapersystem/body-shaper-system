@@ -3643,27 +3643,38 @@
   color:#1E1A16;
 }
 .bp-tex-taupe .bbp-hero-eyebrow, .bp-tex-taupe .bbp-hero-sub, .bp-tex-taupe .bbp-hero-message,
-.bp-tex-cream .bbp-hero-eyebrow, .bp-tex-cream .bbp-hero-sub, .bp-tex-cream .bbp-hero-message{
+.bp-tex-cream .bbp-hero-eyebrow, .bp-tex-cream .bbp-hero-sub, .bp-tex-cream .bbp-hero-message,
+.bp-tex-linen .bbp-hero-eyebrow, .bp-tex-linen .bbp-hero-sub, .bp-tex-linen .bbp-hero-message{
   color:#1E1A16 !important;
   text-shadow:0 1px 2px rgba(255,255,255,0.6);
 }
-.bp-tex-taupe .bbp-hero-name, .bp-tex-cream .bbp-hero-name{
+.bp-tex-taupe .bbp-hero-name, .bp-tex-cream .bbp-hero-name, .bp-tex-linen .bbp-hero-name{
   color:#1E1A16 !important;
   text-shadow:0 1px 2px rgba(255,255,255,0.6);
 }
-.bp-tex-taupe .bbp-badge, .bp-tex-cream .bbp-badge{
+.bp-tex-taupe .bbp-badge, .bp-tex-cream .bbp-badge, .bp-tex-linen .bbp-badge{
   background:rgba(255,255,255,0.75) !important;
   color:#1E1A16 !important;
 }
 .bp-tex-taupe .bbp-hero-meta-label, .bp-tex-taupe .bbp-hero-meta-value,
-.bp-tex-cream .bbp-hero-meta-label, .bp-tex-cream .bbp-hero-meta-value{
+.bp-tex-cream .bbp-hero-meta-label, .bp-tex-cream .bbp-hero-meta-value,
+.bp-tex-linen .bbp-hero-meta-label, .bp-tex-linen .bbp-hero-meta-value{
   color:#1E1A16 !important;
   text-shadow:0 1px 2px rgba(255,255,255,0.5);
 }
 
 /* Measurements FINAL card — force darker copy over the cream marble */
-.bbp-measurements-final .bbp-mf-eyebrow{ color:#5a4c3f !important; }
-.bbp-measurements-final .bbp-mf-copy{ color:#2B2622 !important; }
-.bbp-measurements-final .bbp-mf-note p{ color:#2B2622 !important; }
-.bbp-measurements-final .bbp-mf-point span:first-child{ color:#2B2622 !important; }
+.bbp-mf-text-backing{
+  background:rgba(255,252,247,0.82);
+  border-radius:16px;
+  padding:20px;
+  backdrop-filter:blur(2px);
+}
+.bbp-measurements-final .bbp-mf-eyebrow{ color:#4a3a2a !important; }
+.bbp-measurements-final .bbp-mf-copy{ color:#1E1A16 !important; }
+.bbp-measurements-final .bbp-mf-note{ background:rgba(255,252,247,0.7); }
+.bbp-measurements-final .bbp-mf-note p{ color:#1E1A16 !important; }
+.bbp-measurements-final .bbp-mf-headline{ color:#4a3a2a !important; }
+.bbp-measurements-final .bbp-mf-points{ background:rgba(255,252,247,0.75); border-radius:14px; padding:16px; }
+.bbp-measurements-final .bbp-mf-point span:first-child{ color:#1E1A16 !important; }
 .bbp-measurements-final .bbp-mf-point strong{ color:#4a3a2a !important; }
