@@ -95,9 +95,6 @@ export const metadata: Metadata = {
       "Personalized Body Systems. Delivered to You. Luxury mobile body contouring in Miami.",
     images: ["/images/og-image.jpg"],
   },
-  icons: {
-    icon: "/favicon.ico",
-  },
 };
 
 export const viewport = {
