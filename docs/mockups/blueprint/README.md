@@ -15,6 +15,8 @@ Reference mockups for the "01 | your body composition" section of the Body Bluep
 ## ✅ FINAL — build exactly as shown
 - `measurements-card-FINAL.png` — the "measurements" card (cream marble background, "YOUR BASELINE STARTS HERE." eyebrow, body diagram with labeled measurement points — neck, bust, waist, abdomen, hips, right/left thigh, right/left calf, left arm — plus the "all measurements are taken by your specialist..." note box and gold wave motif in the corners). **Emmy has approved this as final — implement pixel-for-pixel as shown**, not just as a style reference.
 
+- `measurements-body-diagram-illustration.jpeg` — **the actual illustration asset to use for the editable measurements diagram.** Standalone crop of just the body diagram (no left-column text/copy), taller/portrait framing, on the same cream marble card background with the gold wave motif in the bottom-right corner. Each labeled point (neck, bust, waist, abdomen, hips, right thigh, left thigh, right calf, left calf, left arm) is where a real, editable value should be displayed/entered — this image is the visual basis for that editable field layout, not just a static illustration. Use this specific crop/version as the source when building the interactive version (values under each label should be live-bound to the client's actual measurement data, editable by the specialist).
+
 ### Full text/layout spec (for agents that cannot render the PNG directly)
 
 **Card container:** large rounded-corner card (~24px radius), full-bleed cream/ivory marble background with subtle natural veining (light warm grey-beige, no strong color variance), soft drop shadow, sitting on an outer light-travertino/stone page background.
