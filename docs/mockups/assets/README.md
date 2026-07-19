@@ -1,9 +1,14 @@
 # Brand Assets
 
-## `logo-wordmark-favicon-source.png`
-Source artwork for the "body shaper system™" wordmark, intended as the basis for the site favicon — dark espresso serif wordmark ("body / shaper / system™") on cream background, with the brand's circular/compass line-art overlay (dashed circle, crosshair, sparkle accent) and the gold wave motif in the top-right/bottom-right corners. Tagline beneath: "ADVANCED BODY TECHNOLOGY. PERSONALIZED FOR YOUR BODY. DELIVERED TO YOU."
+## `logo-wordmark-favicon-source.png` / `favicon-google-web-source.png`
+(Same source image, saved under two names for clarity.)
 
-**Use case:** source/reference image to derive favicon(s) from — not the favicon file itself (which needs to be cropped/simplified to a small square icon, likely just a mark/monogram rather than the full wordmark + tagline, since favicons render very small).
+Source artwork for the "body shaper system™" wordmark, confirmed by Emmy to be used **as the favicon for the website (shown in browser tabs and in Google search results)** — dark espresso serif wordmark ("body / shaper / system™") on cream background, with the brand's circular/compass line-art overlay (dashed circle, crosshair, sparkle accent) and the gold wave motif in the top-right/bottom-right corners. Tagline beneath: "ADVANCED BODY TECHNOLOGY. PERSONALIZED FOR YOUR BODY. DELIVERED TO YOU."
+
+**Implementation note:** favicons render very small (16×16 to 32×32px in browser tabs; Google search results typically show a favicon around 16–32px too, sometimes up to 48px in some surfaces). The full wordmark + tagline will not be legible at that size. Whoever implements this should crop/derive a simplified square mark from this source — most likely just the "bss" monogram/initials or a tight crop on part of the wordmark — rather than shrinking the entire image as-is. Generate the standard favicon set from that simplified mark:
+- `favicon.ico` (multi-size: 16x16, 32x32, 48x48)
+- `favicon-32.png` (32×32)
+- `icon-512.png` (512×512, for PWA/manifest and Google's larger icon surfaces)
 
 ## Existing production favicon files (for reference/comparison)
 As of this commit, the repo already has:
@@ -11,7 +16,7 @@ As of this commit, the repo already has:
 - `public/favicon-32.png`
 - `public/icon-512.png`
 
-Check these against this new source art before replacing — confirm with Emmy whether the favicon should be the full wordmark (unlikely to read well at 16–32px), a simplified monogram/initial mark, or the compass/star icon alone.
+Replace these using a simplified mark derived from the source art above, not the full wordmark image directly.
 
 ## `emmy-headshot.jpeg`
 Founder photo used in the welcome email template (see `../emails/README.md`).
