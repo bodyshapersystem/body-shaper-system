@@ -3694,3 +3694,6 @@
 
 /* ---------- Body Composition — "your body at a glance" archived, stats now full-width ---------- */
 .bbp-composition-archived{ grid-template-columns:1fr !important; }
+
+/* ---------- Bottom row — Progress Preview archived, now 2 columns ---------- */
+.bbp-bottom-row-archived{ grid-template-columns:1fr 1fr !important; }

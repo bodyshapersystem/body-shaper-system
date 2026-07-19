@@ -275,10 +275,12 @@ export async function validateAssessment(clientId: string, formData: FormData) {
   const assessment = await getActiveAssessmentForClient(clientId);
   if (!assessment) return { error: "No active Blueprint Assessment found for this client." };
 
-  const { complete, missing } = await checkValidationRequirements(assessment.id, clientId);
-  if (!complete) {
-    return { error: `Cannot validate yet — missing: ${missing.join("; ")}.` };
-  }
+  // Per direction: validation is no longer blocked on having every
+  // baseline requirement (measurements/RENPHO/all 4 photos) on file -
+  // the specialist can confirm the strategy with whatever's been
+  // recorded so far. checkValidationRequirements() is kept and still
+  // called further down for real, informational tracking, not as a
+  // hard gate.
 
   const validatedSystem = (formData.get("validatedSystem") as string) || undefined;
   const validatedFrequency = (formData.get("validatedFrequency") as string) || undefined;

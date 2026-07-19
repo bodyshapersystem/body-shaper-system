@@ -649,8 +649,9 @@ export default async function BlueprintReport({
         </div>
       </div>
 
-      {/* ---------- Progress Preview / Quote / Next Milestone ---------- */}
-      <div className="bbp-bottom-row" style={{ marginBottom: 40 }}>
+      {/* ---------- Quote / Next Milestone (Progress Preview archived per direction — see comment below) ---------- */}
+      <div className="bbp-bottom-row bbp-bottom-row-archived" style={{ marginBottom: 40 }}>
+        {/* Progress Preview (section 09) archived, not deleted:
         <div className="bbp-card-dark" style={{ padding: 22 }}>
           <p style={{ fontFamily: "var(--sans)", fontSize: 13, marginBottom: 10 }}>
             <span className="bbp-section-num">09</span> <span className="bbp-section-div">|</span> progress preview
@@ -669,6 +670,7 @@ export default async function BlueprintReport({
             </p>
           )}
         </div>
+        */}
 
         <div className="bbp-card-dark bbp-quote-card">
           <p style={{ fontFamily: "var(--serif)", fontStyle: "italic", fontSize: 19, lineHeight: 1.35 }}>
