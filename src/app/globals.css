@@ -3648,11 +3648,15 @@
 .bp-tex-cream .bbp-hero-eyebrow, .bp-tex-cream .bbp-hero-sub, .bp-tex-cream .bbp-hero-message,
 .bp-tex-linen .bbp-hero-eyebrow, .bp-tex-linen .bbp-hero-sub, .bp-tex-linen .bbp-hero-message{
   color:#1E1A16 !important;
-  text-shadow:0 1px 2px rgba(255,255,255,0.6);
+  text-shadow:0 1px 3px rgba(255,255,255,0.9), 0 0 8px rgba(255,255,255,0.7);
 }
 .bp-tex-taupe .bbp-hero-name, .bp-tex-cream .bbp-hero-name, .bp-tex-linen .bbp-hero-name{
   color:#1E1A16 !important;
-  text-shadow:0 1px 2px rgba(255,255,255,0.6);
+  text-shadow:0 1px 3px rgba(255,255,255,0.9), 0 0 8px rgba(255,255,255,0.7);
+}
+.bp-tex-taupe .bbp-hero-welcome-body, .bp-tex-cream .bbp-hero-welcome-body, .bp-tex-linen .bbp-hero-welcome-body{
+  background:rgba(255,252,247,0.55);
+  border-radius:0 18px 18px 0;
 }
 .bp-tex-taupe .bbp-badge, .bp-tex-cream .bbp-badge, .bp-tex-linen .bbp-badge{
   background:rgba(255,255,255,0.75) !important;

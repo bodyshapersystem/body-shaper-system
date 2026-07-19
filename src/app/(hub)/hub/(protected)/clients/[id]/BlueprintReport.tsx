@@ -304,7 +304,7 @@ export default async function BlueprintReport({
 
       {/* ---------- Executive Summary ---------- */}
       <div className="bbp-hero">
-        <div className="bbp-hero-welcome bp-tex-taupe">
+        <div className="bbp-hero-welcome bp-tex-cream">
           <div className="bbp-hero-welcome-body">
             <div>
               <p className="bbp-hero-eyebrow">the body blueprint™</p>
