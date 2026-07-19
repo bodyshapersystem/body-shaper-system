@@ -3686,3 +3686,6 @@
   padding:5px 12px; cursor:pointer; color:#4a3a2a;
 }
 .bbp-edit-link:hover{ background:rgba(255,255,255,0.9); }
+
+/* ---------- Measurements card — real diagram image (distinct from Body Type illustration) ---------- */
+.bbp-mf-diagram-img{ max-height:260px; width:auto; object-fit:contain; border-radius:12px; }

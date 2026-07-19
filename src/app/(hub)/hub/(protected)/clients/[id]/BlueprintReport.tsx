@@ -375,9 +375,6 @@ export default async function BlueprintReport({
               <p className="bbp-composition-heading">your body<br />at a glance.</p>
               <p className="bbp-composition-copy">These numbers tell a story. We're here to rewrite it.</p>
             </div>
-            <div className="bbp-composition-illustration">
-              <BodyTypeIllustration bodyType={assessment.bodyType} maxHeight={230} />
-            </div>
             {mode === "owner" && (
               <Link href={`/hub/clients/${clientId}?tab=blueprint`} className="bbp-composition-cta">
                 view full analysis →
@@ -413,10 +410,7 @@ export default async function BlueprintReport({
                 ))}
               </div>
             ) : (
-              <div style={{ textAlign: "center" }}>
-                <BodyTypeIllustration bodyType={assessment.bodyType} maxHeight={180} />
-                <EmptyState title="no composition data yet." sub="Record a RENPHO scan to populate this section of the Blueprint." />
-              </div>
+              <EmptyState title="no composition data yet." sub="Record a RENPHO scan to populate this section of the Blueprint." />
             )}
             {latestRenpho && <p className="bbp-source-note">* body composition synchronized from RENPHO Health</p>}
           </div>
@@ -448,7 +442,7 @@ export default async function BlueprintReport({
               )}
             </div>
             <div className="bbp-mf-diagram">
-              <BodyTypeIllustration bodyType={assessment.bodyType} maxHeight={260} />
+              <img src="/images/blueprint/measurements-diagram.jpeg" alt="" className="bbp-mf-diagram-img" />
               <div className="bbp-mf-points">
                 {(
                   [
