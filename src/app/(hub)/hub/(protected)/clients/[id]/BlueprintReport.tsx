@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma";
 import type { Prisma } from "@prisma/client";
 import BodyTypeIllustration from "@/components/BodyTypeIllustration";
 import { TargetMarkIcon } from "./BlueprintIcons";
-import { BODY_TYPE_CONTENT } from "@/lib/body-types";
+import { BODY_TYPE_CONTENT, getBodyTypeRationale } from "@/lib/body-types";
 import { getPhotoSignedUrl } from "./blueprint-actions";
 import { getBusinessTimezone, formatDateInTimezone } from "@/lib/format-datetime";
 
@@ -564,6 +564,8 @@ export default async function BlueprintReport({
               <p className="bbp-quote">&ldquo;{assessment.validationNotes}&rdquo;</p>
               <p className="bbp-quote-sign">— {assessment.validatedById ? "Specialist on file" : "BSS"}</p>
             </>
+          ) : assessment.bodyType ? (
+            <p className="bbp-quote">&ldquo;{getBodyTypeRationale(assessment.bodyType)}&rdquo;</p>
           ) : (
             <EmptyState title="not documented yet." sub="Validation notes appear here once the specialist confirms the strategy." />
           )}

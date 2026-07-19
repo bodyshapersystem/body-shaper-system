@@ -63,3 +63,17 @@ export const BODY_TYPE_OPTIONS: BodyType[] = [
 export function bodyTypeImageSrc(bodyType: BodyType): string {
   return `${BODY_TYPE_ASSET_BASE}${BODY_TYPE_CONTENT[bodyType].file}`;
 }
+
+/**
+ * Real, automatic "why this system was selected" text, generated from
+ * the client's actual body type — NOT a body-type-to-system-name
+ * mapping (per direction: body type and the named System are two
+ * separate things). Used as a fallback so this section always has
+ * real content tied to the client's own body type, even before a
+ * specialist writes their own custom validation notes; the
+ * specialist's own words always take priority when present.
+ */
+export function getBodyTypeRationale(bodyType: BodyType): string {
+  const content = BODY_TYPE_CONTENT[bodyType];
+  return `Your Personalized System™ was built around your ${content.label.toLowerCase()} body type — ${content.description.toLowerCase()} Your plan prioritizes ${content.focus.slice(0, -1).join(", ").toLowerCase()}, and ${content.focus[content.focus.length - 1].toLowerCase()}.`;
+}
