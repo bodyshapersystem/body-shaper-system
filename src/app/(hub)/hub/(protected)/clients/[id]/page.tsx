@@ -12,6 +12,7 @@ import InvitationPanel from "./InvitationPanel";
 import DeleteClientButton from "./DeleteClientButton";
 import CollaborationSheet from "./CollaborationSheet";
 import ClientTypeSelect from "./ClientTypeSelect";
+import EditClientNameSheet from "./EditClientNameSheet";
 import { getBusinessTimezone, formatDateInTimezone, formatTimeInTimezone } from "@/lib/format-datetime";
 import { CATEGORY_ICONS as NOTIFICATION_ICONS } from "@/lib/notifications";
 import BlueprintAssessmentTab from "./BlueprintAssessmentTab";
@@ -151,6 +152,9 @@ export default async function ClientDetailPage({
                     {overview?.status === "Paused" ? "Resume" : "Pause"}
                   </button>
                 </form>
+              )}
+              {hasPermission(user, "clients.convert") && (
+                <EditClientNameSheet clientId={client.id} firstName={client.firstName} lastName={client.lastName} phone={client.phone ?? ""} />
               )}
               {hasPermission(user, "clients.convert") && <DeleteClientButton clientId={client.id} />}
               {hasPermission(user, "clients.convert") && (

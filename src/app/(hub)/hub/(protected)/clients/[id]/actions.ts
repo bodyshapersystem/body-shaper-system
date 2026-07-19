@@ -498,3 +498,42 @@ export async function setClientType(clientId: string, clientType: "STANDARD" | "
   revalidatePath("/hub/documents");
   return { success: true };
 }
+
+/**
+ * Real edit for a client's name/phone — for fixing bad imports (e.g.
+ * a client whose name got saved as their email address). Email is
+ * intentionally NOT editable here: it's the real login identifier
+ * tied to both the Client record and the Supabase Auth account, and
+ * changing it safely requires updating both together — a separate,
+ * more careful action if ever needed, not bundled into this quick fix.
+ */
+export async function updateClientNameInfo(clientId: string, formData: FormData) {
+  const user = await getCurrentHubUser();
+  if (!user || !hasPermission(user, "clients.convert")) {
+    return { error: "You don't have permission to edit this client." };
+  }
+
+  const firstName = String(formData.get("firstName") || "").trim();
+  const lastName = String(formData.get("lastName") || "").trim();
+  const phone = (formData.get("phone") as string) || null;
+
+  if (!firstName) {
+    return { error: "First name is required." };
+  }
+
+  await prisma.client.update({
+    where: { id: clientId },
+    data: { firstName, lastName, phone },
+  });
+
+  // Keep the portal User record's display name in sync too, since
+  // it's shown separately in a few places (e.g. login/session data).
+  const client = await prisma.client.findUnique({ where: { id: clientId }, select: { userId: true } });
+  if (client) {
+    await prisma.user.update({ where: { id: client.userId }, data: { fullName: `${firstName} ${lastName}`.trim() } });
+  }
+
+  revalidatePath(`/hub/clients/${clientId}`);
+  revalidatePath("/hub/clients");
+  return { success: true };
+}
