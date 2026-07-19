@@ -4,6 +4,8 @@ import type { Prisma } from "@prisma/client";
 import BodyTypeIllustration from "@/components/BodyTypeIllustration";
 import { TargetMarkIcon } from "./BlueprintIcons";
 import { BODY_TYPE_CONTENT, getBodyTypeRationale } from "@/lib/body-types";
+import EditSystemDetailsSheet from "./EditSystemDetailsSheet";
+import RecordRenphoScanSheet from "./RecordRenphoScanSheet";
 import { getPhotoSignedUrl } from "./blueprint-actions";
 import { getBusinessTimezone, formatDateInTimezone } from "@/lib/format-datetime";
 
@@ -362,6 +364,11 @@ export default async function BlueprintReport({
       {/* ---------- Section 01: Body Composition ---------- */}
       <div style={{ marginTop: 32, marginBottom: 40 }}>
         <SectionLabel num="01" title="Your Body Composition" right="baseline overview" />
+        {mode === "owner" && (
+          <div style={{ marginBottom: 12 }}>
+            <RecordRenphoScanSheet clientId={clientId} assessmentId={assessment.id} />
+          </div>
+        )}
         <div className="bbp-composition">
           <div className="bbp-card bbp-composition-visual">
             <div>
@@ -495,8 +502,22 @@ export default async function BlueprintReport({
 
         {/* 04 — Personalized System (real fields: recommendedSystem, treatmentInterests, goals, frequency) */}
         <div className="bbp-card bbp-panel bp-tex-taupe">
-          <p className="bbp-panel-title" style={{ marginBottom: 14 }}>
-            <span className="bbp-section-num">04</span> <span className="bbp-section-div">|</span> personalized system™
+          <p className="bbp-panel-title" style={{ marginBottom: 14, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <span>
+              <span className="bbp-section-num">04</span> <span className="bbp-section-div">|</span> personalized system™
+            </span>
+            {mode === "owner" && (
+              <EditSystemDetailsSheet
+                assessmentId={assessment.id}
+                recommendedSystem={assessment.recommendedSystem ?? ""}
+                treatmentInterests={assessment.treatmentInterests ?? ""}
+                goals={assessment.goals ?? ""}
+                validatedFrequency={assessment.validatedFrequency ?? assessment.initialFrequency ?? ""}
+                validatedSessionCount={String(assessment.validatedSessionCount ?? assessment.initialSessionCount ?? "")}
+                complementarySessions={assessment.complementarySessions ?? ""}
+                homeCareGuidance={assessment.homeCareGuidance ?? ""}
+              />
+            )}
           </p>
           {assessment.recommendedSystem ? (
             <div className="bbp-system-card">
@@ -530,8 +551,22 @@ export default async function BlueprintReport({
       <div className="bbp-row-2" style={{ marginBottom: 40 }}>
         {/* 05 — System Architecture (real fields: treatmentInterests, complementarySessions, homeCareGuidance) */}
         <div className="bbp-card bbp-panel bp-tex-cream">
-          <p className="bbp-panel-title">
-            <span className="bbp-section-num">05</span> <span className="bbp-section-div">|</span> your system architecture™
+          <p className="bbp-panel-title" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <span>
+              <span className="bbp-section-num">05</span> <span className="bbp-section-div">|</span> your system architecture™
+            </span>
+            {mode === "owner" && (
+              <EditSystemDetailsSheet
+                assessmentId={assessment.id}
+                recommendedSystem={assessment.recommendedSystem ?? ""}
+                treatmentInterests={assessment.treatmentInterests ?? ""}
+                goals={assessment.goals ?? ""}
+                validatedFrequency={assessment.validatedFrequency ?? assessment.initialFrequency ?? ""}
+                validatedSessionCount={String(assessment.validatedSessionCount ?? assessment.initialSessionCount ?? "")}
+                complementarySessions={assessment.complementarySessions ?? ""}
+                homeCareGuidance={assessment.homeCareGuidance ?? ""}
+              />
+            )}
           </p>
           <div className="bbp-arch-grid">
             <div>

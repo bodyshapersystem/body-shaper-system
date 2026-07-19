@@ -3678,3 +3678,11 @@
 .bbp-measurements-final .bbp-mf-points{ background:rgba(255,252,247,0.75); border-radius:14px; padding:16px; }
 .bbp-measurements-final .bbp-mf-point span:first-child{ color:#1E1A16 !important; }
 .bbp-measurements-final .bbp-mf-point strong{ color:#4a3a2a !important; }
+
+/* ---------- Blueprint quick-edit link (Owner Hub only) ---------- */
+.bbp-edit-link{
+  font-family:var(--sans); font-size:10.5px; letter-spacing:0.04em; text-transform:uppercase;
+  background:rgba(255,255,255,0.6); border:1px solid rgba(107,78,61,0.25); border-radius:8px;
+  padding:5px 12px; cursor:pointer; color:#4a3a2a;
+}
+.bbp-edit-link:hover{ background:rgba(255,255,255,0.9); }

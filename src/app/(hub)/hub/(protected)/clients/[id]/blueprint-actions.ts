@@ -431,3 +431,93 @@ export async function updatePersonalizedPlan(clientId: string, formData: FormDat
   revalidatePath(`/hub/clients/${clientId}`);
   return { success: true };
 }
+
+/**
+ * Real quick-edit for the Personalized System / System Architecture
+ * fields shown on the Blueprint report — lets the Owner fix/update
+ * these without re-running the full validation flow. Only touches
+ * fields that were actually submitted (empty string clears a field).
+ */
+export async function updateSystemDetails(assessmentId: string, formData: FormData) {
+  const user = await getCurrentHubUser();
+  if (!user || !hasPermission(user, "blueprints.manage")) {
+    return { error: "You don't have permission to edit this." };
+  }
+
+  const recommendedSystem = (formData.get("recommendedSystem") as string) || null;
+  const treatmentInterests = (formData.get("treatmentInterests") as string) || null;
+  const goals = (formData.get("goals") as string) || null;
+  const validatedFrequency = (formData.get("validatedFrequency") as string) || null;
+  const validatedSessionCountRaw = formData.get("validatedSessionCount");
+  const validatedSessionCount = validatedSessionCountRaw ? Number(validatedSessionCountRaw) : null;
+  const complementarySessions = (formData.get("complementarySessions") as string) || null;
+  const homeCareGuidance = (formData.get("homeCareGuidance") as string) || null;
+
+  const assessment = await prisma.blueprintAssessment.findUnique({ where: { id: assessmentId }, select: { clientId: true } });
+  if (!assessment) return { error: "Assessment not found." };
+
+  await prisma.blueprintAssessment.update({
+    where: { id: assessmentId },
+    data: {
+      recommendedSystem,
+      treatmentInterests,
+      goals,
+      validatedFrequency,
+      validatedSessionCount,
+      complementarySessions,
+      homeCareGuidance,
+    },
+  });
+
+  revalidatePath(`/hub/clients/${assessment.clientId}`);
+  return { success: true };
+}
+
+/**
+ * Real RENPHO scan recording — every field except scanDate is
+ * optional. Per direction, this must work with just a few real
+ * numbers filled in (e.g. weight/BMI/body fat) rather than forcing
+ * every field to be completed before saving.
+ */
+export async function recordRenphoScan(clientId: string, assessmentId: string, formData: FormData) {
+  const user = await getCurrentHubUser();
+  if (!user || !hasPermission(user, "blueprints.manage")) {
+    return { error: "You don't have permission to record this." };
+  }
+
+  const scanDateRaw = formData.get("scanDate") as string;
+  if (!scanDateRaw) return { error: "Scan date is required." };
+
+  function num(key: string): number | null {
+    const raw = formData.get(key);
+    if (!raw || raw === "") return null;
+    const n = Number(raw);
+    return Number.isFinite(n) ? n : null;
+  }
+
+  await prisma.measurement.create({
+    data: {
+      clientId,
+      assessmentId,
+      scanDate: new Date(scanDateRaw),
+      weightKg: num("weightKg"),
+      bodyFatPercent: num("bodyFatPercent"),
+      muscleMassKg: num("muscleMassKg"),
+      skeletalMuscleKg: num("skeletalMuscleKg"),
+      bodyWaterPercent: num("bodyWaterPercent"),
+      proteinPercent: num("proteinPercent"),
+      bmi: num("bmi"),
+      visceralFat: num("visceralFat"),
+      subcutaneousFatPercent: num("subcutaneousFatPercent"),
+      boneMassKg: num("boneMassKg"),
+      bmr: num("bmr") ? Math.round(num("bmr")!) : null,
+      bodyAge: num("bodyAge") ? Math.round(num("bodyAge")!) : null,
+      fatFreeWeightKg: num("fatFreeWeightKg"),
+      notes: (formData.get("notes") as string) || null,
+      createdById: user.id,
+    },
+  });
+
+  revalidatePath(`/hub/clients/${clientId}`);
+  return { success: true };
+}
