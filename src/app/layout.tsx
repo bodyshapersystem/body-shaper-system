@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Script from "next/script";
 import "./globals.css";
 import BrandOverlay, { type BrandOverlayMotif } from "@/components/BrandOverlay";
 
@@ -108,6 +109,16 @@ export default function RootLayout({
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(businessJsonLd) }}
         />
+        {/* Google Analytics (GA4) — real measurement ID, site-wide */}
+        <Script async src="https://www.googletagmanager.com/gtag/js?id=G-YNMZ6N20X2" strategy="afterInteractive" />
+        <Script id="ga4-init" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-YNMZ6N20X2');
+          `}
+        </Script>
       </head>
       <body>
         {/* Body Shaper System™ Brand Overlay — now a single reusable
