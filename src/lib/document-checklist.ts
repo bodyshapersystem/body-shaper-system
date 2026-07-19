@@ -11,10 +11,18 @@ export type RequiredDocDef = {
  * The real required-documents checklist shown identically in both
  * the Client Portal and Owner Hub Documents pages. Content Release
  * Agreement only applies when Client.clientType === "AMBASSADOR".
+ *
+ * BODY_BLUEPRINT_PDF was removed per direction — "Body Blueprint
+ * Assessment™" was an old name for the exact same document as
+ * "Prepare for Your Experience" (POLICIES_APPOINTMENTS), not a
+ * separate real thing. Leaving it in the checklist meant it could
+ * never actually complete, since nothing creates a document under
+ * that category anymore. Only 2 required docs remain for Standard/
+ * VIP clients (Waiver + Prepare for Your Experience); Ambassadors
+ * still get the not-yet-built Content Release Agreement as a 3rd.
  */
 export const REQUIRED_DOCUMENTS: RequiredDocDef[] = [
   { category: "POLICIES_APPOINTMENTS", title: "Prepare for Your Experience", icon: "📋" },
-  { category: "BODY_BLUEPRINT_PDF", title: "Body Blueprint Assessment™", icon: "🧬" },
   { category: "CONSENT_TREATMENT", title: "Almost Done", icon: "✅" },
   { category: "PHOTOGRAPHY_AUTHORIZATION", title: "Content Release Agreement", icon: "🎥", ambassadorOnly: true },
 ];
