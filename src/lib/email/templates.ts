@@ -599,27 +599,26 @@ export function buildSocietyWelcomeEmail(params: {
 }): { subject: string; html: string } {
   const { firstName, portalUrl } = params;
   const name = firstName?.trim() || "beautiful";
-  const greeting = firstName?.trim() ? `Hi ${firstName.trim()}` : "Hello beautiful";
   return {
-    subject: `Welcome to The Body Shaper System Society™, ${name}`,
+    subject: "Welcome to The Body Shaper System Society ✨",
     html: emailShell({
-      eyebrowScript: "welcome to",
-      headline: "the body shaper",
-      headlineAccent: "system society™.",
-      subheadlineLines: ["REWARDS. PRIVILEGES.", "EXCLUSIVE EXPERIENCES."],
+      headline: "you've unlocked more than a treatment.",
+      headlineAccent: "you've unlocked a community.",
+      subheadlineLines: ["THE BODY SHAPER SYSTEM", "SOCIETY™"],
       bodyParagraphs: [
-        `${greeting}, every treatment, every milestone, and every step of your transformation now earns you real Society Points — redeemable for exclusive experiences, treatments, and privileges.`,
-        "Complete Secret Missions, unlock Signature Experiences as your journey progresses, and enjoy member-only privileges reserved just for our Society.",
+        `Hi ${name},`,
+        "Welcome to The Body Shaper System Society — our exclusive rewards experience created to celebrate every step of your transformation journey.",
+        "Because we believe progress isn't measured only by appointments&hellip; it's built through the small habits you create every day.",
+        "<strong>Here's how it works</strong><br />As you complete treatments, stay consistent, participate in challenges, and engage with the community, you'll earn Society Points (SPoints). Your SPoints can be redeemed for exclusive experiences and premium partner rewards.",
+        "<strong>Ways to earn SPoints</strong><br />✨ Complete your appointments<br />✨ Unlock Secret Missions<br />✨ Join seasonal challenges<br />✨ Celebrate your birthday<br />✨ Refer friends<br />✨ Leave a Google review<br />✨ Participate in exclusive Society events<br />&hellip;and many more opportunities throughout the year.",
+        "<strong>Unlock exclusive rewards</strong><br />Your SPoints can be redeemed for experiences such as:<br />• Pilates Classes<br />• Blowouts<br />• Spray Tans<br />• Relaxing Massages<br />• Lash Extensions<br />• Wellness Experiences<br />• Beauty Treatments<br />• Exclusive Partner Rewards<br />&hellip;and new privileges added regularly.",
+        "<strong>Secret Missions</strong><br />Keep an eye on your Client Portal. From time to time, you'll receive Secret Missions — simple lifestyle challenges designed to help you stay consistent while earning extra SPoints. Some missions are only available for a limited time.",
+        "Every point tells a story.<br />Every workout.<br />Every appointment.<br />Every healthy habit.<br />Every milestone.<br />It's all part of your transformation.",
+        "<strong>Ready to start earning?</strong><br />Log in to your Client Portal and explore everything waiting for you inside The Body Shaper System Society.",
       ],
-      featureCard: {
-        variant: "A",
-        icon: "✦",
-        text: "Your Society Points balance, tier, and rewards are already waiting for you inside your Client Portal.",
-      },
-      featureCardIcon: "✦",
-      ctaLabel: "Explore Your Rewards",
+      ctaLabel: "Open My Rewards",
       ctaUrl: portalUrl,
-      closingText: "Your loyalty. Your commitment. Your transformation. We reward every step of your journey.",
+      closingText: "The Body Shaper System Society — transform your body. Elevate your lifestyle.",
     }),
   };
 }
