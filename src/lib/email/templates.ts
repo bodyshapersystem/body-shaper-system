@@ -609,6 +609,7 @@ export function buildSocietyWelcomeEmail(params: {
         `Hi ${name},`,
         "Welcome to The Body Shaper System Society — our exclusive rewards experience created to celebrate every step of your transformation journey.",
         "Because we believe progress isn't measured only by appointments&hellip; it's built through the small habits you create every day.",
+        `<img src="${SITE_URL}/images/rewards/card-key.jpg" alt="The Body Shaper System Society membership card" width="520" style="width:100%;max-width:520px;height:auto;border-radius:14px;display:block;margin:8px 0 4px;" />`,
         "<strong>Here's how it works</strong><br />As you complete treatments, stay consistent, participate in challenges, and engage with the community, you'll earn Society Points (SPoints). Your SPoints can be redeemed for exclusive experiences and premium partner rewards.",
         "<strong>Ways to earn SPoints</strong><br />✨ Complete your appointments<br />✨ Unlock Secret Missions<br />✨ Join seasonal challenges<br />✨ Celebrate your birthday<br />✨ Refer friends<br />✨ Leave a Google review<br />✨ Participate in exclusive Society events<br />&hellip;and many more opportunities throughout the year.",
         "<strong>Unlock exclusive rewards</strong><br />Your SPoints can be redeemed for experiences such as:<br />• Pilates Classes<br />• Blowouts<br />• Spray Tans<br />• Relaxing Massages<br />• Lash Extensions<br />• Wellness Experiences<br />• Beauty Treatments<br />• Exclusive Partner Rewards<br />&hellip;and new privileges added regularly.",
