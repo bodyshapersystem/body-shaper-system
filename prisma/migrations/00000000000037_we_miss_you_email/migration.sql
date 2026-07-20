@@ -1,0 +1,1 @@
+ALTER TYPE "EmailTemplate" ADD VALUE 'WE_MISS_YOU';

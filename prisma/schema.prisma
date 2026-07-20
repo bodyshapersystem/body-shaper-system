@@ -1054,6 +1054,7 @@ enum EmailTemplate {
   NEW_DOCUMENT_AVAILABLE
   AMBASSADOR_WELCOME
   SOCIETY_WELCOME
+  WE_MISS_YOU
 }
 
 enum EmailStatus {

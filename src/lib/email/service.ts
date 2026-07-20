@@ -12,6 +12,7 @@ import {
   buildSessionReminderEmail,
   buildNewDocumentAvailableEmail,
   buildAmbassadorWelcomeEmail,
+  buildWeMissYouEmail,
   buildSocietyWelcomeEmail,
 } from "./templates";
 
@@ -42,7 +43,8 @@ type EmailTemplateName =
   | "SESSION_REMINDER"
   | "NEW_DOCUMENT_AVAILABLE"
   | "AMBASSADOR_WELCOME"
-  | "SOCIETY_WELCOME";
+  | "SOCIETY_WELCOME"
+  | "WE_MISS_YOU";
 
 async function logAndSend(params: {
   clientId?: string;
@@ -329,4 +331,20 @@ export async function sendSocietyWelcomeEmail(params: {
   const { clientId, firstName, email, portalUrl } = params;
   const { subject, html } = buildSocietyWelcomeEmail({ firstName, portalUrl });
   return logAndSend({ clientId, template: "SOCIETY_WELCOME", sender: SENDERS.concierge, recipient: email, subject, html });
+}
+
+/** Real "We Miss You" reactivation email — first of the planned
+ * Reactivation Campaigns. Sent manually/in batch by the Owner for
+ * now, not on an automatic trigger. */
+export async function sendWeMissYouEmail(params: {
+  clientId: string;
+  firstName: string;
+  email: string;
+}) {
+  const { clientId, firstName, email } = params;
+  const { subject, html } = buildWeMissYouEmail({
+    firstName,
+    blueprintUrl: "https://form.jotform.com/beautyboxmia/lets-build-your-blueprint",
+  });
+  return logAndSend({ clientId, template: "WE_MISS_YOU", sender: SENDERS.concierge, recipient: email, subject, html });
 }

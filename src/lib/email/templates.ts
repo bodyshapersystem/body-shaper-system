@@ -623,3 +623,39 @@ export function buildSocietyWelcomeEmail(params: {
     }),
   };
 }
+
+/**
+ * Real "We Miss You" reactivation campaign email — for past/inactive
+ * Beauty Box clients, using Emmy's exact provided copy. First of the
+ * planned Reactivation Campaigns series.
+ */
+export function buildWeMissYouEmail(params: {
+  firstName: string;
+  blueprintUrl: string;
+}): { subject: string; html: string } {
+  const { firstName, blueprintUrl } = params;
+  const name = firstName?.trim() || "beautiful";
+  return {
+    subject: "We've Missed You — and We've Changed",
+    html: emailShell({
+      headline: "it's been a while,",
+      headlineAccent: "and we've truly missed seeing you.",
+      bodyParagraphs: [
+        `Hi ${name},`,
+        "If you've noticed things look a little different&hellip; you're right. Beauty Box has evolved into Body Shaper System.",
+        "This isn't just a new name&mdash;it's a completely new experience.",
+        "Over the past months, we've redesigned everything to create a more personalized approach to body contouring. Instead of recommending random treatments, we now build a customized system based on your body, your goals, and your progress.",
+        "Because every body deserves a strategy&mdash;not a guess.",
+        "<strong>Here's what's new:</strong><br />✦ Personalized Body Blueprint™ &mdash; a complete evaluation that helps us design the right plan for your body.<br />✦ Signature Body Systems &mdash; curated treatment combinations designed to deliver better, longer-lasting results.<br />✦ Progress Tracking &mdash; photos, measurements, milestones, and a clear transformation journey.<br />✦ The Body Shaper System Society™ &mdash; our new exclusive rewards program where members unlock experiences, special perks, partner benefits, wellness gifts, seasonal challenges, and much more as they progress through their journey.",
+        "And yes&hellip; we still bring everything directly to your home, so your treatments remain as convenient as ever.",
+        "As someone who has trusted us before, we'd love to welcome you back and show you everything we've been building.",
+        "Your body may have changed.<br />Your goals may have changed.<br />Our system has changed too&mdash;and it's better than ever.",
+        "Click below to schedule your personalized consultation and discover your new Body Blueprint™.",
+      ],
+      ctaLabel: "Discover Your Body Blueprint™",
+      ctaUrl: blueprintUrl,
+      closingText: "We can't wait to see you again.",
+      signatureName: "Emmy Branger, Founder",
+    }),
+  };
+}
