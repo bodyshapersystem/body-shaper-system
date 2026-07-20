@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { parseJotformPayload, extractContactField, extractSubmissionMeta } from "@/lib/jotform-webhook-utils";
+import { parseJotformPayload, extractContactField, extractSubmissionMeta, extractName } from "@/lib/jotform-webhook-utils";
 import { fetchAndStoreJotformSubmissionPdf } from "@/lib/jotform-pdf";
 import { createNotification } from "@/lib/notifications";
 import type { DocumentCategory } from "@prisma/client";
@@ -87,6 +87,37 @@ export async function POST(request: NextRequest) {
 
   const client = await prisma.client.findFirst({ where: { email }, orderBy: { createdAt: "desc" } });
   if (!client) {
+    // Per direction: "Prepare for Your Experience" (POLICIES_APPOINTMENTS)
+    // is often someone's very FIRST real touchpoint — they may submit
+    // it before ever being added as a Lead. Rather than silently
+    // failing (a real prospective client's submission was being lost
+    // entirely, as happened with Gabriela), auto-create a real Lead
+    // from the submission's own contact info so they show up ready to
+    // convert. Every other category still requires an existing
+    // Client, since Waiver/Photography Authorization are genuinely
+    // post-conversion documents.
+    if (category === "POLICIES_APPOINTMENTS") {
+      const { firstName, lastName } = extractName(raw);
+      const phone = extractContactField(raw, ["phone", "phone number"]);
+
+      const existingLead = await prisma.lead.findFirst({ where: { email }, orderBy: { createdAt: "desc" } });
+      if (!existingLead) {
+        await prisma.lead.create({
+          data: {
+            firstName: firstName || "New",
+            lastName: lastName || "Lead",
+            email,
+            phone,
+            source: "jotform:prepare-for-your-experience",
+          },
+        });
+      }
+      return NextResponse.json({
+        success: true,
+        note: `No client existed for ${email} — created a real Lead from this submission instead of dropping it. Convert them to a Client once ready, then re-submit or manually record this document.`,
+      });
+    }
+
     return NextResponse.json(
       { error: `No client found for ${email}. This form's signer must already be a converted Client.` },
       { status: 404 }
