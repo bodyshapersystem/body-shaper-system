@@ -4,6 +4,8 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { updateSystemDetails } from "./blueprint-actions";
 
+const REAL_SYSTEMS = ["Sculpt Start™", "Sculpt Signature™", "Mom Reset™", "GLP-1 Reshape™", "Total Body Optimization™"];
+
 export default function EditSystemDetailsSheet({
   assessmentId,
   recommendedSystem,
@@ -26,6 +28,8 @@ export default function EditSystemDetailsSheet({
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
+  const isKnownSystem = REAL_SYSTEMS.includes(recommendedSystem);
+  const [systemChoice, setSystemChoice] = useState(isKnownSystem ? recommendedSystem : recommendedSystem ? "Custom" : "");
 
   function handleSubmit(formData: FormData) {
     startTransition(async () => {
@@ -49,7 +53,22 @@ export default function EditSystemDetailsSheet({
             <form action={handleSubmit} className="bp-sheet-form">
               <label className="sched-label">
                 Personalized System™ Name
-                <input name="recommendedSystem" defaultValue={recommendedSystem} className="sched-select" />
+                <select
+                  value={systemChoice}
+                  onChange={(e) => setSystemChoice(e.target.value)}
+                  className="sched-select"
+                >
+                  <option value="" disabled>Select a system…</option>
+                  {REAL_SYSTEMS.map((s) => (
+                    <option key={s} value={s}>{s}</option>
+                  ))}
+                  <option value="Custom">Custom…</option>
+                </select>
+                {systemChoice === "Custom" ? (
+                  <input name="recommendedSystem" defaultValue={isKnownSystem ? "" : recommendedSystem} placeholder="Enter custom system name" className="sched-select" style={{ marginTop: 8 }} />
+                ) : (
+                  <input type="hidden" name="recommendedSystem" value={systemChoice} />
+                )}
               </label>
               <label className="sched-label">
                 Treatment Interests

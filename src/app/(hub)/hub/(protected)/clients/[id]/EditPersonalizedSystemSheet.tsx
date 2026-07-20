@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react";
 import { updatePersonalizedPlan } from "./blueprint-actions";
 
-const SYSTEMS = ["ExiLipo Signature™", "Sculpt Signature™", "Mom Reset™", "GLP-1 Reshape™", "Custom System"];
+const SYSTEMS = ["Sculpt Start™", "Sculpt Signature™", "Mom Reset™", "GLP-1 Reshape™", "Total Body Optimization™"];
 
 export default function EditPersonalizedSystemSheet({
   clientId,
@@ -19,6 +19,8 @@ export default function EditPersonalizedSystemSheet({
   const [open, setOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState("");
+  const isKnownSystem = currentSystem ? SYSTEMS.includes(currentSystem) : false;
+  const [systemChoice, setSystemChoice] = useState(isKnownSystem ? currentSystem! : currentSystem ? "Custom" : "");
 
   function handleSubmit(formData: FormData) {
     setError("");
@@ -49,14 +51,20 @@ export default function EditPersonalizedSystemSheet({
             <form action={handleSubmit} className="bp-sheet-form">
               <label className="sched-label">
                 Assigned System
-                <select name="recommendedSystem" defaultValue={currentSystem ?? ""} className="sched-select">
+                <select value={systemChoice} onChange={(e) => setSystemChoice(e.target.value)} className="sched-select">
                   <option value="">Not set</option>
                   {SYSTEMS.map((s) => (
                     <option key={s} value={s}>
                       {s}
                     </option>
                   ))}
+                  <option value="Custom">Custom…</option>
                 </select>
+                {systemChoice === "Custom" ? (
+                  <input name="recommendedSystem" defaultValue={isKnownSystem ? "" : currentSystem ?? ""} placeholder="Enter custom system name" className="sched-select" style={{ marginTop: 8 }} />
+                ) : (
+                  <input type="hidden" name="recommendedSystem" value={systemChoice} />
+                )}
               </label>
               <div className="bp-sheet-grid">
                 <label className="sched-label">

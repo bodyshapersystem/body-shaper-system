@@ -267,7 +267,7 @@ function emailShell(params: {
           <tr>
             <td style="padding:0 40px 28px;">
               <span style="font-family:Arial,sans-serif;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:${COLORS.mocha};">
-                📍 Miami, Florida &nbsp;&nbsp;|&nbsp;&nbsp; 🌐 bodyshapersystem.com
+                📍 Miami, Florida &nbsp;&nbsp;|&nbsp;&nbsp; 🌐 <a href="${SITE_URL}" style="color:${COLORS.burgundy};text-decoration:none;">bodyshapersystem.com</a>
               </span>
             </td>
           </tr>

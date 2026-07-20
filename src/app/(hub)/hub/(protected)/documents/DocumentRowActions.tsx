@@ -9,7 +9,6 @@ const CATEGORIES = [
   { value: "POLICIES_APPOINTMENTS", label: "Policies & Appointments" },
   { value: "CONSENT_TREATMENT", label: "Consent for Treatment" },
   { value: "PHOTOGRAPHY_AUTHORIZATION", label: "Photography Authorization" },
-  { value: "BODY_BLUEPRINT_PDF", label: "Body Blueprint™ PDF" },
   { value: "FINAL_REPORT", label: "Final Report" },
   { value: "RECEIPTS_INVOICES", label: "Receipts & Invoices" },
   { value: "PROGRESS_PHOTOS", label: "Progress Photos" },
