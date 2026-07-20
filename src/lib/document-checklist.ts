@@ -19,7 +19,9 @@ export type RequiredDocDef = {
  * never actually complete, since nothing creates a document under
  * that category anymore. Only 2 required docs remain for Standard/
  * VIP clients (Waiver + Prepare for Your Experience); Ambassadors
- * still get the not-yet-built Content Release Agreement as a 3rd.
+ * get the real Content Release Agreement (Ambassador Program
+ * Agreement Jotform) as a 3rd — the form now exists and is wired to
+ * a real webhook, see CLIENT_COMPLETABLE_FORM_URLS below.
  */
 export const REQUIRED_DOCUMENTS: RequiredDocDef[] = [
   { category: "POLICIES_APPOINTMENTS", title: "Prepare for Your Experience", icon: "📋" },
@@ -34,12 +36,12 @@ export function getRequiredDocsForClient(isAmbassador: boolean): RequiredDocDef[
 /**
  * Real Jotform form URLs — only categories the client can actually
  * complete themselves have one. BODY_BLUEPRINT_PDF is uploaded by the
- * Owner (not a client-facing form) and PHOTOGRAPHY_AUTHORIZATION's
- * form doesn't exist yet (per direction, "do not build the form yet") -
- * both are intentionally absent here rather than pointing at a broken
- * link, and "Smart Complete Now" skips straight past them.
+ * Owner (not a client-facing form) so it's intentionally absent here
+ * rather than pointing at a broken link, and "Smart Complete Now"
+ * skips straight past it.
  */
 export const CLIENT_COMPLETABLE_FORM_URLS: Partial<Record<DocumentCategory, string>> = {
   POLICIES_APPOINTMENTS: "https://form.jotform.com/261860243106046",
   CONSENT_TREATMENT: "https://form.jotform.com/beautyboxmia/waiver---release-form",
+  PHOTOGRAPHY_AUTHORIZATION: "https://form.jotform.com/262001828942051",
 };

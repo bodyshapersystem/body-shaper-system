@@ -13,7 +13,7 @@ import { prisma } from "@/lib/prisma";
  * completed. Once the real form is built, flip
  * REQUIRE_RELEASE_FOR_AMBASSADORS to true to enforce it.
  */
-const REQUIRE_RELEASE_FOR_AMBASSADORS = false;
+const REQUIRE_RELEASE_FOR_AMBASSADORS = true;
 
 export async function getOnboardingStatus(clientId: string) {
   const client = await prisma.client.findUnique({ where: { id: clientId }, select: { clientType: true } });
