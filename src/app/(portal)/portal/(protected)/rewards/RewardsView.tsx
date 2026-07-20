@@ -294,6 +294,9 @@ export default function RewardsView({
               </div>
             </div>
           </div>
+          <div className="rw-bottom-bar" style={{ textAlign: "center" }}>
+            <span>🤫 If anyone asks what this is — just say you have to be part of The Body Shaper System Society™.</span>
+          </div>
         </>
       )}
 

@@ -235,11 +235,11 @@ const DEFAULT_CATALOG: { name: string; description: string; category: string; cr
 ];
 
 const DEFAULT_MISSIONS: { name: string; description: string; creditReward: number; type: "SELF_REPORT" | "MANUAL_APPROVAL" }[] = [
-  { name: "Coffee Mission", description: "Visit your favorite coffee shop, post the approved story, and tag @bodyshapersystem_mia. Keep the story public for 24 hours.", creditReward: 15, type: "MANUAL_APPROVAL" },
-  { name: "Gym Check-In", description: "Share your workout, use the approved caption, and tag Body Shaper System.", creditReward: 15, type: "MANUAL_APPROVAL" },
-  { name: "Hydration Challenge", description: "Share your daily hydration, use the approved sticker, and tag us.", creditReward: 10, type: "MANUAL_APPROVAL" },
-  { name: "Wellness Sunday", description: "Share your Sunday wellness ritual — pilates, a walk, stretching, meditation, or matcha.", creditReward: 20, type: "MANUAL_APPROVAL" },
-  { name: "Transformation Story", description: "Share one positive change you've experienced since beginning your Body Shaper System journey. No before & after required.", creditReward: 25, type: "MANUAL_APPROVAL" },
+  { name: "Coffee Mission", description: "Post a lifestyle photo of your favorite coffee moment and tag @bodyshapersystem_mia. Keep it public for 24 hours.", creditReward: 15, type: "MANUAL_APPROVAL" },
+  { name: "Gym Check-In", description: "Post a lifestyle photo of your workout and tag @bodyshapersystem_mia. Keep it public for 24 hours.", creditReward: 15, type: "MANUAL_APPROVAL" },
+  { name: "Hydration Challenge", description: "Post a lifestyle photo of your daily hydration and tag @bodyshapersystem_mia. Keep it public for 24 hours.", creditReward: 10, type: "MANUAL_APPROVAL" },
+  { name: "Wellness Sunday", description: "Post a lifestyle photo of your Sunday wellness ritual — pilates, a walk, stretching, meditation, or matcha — and tag @bodyshapersystem_mia. Keep it public for 24 hours.", creditReward: 20, type: "MANUAL_APPROVAL" },
+  { name: "Transformation Story", description: "Post a lifestyle photo sharing one positive change you've experienced since beginning your Body Shaper System journey and tag @bodyshapersystem_mia. No before & after required. Keep it public for 24 hours.", creditReward: 25, type: "MANUAL_APPROVAL" },
 ];
 
 /**
@@ -267,6 +267,11 @@ export async function seedDefaultRewardsCatalog() {
     if (!existing) {
       await prisma.mission.create({ data: mission });
       missionsCreated += 1;
+    } else {
+      // Keep the copy in sync even if it was already created earlier —
+      // real content updates (like adding the exact @tag instruction)
+      // should still reach missions that already exist by name.
+      await prisma.mission.update({ where: { id: existing.id }, data: { description: mission.description, creditReward: mission.creditReward } });
     }
   }
 
