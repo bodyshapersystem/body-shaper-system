@@ -367,6 +367,8 @@ export default function RewardsView({
           </div>
           <div className="rw-overview-row">
             <div className="rw-next-reward-card">
+          <div className="rw-overview-row" style={{ gridTemplateColumns: "1fr" }}>
+            <div className="rw-next-reward-card">
               <p className="doc-card-title">Society Rules</p>
               <ul style={{ margin: "8px 0 0", paddingLeft: 18, fontFamily: "var(--sans)", fontSize: 12.5, color: "#5a5148", lineHeight: 1.7 }}>
                 <li>Always tag @bodyshapersystem_mia</li>
@@ -378,19 +380,22 @@ export default function RewardsView({
                 <li>Keep the mystery alive</li>
               </ul>
             </div>
-            <div className="rw-next-reward-card" style={{ textAlign: "center" }}>
-              <p className="doc-card-title">Curious?</p>
-              <p className="pay-history-meta" style={{ marginBottom: 8 }}>If someone asks, reply only:</p>
-              <p style={{ fontFamily: "var(--serif)", fontStyle: "italic", fontSize: 14, color: "#7A2E38", marginBottom: 10 }}>
-                &ldquo;Curious? You'll have to become part of The Body Shaper System Society™.&rdquo;
-              </p>
-              <p className="pay-history-meta">Caption idea for your photo: <em>"I just unlocked something I can't tell you... !!"</em></p>
-            </div>
           </div>
 
           <div className="rw-bottom-bar" style={{ textAlign: "center" }}>
             <span>🤫 If anyone asks what this is — just say you have to be part of The Body Shaper System Society™.</span>
           </div>
+
+          <img
+            src="/images/rewards/missions/coffee-mission-story-example.png"
+            alt="Example: a completed Coffee Mission Instagram Story post"
+            className="rw-mission-closing-image"
+          />
+          <img
+            src="/images/rewards/missions/curious-mission-phone-marketing.png"
+            alt="Curious? You'll have to become part of The Body Shaper System Society™."
+            className="rw-mission-closing-image"
+          />
         </>
       )}
 

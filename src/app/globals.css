@@ -3708,3 +3708,6 @@
   background:rgba(201,168,118,0.08); border:1px solid rgba(201,168,118,0.3);
   border-radius:10px; padding:12px 14px;
 }
+
+/* ---------- Secret Missions — closing example images ---------- */
+.rw-mission-closing-image{ max-width:340px; width:100%; display:block; margin:16px auto 0; border-radius:16px; box-shadow:0 8px 24px rgba(43,38,34,0.15); }
