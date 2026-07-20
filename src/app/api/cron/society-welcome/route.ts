@@ -21,15 +21,15 @@ export async function GET(request: NextRequest) {
 
   const now = new Date();
   const threeHoursAgo = new Date(now.getTime() - 3 * 60 * 60 * 1000);
-  const fiveHoursAgo = new Date(now.getTime() - 5 * 60 * 60 * 1000);
+  const fourHoursAgo = new Date(now.getTime() - 4 * 60 * 60 * 1000);
 
-  // Real 3-5 hour window (wider than exactly "3-4h") to safely catch
-  // every account exactly once even though this cron only runs once
-  // per hour, not continuously.
+  // Real 3-4 hour window (averages to ~3.5h, per direction), wide
+  // enough to safely catch every account exactly once even though
+  // this cron only runs once per hour, not continuously.
   const accounts = await prisma.rewardsAccount.findMany({
     where: {
       societyWelcomeEmailSentAt: null,
-      createdAt: { lte: threeHoursAgo, gte: fiveHoursAgo },
+      createdAt: { lte: threeHoursAgo, gte: fourHoursAgo },
     },
     include: { client: true },
   });
