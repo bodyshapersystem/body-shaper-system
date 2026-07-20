@@ -777,14 +777,15 @@ enum MissionType {
 }
 
 model Mission {
-  id           String      @id @default(cuid())
-  name         String
-  description  String?
-  creditReward Int
-  type         MissionType @default(SELF_REPORT)
-  active       Boolean     @default(true)
-  createdAt    DateTime    @default(now())
-  updatedAt    DateTime    @updatedAt
+  id               String      @id @default(cuid())
+  name             String
+  description      String?
+  creditReward     Int
+  type             MissionType @default(SELF_REPORT)
+  active           Boolean     @default(true)
+  imageStoragePath String?
+  createdAt        DateTime    @default(now())
+  updatedAt        DateTime    @updatedAt
 
   completions MissionCompletion[]
 

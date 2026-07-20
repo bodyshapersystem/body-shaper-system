@@ -6,7 +6,7 @@ import Link from "next/link";
 import { requestRedemption, completeMission } from "./actions";
 
 type CatalogItem = { id: string; name: string; description: string | null; category: string; creditCost: number; imageUrl: string | null };
-type MissionItem = { id: string; name: string; description: string | null; creditReward: number; type: string; alreadyDone: boolean };
+type MissionItem = { id: string; name: string; description: string | null; creditReward: number; type: string; alreadyDone: boolean; imageUrl: string | null };
 type Transaction = { id: string; points: number; action: string; createdAt: string };
 type PartnerItem = { id: string; name: string; category: string | null; creditValue: number | null; notes: string | null; imageUrl: string | null };
 
@@ -263,8 +263,8 @@ export default function RewardsView({
           <div className="rw-grid">
             {missions.map((m) => (
               <div key={m.id} className="rw-item-card">
-                <div className="rw-item-image rw-mission-image">
-                  <span className="rw-item-badge">{missionIcon(m.name)} MISSION</span>
+                <div className="rw-item-image rw-mission-image" style={m.imageUrl ? { backgroundImage: `url(${m.imageUrl})` } : undefined}>
+                  {!m.imageUrl && <span className="rw-item-badge">{missionIcon(m.name)} MISSION</span>}
                 </div>
                 <p className="doc-card-title">{m.name}</p>
                 {m.description && <p className="pay-history-meta" style={{ marginBottom: 8 }}>{m.description}</p>}
@@ -294,6 +294,29 @@ export default function RewardsView({
               </div>
             </div>
           </div>
+          <div className="rw-overview-row">
+            <div className="rw-next-reward-card">
+              <p className="doc-card-title">Society Rules</p>
+              <ul style={{ margin: "8px 0 0", paddingLeft: 18, fontFamily: "var(--sans)", fontSize: 12.5, color: "#5a5148", lineHeight: 1.7 }}>
+                <li>Always tag @bodyshapersystem_mia</li>
+                <li>Complete missions before the deadline</li>
+                <li>Never reveal what your mission is</li>
+                <li>Use the official text we provide</li>
+                <li>One mission, one reward</li>
+                <li>Credits are added after verification</li>
+                <li>Keep the mystery alive</li>
+              </ul>
+            </div>
+            <div className="rw-next-reward-card" style={{ textAlign: "center" }}>
+              <p className="doc-card-title">Curious?</p>
+              <p className="pay-history-meta" style={{ marginBottom: 8 }}>If someone asks, reply only:</p>
+              <p style={{ fontFamily: "var(--serif)", fontStyle: "italic", fontSize: 14, color: "#7A2E38", marginBottom: 10 }}>
+                &ldquo;Curious? You'll have to become part of The Body Shaper System Society™.&rdquo;
+              </p>
+              <p className="pay-history-meta">Caption idea for your photo: <em>"I just unlocked something I can't tell you... !!"</em></p>
+            </div>
+          </div>
+
           <div className="rw-bottom-bar" style={{ textAlign: "center" }}>
             <span>🤫 If anyone asks what this is — just say you have to be part of The Body Shaper System Society™.</span>
           </div>

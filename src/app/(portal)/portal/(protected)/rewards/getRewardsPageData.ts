@@ -57,7 +57,16 @@ export async function getRewardsPageData() {
     creditsToNext,
     currentSystem: assessment?.recommendedSystem ?? null,
     catalogItems: catalogWithUrls,
-    missions: missions.map((m) => ({ ...m, alreadyDone: completedMissionIds.has(m.id) })),
+    missions: await Promise.all(
+      missions.map(async (m) => {
+        let imageUrl: string | null = null;
+        if (m.imageStoragePath) {
+          const { data } = await admin.storage.from("client-documents").createSignedUrl(m.imageStoragePath, 60 * 60);
+          imageUrl = data?.signedUrl ?? null;
+        }
+        return { ...m, alreadyDone: completedMissionIds.has(m.id), imageUrl };
+      })
+    ),
     transactions: recentTransactions.map((t) => ({ id: t.id, points: t.points, action: t.action, createdAt: t.createdAt.toISOString() })),
     categoryLabels: CATEGORY_LABELS,
     categoryIcons: CATEGORY_ICONS,

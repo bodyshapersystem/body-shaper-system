@@ -73,13 +73,14 @@ export async function upsertMission(formData: FormData) {
   const creditReward = Number(formData.get("creditReward"));
   const type = (formData.get("type") as "SELF_REPORT" | "MANUAL_APPROVAL") || "SELF_REPORT";
   const active = formData.get("active") === "on";
+  const imageStoragePath = (formData.get("imageStoragePath") as string) || undefined;
 
   if (!name || !Number.isFinite(creditReward)) return { error: "Name and a valid credit reward are required." };
 
   if (id) {
-    await prisma.mission.update({ where: { id }, data: { name, description, creditReward, type, active } });
+    await prisma.mission.update({ where: { id }, data: { name, description, creditReward, type, active, ...(imageStoragePath ? { imageStoragePath } : {}) } });
   } else {
-    await prisma.mission.create({ data: { name, description, creditReward, type, active } });
+    await prisma.mission.create({ data: { name, description, creditReward, type, active, imageStoragePath } });
   }
 
   revalidatePath("/hub/rewards");
@@ -359,4 +360,19 @@ export async function seedDefaultPrivileges() {
   revalidatePath("/hub/rewards");
   revalidatePath("/portal/rewards");
   return { success: true, created };
+}
+
+export async function createSignedMissionImageUploadUrl(fileName: string) {
+  const user = await getCurrentHubUser();
+  if (!user || !hasPermission(user, "rewards.manage")) {
+    return { error: "You don't have permission to upload images." };
+  }
+
+  const admin = createSupabaseAdminClient();
+  const path = `missions/${Date.now()}-${fileName}`;
+
+  const { data, error } = await admin.storage.from("client-documents").createSignedUploadUrl(path);
+  if (error || !data) return { error: error?.message ?? "Could not create upload URL." };
+
+  return { success: true, path, token: data.token };
 }
