@@ -640,6 +640,7 @@ export function buildWeMissYouEmail(params: {
     html: emailShell({
       headline: "it's been a while,",
       headlineAccent: "and we've truly missed seeing you.",
+      subheadlineLines: ["BEAUTY BOX IS NOW", "BODY SHAPER SYSTEM™"],
       bodyParagraphs: [
         `Hi ${name},`,
         "If you've noticed things look a little different&hellip; you're right. Beauty Box has evolved into Body Shaper System.",
