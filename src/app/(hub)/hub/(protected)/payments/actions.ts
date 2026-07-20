@@ -107,7 +107,9 @@ export async function getClientFinancialSummary(clientId: string) {
     }),
     prisma.payment.aggregate({ where: { clientId, status: "PAID" }, _sum: { amountCents: true } }),
     prisma.payment.aggregate({ where: { clientId, status: "PENDING" }, _sum: { amountCents: true } }),
-    prisma.appointment.count({ where: { clientId, status: "COMPLETED" } }),
+    prisma.appointment.count({
+      where: { clientId, OR: [{ status: "COMPLETED" }, { status: "SCHEDULED", startsAt: { lt: new Date() } }] },
+    }),
   ]);
 
   if (!client) return null;

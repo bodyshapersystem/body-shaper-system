@@ -78,7 +78,12 @@ export default async function HubClientsPage({
     clients.map(async (c) => {
       const assessment = c.blueprintAssessments[0];
       const [completedCount, paidAgg, pendingAgg, nextAppt] = await Promise.all([
-        prisma.appointment.count({ where: { clientId: c.id, status: "COMPLETED" } }),
+        // Same real rule as the Blueprint report and Client Portal
+        // Dashboard: an appointment counts once its time has passed,
+        // without needing a manual status flip first.
+        prisma.appointment.count({
+          where: { clientId: c.id, OR: [{ status: "COMPLETED" }, { status: "SCHEDULED", startsAt: { lt: new Date() } }] },
+        }),
         prisma.payment.aggregate({ where: { clientId: c.id, status: "PAID" }, _sum: { amountCents: true } }),
         prisma.payment.aggregate({ where: { clientId: c.id, status: "PENDING" }, _sum: { amountCents: true } }),
         prisma.appointment.findFirst({ where: { clientId: c.id, status: "SCHEDULED", startsAt: { gte: new Date() } }, orderBy: { startsAt: "asc" } }),

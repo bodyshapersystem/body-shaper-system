@@ -166,7 +166,9 @@ export async function getClientSessionContext(clientId: string) {
         },
       },
     }),
-    prisma.appointment.count({ where: { clientId, status: "COMPLETED" } }),
+    prisma.appointment.count({
+      where: { clientId, OR: [{ status: "COMPLETED" }, { status: "SCHEDULED", startsAt: { lt: new Date() } }] },
+    }),
   ]);
 
   if (!client) return null;
