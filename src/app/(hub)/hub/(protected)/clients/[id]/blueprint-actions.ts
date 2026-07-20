@@ -335,14 +335,14 @@ export async function validateAssessment(clientId: string, formData: FormData) {
     const rewardsAccount = await prisma.rewardsAccount.findUnique({ where: { clientId } });
     if (rewardsAccount) {
       const { computeTier } = await import("@/lib/rewards");
-      const newLifetime = rewardsAccount.lifetimePoints + 50;
+      const newLifetime = rewardsAccount.lifetimePoints + 15;
       await prisma.$transaction([
         prisma.rewardsAccount.update({
           where: { id: rewardsAccount.id },
           data: { pointsBalance: { increment: 50 }, lifetimePoints: newLifetime, tier: computeTier(newLifetime) },
         }),
         prisma.rewardsTransaction.create({
-          data: { rewardsAccountId: rewardsAccount.id, points: 50, action: "Completed Body Blueprint™" },
+          data: { rewardsAccountId: rewardsAccount.id, points: 15, action: "Completed Body Blueprint™" },
         }),
       ]);
     }
