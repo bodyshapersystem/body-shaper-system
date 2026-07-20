@@ -70,6 +70,11 @@ export async function upsertMission(formData: FormData) {
   const id = (formData.get("id") as string) || undefined;
   const name = String(formData.get("name") || "").trim();
   const description = (formData.get("description") as string) || undefined;
+  const photoIdeas = (formData.get("photoIdeas") as string) || undefined;
+  const caption1 = (formData.get("caption1") as string) || undefined;
+  const caption2 = (formData.get("caption2") as string) || undefined;
+  const caption3 = (formData.get("caption3") as string) || undefined;
+  const closingNote = (formData.get("closingNote") as string) || undefined;
   const creditReward = Number(formData.get("creditReward"));
   const type = (formData.get("type") as "SELF_REPORT" | "MANUAL_APPROVAL") || "SELF_REPORT";
   const active = formData.get("active") === "on";
@@ -77,10 +82,12 @@ export async function upsertMission(formData: FormData) {
 
   if (!name || !Number.isFinite(creditReward)) return { error: "Name and a valid credit reward are required." };
 
+  const data = { name, description, photoIdeas, caption1, caption2, caption3, closingNote, creditReward, type, active };
+
   if (id) {
-    await prisma.mission.update({ where: { id }, data: { name, description, creditReward, type, active, ...(imageStoragePath ? { imageStoragePath } : {}) } });
+    await prisma.mission.update({ where: { id }, data: { ...data, ...(imageStoragePath ? { imageStoragePath } : {}) } });
   } else {
-    await prisma.mission.create({ data: { name, description, creditReward, type, active, imageStoragePath } });
+    await prisma.mission.create({ data: { ...data, imageStoragePath } });
   }
 
   revalidatePath("/hub/rewards");
@@ -235,12 +242,72 @@ const DEFAULT_CATALOG: { name: string; description: string; category: string; cr
   { name: "Therapeutic Massage at Home", description: "A therapeutic massage, brought to you.", category: "VIP", creditCost: 1000 },
 ];
 
-const DEFAULT_MISSIONS: { name: string; description: string; creditReward: number; type: "SELF_REPORT" | "MANUAL_APPROVAL" }[] = [
-  { name: "Coffee Mission", description: "Post a lifestyle photo of your favorite coffee moment and tag @bodyshapersystem_mia. Keep it public for 24 hours.", creditReward: 15, type: "MANUAL_APPROVAL" },
-  { name: "Gym Check-In", description: "Post a lifestyle photo of your workout and tag @bodyshapersystem_mia. Keep it public for 24 hours.", creditReward: 15, type: "MANUAL_APPROVAL" },
-  { name: "Hydration Challenge", description: "Post a lifestyle photo of your daily hydration and tag @bodyshapersystem_mia. Keep it public for 24 hours.", creditReward: 10, type: "MANUAL_APPROVAL" },
-  { name: "Wellness Sunday", description: "Post a lifestyle photo of your Sunday wellness ritual — pilates, a walk, stretching, meditation, or matcha — and tag @bodyshapersystem_mia. Keep it public for 24 hours.", creditReward: 20, type: "MANUAL_APPROVAL" },
-  { name: "Transformation Story", description: "Post a lifestyle photo sharing one positive change you've experienced since beginning your Body Shaper System journey and tag @bodyshapersystem_mia. No before & after required. Keep it public for 24 hours.", creditReward: 25, type: "MANUAL_APPROVAL" },
+const DEFAULT_MISSIONS: {
+  name: string;
+  description: string;
+  photoIdeas: string;
+  caption1: string;
+  caption2: string;
+  caption3: string;
+  closingNote: string;
+  creditReward: number;
+  type: "SELF_REPORT" | "MANUAL_APPROVAL";
+}[] = [
+  {
+    name: "Coffee Mission",
+    description: "Complete this mission to earn your Society Points.",
+    photoIdeas: "Your favorite coffee order\nA cozy coffee shop moment\nYour morning routine with coffee in hand",
+    caption1: "My little moment of calm before the day begins ☕",
+    caption2: "Coffee first, everything else after.",
+    caption3: "Small rituals, big energy.",
+    closingNote: "Keep your story live for at least 24 hours.",
+    creditReward: 15,
+    type: "MANUAL_APPROVAL",
+  },
+  {
+    name: "Gym Check-In",
+    description: "Complete this mission to earn your Society Points.",
+    photoIdeas: "A selfie at the gym\nYour workout in progress\nYour post-workout glow",
+    caption1: "Showing up for myself today 💪",
+    caption2: "One session closer to my goals.",
+    caption3: "Consistency over perfection.",
+    closingNote: "Keep your story live for at least 24 hours.",
+    creditReward: 15,
+    type: "MANUAL_APPROVAL",
+  },
+  {
+    name: "Hydration Challenge",
+    description: "Complete this mission to earn your Society Points.",
+    photoIdeas: "Your water bottle or glass\nA healthy drink of the day\nYour hydration setup",
+    caption1: "Staying hydrated, staying on track 💧",
+    caption2: "Small habits, real results.",
+    caption3: "Water first. Always.",
+    closingNote: "Keep your story live for at least 24 hours.",
+    creditReward: 10,
+    type: "MANUAL_APPROVAL",
+  },
+  {
+    name: "Wellness Sunday",
+    description: "Complete this mission to earn your Society Points.",
+    photoIdeas: "Your Sunday pilates or stretch session\nA quiet walk outdoors\nYour matcha or wellness ritual",
+    caption1: "Sunday reset ✨",
+    caption2: "Taking care of myself, one ritual at a time.",
+    caption3: "Slow mornings, intentional living.",
+    closingNote: "Keep your story live for at least 24 hours.",
+    creditReward: 20,
+    type: "MANUAL_APPROVAL",
+  },
+  {
+    name: "Transformation Story",
+    description: "Complete this mission to earn your Society Points.",
+    photoIdeas: "A selfie\nYour workout\nA healthy meal\nA walk outdoors\nYour favorite outfit\nA wellness moment\nAny photo that reflects your journey",
+    caption1: "Every step counts, and I'm proud of mine.",
+    caption2: "This journey is teaching me so much about myself.",
+    caption3: "Not just chasing results — building a better relationship with myself.",
+    closingNote: "No before & after photos are required. We're celebrating your journey, not just your results.",
+    creditReward: 25,
+    type: "MANUAL_APPROVAL",
+  },
 ];
 
 /**
@@ -272,7 +339,18 @@ export async function seedDefaultRewardsCatalog() {
       // Keep the copy in sync even if it was already created earlier —
       // real content updates (like adding the exact @tag instruction)
       // should still reach missions that already exist by name.
-      await prisma.mission.update({ where: { id: existing.id }, data: { description: mission.description, creditReward: mission.creditReward } });
+      await prisma.mission.update({
+        where: { id: existing.id },
+        data: {
+          description: mission.description,
+          photoIdeas: mission.photoIdeas,
+          caption1: mission.caption1,
+          caption2: mission.caption2,
+          caption3: mission.caption3,
+          closingNote: mission.closingNote,
+          creditReward: mission.creditReward,
+        },
+      });
     }
   }
 

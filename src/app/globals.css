@@ -3701,3 +3701,10 @@
 
 /* ---------- Bottom row — Progress Preview archived, now 2 columns ---------- */
 .bbp-bottom-row-archived{ grid-template-columns:1fr 1fr !important; }
+
+/* ---------- Secret Missions — rich detail modal caption options ---------- */
+.rw-mission-caption-option{
+  font-family:var(--serif); font-style:italic; font-size:13.5px; color:#7A2E38;
+  background:rgba(201,168,118,0.08); border:1px solid rgba(201,168,118,0.3);
+  border-radius:10px; padding:12px 14px;
+}

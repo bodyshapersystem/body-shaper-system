@@ -5,7 +5,20 @@ import { useRouter } from "next/navigation";
 import { upsertMission, deleteMission, createSignedMissionImageUploadUrl } from "./catalog-actions";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 
-type MissionItem = { id: string; name: string; description: string | null; creditReward: number; type: string; active: boolean; imageUrl: string | null };
+type MissionItem = {
+  id: string;
+  name: string;
+  description: string | null;
+  photoIdeas: string | null;
+  caption1: string | null;
+  caption2: string | null;
+  caption3: string | null;
+  closingNote: string | null;
+  creditReward: number;
+  type: string;
+  active: boolean;
+  imageUrl: string | null;
+};
 
 export default function MissionsTab({ missions, canManage }: { missions: MissionItem[]; canManage: boolean }) {
   const router = useRouter();
@@ -90,6 +103,14 @@ export default function MissionsTab({ missions, canManage }: { missions: Mission
               {editing !== "new" && <input type="hidden" name="id" value={editing.id} />}
               <label className="sched-label">Name<input name="name" defaultValue={editing !== "new" ? editing.name : ""} required className="sched-select" /></label>
               <label className="sched-label">Description<textarea name="description" defaultValue={editing !== "new" ? editing.description ?? "" : ""} rows={2} className="sched-textarea" /></label>
+              <label className="sched-label">
+                Photo Ideas (one per line)
+                <textarea name="photoIdeas" defaultValue={editing !== "new" ? editing.photoIdeas ?? "" : ""} rows={3} className="sched-textarea" placeholder={"A selfie\nYour workout\nA healthy meal"} />
+              </label>
+              <label className="sched-label">Caption Option 1<input name="caption1" defaultValue={editing !== "new" ? editing.caption1 ?? "" : ""} className="sched-select" /></label>
+              <label className="sched-label">Caption Option 2<input name="caption2" defaultValue={editing !== "new" ? editing.caption2 ?? "" : ""} className="sched-select" /></label>
+              <label className="sched-label">Caption Option 3<input name="caption3" defaultValue={editing !== "new" ? editing.caption3 ?? "" : ""} className="sched-select" /></label>
+              <label className="sched-label">Closing Note<input name="closingNote" defaultValue={editing !== "new" ? editing.closingNote ?? "" : ""} className="sched-select" placeholder="e.g. No before & after photos are required." /></label>
               <div className="bp-sheet-grid">
                 <label className="sched-label">Credit Reward<input name="creditReward" type="number" defaultValue={editing !== "new" ? editing.creditReward : ""} required className="sched-select" /></label>
                 <label className="sched-label">Type

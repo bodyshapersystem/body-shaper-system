@@ -780,6 +780,11 @@ model Mission {
   id               String      @id @default(cuid())
   name             String
   description      String?
+  photoIdeas       String? // newline-separated list, e.g. "A selfie\nYour workout\nA healthy meal"
+  caption1         String?
+  caption2         String?
+  caption3         String?
+  closingNote      String? // e.g. "No before & after photos are required..."
   creditReward     Int
   type             MissionType @default(SELF_REPORT)
   active           Boolean     @default(true)

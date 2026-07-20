@@ -29,7 +29,20 @@ export default async function RewardsMissionsPage() {
         const { data } = await admin.storage.from("client-documents").createSignedUrl(m.imageStoragePath, 60 * 60);
         imageUrl = data?.signedUrl ?? null;
       }
-      return { id: m.id, name: m.name, description: m.description, creditReward: m.creditReward, type: m.type, active: m.active, imageUrl };
+      return {
+        id: m.id,
+        name: m.name,
+        description: m.description,
+        photoIdeas: m.photoIdeas,
+        caption1: m.caption1,
+        caption2: m.caption2,
+        caption3: m.caption3,
+        closingNote: m.closingNote,
+        creditReward: m.creditReward,
+        type: m.type,
+        active: m.active,
+        imageUrl,
+      };
     })
   );
 

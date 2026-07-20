@@ -6,7 +6,20 @@ import Link from "next/link";
 import { requestRedemption, completeMission } from "./actions";
 
 type CatalogItem = { id: string; name: string; description: string | null; category: string; creditCost: number; imageUrl: string | null };
-type MissionItem = { id: string; name: string; description: string | null; creditReward: number; type: string; alreadyDone: boolean; imageUrl: string | null };
+type MissionItem = {
+  id: string;
+  name: string;
+  description: string | null;
+  photoIdeas: string | null;
+  caption1: string | null;
+  caption2: string | null;
+  caption3: string | null;
+  closingNote: string | null;
+  creditReward: number;
+  type: string;
+  alreadyDone: boolean;
+  imageUrl: string | null;
+};
 type Transaction = { id: string; points: number; action: string; createdAt: string };
 type PartnerItem = { id: string; name: string; category: string | null; creditValue: number | null; notes: string | null; imageUrl: string | null };
 
@@ -74,6 +87,7 @@ export default function RewardsView({
   const router = useRouter();
   const tab = activeTab;
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [missionDetail, setMissionDetail] = useState<MissionItem | null>(null);
   const [isPending, startTransition] = useTransition();
   const [message, setMessage] = useState("");
 
@@ -267,18 +281,75 @@ export default function RewardsView({
                   {!m.imageUrl && <span className="rw-item-badge">{missionIcon(m.name)} MISSION</span>}
                 </div>
                 <p className="doc-card-title">{m.name}</p>
-                {m.description && <p className="pay-history-meta" style={{ marginBottom: 8 }}>{m.description}</p>}
                 <strong style={{ fontFamily: "var(--serif)", color: "#C9A876", display: "block", marginBottom: 10 }}>+{m.creditReward} Society Points</strong>
                 {m.alreadyDone ? (
                   <p className="pay-history-meta">✓ Completed</p>
                 ) : (
-                  <button type="button" className="rw-dark-btn" onClick={() => handleMission(m.id)} disabled={isPending}>
-                    {m.type === "MANUAL_APPROVAL" ? "Submit for Review" : "Start Mission"}
+                  <button type="button" className="rw-dark-btn" onClick={() => setMissionDetail(m)}>
+                    View Mission →
                   </button>
                 )}
               </div>
             ))}
           </div>
+
+          {missionDetail && (
+            <div className="bp-sheet-overlay" onClick={() => setMissionDetail(null)}>
+              <div className="bp-sheet" onClick={(e) => e.stopPropagation()}>
+                <div className="bp-sheet-handle" />
+                <h3 className="bp-sheet-title">✨ {missionDetail.name} Mission</h3>
+                <p className="pay-history-meta" style={{ marginBottom: 16 }}>Complete this mission to earn your Society Points.</p>
+
+                <p className="doc-card-title" style={{ marginBottom: 8 }}>Instructions</p>
+                <ol style={{ paddingLeft: 20, fontFamily: "var(--sans)", fontSize: 13, color: "#2B2622", lineHeight: 1.7, marginBottom: 14 }}>
+                  <li>
+                    Take a lifestyle photo or short video that represents this mission. This can be:
+                    {missionDetail.photoIdeas && (
+                      <ul style={{ marginTop: 6 }}>
+                        {missionDetail.photoIdeas.split("\n").filter(Boolean).map((idea, i) => (
+                          <li key={i}>{idea}</li>
+                        ))}
+                      </ul>
+                    )}
+                  </li>
+                  <li>Choose ONE of the captions below.</li>
+                  <li>Post it to your Instagram Story.</li>
+                  <li>Tag @bodyshapersystem_mia.</li>
+                  <li>Keep your story live for at least 24 hours.</li>
+                </ol>
+
+                {(missionDetail.caption1 || missionDetail.caption2 || missionDetail.caption3) && (
+                  <>
+                    <p className="doc-card-title" style={{ marginBottom: 8 }}>Choose a Caption</p>
+                    <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 14 }}>
+                      {[missionDetail.caption1, missionDetail.caption2, missionDetail.caption3].filter(Boolean).map((c, i) => (
+                        <div key={i} className="rw-mission-caption-option">&ldquo;{c}&rdquo;</div>
+                      ))}
+                    </div>
+                  </>
+                )}
+
+                {missionDetail.closingNote && <p className="pay-history-meta" style={{ marginBottom: 14, fontStyle: "italic" }}>{missionDetail.closingNote}</p>}
+
+                <p className="pay-history-meta" style={{ marginBottom: 16 }}>Once completed, your Society Points will be added to your account.</p>
+
+                <div className="bp-sheet-actions">
+                  <button type="button" className="sched-secondary-btn" onClick={() => setMissionDetail(null)}>Close</button>
+                  <button
+                    type="button"
+                    className="sched-cta"
+                    disabled={isPending}
+                    onClick={() => {
+                      handleMission(missionDetail.id);
+                      setMissionDetail(null);
+                    }}
+                  >
+                    {missionDetail.type === "MANUAL_APPROVAL" ? "Submit for Review" : "Mark Complete"}
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
 
           <div className="rw-overview-row">
             <div className="rw-next-reward-card">
