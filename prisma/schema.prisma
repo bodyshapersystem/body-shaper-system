@@ -226,7 +226,12 @@ model Client {
   phone          String?
   city           String?
   membershipTier String  @default("Standard")
-  clientType     ClientType @default(STANDARD) // controls whether the Content Release Agreement applies
+  clientType     ClientType @default(STANDARD)
+  // Real per-client override — not every Ambassador actually needs
+  // the Content Release Agreement (some are collab-only). Defaults
+  // to false so nobody is unexpectedly required to complete it;
+  // the Owner turns this on per-client when it genuinely applies.
+  requiresContentRelease Boolean @default(false)
   address                String? // full street address — distinct from `city` (Service Zone)
   birthday               DateTime?
   importedLastAppointmentAt DateTime? // historical, from legacy import — real appointments use the Appointment table instead

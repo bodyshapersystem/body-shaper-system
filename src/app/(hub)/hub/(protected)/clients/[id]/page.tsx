@@ -13,6 +13,7 @@ import DeleteClientButton from "./DeleteClientButton";
 import CollaborationSheet from "./CollaborationSheet";
 import ClientTypeSelect from "./ClientTypeSelect";
 import EditClientNameSheet from "./EditClientNameSheet";
+import RequiresContentReleaseToggle from "./RequiresContentReleaseToggle";
 import { getBusinessTimezone, formatDateInTimezone, formatTimeInTimezone } from "@/lib/format-datetime";
 import { CATEGORY_ICONS as NOTIFICATION_ICONS } from "@/lib/notifications";
 import BlueprintAssessmentTab from "./BlueprintAssessmentTab";
@@ -159,6 +160,9 @@ export default async function ClientDetailPage({
               {hasPermission(user, "clients.convert") && <DeleteClientButton clientId={client.id} />}
               {hasPermission(user, "clients.convert") && (
                 <ClientTypeSelect clientId={client.id} clientType={client.clientType} />
+              )}
+              {hasPermission(user, "clients.convert") && client.clientType === "AMBASSADOR" && (
+                <RequiresContentReleaseToggle clientId={client.id} value={client.requiresContentRelease} />
               )}
             </div>
 

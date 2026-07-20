@@ -30,7 +30,7 @@ export default async function DocumentsPage() {
     })
   );
 
-  const requiredDefs = getRequiredDocsForClient(client.clientType === "AMBASSADOR");
+  const requiredDefs = getRequiredDocsForClient(client.requiresContentRelease);
   const requiredDocs = requiredDefs.map((def) => {
     const match = withUrls.find((d) => d.category === def.category);
     const baseFormUrl = CLIENT_COMPLETABLE_FORM_URLS[def.category];

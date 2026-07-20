@@ -29,8 +29,8 @@ export const REQUIRED_DOCUMENTS: RequiredDocDef[] = [
   { category: "PHOTOGRAPHY_AUTHORIZATION", title: "Content Release Agreement", icon: "🎥", ambassadorOnly: true },
 ];
 
-export function getRequiredDocsForClient(isAmbassador: boolean): RequiredDocDef[] {
-  return REQUIRED_DOCUMENTS.filter((d) => !d.ambassadorOnly || isAmbassador);
+export function getRequiredDocsForClient(requiresContentRelease: boolean): RequiredDocDef[] {
+  return REQUIRED_DOCUMENTS.filter((d) => !d.ambassadorOnly || requiresContentRelease);
 }
 
 /**

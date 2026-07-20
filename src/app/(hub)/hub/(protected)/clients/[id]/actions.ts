@@ -539,3 +539,20 @@ export async function updateClientNameInfo(clientId: string, formData: FormData)
   revalidatePath("/hub/clients");
   return { success: true };
 }
+
+/**
+ * Real per-client toggle for whether the Content Release Agreement
+ * actually applies — per direction, not every Ambassador needs it
+ * (some are collab-only). Defaults to false for everyone; the Owner
+ * turns this on specifically for clients who genuinely need it.
+ */
+export async function setRequiresContentRelease(clientId: string, value: boolean) {
+  const user = await getCurrentHubUser();
+  if (!user || !hasPermission(user, "clients.convert")) {
+    return { error: "You don't have permission to change this." };
+  }
+  await prisma.client.update({ where: { id: clientId }, data: { requiresContentRelease: value } });
+  revalidatePath(`/hub/clients/${clientId}`);
+  revalidatePath("/hub/documents");
+  return { success: true };
+}

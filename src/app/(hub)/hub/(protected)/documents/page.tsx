@@ -69,7 +69,7 @@ async function ClientSearchView({ q, filter }: { q?: string; filter?: string }) 
   });
 
   const rows = clients.map((c) => {
-    const required = getRequiredDocsForClient(c.clientType === "AMBASSADOR");
+    const required = getRequiredDocsForClient(c.requiresContentRelease);
     const doneCount = required.filter((r) => c.documents.some((d) => d.category === r.category)).length;
     const isComplete = doneCount === required.length;
     return { client: c, doneCount, total: required.length, isComplete };
@@ -165,7 +165,7 @@ async function ClientRecordsView({
   const uploaderNameById = new Map(uploaders.map((u) => [u.id, u.fullName]));
 
   const isAmbassador = client.clientType === "AMBASSADOR";
-  const requiredDefs = getRequiredDocsForClient(isAmbassador);
+  const requiredDefs = getRequiredDocsForClient(client.requiresContentRelease);
   const requiredDocsWithMatch = requiredDefs.map((def) => ({
     ...def,
     doc: documents.find((d) => d.category === def.category) ?? null,
