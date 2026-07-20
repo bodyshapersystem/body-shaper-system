@@ -365,8 +365,6 @@ export default function RewardsView({
               </div>
             </div>
           </div>
-          <div className="rw-overview-row">
-            <div className="rw-next-reward-card">
           <div className="rw-overview-row" style={{ gridTemplateColumns: "1fr" }}>
             <div className="rw-next-reward-card">
               <p className="doc-card-title">Society Rules</p>
