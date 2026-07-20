@@ -811,14 +811,15 @@ model MissionCompletion {
 }
 
 model Partner {
-  id          String   @id @default(cuid())
-  name        String
-  category    String?
-  creditValue Int?
-  active      Boolean  @default(true)
-  notes       String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id               String   @id @default(cuid())
+  name             String
+  category         String?
+  creditValue      Int?
+  active           Boolean  @default(true)
+  notes            String?
+  imageStoragePath String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
 
   @@map("partners")
 }

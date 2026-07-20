@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { getCurrentHubUser, hasPermission } from "@/lib/permissions";
+import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { CATEGORY_LABELS } from "@/lib/rewards";
 import CatalogTab from "../CatalogTab";
 import PartnersTab from "../PartnersTab";
@@ -24,6 +25,18 @@ export default async function RewardsExperiencesPage() {
     prisma.partner.findMany({ orderBy: { name: "asc" } }),
   ]);
 
+  const admin = createSupabaseAdminClient();
+  const partnersWithUrls = await Promise.all(
+    partners.map(async (p) => {
+      let imageUrl: string | null = null;
+      if (p.imageStoragePath) {
+        const { data } = await admin.storage.from("client-documents").createSignedUrl(p.imageStoragePath, 60 * 60);
+        imageUrl = data?.signedUrl ?? null;
+      }
+      return { id: p.id, name: p.name, category: p.category, creditValue: p.creditValue, active: p.active, notes: p.notes, imageUrl };
+    })
+  );
+
   return (
     <div className="cat-body portal-page">
       <div className="portal-page-head">
@@ -36,7 +49,7 @@ export default async function RewardsExperiencesPage() {
       <CatalogTab items={catalogItems} canManage={canManage} categoryLabels={CATEGORY_LABELS} />
 
       <h3 className="dash-section-title" style={{ marginTop: 32 }}>Beauty Partners</h3>
-      <PartnersTab partners={partners} canManage={canManage} />
+      <PartnersTab partners={partnersWithUrls} canManage={canManage} />
     </div>
   );
 }

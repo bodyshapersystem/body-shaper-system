@@ -8,7 +8,7 @@ import { requestRedemption, completeMission } from "./actions";
 type CatalogItem = { id: string; name: string; description: string | null; category: string; creditCost: number; imageUrl: string | null };
 type MissionItem = { id: string; name: string; description: string | null; creditReward: number; type: string; alreadyDone: boolean };
 type Transaction = { id: string; points: number; action: string; createdAt: string };
-type PartnerItem = { id: string; name: string; category: string | null; creditValue: number | null; notes: string | null };
+type PartnerItem = { id: string; name: string; category: string | null; creditValue: number | null; notes: string | null; imageUrl: string | null };
 
 const MISSION_ICONS: Record<string, string> = {
   weekly: "📅", zodiac: "♊", secret: "🎁", social: "📸", referral: "🤝", birthday: "🎂", seasonal: "🍂",
@@ -309,7 +309,7 @@ export default function RewardsView({
               const locked = p.creditValue !== null && lifetimePoints < p.creditValue;
               return (
                 <div key={p.id} className="rw-item-card">
-                  <div className="rw-item-image">
+                  <div className="rw-item-image" style={p.imageUrl ? { backgroundImage: `url(${p.imageUrl})` } : undefined}>
                     <span className={`rw-status-badge ${locked ? "rw-status-locked" : "rw-status-unlocked"}`}>{locked ? "LOCKED" : "UNLOCKED"}</span>
                     {locked && <div className="rw-item-locked-overlay"><span className="rw-lock-icon">🔒</span></div>}
                   </div>

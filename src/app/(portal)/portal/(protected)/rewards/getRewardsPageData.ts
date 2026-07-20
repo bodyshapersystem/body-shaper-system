@@ -61,7 +61,16 @@ export async function getRewardsPageData() {
     transactions: recentTransactions.map((t) => ({ id: t.id, points: t.points, action: t.action, createdAt: t.createdAt.toISOString() })),
     categoryLabels: CATEGORY_LABELS,
     categoryIcons: CATEGORY_ICONS,
-    partners: partners.map((p) => ({ id: p.id, name: p.name, category: p.category, creditValue: p.creditValue, notes: p.notes })),
+    partners: await Promise.all(
+      partners.map(async (p) => {
+        let imageUrl: string | null = null;
+        if (p.imageStoragePath) {
+          const { data } = await admin.storage.from("client-documents").createSignedUrl(p.imageStoragePath, 60 * 60);
+          imageUrl = data?.signedUrl ?? null;
+        }
+        return { id: p.id, name: p.name, category: p.category, creditValue: p.creditValue, notes: p.notes, imageUrl };
+      })
+    ),
     memberSince: client.createdAt.toLocaleDateString(undefined, { month: "long", year: "numeric" }),
     eligibleForSignature,
   };

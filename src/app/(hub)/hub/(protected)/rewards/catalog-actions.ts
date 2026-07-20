@@ -5,6 +5,28 @@ import { getCurrentHubUser, hasPermission } from "@/lib/permissions";
 import { revalidatePath } from "next/cache";
 import type { RewardCategory } from "@prisma/client";
 import { computeTier } from "@/lib/rewards";
+import { createSupabaseAdminClient } from "@/lib/supabase/admin";
+
+/**
+ * Real signed-upload flow for Partner (Privileges) photos — same
+ * pattern as Documents. Stored in the same "client-documents" bucket
+ * under a "partners/" prefix (no client association, so a dedicated
+ * folder keeps it organized).
+ */
+export async function createSignedPartnerImageUploadUrl(fileName: string) {
+  const user = await getCurrentHubUser();
+  if (!user || !hasPermission(user, "rewards.manage")) {
+    return { error: "You don't have permission to upload images." };
+  }
+
+  const admin = createSupabaseAdminClient();
+  const path = `partners/${Date.now()}-${fileName}`;
+
+  const { data, error } = await admin.storage.from("client-documents").createSignedUploadUrl(path);
+  if (error || !data) return { error: error?.message ?? "Could not create upload URL." };
+
+  return { success: true, path, token: data.token };
+}
 
 export async function upsertRewardCatalogItem(formData: FormData) {
   const user = await getCurrentHubUser();
@@ -84,16 +106,18 @@ export async function upsertPartner(formData: FormData) {
   const creditValue = formData.get("creditValue") ? Number(formData.get("creditValue")) : undefined;
   const notes = (formData.get("notes") as string) || undefined;
   const active = formData.get("active") === "on";
+  const imageStoragePath = (formData.get("imageStoragePath") as string) || undefined;
 
   if (!name) return { error: "Partner name is required." };
 
   if (id) {
-    await prisma.partner.update({ where: { id }, data: { name, category, creditValue, notes, active } });
+    await prisma.partner.update({ where: { id }, data: { name, category, creditValue, notes, active, ...(imageStoragePath ? { imageStoragePath } : {}) } });
   } else {
-    await prisma.partner.create({ data: { name, category, creditValue, notes, active } });
+    await prisma.partner.create({ data: { name, category, creditValue, notes, active, imageStoragePath } });
   }
 
   revalidatePath("/hub/rewards");
+  revalidatePath("/portal/rewards");
   return { success: true };
 }
 
@@ -296,4 +320,38 @@ export async function bulkAwardActiveClientBonus(points: number, label: string) 
   revalidatePath("/hub/rewards");
   revalidatePath("/portal/rewards");
   return { success: true, awardedCount, skippedCount };
+}
+
+const DEFAULT_PRIVILEGES: { name: string; category: string; creditValue: number; notes: string }[] = [
+  { name: "Manicure or Pedicure", category: "Beauty", creditValue: 300, notes: "With our partner salon." },
+  { name: "Spray Tan", category: "Beauty", creditValue: 300, notes: "With our partner studio." },
+  { name: "Blow Dry & Hydration Treatment", category: "Beauty", creditValue: 320, notes: "With our partner salon." },
+  { name: "Pilates Class", category: "Wellness", creditValue: 350, notes: "With our partner studio." },
+  { name: "Eyelash Experience", category: "Beauty", creditValue: 380, notes: "A luxury lash treatment." },
+  { name: "Relaxing Massage", category: "Wellness", creditValue: 380, notes: "A relaxing massage, at your home." },
+];
+
+/**
+ * Real, idempotent seed for the 6 Privileges requested — checks by
+ * name before creating, safe to run again. No photos attached yet
+ * (no image generation tool available in this environment) - Owner
+ * can add real photos afterward via the real upload field already
+ * built into this same Partners tab.
+ */
+export async function seedDefaultPrivileges() {
+  const user = await getCurrentHubUser();
+  if (!user || !hasPermission(user, "rewards.manage")) return { error: "You don't have permission to do this." };
+
+  let created = 0;
+  for (const p of DEFAULT_PRIVILEGES) {
+    const existing = await prisma.partner.findFirst({ where: { name: p.name } });
+    if (!existing) {
+      await prisma.partner.create({ data: p });
+      created += 1;
+    }
+  }
+
+  revalidatePath("/hub/rewards");
+  revalidatePath("/portal/rewards");
+  return { success: true, created };
 }
