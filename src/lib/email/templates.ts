@@ -585,3 +585,41 @@ export function buildAmbassadorWelcomeEmail(params: {
     }),
   };
 }
+
+/**
+ * Real "Welcome to The Body Shaper System Society™" email — sent on a
+ * real delay (3-4 hours after the main Welcome/Portal email), not at
+ * conversion time, per direction. Introduces the real Rewards program:
+ * Society Points, tiers, Unlock Experiences, Secret Missions,
+ * Privileges.
+ */
+export function buildSocietyWelcomeEmail(params: {
+  firstName: string;
+  portalUrl: string;
+}): { subject: string; html: string } {
+  const { firstName, portalUrl } = params;
+  const name = firstName?.trim() || "beautiful";
+  const greeting = firstName?.trim() ? `Hi ${firstName.trim()}` : "Hello beautiful";
+  return {
+    subject: `Welcome to The Body Shaper System Society™, ${name}`,
+    html: emailShell({
+      eyebrowScript: "welcome to",
+      headline: "the body shaper",
+      headlineAccent: "system society™.",
+      subheadlineLines: ["REWARDS. PRIVILEGES.", "EXCLUSIVE EXPERIENCES."],
+      bodyParagraphs: [
+        `${greeting}, every treatment, every milestone, and every step of your transformation now earns you real Society Points — redeemable for exclusive experiences, treatments, and privileges.`,
+        "Complete Secret Missions, unlock Signature Experiences as your journey progresses, and enjoy member-only privileges reserved just for our Society.",
+      ],
+      featureCard: {
+        variant: "A",
+        icon: "✦",
+        text: "Your Society Points balance, tier, and rewards are already waiting for you inside your Client Portal.",
+      },
+      featureCardIcon: "✦",
+      ctaLabel: "Explore Your Rewards",
+      ctaUrl: portalUrl,
+      closingText: "Your loyalty. Your commitment. Your transformation. We reward every step of your journey.",
+    }),
+  };
+}

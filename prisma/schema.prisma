@@ -714,6 +714,7 @@ model RewardsAccount {
   lifetimePoints Int     @default(0) // only ever increases — real basis for tier thresholds, unaffected by redemptions
   tier          String   @default("Standard")
   suspended     Boolean  @default(false)
+  societyWelcomeEmailSentAt DateTime? // real delayed-send tracker — guards against re-sending
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
@@ -1047,6 +1048,7 @@ enum EmailTemplate {
   SESSION_REMINDER
   NEW_DOCUMENT_AVAILABLE
   AMBASSADOR_WELCOME
+  SOCIETY_WELCOME
 }
 
 enum EmailStatus {

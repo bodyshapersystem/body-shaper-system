@@ -12,6 +12,7 @@ import {
   buildSessionReminderEmail,
   buildNewDocumentAvailableEmail,
   buildAmbassadorWelcomeEmail,
+  buildSocietyWelcomeEmail,
 } from "./templates";
 
 /**
@@ -40,7 +41,8 @@ type EmailTemplateName =
   | "SYSTEM_COMPLETED"
   | "SESSION_REMINDER"
   | "NEW_DOCUMENT_AVAILABLE"
-  | "AMBASSADOR_WELCOME";
+  | "AMBASSADOR_WELCOME"
+  | "SOCIETY_WELCOME";
 
 async function logAndSend(params: {
   clientId?: string;
@@ -314,4 +316,17 @@ export async function sendAmbassadorWelcomeEmail(params: {
   }
 
   return result;
+}
+
+/** Sent on a real delay (3-4 hours after conversion), introducing the
+ * Rewards / Society program. See the cron that triggers this. */
+export async function sendSocietyWelcomeEmail(params: {
+  clientId: string;
+  firstName: string;
+  email: string;
+  portalUrl: string;
+}) {
+  const { clientId, firstName, email, portalUrl } = params;
+  const { subject, html } = buildSocietyWelcomeEmail({ firstName, portalUrl });
+  return logAndSend({ clientId, template: "SOCIETY_WELCOME", sender: SENDERS.concierge, recipient: email, subject, html });
 }
