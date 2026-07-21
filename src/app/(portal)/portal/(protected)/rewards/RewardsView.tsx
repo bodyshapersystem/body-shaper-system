@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { requestRedemption, completeMission } from "./actions";
+import { GOOGLE_REVIEW_URL } from "@/lib/site-links";
 
 type CatalogItem = { id: string; name: string; description: string | null; category: string; creditCost: number; imageUrl: string | null };
 type MissionItem = {
@@ -197,6 +198,14 @@ export default function RewardsView({
               </div>
               <Link href="/portal/rewards/missions" className="trk-link-btn">View All Missions →</Link>
             </div>
+          </div>
+
+          <div className="rw-activity-card" style={{ textAlign: "center" }}>
+            <p className="rw-stat-label" style={{ marginBottom: 10 }}>SHARE YOUR EXPERIENCE</p>
+            <p className="pay-history-meta" style={{ marginBottom: 14 }}>Loved your results? A Google review helps other clients find us.</p>
+            <a href={GOOGLE_REVIEW_URL} target="_blank" rel="noopener noreferrer" className="rw-dark-btn" style={{ display: "inline-block", textDecoration: "none" }}>
+              ⭐ Leave a Google Review
+            </a>
           </div>
 
           <div className="rw-activity-card">
