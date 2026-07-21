@@ -1,6 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { parseJotformPayload, extractContactField, extractSubmissionMeta, extractName } from "@/lib/jotform-webhook-utils";
+import {
+  parseJotformPayload,
+  extractContactField,
+  extractSubmissionMeta,
+  extractName,
+  fetchJotformSubmissionAnswers,
+  extractContactFromAnswers,
+  extractNameFromAnswers,
+} from "@/lib/jotform-webhook-utils";
 import { fetchAndStoreJotformSubmissionPdf } from "@/lib/jotform-pdf";
 import { createNotification } from "@/lib/notifications";
 import type { DocumentCategory } from "@prisma/client";
@@ -73,19 +81,61 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const email = extractContactField(raw, ["email"]);
-  if (!email) {
-    console.error("[jotform-document] no email found. raw keys:", JSON.stringify(Object.keys(raw)));
-    return NextResponse.json({ error: "No email field found in submission." }, { status: 400 });
-  }
-
   const { formId, submissionId } = extractSubmissionMeta(raw);
   if (!formId || !submissionId) {
     console.error("[jotform-document] missing formId/submissionId. raw:", JSON.stringify(raw).slice(0, 500));
     return NextResponse.json({ error: "Missing formID/submissionID in the Jotform payload." }, { status: 400 });
   }
 
-  const client = await prisma.client.findFirst({ where: { email }, orderBy: { createdAt: "desc" } });
+  let email = extractContactField(raw, ["email"]);
+  if (!email) {
+    // The raw webhook payload's Email field came through blank — this is
+    // a real, recurring case (long consent/waiver forms put Email as the
+    // very last field, after the signature, and it's easy to skip since
+    // the client already gave their email back at Prepare Your
+    // Experience™). Rather than dropping the submission, fetch it fresh
+    // from Jotform's API by submission ID and match on the question TEXT
+    // ("Email") instead of the payload's auto-generated field key — this
+    // is the same resilient, API-based pattern already used for names.
+    const answers = await fetchJotformSubmissionAnswers(submissionId);
+    if (answers) {
+      email = extractContactFromAnswers(answers, ["Email", "email address"]);
+    }
+  }
+
+  if (!email) {
+    console.error("[jotform-document] no email found in payload or via API, falling back to name match. raw keys:", JSON.stringify(Object.keys(raw)));
+  }
+
+  let client = email ? await prisma.client.findFirst({ where: { email }, orderBy: { createdAt: "desc" } }) : null;
+
+  if (!client && !email) {
+    // Last resort: the client genuinely left Email blank on this form
+    // (confirmed real case — see Andrea Trujillo, three submissions, all
+    // with Email empty). This category always requires a client who
+    // already exists, so match on name instead. Only proceeds when
+    // exactly one existing client matches — ambiguous or zero matches
+    // still fail loudly rather than risk attaching a document to the
+    // wrong person.
+    const answers = await fetchJotformSubmissionAnswers(submissionId);
+    const { firstName, lastName } = answers ? extractNameFromAnswers(answers) : extractName(raw);
+    if (firstName && lastName) {
+      const nameMatches = await prisma.client.findMany({
+        where: { firstName: { equals: firstName, mode: "insensitive" }, lastName: { equals: lastName, mode: "insensitive" } },
+      });
+      if (nameMatches.length === 1) {
+        client = nameMatches[0];
+        console.error(`[jotform-document] matched by name fallback: ${firstName} ${lastName} -> client ${client.id}`);
+      } else {
+        console.error(`[jotform-document] name fallback found ${nameMatches.length} matches for "${firstName} ${lastName}" — refusing to guess.`);
+      }
+    }
+  }
+
+  if (!client && !email) {
+    return NextResponse.json({ error: "No email field found in submission, and no unambiguous name match either." }, { status: 400 });
+  }
+
   if (!client) {
     // Per direction: "Prepare for Your Experience" (POLICIES_APPOINTMENTS)
     // is often someone's very FIRST real touchpoint — they may submit
