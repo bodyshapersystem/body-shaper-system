@@ -200,14 +200,6 @@ export default function RewardsView({
             </div>
           </div>
 
-          <div className="rw-activity-card" style={{ textAlign: "center" }}>
-            <p className="rw-stat-label" style={{ marginBottom: 10 }}>SHARE YOUR EXPERIENCE</p>
-            <p className="pay-history-meta" style={{ marginBottom: 14 }}>Loved your results? A Google review helps other clients find us.</p>
-            <a href={GOOGLE_REVIEW_URL} target="_blank" rel="noopener noreferrer" className="rw-dark-btn" style={{ display: "inline-block", textDecoration: "none" }}>
-              ⭐ Leave a Google Review
-            </a>
-          </div>
-
           <div className="rw-activity-card">
             <p className="rw-stat-label" style={{ marginBottom: 14 }}>RECENT ACTIVITY</p>
             <div className="rw-activity-row">
@@ -310,22 +302,44 @@ export default function RewardsView({
                 <p className="pay-history-meta" style={{ marginBottom: 16 }}>Complete this mission to earn your Society Points.</p>
 
                 <p className="doc-card-title" style={{ marginBottom: 8 }}>Instructions</p>
-                <ol style={{ paddingLeft: 20, fontFamily: "var(--sans)", fontSize: 13, color: "#2B2622", lineHeight: 1.7, marginBottom: 14 }}>
-                  <li>
-                    Take a lifestyle photo or short video that represents this mission. This can be:
-                    {missionDetail.photoIdeas && (
-                      <ul style={{ marginTop: 6 }}>
-                        {missionDetail.photoIdeas.split("\n").filter(Boolean).map((idea, i) => (
-                          <li key={i}>{idea}</li>
-                        ))}
-                      </ul>
-                    )}
-                  </li>
-                  <li>Choose ONE of the captions below.</li>
-                  <li>Post it to your Instagram Story.</li>
-                  <li>Tag @bodyshapersystem_mia.</li>
-                  <li>Keep your story live for at least 24 hours.</li>
-                </ol>
+                {missionDetail.name.toLowerCase().includes("google review") ? (
+                  <ol style={{ paddingLeft: 20, fontFamily: "var(--sans)", fontSize: 13, color: "#2B2622", lineHeight: 1.7, marginBottom: 14 }}>
+                    <li>
+                      Click below to open our Google Business Profile and leave an honest review of your experience.
+                    </li>
+                    <li>Take a screenshot after submitting it.</li>
+                    <li>Come back here and submit that screenshot for review.</li>
+                  </ol>
+                ) : (
+                  <ol style={{ paddingLeft: 20, fontFamily: "var(--sans)", fontSize: 13, color: "#2B2622", lineHeight: 1.7, marginBottom: 14 }}>
+                    <li>
+                      Take a lifestyle photo or short video that represents this mission. This can be:
+                      {missionDetail.photoIdeas && (
+                        <ul style={{ marginTop: 6 }}>
+                          {missionDetail.photoIdeas.split("\n").filter(Boolean).map((idea, i) => (
+                            <li key={i}>{idea}</li>
+                          ))}
+                        </ul>
+                      )}
+                    </li>
+                    <li>Choose ONE of the captions below.</li>
+                    <li>Post it to your Instagram Story.</li>
+                    <li>Tag @bodyshapersystem_mia.</li>
+                    <li>Keep your story live for at least 24 hours.</li>
+                  </ol>
+                )}
+
+                {missionDetail.name.toLowerCase().includes("google review") && (
+                  <a
+                    href={GOOGLE_REVIEW_URL}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="rw-dark-btn"
+                    style={{ display: "block", textAlign: "center", textDecoration: "none", marginBottom: 14 }}
+                  >
+                    ⭐ Open Google Review
+                  </a>
+                )}
 
                 {(missionDetail.caption1 || missionDetail.caption2 || missionDetail.caption3) && (
                   <>
