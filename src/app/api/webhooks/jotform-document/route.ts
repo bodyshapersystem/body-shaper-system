@@ -137,6 +137,15 @@ export async function POST(request: NextRequest) {
   }
 
   if (!client) {
+    // By construction, if we reach here `client` is null which (per the
+    // guard above) only happens when `email` is a real string — the
+    // name-fallback path always either sets `client` or returns early.
+    // This check is redundant at runtime but lets TypeScript narrow
+    // `email` from `string | undefined` to `string` below.
+    if (!email) {
+      return NextResponse.json({ error: "Internal: reached client-lookup fallback with no email." }, { status: 500 });
+    }
+
     // Per direction: "Prepare for Your Experience" (POLICIES_APPOINTMENTS)
     // is often someone's very FIRST real touchpoint — they may submit
     // it before ever being added as a Lead. Rather than silently
