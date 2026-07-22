@@ -7,6 +7,7 @@ export const metadata: Metadata = buildMetadata({
   description:
     "The complete operating system for personalized transformation — how the Body Blueprint Engine™, Core Modules, Client Portal, Staff Portal and Data & Integrations Layer all work together at Body Shaper System™.",
   path: "/architecture/master-ecosystem",
+  noIndex: true,
 });
 
 /* ---------------------------------------------------------------------

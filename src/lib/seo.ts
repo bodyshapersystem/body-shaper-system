@@ -8,11 +8,13 @@ export function buildMetadata({
   description,
   path,
   image = DEFAULT_OG_IMAGE,
+  noIndex = false,
 }: {
   title: string;
   description: string;
   path: string;
   image?: string;
+  noIndex?: boolean;
 }): Metadata {
   const url = `${SITE_URL}${path}`;
 
@@ -22,6 +24,7 @@ export function buildMetadata({
     alternates: {
       canonical: url,
     },
+    ...(noIndex ? { robots: { index: false, follow: false } } : {}),
     openGraph: {
       title: `${title} | Body Shaper System™`,
       description,

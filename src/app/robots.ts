@@ -6,7 +6,20 @@ export default function robots(): MetadataRoute.Robots {
       {
         userAgent: "*",
         allow: "/",
-        disallow: ["/client-access", "/client-welcome", "/client-dashboard", "/client-settings"],
+        disallow: [
+          "/hub",
+          "/hub/",
+          "/portal",
+          "/portal/",
+          "/architecture",
+          "/architecture/",
+          "/emergency-",
+          // Legacy routes, kept in case any external link still points here.
+          "/client-access",
+          "/client-welcome",
+          "/client-dashboard",
+          "/client-settings",
+        ],
       },
     ],
     sitemap: "https://www.bodyshapersystem.com/sitemap.xml",

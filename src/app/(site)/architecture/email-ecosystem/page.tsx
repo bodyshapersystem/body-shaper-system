@@ -8,6 +8,7 @@ export const metadata: Metadata = buildMetadata({
   description:
     "The communication engine behind every personalized transformation — how the Body Blueprint Engine™, automation triggers and the Resend Email Engine generate every client communication. Visual documentation only.",
   path: "/architecture/email-ecosystem",
+  noIndex: true,
 });
 
 function IconBrain() {

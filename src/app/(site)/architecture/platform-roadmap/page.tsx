@@ -7,6 +7,7 @@ export const metadata: Metadata = buildMetadata({
   description:
     "From website to complete ecosystem — the phased evolution of Body Shaper System™: current website, email ecosystem, client portal, Body Rewards™ Program, AI Concierge and the complete platform.",
   path: "/architecture/platform-roadmap",
+  noIndex: true,
 });
 
 /**
