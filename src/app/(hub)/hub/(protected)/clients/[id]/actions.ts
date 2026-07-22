@@ -4,7 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { getCurrentHubUser, hasPermission } from "@/lib/permissions";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { revalidatePath } from "next/cache";
-import { sendWelcomeActivationEmail, sendNewDocumentAvailableEmail } from "@/lib/email/service";
+import { sendWelcomeActivationEmail, sendNewDocumentAvailableEmail, sendPaymentReminderEmail } from "@/lib/email/service";
 import { createNotification } from "@/lib/notifications";
 import { randomUUID } from "crypto";
 import type { DocumentCategory, Visibility } from "@prisma/client";
@@ -282,6 +282,39 @@ export async function deleteDocument(documentId: string) {
  * already activated. If the existing token expired, issues a fresh
  * one rather than reusing an expired link.
  */
+/**
+ * Manual "Send Reminder" button on the client's Payments tab, per
+ * direction — there's no automatic payment-due schedule to hook into
+ * yet (payment processing itself is manual), so this stays a
+ * deliberate, one-click action rather than something scheduled.
+ */
+export async function sendPaymentReminderAction(clientId: string) {
+  const user = await getCurrentHubUser();
+  if (!user || !hasPermission(user, "payments.manage")) {
+    return { error: "You don't have permission to send payment reminders." };
+  }
+
+  const client = await prisma.client.findUnique({ where: { id: clientId } });
+  if (!client) return { error: "Client not found." };
+
+  const overview = await getClientOverviewSummary(clientId);
+  if (!overview || overview.balanceCents === null || overview.balanceCents <= 0) {
+    return { error: "This client has no outstanding balance to remind them about." };
+  }
+
+  const amountLabel = `$${(overview.balanceCents / 100).toFixed(2)}`;
+  const result = await sendPaymentReminderEmail({
+    clientId: client.id,
+    firstName: client.firstName,
+    email: client.email,
+    amountLabel,
+    portalUrl: `${SITE_URL}/portal/dashboard`,
+  });
+
+  revalidatePath(`/hub/clients/${clientId}`);
+  return { success: true, emailSent: result.success, emailError: result.success ? undefined : result.error, amountLabel };
+}
+
 export async function resendInvitation(clientId: string) {
   const user = await getCurrentHubUser();
   if (!user || !hasPermission(user, "clients.convert")) {

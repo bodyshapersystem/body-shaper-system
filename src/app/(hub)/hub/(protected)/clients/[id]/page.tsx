@@ -10,6 +10,7 @@ import {
 } from "./actions";
 import InvitationPanel from "./InvitationPanel";
 import DeleteClientButton from "./DeleteClientButton";
+import SendPaymentReminderButton from "./SendPaymentReminderButton";
 import CollaborationSheet from "./CollaborationSheet";
 import ClientTypeSelect from "./ClientTypeSelect";
 import EditClientNameSheet from "./EditClientNameSheet";
@@ -486,9 +487,14 @@ export default async function ClientDetailPage({
               </div>
             </div>
           )}
-          <a href="/hub/payments" className="sched-cta" style={{ display: "inline-block", marginBottom: 24, textDecoration: "none" }}>
-            Record Payment →
-          </a>
+          <div style={{ display: "flex", gap: 12, alignItems: "flex-start", flexWrap: "wrap" }}>
+            <a href="/hub/payments" className="sched-cta" style={{ display: "inline-block", marginBottom: 24, textDecoration: "none" }}>
+              Record Payment →
+            </a>
+            {overview && overview.balanceCents !== null && overview.balanceCents > 0 && (
+              <SendPaymentReminderButton clientId={client.id} />
+            )}
+          </div>
           {payments.length === 0 ? (
             <p className="dash-empty">No payments recorded yet.</p>
           ) : (

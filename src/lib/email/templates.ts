@@ -368,6 +368,33 @@ export function buildBlueprintReceivedEmail(params: { firstName: string }): { su
   };
 }
 
+export function buildPaymentReminderEmail(params: {
+  firstName: string;
+  amountLabel: string;
+  portalUrl: string;
+}): { subject: string; html: string } {
+  const { firstName, amountLabel, portalUrl } = params;
+  const name = firstName?.trim() || "beautiful";
+  const greeting = firstName?.trim() ? `Hi ${firstName.trim()}` : "Hello beautiful";
+  return {
+    subject: `A quick payment reminder, ${name}`,
+    html: emailShell({
+      eyebrowScript: "just a reminder.",
+      headline: "payment",
+      headlineAccent: "due.",
+      subheadlineLines: ["A BALANCE IS STILL OUTSTANDING", "ON YOUR ACCOUNT."],
+      bodyParagraphs: [
+        `${greeting}, this is a friendly reminder that the balance below is still outstanding. You can view or settle it anytime from your portal.`,
+      ],
+      featureCard: { variant: "D", stat: amountLabel, statLabel: "Amount Due" },
+      featureCardIcon: "✦",
+      ctaLabel: "View My Portal",
+      ctaUrl: portalUrl,
+      closingText: "Thank you for your trust — reach out anytime if you have questions.",
+    }),
+  };
+}
+
 export function buildPaymentConfirmationEmail(params: {
   firstName: string;
   amountLabel: string;

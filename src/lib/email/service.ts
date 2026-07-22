@@ -5,6 +5,7 @@ import {
   buildWelcomeActivationEmail,
   buildBodyBlueprintCompletedEmail,
   buildPaymentConfirmationEmail,
+  buildPaymentReminderEmail,
   buildBlueprintReceivedEmail,
   buildAppointmentConfirmationEmail,
   buildRewardUnlockedEmail,
@@ -36,6 +37,7 @@ type EmailTemplateName =
   | "WELCOME_ACTIVATION"
   | "BODY_BLUEPRINT_COMPLETED"
   | "PAYMENT_CONFIRMATION"
+  | "PAYMENT_REMINDER"
   | "BLUEPRINT_RECEIVED"
   | "APPOINTMENT_CONFIRMATION"
   | "REWARD_UNLOCKED"
@@ -182,6 +184,31 @@ export async function sendBodyBlueprintCompletedEmail(params: {
   return logAndSend({
     clientId,
     template: "BODY_BLUEPRINT_COMPLETED",
+    sender: SENDERS.concierge,
+    recipient: email,
+    subject,
+    html,
+  });
+}
+
+/**
+ * Manually triggered from the client's Payments tab in the Hub — a
+ * real "Send Reminder" button, per direction. Not automatic (there's
+ * no payment-due schedule to hook into yet, same reason
+ * sendPaymentConfirmationEmail below isn't automatic either).
+ */
+export async function sendPaymentReminderEmail(params: {
+  clientId: string;
+  firstName: string;
+  email: string;
+  amountLabel: string;
+  portalUrl: string;
+}) {
+  const { clientId, firstName, email, amountLabel, portalUrl } = params;
+  const { subject, html } = buildPaymentReminderEmail({ firstName, amountLabel, portalUrl });
+  return logAndSend({
+    clientId,
+    template: "PAYMENT_REMINDER",
     sender: SENDERS.concierge,
     recipient: email,
     subject,

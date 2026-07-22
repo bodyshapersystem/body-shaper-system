@@ -6,6 +6,7 @@ import { TargetMarkIcon } from "./BlueprintIcons";
 import { BODY_TYPE_CONTENT, getBodyTypeRationale } from "@/lib/body-types";
 import EditSystemDetailsSheet from "./EditSystemDetailsSheet";
 import RecordRenphoScanSheet from "./RecordRenphoScanSheet";
+import RenphoMetricsGrid from "./RenphoMetricsGrid";
 import BodyTypeSheet from "./BodyTypeSheet";
 import { getPhotoSignedUrl } from "./blueprint-actions";
 import { getBusinessTimezone, formatDateInTimezone } from "@/lib/format-datetime";
@@ -397,31 +398,7 @@ export default async function BlueprintReport({
 
           <div className="bbp-card" style={{ display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
             {latestRenpho ? (
-              <div className="bbp-stat-tiles">
-                {(
-                  [
-                    { label: "Weight", value: latestRenpho.weightKg, unit: "kg" },
-                    { label: "BMI", value: latestRenpho.bmi, unit: "" },
-                    { label: "Body Fat %", value: latestRenpho.bodyFatPercent, unit: "%" },
-                    { label: "Visceral Fat", value: latestRenpho.visceralFat, unit: "" },
-                    { label: "Muscle Mass", value: latestRenpho.muscleMassKg, unit: "kg" },
-                    { label: "Skeletal Muscle", value: latestRenpho.skeletalMuscleKg, unit: "kg" },
-                    { label: "Body Water", value: latestRenpho.bodyWaterPercent, unit: "%" },
-                    { label: "Protein", value: latestRenpho.proteinPercent, unit: "%" },
-                    { label: "Bone Mass", value: latestRenpho.boneMassKg, unit: "kg" },
-                    { label: "BMR", value: latestRenpho.bmr, unit: "kcal" },
-                    { label: "Metabolic Age", value: latestRenpho.bodyAge, unit: "" },
-                  ] as const
-                ).map((t) => (
-                  <div className="bbp-stat-tile" key={t.label}>
-                    <p className="bbp-stat-tile-label">{t.label}</p>
-                    <p className="bbp-stat-tile-value">
-                      {t.value ?? "—"}
-                      {t.value != null && t.unit ? <span className="bbp-stat-tile-unit">{t.unit}</span> : null}
-                    </p>
-                  </div>
-                ))}
-              </div>
+              <RenphoMetricsGrid latestRenpho={latestRenpho} />
             ) : (
               <EmptyState title="no composition data yet." sub="Record a RENPHO scan to populate this section of the Blueprint." />
             )}
