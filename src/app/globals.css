@@ -3430,10 +3430,14 @@
 .rw-stat-foot{ font-family:var(--sans); font-size:11px; color:#8a7f74; margin:0; }
 
 .rw-overview-row{ display:grid; grid-template-columns:1fr 1.2fr; gap:16px; margin-bottom:20px; }
-.rw-next-reward-card{ background:#fff; border-radius:14px; padding:20px; box-shadow:0 2px 8px rgba(107,78,61,0.06); }
-.rw-next-reward-eyebrow{ font-family:var(--sans); font-size:10px; letter-spacing:.05em; text-transform:uppercase; color:#C9A876; margin:0 0 8px; }
-.rw-next-reward-name{ font-family:var(--serif); font-size:19px; color:#2B2622; margin:0 0 6px; }
-.rw-next-reward-pts{ font-family:var(--serif); font-size:15px; color:#7A2E38; margin:0 0 14px; }
+.rw-next-reward-card{
+  background:#2B2015 url('/images/rewards/next-reward-bg.jpg') center/cover no-repeat;
+  border-radius:14px; padding:20px; box-shadow:0 4px 16px rgba(0,0,0,0.25); position:relative;
+}
+.rw-next-reward-eyebrow{ font-family:var(--sans); font-size:10px; letter-spacing:.05em; text-transform:uppercase; color:#E8D4A8; margin:0 0 8px; text-shadow:0 1px 4px rgba(0,0,0,0.4); }
+.rw-next-reward-name{ font-family:var(--serif); font-size:19px; color:#FBF6EC; margin:0 0 6px; text-shadow:0 1px 6px rgba(0,0,0,0.45); }
+.rw-next-reward-pts{ font-family:var(--serif); font-size:15px; color:#E8D4A8; margin:0 0 14px; text-shadow:0 1px 4px rgba(0,0,0,0.4); }
+.rw-next-reward-card .pay-history-meta{ color:#E8D4A8; text-shadow:0 1px 4px rgba(0,0,0,0.4); }
 .rw-ways-card{ background:#fff; border-radius:14px; padding:20px; box-shadow:0 2px 8px rgba(107,78,61,0.06); }
 .rw-ways-grid{ display:grid; grid-template-columns:1fr 1fr; gap:8px 16px; margin-bottom:10px; }
 .rw-ways-row{ display:flex; justify-content:space-between; font-family:var(--sans); font-size:12px; color:#2B2622; padding:6px 0; border-bottom:1px solid rgba(0,0,0,0.05); }
