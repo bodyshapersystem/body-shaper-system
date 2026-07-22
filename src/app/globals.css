@@ -3192,7 +3192,16 @@
 /* ---------- Appointment Detail Panel — mockup-matched dark olive panel ---------- */
 .apd-overlay{ position:fixed; inset:0; background:rgba(0,0,0,0.35); z-index:1000; display:flex; justify-content:flex-end; }
 .apd-panel{ width:100%; max-width:380px; height:100%; background:var(--olive,#6D7A64); color:#F6F3EE; padding:26px 22px; overflow-y:auto; }
-.apd-panel-marble{ background:#3A0F16 url('/images/rewards/society-rules-bg.jpg') center/cover no-repeat; }
+/* Brand rule (per direction): any burgundy/wine marble background
+   uses #B8A088 (mocha/dark beige, sampled directly from Emmy's
+   reference photo) for text - not cream/gold. Applies here and to
+   .rw-society-rules-* / .rw-secret-challenge-* below. */
+.apd-panel-marble{ background:#3A0F16 url('/images/rewards/society-rules-bg.jpg') center/cover no-repeat; color:#B8A088; }
+.apd-panel-marble .apd-detail-row{ border-bottom:1px solid rgba(184,160,136,0.25); }
+.apd-panel-marble .apd-detail-row span{ color:rgba(184,160,136,0.75); }
+.apd-panel-marble .apd-detail-row strong{ color:#B8A088; }
+.apd-panel-marble .apd-status-pill{ color:#B8A088; }
+.apd-panel-marble .apd-btn-secondary{ color:#B8A088; border-color:rgba(184,160,136,0.35); }
 .apd-time-row{ display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; }
 .apd-time-range{ font-family:var(--serif); font-size:16px; }
 .apd-close{ background:none; border:none; color:#F6F3EE; font-size:22px; cursor:pointer; line-height:1; }
@@ -3465,16 +3474,16 @@
   background:#3A0F16 url('/images/rewards/society-rules-bg.jpg') center/cover no-repeat;
   border-radius:14px; padding:20px; box-shadow:0 4px 16px rgba(0,0,0,0.25);
 }
-.rw-society-rules-title{ font-family:var(--serif); font-size:14.5px; color:#F1E0C8; margin:0 0 8px; text-shadow:0 1px 5px rgba(0,0,0,0.5); }
-.rw-society-rules-list{ margin:8px 0 0; padding-left:18px; font-family:var(--sans); font-size:12.5px; color:#EFE2CC; line-height:1.7; text-shadow:0 1px 4px rgba(0,0,0,0.45); }
-.rw-society-rules-list li::marker{ color:#D8B98A; }
+.rw-society-rules-title{ font-family:var(--serif); font-size:14.5px; color:#B8A088; margin:0 0 8px; text-shadow:0 1px 5px rgba(0,0,0,0.5); }
+.rw-society-rules-list{ margin:8px 0 0; padding-left:18px; font-family:var(--sans); font-size:12.5px; color:#B8A088; line-height:1.7; text-shadow:0 1px 4px rgba(0,0,0,0.45); }
+.rw-society-rules-list li::marker{ color:#B8A088; }
 
 .rw-secret-challenge-card{
   background:#3A0F16 url('/images/rewards/society-rules-bg.jpg') center/cover no-repeat;
   border-radius:14px; padding:20px; box-shadow:0 4px 16px rgba(0,0,0,0.25);
 }
-.rw-secret-challenge-title{ font-family:var(--serif); font-size:14.5px; color:#F1E0C8; margin:0 0 4px; text-shadow:0 1px 5px rgba(0,0,0,0.5); }
-.rw-secret-challenge-meta{ font-family:var(--sans); font-size:12px; color:#EFE2CC; margin:0; text-shadow:0 1px 4px rgba(0,0,0,0.45); }
+.rw-secret-challenge-title{ font-family:var(--serif); font-size:14.5px; color:#B8A088; margin:0 0 4px; text-shadow:0 1px 5px rgba(0,0,0,0.5); }
+.rw-secret-challenge-meta{ font-family:var(--sans); font-size:12px; color:#B8A088; margin:0; text-shadow:0 1px 4px rgba(0,0,0,0.45); }
 
 .rw-mission-stats-card{
   background:#D9CBB8 url('/images/rewards/mission-stats-bg.jpg') center/cover no-repeat;
