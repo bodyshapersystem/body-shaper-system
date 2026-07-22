@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { sendSessionReminderEmail } from "@/lib/email/service";
+import { sendSessionReminderEmail, sendFirstSessionCheckinEmail } from "@/lib/email/service";
 import { getBusinessTimezone, formatTimeInTimezone } from "@/lib/format-datetime";
 
 export const dynamic = "force-dynamic";
@@ -85,5 +85,50 @@ export async function GET(request: NextRequest) {
     birthdaysAwarded += 1;
   }
 
-  return NextResponse.json({ success: true, appointmentsFound: appointments.length, remindersSent: sentCount, birthdaysAwarded, autoCompletedAppointments: pastScheduled.count });
+  // Real automation: day-after-first-appointment check-in. Finds every
+  // real appointment that was COMPLETED yesterday, keeps only the ones
+  // that are that client's actual first-ever appointment (earliest
+  // startsAt with no earlier appointment before it), and skips anyone
+  // who already has a FIRST_SESSION_CHECKIN logged (so re-running this
+  // cron, or a client with an unusual schedule, never double-sends).
+  const yesterdayStart = new Date();
+  yesterdayStart.setDate(yesterdayStart.getDate() - 1);
+  yesterdayStart.setHours(0, 0, 0, 0);
+  const yesterdayEnd = new Date(yesterdayStart);
+  yesterdayEnd.setDate(yesterdayEnd.getDate() + 1);
+
+  const completedYesterday = await prisma.appointment.findMany({
+    where: { status: "COMPLETED", startsAt: { gte: yesterdayStart, lt: yesterdayEnd } },
+    include: { client: true },
+  });
+
+  let checkinsSent = 0;
+  for (const appt of completedYesterday) {
+    const earlierAppointment = await prisma.appointment.findFirst({
+      where: { clientId: appt.clientId, startsAt: { lt: appt.startsAt } },
+    });
+    if (earlierAppointment) continue; // not their first
+
+    const alreadySent = await prisma.emailEvent.findFirst({
+      where: { clientId: appt.clientId, template: "FIRST_SESSION_CHECKIN" },
+    });
+    if (alreadySent) continue;
+
+    const result = await sendFirstSessionCheckinEmail({
+      clientId: appt.clientId,
+      firstName: appt.client.firstName,
+      email: appt.client.email,
+      portalUrl: "https://www.bodyshapersystem.com/portal/daily-trackers",
+    }).catch(() => ({ success: false as const }));
+    if (result.success) checkinsSent += 1;
+  }
+
+  return NextResponse.json({
+    success: true,
+    appointmentsFound: appointments.length,
+    remindersSent: sentCount,
+    birthdaysAwarded,
+    autoCompletedAppointments: pastScheduled.count,
+    firstSessionCheckinsSent: checkinsSent,
+  });
 }

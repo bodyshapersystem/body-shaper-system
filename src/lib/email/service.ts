@@ -6,6 +6,7 @@ import {
   buildBodyBlueprintCompletedEmail,
   buildPaymentConfirmationEmail,
   buildPaymentReminderEmail,
+  buildFirstSessionCheckinEmail,
   buildBlueprintReceivedEmail,
   buildAppointmentConfirmationEmail,
   buildRewardUnlockedEmail,
@@ -46,7 +47,8 @@ type EmailTemplateName =
   | "NEW_DOCUMENT_AVAILABLE"
   | "AMBASSADOR_WELCOME"
   | "SOCIETY_WELCOME"
-  | "WE_MISS_YOU";
+  | "WE_MISS_YOU"
+  | "FIRST_SESSION_CHECKIN";
 
 async function logAndSend(params: {
   clientId?: string;
@@ -184,6 +186,24 @@ export async function sendBodyBlueprintCompletedEmail(params: {
   return logAndSend({
     clientId,
     template: "BODY_BLUEPRINT_COMPLETED",
+    sender: SENDERS.concierge,
+    recipient: email,
+    subject,
+    html,
+  });
+}
+
+/**
+ * Automatic — sent by the daily session-reminders cron the day after
+ * a client's very first completed appointment. See the cron route for
+ * the "is this really their first?" + dedupe logic.
+ */
+export async function sendFirstSessionCheckinEmail(params: { clientId: string; firstName: string; email: string; portalUrl: string }) {
+  const { clientId, firstName, email, portalUrl } = params;
+  const { subject, html } = buildFirstSessionCheckinEmail({ firstName, portalUrl });
+  return logAndSend({
+    clientId,
+    template: "FIRST_SESSION_CHECKIN",
     sender: SENDERS.concierge,
     recipient: email,
     subject,

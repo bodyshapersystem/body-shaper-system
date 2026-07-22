@@ -368,6 +368,33 @@ export function buildBlueprintReceivedEmail(params: { firstName: string }): { su
   };
 }
 
+export function buildFirstSessionCheckinEmail(params: {
+  firstName: string;
+  portalUrl: string;
+}): { subject: string; html: string } {
+  const { firstName, portalUrl } = params;
+  const name = firstName?.trim() || "beautiful";
+  const greeting = firstName?.trim() ? `Hi ${firstName.trim()}` : "Hello beautiful";
+  return {
+    subject: `How are you feeling, ${name}?`,
+    html: emailShell({
+      eyebrowScript: "checking in.",
+      headline: "how do",
+      headlineAccent: "you feel?",
+      subheadlineLines: ["YOUR FIRST SESSION", "WAS YESTERDAY."],
+      bodyParagraphs: [
+        `${greeting}, we'd love to know — how did your first appointment go, and how are you feeling today?`,
+        "A couple of quick things while we're here:<br>• Have you logged today's Daily Trackers yet?<br>• Did you wear your compression garment as instructed?",
+      ],
+      infoMomentIcon: "✦",
+      infoMomentHtml: "It's completely normal to notice some soreness or light redness after your first session — this is a normal part of the process.",
+      ctaLabel: "Log My Daily Trackers",
+      ctaUrl: portalUrl,
+      closingText: "Tell us more — we're here for anything you need.",
+    }),
+  };
+}
+
 export function buildPaymentReminderEmail(params: {
   firstName: string;
   amountLabel: string;
