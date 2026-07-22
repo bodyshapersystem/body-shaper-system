@@ -389,9 +389,9 @@ export default function RewardsView({
             </div>
           </div>
           <div className="rw-overview-row" style={{ gridTemplateColumns: "1fr" }}>
-            <div className="rw-next-reward-card">
-              <p className="doc-card-title">Society Rules</p>
-              <ul style={{ margin: "8px 0 0", paddingLeft: 18, fontFamily: "var(--sans)", fontSize: 12.5, color: "#5a5148", lineHeight: 1.7 }}>
+            <div className="rw-society-rules-card">
+              <p className="rw-society-rules-title">Society Rules</p>
+              <ul className="rw-society-rules-list">
                 <li>Always tag @bodyshapersystem_mia</li>
                 <li>Complete missions before the deadline</li>
                 <li>Never reveal what your mission is</li>
