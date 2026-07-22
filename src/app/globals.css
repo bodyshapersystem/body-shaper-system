@@ -3192,6 +3192,7 @@
 /* ---------- Appointment Detail Panel — mockup-matched dark olive panel ---------- */
 .apd-overlay{ position:fixed; inset:0; background:rgba(0,0,0,0.35); z-index:1000; display:flex; justify-content:flex-end; }
 .apd-panel{ width:100%; max-width:380px; height:100%; background:var(--olive,#6D7A64); color:#F6F3EE; padding:26px 22px; overflow-y:auto; }
+.apd-panel-marble{ background:#3A0F16 url('/images/rewards/society-rules-bg.jpg') center/cover no-repeat; }
 .apd-time-row{ display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; }
 .apd-time-range{ font-family:var(--serif); font-size:16px; }
 .apd-close{ background:none; border:none; color:#F6F3EE; font-size:22px; cursor:pointer; line-height:1; }

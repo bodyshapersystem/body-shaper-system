@@ -65,7 +65,7 @@ export default function AppointmentDetailPanel({
 
   return (
     <div className="apd-overlay" onClick={onClose}>
-      <div className="apd-panel" onClick={(e) => e.stopPropagation()}>
+      <div className="apd-panel apd-panel-marble" onClick={(e) => e.stopPropagation()}>
         <div className="apd-time-row">
           <span className="apd-time-range">{timeRange}</span>
           <button type="button" className="apd-close" onClick={onClose} aria-label="Close">×</button>

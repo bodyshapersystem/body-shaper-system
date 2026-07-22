@@ -253,7 +253,7 @@ export default async function PortalDashboardPage() {
         <div className="cap-side">
           {/* Appointment Card */}
           {nextAppointmentDetail ? (
-            <div className="apd-panel" style={{ position: "static", width: "100%", borderRadius: 18 }}>
+            <div className="apd-panel apd-panel-marble" style={{ position: "static", width: "100%", borderRadius: 18 }}>
               <div className="apd-time-row">
                 <span className="apd-status-pill" style={{ background: "rgba(246,243,238,0.2)" }}>Confirmed</span>
               </div>
