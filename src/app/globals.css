@@ -3353,14 +3353,14 @@
 .doc-progress-label{ font-family:var(--sans); font-size:11px; letter-spacing:.05em; text-transform:uppercase; color:#8a7f74; margin:0 0 8px; }
 
 /* ---------- Daily Trackers™ (Milestone 55) ---------- */
-.trk-hero{ background:var(--ivory,#F7F4EF); border-radius:20px; padding:36px 28px; text-align:center; margin-bottom:20px; }
+.trk-hero{ background:#F7F4EF url('/images/rewards/cream-marble-bg.jpg') center/cover no-repeat; border-radius:20px; padding:36px 28px; text-align:center; margin-bottom:20px; }
 .trk-hero-eyebrow{ font-family:var(--sans); font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:#6B4E3D; margin:0 0 6px; }
 .trk-hero-title{ font-family:var(--serif); font-size:32px; color:#2B2622; margin:0 0 2px; }
 .trk-hero-sub{ font-family:var(--serif); font-size:18px; font-style:italic; color:#6B4E3D; margin:0 0 12px; }
 .trk-hero-support{ font-family:var(--sans); font-size:13px; color:#8a7f74; max-width:420px; margin:0 auto; }
 
 .trk-summary-bar{ display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-bottom:24px; }
-.trk-summary-bar > div{ background:#fff; border-radius:14px; padding:16px; text-align:center; box-shadow:0 2px 8px rgba(107,78,61,0.06); }
+.trk-summary-bar > div{ background:#F7F4EF url('/images/rewards/cream-marble-bg.jpg') center/cover no-repeat; border-radius:14px; padding:16px; text-align:center; box-shadow:0 2px 8px rgba(107,78,61,0.06); }
 .trk-summary-label{ font-family:var(--sans); font-size:10.5px; letter-spacing:.05em; text-transform:uppercase; color:#8a7f74; margin:0 0 6px; }
 .trk-summary-value{ font-family:var(--serif); font-size:20px; color:#2B2622; margin:0; }
 
@@ -3525,11 +3525,11 @@
 .cap-next-card-fern .cap-primary-btn{ background:#F1EBDD; color:#4A5540; }
 
 .cap-consistency-card-stone{
-  background:#4E5A4A url('/images/rewards/green-waves-bg.jpg') center/cover no-repeat;
+  background:#3A0F16 url('/images/rewards/society-rules-bg.jpg') center/cover no-repeat;
   border:none;
 }
-.cap-consistency-card-stone .cap-consistency-title{ color:#F1EBDD; text-shadow:0 1px 4px rgba(0,0,0,0.4); }
-.cap-consistency-card-stone .cap-secondary-btn{ background:rgba(241,235,221,0.12); color:#F1EBDD; border-color:rgba(241,235,221,0.35); }
+.cap-consistency-card-stone .cap-consistency-title{ color:#B8A088; text-shadow:0 1px 4px rgba(0,0,0,0.4); }
+.cap-consistency-card-stone .cap-secondary-btn{ background:rgba(184,160,136,0.12); color:#B8A088; border-color:rgba(184,160,136,0.35); }
 
 .doc-required-stone{
   background:#4E5A4A url('/images/rewards/green-waves-bg.jpg') center/cover no-repeat;
