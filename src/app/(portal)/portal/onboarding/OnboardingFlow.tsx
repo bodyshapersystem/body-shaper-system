@@ -93,7 +93,7 @@ export default function OnboardingFlow({
         {step === 3 ? (
           <a href="/portal/messages" className="onb-cta">Message Your Specialist</a>
         ) : (
-          <a href={step === 1 ? agreementUrl : consentUrl} className="onb-cta">
+          <a href={step === 1 ? agreementUrl : consentUrl} className="onb-cta" target="_blank" rel="noopener noreferrer">
             Continue
           </a>
         )}
