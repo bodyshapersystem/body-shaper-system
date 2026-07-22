@@ -2,7 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url("https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,400&family=Jost:wght@300;400;500&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,400&family=Jost:wght@300;400;500&family=Quicksand:wght@500;600&display=swap");
 
 :root {
   --font-cormorant: 'Cormorant Garamond', serif;
@@ -3446,6 +3446,23 @@
 .rw-society-rules-title{ font-family:var(--serif); font-size:14.5px; color:#F1E0C8; margin:0 0 8px; text-shadow:0 1px 5px rgba(0,0,0,0.5); }
 .rw-society-rules-list{ margin:8px 0 0; padding-left:18px; font-family:var(--sans); font-size:12.5px; color:#EFE2CC; line-height:1.7; text-shadow:0 1px 4px rgba(0,0,0,0.45); }
 .rw-society-rules-list li::marker{ color:#D8B98A; }
+
+.rw-secret-challenge-card{
+  background:#3A0F16 url('/images/rewards/society-rules-bg.jpg') center/cover no-repeat;
+  border-radius:14px; padding:20px; box-shadow:0 4px 16px rgba(0,0,0,0.25);
+}
+.rw-secret-challenge-title{ font-family:var(--serif); font-size:14.5px; color:#F1E0C8; margin:0 0 4px; text-shadow:0 1px 5px rgba(0,0,0,0.5); }
+.rw-secret-challenge-meta{ font-family:var(--sans); font-size:12px; color:#EFE2CC; margin:0; text-shadow:0 1px 4px rgba(0,0,0,0.45); }
+
+.rw-mission-stats-card{
+  background:#D9CBB8 url('/images/rewards/mission-stats-bg.jpg') center/cover no-repeat;
+  border-radius:14px; padding:20px; box-shadow:0 2px 10px rgba(107,78,61,0.12);
+}
+
+.rw-bottom-bar-leaf{
+  background:#5C6650 url('/images/rewards/bottom-bar-bg.jpg') center/cover no-repeat;
+  color:#F1EBDD; font-family:'Quicksand',var(--sans); font-weight:600; text-shadow:0 1px 4px rgba(0,0,0,0.35);
+}
 .rw-ways-card{ background:#fff; border-radius:14px; padding:20px; box-shadow:0 2px 8px rgba(107,78,61,0.06); }
 .rw-ways-grid{ display:grid; grid-template-columns:1fr 1fr; gap:8px 16px; margin-bottom:10px; }
 .rw-ways-row{ display:flex; justify-content:space-between; font-family:var(--sans); font-size:12px; color:#2B2622; padding:6px 0; border-bottom:1px solid rgba(0,0,0,0.05); }

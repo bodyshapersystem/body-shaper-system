@@ -375,11 +375,11 @@ export default function RewardsView({
           )}
 
           <div className="rw-overview-row">
-            <div className="rw-next-reward-card">
-              <p className="doc-card-title">Secret Challenge Drop</p>
-              <p className="pay-history-meta">Something special is coming... complete secret actions and earn big.</p>
+            <div className="rw-secret-challenge-card">
+              <p className="rw-secret-challenge-title">Secret Challenge Drop</p>
+              <p className="rw-secret-challenge-meta">Something special is coming... complete secret actions and earn big.</p>
             </div>
-            <div className="rw-ways-card">
+            <div className="rw-mission-stats-card">
               <p className="rw-stat-label" style={{ marginBottom: 10 }}>YOUR MISSION STATS</p>
               <div className="rw-stat-grid" style={{ gridTemplateColumns: "repeat(3,1fr)" }}>
                 <div><p className="rw-stat-value" style={{ fontSize: 20 }}>{transactions.filter((t) => t.points > 0).length}</p><p className="pay-history-meta">Missions Completed</p></div>
@@ -403,7 +403,7 @@ export default function RewardsView({
             </div>
           </div>
 
-          <div className="rw-bottom-bar" style={{ textAlign: "center" }}>
+          <div className="rw-bottom-bar rw-bottom-bar-leaf" style={{ textAlign: "justify" }}>
             <span>🤫 If anyone asks what this is — just say you have to be part of The Body Shaper System Society™.</span>
           </div>
 
