@@ -28,6 +28,9 @@ export default function Footer() {
             <h4>Connect</h4>
             <a href={INSTAGRAM_URL}>Instagram — @bodyshapersystem_mia</a>
             <a href={WHATSAPP_URL}>WhatsApp — Chat with a Specialist</a>
+            <a href="https://www.google.com/maps?cid=13270517675364589804" target="_blank" rel="noopener noreferrer">
+              Find us on Google
+            </a>
             <a href="https://bodyshapersystem.com">bodyshapersystem.com</a>
           </div>
           <div className="footer-col">

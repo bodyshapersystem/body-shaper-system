@@ -28,7 +28,10 @@ const businessJsonLd = {
     addressRegion: "FL",
     addressCountry: "US",
   },
-  sameAs: ["https://instagram.com/bodyshapersystem_mia"],
+  sameAs: [
+    "https://instagram.com/bodyshapersystem_mia",
+    "https://www.google.com/maps?cid=13270517675364589804",
+  ],
   founder: {
     "@type": "Person",
     name: "Emmy Branger",
