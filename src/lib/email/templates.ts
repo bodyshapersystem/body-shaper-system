@@ -151,6 +151,7 @@ function renderFeatureCardInline(card: FeatureCard): string {
  */
 function emailShell(params: {
   eyebrowScript?: string;
+  previewText?: string;
   headline: string;
   headlineAccent?: string;
   subheadlineLines: string[];
@@ -167,6 +168,7 @@ function emailShell(params: {
 }): string {
   const {
     eyebrowScript,
+    previewText,
     headline,
     headlineAccent,
     subheadlineLines,
@@ -186,6 +188,7 @@ function emailShell(params: {
 <html>
 <head><meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /></head>
 <body style="margin:0;padding:0;background-color:${COLORS.ivory};font-family:Georgia,'Times New Roman',serif;">
+  ${previewText ? `<div style="display:none;max-height:0;overflow:hidden;font-size:1px;line-height:1px;color:${COLORS.ivory};opacity:0;">${previewText}</div>` : ""}
   <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:${COLORS.ivory};padding:36px 0;">
     <tr>
       <td align="center">
@@ -373,24 +376,32 @@ export function buildFirstSessionCheckinEmail(params: {
   portalUrl: string;
 }): { subject: string; html: string } {
   const { firstName, portalUrl } = params;
-  const name = firstName?.trim() || "beautiful";
-  const greeting = firstName?.trim() ? `Hi ${firstName.trim()}` : "Hello beautiful";
+  const greeting = firstName?.trim() ? firstName.trim() : "beautiful";
   return {
-    subject: `How are you feeling, ${name}?`,
+    subject: "🤍 How are you feeling today?",
     html: emailShell({
       eyebrowScript: "checking in.",
-      headline: "how do",
-      headlineAccent: "you feel?",
-      subheadlineLines: ["YOUR FIRST SESSION", "WAS YESTERDAY."],
+      previewText: "A quick check-in after your first Body Shaper System™ session.",
+      headline: "how are you",
+      headlineAccent: "feeling today? ✨",
+      subheadlineLines: ["A CHECK-IN AFTER YOUR", "FIRST SESSION."],
       bodyParagraphs: [
-        `${greeting}, we'd love to know — how did your first appointment go, and how are you feeling today?`,
-        "A couple of quick things while we're here:<br>• Have you logged today's Daily Trackers yet?<br>• Did you wear your compression garment as instructed?",
+        `Hi ${greeting}, I just wanted to check in and see how you're feeling after your first Body Shaper System™ session.`,
+        "First of all, congratulations on taking the first step toward your goals. We're so excited to be part of your journey.",
+        "Every body responds differently after treatment, so don't compare your experience to anyone else's. You may notice:<br>✨ Mild redness in the treated area<br>✨ Slight tenderness or sensitivity<br>✨ A feeling of warmth<br>✨ Mild muscle soreness (if EMS was included)",
+        "Or… you may not notice anything at all. And that's completely normal. Every body responds differently, and your results will develop gradually throughout your personalized system.",
+        "<strong>A few friendly reminders 🤍</strong>",
+        "💧 <strong>Have you logged your water intake today?</strong><br>Hydration is one of the most important things you can do to support your body after treatment. Aim to drink the amount of water recommended during your appointment.",
+        "👗 <strong>Have you been wearing your compression garment?</strong><br>If compression was recommended for your personalized system, wearing it as instructed can help support your results.",
+        "🚶 <strong>Have you moved your body today?</strong><br>You don't need an intense workout. Even a short walk or light movement can help support circulation and your body's natural recovery process.",
+        "<strong>Don't forget your Daily Trackers</strong><br>Your transformation doesn't only happen during your appointments. The small habits you build between sessions are just as important. Take one minute today to complete your Daily Trackers:<br>✔ Water Intake<br>✔ Steps<br>✔ Sleep<br>✔ Healthy Habits<br><br>Keeping them updated will also help you stay engaged throughout your journey inside The Body Shaper System Society™.",
+        "<strong>Today's Check-In</strong> — before you go…<br>☐ I drank my water today 💧<br>☐ I wore my compression garment 👗<br>☐ I moved my body 🚶<br>☐ I completed my Daily Trackers 📱",
       ],
-      infoMomentIcon: "✦",
-      infoMomentHtml: "It's completely normal to notice some soreness or light redness after your first session — this is a normal part of the process.",
-      ctaLabel: "Log My Daily Trackers",
+      ctaLabel: "Open My Portal",
       ctaUrl: portalUrl,
-      closingText: "Tell us more — we're here for anything you need.",
+      closingText:
+        "If you have any questions, notice anything unusual, or simply want to check in, don't hesitate to reach out. We're here to support you every step of the way. See you at your next appointment!<br><br>With love,",
+      signatureName: "Emmy, Founder of Body Shaper System",
     }),
   };
 }
