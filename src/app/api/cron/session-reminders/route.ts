@@ -10,6 +10,12 @@ export const dynamic = "force-dynamic";
  * appointment happening tomorrow and sends a real reminder email.
  * Protected by CRON_SECRET so this can't be triggered by anyone
  * else hitting the URL.
+ *
+ * Schedule is deliberately 17:00 UTC (not the more obvious 15:00),
+ * per direction that FIRST_SESSION_CHECKIN must go out between
+ * 12pm–3pm in the business's Eastern Time zone. 17:00 UTC lands at
+ * 1pm EDT in summer and 12pm EST in winter — inside that window
+ * year-round without needing a seasonal schedule change.
  */
 export async function GET(request: NextRequest) {
   const authHeader = request.headers.get("authorization");
