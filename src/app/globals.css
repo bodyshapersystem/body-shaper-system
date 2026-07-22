@@ -3268,7 +3268,7 @@
 
 .cap-view-tabs{ display:flex; gap:2px; background:rgba(107,78,61,0.08); border-radius:8px; padding:3px; width:fit-content; margin-bottom:18px; }
 .cap-view-tab{ font-family:var(--sans); font-size:11.5px; padding:7px 16px; border-radius:6px; border:none; background:transparent; color:#8a7f74; cursor:pointer; text-transform:lowercase; }
-.cap-view-tab-active{ background:#6B4E3D; color:#fff; }
+.cap-view-tab-active{ background:#5C1A1F; color:#fff; }
 
 .cap-list{ display:flex; flex-direction:column; gap:10px; }
 .cap-card{ background:#fff; border-radius:14px; padding:16px 18px; border-left:4px solid; box-shadow:0 2px 8px rgba(107,78,61,0.06); }
@@ -3284,6 +3284,22 @@
 .cap-week-chip{ font-family:var(--sans); font-size:10px; padding:5px 7px; border-radius:6px; border-left:3px solid; background:rgba(0,0,0,0.03); margin-bottom:5px; }
 
 .cap-next-card, .cap-consistency-card{ background:#fff; border-radius:18px; padding:24px 22px; box-shadow:0 6px 20px rgba(107,78,61,0.08); border:1px solid rgba(107,78,61,0.08); }
+
+.cap-next-card-marble{
+  background:#3A0F16 url('/images/rewards/society-rules-bg.jpg') center/cover no-repeat;
+  border:none;
+}
+.cap-next-card-marble .cap-next-eyebrow{ color:#B8A088; }
+.cap-next-card-marble .cap-next-title{ color:#B8A088; text-shadow:0 1px 5px rgba(0,0,0,0.5); }
+.cap-next-card-marble .cap-next-row{ border-bottom-color:rgba(184,160,136,0.25); }
+.cap-next-card-marble .cap-next-row span{ color:rgba(184,160,136,0.75); }
+.cap-next-card-marble .cap-next-row strong{ color:#B8A088; }
+.cap-next-card-marble .cap-next-divider{ background:rgba(184,160,136,0.25); }
+.cap-next-card-marble .cap-prep-link{ color:#B8A088; }
+.cap-next-card-marble .cap-gcal-btn{ color:#B8A088; border-color:rgba(184,160,136,0.5); }
+.cap-next-card-marble .cap-info-bar{ background:rgba(184,160,136,0.15); color:#B8A088; }
+.cap-next-card-marble .module-empty{ border-color:rgba(184,160,136,0.3); }
+.cap-next-card-marble .module-empty div{ color:#B8A088; }
 .cap-next-eyebrow{ font-family:var(--sans); font-size:10.5px; letter-spacing:.1em; text-transform:uppercase; color:#C9A876; margin:0 0 6px; }
 .cap-next-title{ font-family:var(--serif); font-size:20px; color:#2B2622; margin:0 0 16px; }
 .cap-next-row{ display:flex; justify-content:space-between; gap:10px; padding:7px 0; border-bottom:1px solid rgba(107,78,61,0.08); font-family:var(--sans); font-size:12.5px; }

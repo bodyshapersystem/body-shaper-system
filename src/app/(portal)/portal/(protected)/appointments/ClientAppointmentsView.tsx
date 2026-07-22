@@ -136,7 +136,7 @@ export default function ClientAppointmentsView({
 
       <div className="cap-side">
         {nextAppointment ? (
-          <div className="cap-next-card">
+          <div className="cap-next-card cap-next-card-marble">
             <p className="cap-next-eyebrow">next appointment</p>
             <h3 className="cap-next-title">{nextAppointment.title}</h3>
             <div className="cap-next-row"><span>Date</span><strong>{nextAppointment.dateLabel}</strong></div>
@@ -211,7 +211,7 @@ export default function ClientAppointmentsView({
             </div>
           </div>
         ) : (
-          <div className="cap-next-card">
+          <div className="cap-next-card cap-next-card-marble">
             <p className="cap-next-eyebrow">next appointment</p>
             <div className="module-empty">No upcoming appointment scheduled yet.</div>
           </div>
