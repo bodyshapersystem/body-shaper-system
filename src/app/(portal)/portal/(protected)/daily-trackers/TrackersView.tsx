@@ -328,7 +328,7 @@ export default function TrackersView({
           <h3 className="trk-card-title">Weekly Consistency</h3>
           <WeeklyDots days={days} />
         </div>
-        <div className="trk-card" style={{ textAlign: "center" }}>
+        <div className="trk-card trk-card-marble" style={{ textAlign: "center" }}>
           <h3 className="trk-card-title">Today's Progress</h3>
           <div className="trk-progress-circle" style={{ margin: "0 auto 14px", background: `conic-gradient(#6B4E3D ${completionPercent}%, rgba(0,0,0,0.06) 0)` }}>
             <div className="trk-progress-circle-inner"><strong>{completionPercent}%</strong></div>

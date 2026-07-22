@@ -3366,6 +3366,7 @@
 
 .trk-grid{ display:grid; grid-template-columns:repeat(auto-fill, minmax(260px, 1fr)); gap:16px; margin-bottom:24px; }
 .trk-card{ background:#fff; border-radius:16px; padding:20px; box-shadow:0 2px 10px rgba(107,78,61,0.06); }
+.trk-card-marble{ background:#F7F4EF url('/images/rewards/cream-marble-bg.jpg') center/cover no-repeat; }
 .trk-card-title{ font-family:var(--serif); font-size:15.5px; color:#2B2622; margin:0 0 12px; }
 
 .trk-water-circles{ display:flex; gap:6px; margin-bottom:8px; flex-wrap:wrap; }
