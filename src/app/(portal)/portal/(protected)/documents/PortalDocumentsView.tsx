@@ -52,40 +52,42 @@ export default function PortalDocumentsView({
   return (
     <div className="cap-layout">
       <div className="cap-main">
-        <h3 className="dash-section-title">Required Documents</h3>
-        <div className="doc-card-grid">
-          {requiredDocs.map((doc) => (
-            <div key={doc.category} className="doc-card">
-              <div className="doc-card-icon">{doc.icon}</div>
-              <div className="doc-card-body">
-                <p className="doc-card-title">{doc.title}</p>
-                <p className={`doc-card-status ${doc.completed ? "doc-status-done" : "doc-status-pending"}`}>
-                  {doc.completed ? "Completed" : "Pending"}
-                </p>
-                {doc.completedAt && (
-                  <p className="pay-history-meta">
-                    {new Date(doc.completedAt).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" })}
+        <div className="doc-required-stone">
+          <h3 className="dash-section-title">Required Documents</h3>
+          <div className="doc-card-grid">
+            {requiredDocs.map((doc) => (
+              <div key={doc.category} className="doc-card">
+                <div className="doc-card-icon">{doc.icon}</div>
+                <div className="doc-card-body">
+                  <p className="doc-card-title">{doc.title}</p>
+                  <p className={`doc-card-status ${doc.completed ? "doc-status-done" : "doc-status-pending"}`}>
+                    {doc.completed ? "Completed" : "Pending"}
                   </p>
-                )}
-                {!doc.completed && !doc.formUrl && (
-                  <p className="pay-history-meta">Your specialist will upload this for you.</p>
-                )}
+                  {doc.completedAt && (
+                    <p className="pay-history-meta">
+                      {new Date(doc.completedAt).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" })}
+                    </p>
+                  )}
+                  {!doc.completed && !doc.formUrl && (
+                    <p className="pay-history-meta">Your specialist will upload this for you.</p>
+                  )}
+                </div>
+                <div className="doc-card-actions">
+                  {doc.completed && doc.url && (
+                    <>
+                      <a href={doc.url} target="_blank" rel="noopener noreferrer" className="doc-card-link">View</a>
+                      <a href={doc.url} download className="doc-card-link">Download</a>
+                    </>
+                  )}
+                  {!doc.completed && doc.formUrl && (
+                    <a href={doc.formUrl} target="_blank" rel="noopener noreferrer" className="doc-card-link">
+                      {doc === nextActionable ? "Complete Now →" : "Continue Form →"}
+                    </a>
+                  )}
+                </div>
               </div>
-              <div className="doc-card-actions">
-                {doc.completed && doc.url && (
-                  <>
-                    <a href={doc.url} target="_blank" rel="noopener noreferrer" className="doc-card-link">View</a>
-                    <a href={doc.url} download className="doc-card-link">Download</a>
-                  </>
-                )}
-                {!doc.completed && doc.formUrl && (
-                  <a href={doc.formUrl} target="_blank" rel="noopener noreferrer" className="doc-card-link">
-                    {doc === nextActionable ? "Complete Now →" : "Continue Form →"}
-                  </a>
-                )}
-              </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
 
         <h3 className="dash-section-title" style={{ marginTop: 32 }}>Shared Files</h3>
@@ -115,7 +117,7 @@ export default function PortalDocumentsView({
       </div>
 
       <div className="cap-side">
-        <div className="cap-next-card">
+        <div className="cap-next-card cap-next-card-fern">
           <p className="cap-next-eyebrow">your documents</p>
           <div className="cap-next-row"><span>Documents Completed</span><strong>{completedCount} of {totalRequired}</strong></div>
           <div className="cap-next-row"><span>Storage</span><strong>Secure</strong></div>
@@ -144,7 +146,7 @@ export default function PortalDocumentsView({
           )}
         </div>
 
-        <div className="cap-consistency-card">
+        <div className="cap-consistency-card cap-consistency-card-stone">
           <p className="cap-consistency-title">Frequently Used</p>
           <button type="button" className="cap-secondary-btn" onClick={handleDownloadAll}>Download All Documents</button>
           <button type="button" className="cap-secondary-btn" onClick={() => window.print()}>Print Documents</button>

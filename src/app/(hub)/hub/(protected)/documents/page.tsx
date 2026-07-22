@@ -215,28 +215,30 @@ async function ClientRecordsView({
       </div>
 
       {/* ---------- Required Documents ---------- */}
-      <h3 className="dash-section-title">Required Documents</h3>
-      <div className="doc-card-grid" style={{ marginBottom: 32 }}>
-        {requiredDocsWithMatch.map((r) => (
-          <div key={r.category} className="doc-card">
-            <div className="doc-card-icon">{r.icon}</div>
-            <div className="doc-card-body">
-              <p className="doc-card-title">{r.title}</p>
-              <p className={`doc-card-status ${r.doc ? "doc-status-done" : "doc-status-pending"}`}>
-                {r.doc ? "Completed" : "Pending"}
-              </p>
-              {r.doc && <p className="pay-history-meta">{r.doc.uploadedAt.toLocaleDateString()}</p>}
+      <div className="doc-required-stone" style={{ marginBottom: 32 }}>
+        <h3 className="dash-section-title">Required Documents</h3>
+        <div className="doc-card-grid">
+          {requiredDocsWithMatch.map((r) => (
+            <div key={r.category} className="doc-card">
+              <div className="doc-card-icon">{r.icon}</div>
+              <div className="doc-card-body">
+                <p className="doc-card-title">{r.title}</p>
+                <p className={`doc-card-status ${r.doc ? "doc-status-done" : "doc-status-pending"}`}>
+                  {r.doc ? "Completed" : "Pending"}
+                </p>
+                {r.doc && <p className="pay-history-meta">{r.doc.uploadedAt.toLocaleDateString()}</p>}
+              </div>
+              <DocumentOwnerActions
+                clientId={client.id}
+                category={r.category}
+                title={r.title}
+                storagePath={r.doc?.storagePath ?? null}
+                documentId={r.doc?.id ?? null}
+                hasDoc={!!r.doc}
+              />
             </div>
-            <DocumentOwnerActions
-              clientId={client.id}
-              category={r.category}
-              title={r.title}
-              storagePath={r.doc?.storagePath ?? null}
-              documentId={r.doc?.id ?? null}
-              hasDoc={!!r.doc}
-            />
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
 
       {/* ---------- Shared Files ---------- */}

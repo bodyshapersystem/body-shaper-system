@@ -3511,6 +3511,32 @@
   color:#1A1512 !important; text-shadow:0 1px 3px rgba(255,255,255,0.6); font-weight:700 !important;
 }
 
+.cap-next-card-fern{
+  background:#4A5540 url('/images/rewards/fern-bg.jpg') center/cover no-repeat;
+  border:none;
+}
+.cap-next-card-fern .cap-next-eyebrow{ color:#F1EBDD; }
+.cap-next-card-fern .cap-next-row{ border-bottom-color:rgba(241,235,221,0.2); }
+.cap-next-card-fern .cap-next-row span{ color:rgba(241,235,221,0.7); }
+.cap-next-card-fern .cap-next-row strong{ color:#F1EBDD; }
+.cap-next-card-fern .cap-next-divider{ background:rgba(241,235,221,0.2); }
+.cap-next-card-fern .doc-progress-label{ color:#F1EBDD; }
+.cap-next-card-fern .pay-history-meta{ color:#F1EBDD; }
+.cap-next-card-fern .cap-primary-btn{ background:#F1EBDD; color:#4A5540; }
+
+.cap-consistency-card-stone{
+  background:#4E5A4A url('/images/rewards/green-waves-bg.jpg') center/cover no-repeat;
+  border:none;
+}
+.cap-consistency-card-stone .cap-consistency-title{ color:#F1EBDD; text-shadow:0 1px 4px rgba(0,0,0,0.4); }
+.cap-consistency-card-stone .cap-secondary-btn{ background:rgba(241,235,221,0.12); color:#F1EBDD; border-color:rgba(241,235,221,0.35); }
+
+.doc-required-stone{
+  background:#4E5A4A url('/images/rewards/green-waves-bg.jpg') center/cover no-repeat;
+  border-radius:16px; padding:22px;
+}
+.doc-required-stone .dash-section-title{ color:#F1EBDD; text-shadow:0 1px 4px rgba(0,0,0,0.4); margin-top:0; }
+
 .rw-bottom-bar-leaf{
   background:#5C6650 url('/images/rewards/bottom-bar-bg.jpg') center/cover no-repeat;
   color:#F1EBDD; font-family:'Quicksand',var(--sans); font-weight:600; text-shadow:0 1px 4px rgba(0,0,0,0.35);
