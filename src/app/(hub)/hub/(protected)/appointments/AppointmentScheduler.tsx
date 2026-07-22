@@ -387,6 +387,20 @@ export default function AppointmentScheduler({ clients }: { clients: ClientOptio
             </div>
           </div>
 
+          {(() => {
+            if (!time) return null;
+            const [h, m] = time.split(":").map(Number);
+            const combined = selectedDate();
+            combined.setHours(h, m, 0, 0);
+            const isPastSelection = combined.getTime() < Date.now();
+            if (!isPastSelection) return null;
+            return (
+              <div className="sched-backdated-notice">
+                This date/time is in the past — logging this as a completed session. No confirmation email will be sent to the client.
+              </div>
+            );
+          })()}
+
           {error && <p className="sched-error">{error}</p>}
 
           <button type="button" className="sched-cta sched-cta-block" disabled={isPending} onClick={handleSchedule}>

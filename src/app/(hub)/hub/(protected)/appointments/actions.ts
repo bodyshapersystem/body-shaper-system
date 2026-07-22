@@ -37,27 +37,36 @@ export async function createAppointment(formData: FormData) {
     }
   }
 
+  const startsAt = new Date(startsAtRaw);
+  const isBackdated = startsAt.getTime() < Date.now();
+
   const appointment = await prisma.appointment.create({
     data: {
       clientId,
       title,
-      startsAt: new Date(startsAtRaw),
+      startsAt,
       endsAt: endsAtRaw ? new Date(endsAtRaw) : undefined,
       technologies,
       estimatedMinutes: estimatedMinutesRaw ? Number(estimatedMinutesRaw) : undefined,
       locationType,
       notes,
       createdById: user.id,
+      // A backdated entry is, by definition, already done — and per
+      // direction, entering historical sessions must never trigger
+      // the client-facing confirmation email.
+      status: isBackdated ? "COMPLETED" : undefined,
+      skipAutomatedEmails: isBackdated,
     },
   });
 
   // Real confirmation email — never blocks/fails the scheduling
   // action itself if the send fails; the appointment is already saved.
+  // Skipped entirely for backdated/historical entries.
   const client = await prisma.client.findUnique({
     where: { id: clientId },
     include: { blueprintAssessments: { orderBy: { version: "desc" }, take: 1 } },
   });
-  if (client) {
+  if (client && !isBackdated) {
     const timezone = await getBusinessTimezone();
     await sendAppointmentConfirmationEmail({
       clientId,
@@ -73,6 +82,15 @@ export async function createAppointment(formData: FormData) {
       clientId,
       category: "APPOINTMENTS",
       description: `Appointment confirmed for ${client.firstName} ${client.lastName} — ${title}`,
+      linkUrl: `/hub/appointments`,
+    });
+  } else if (client && isBackdated) {
+    // Still log it internally — Emmy should see it was added, just
+    // without ever emailing the client about a session that already happened.
+    await createNotification({
+      clientId,
+      category: "APPOINTMENTS",
+      description: `Logged a past appointment for ${client.firstName} ${client.lastName} — ${title} (no email sent)`,
       linkUrl: `/hub/appointments`,
     });
   }

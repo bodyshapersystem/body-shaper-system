@@ -104,7 +104,7 @@ export async function GET(request: NextRequest) {
   yesterdayEnd.setDate(yesterdayEnd.getDate() + 1);
 
   const completedYesterday = await prisma.appointment.findMany({
-    where: { status: "COMPLETED", startsAt: { gte: yesterdayStart, lt: yesterdayEnd } },
+    where: { status: "COMPLETED", skipAutomatedEmails: false, startsAt: { gte: yesterdayStart, lt: yesterdayEnd } },
     include: { client: true },
   });
 

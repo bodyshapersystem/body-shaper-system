@@ -916,6 +916,14 @@ model Appointment {
   technologies     Json? // array of selected technology objects for this session
   estimatedMinutes Int?
   notes            String?
+  // True for backdated/historical appointments entered after the
+  // fact (e.g. logging a client's real past sessions before they had
+  // portal access) — set automatically when startsAt is in the past
+  // at creation time. Confirms this appointment never sends a
+  // client-facing confirmation email, and the daily cron's
+  // day-after-first-appointment check-in explicitly skips it too,
+  // regardless of what date it happens to fall on.
+  skipAutomatedEmails Boolean         @default(false)
   createdAt        DateTime          @default(now())
   updatedAt        DateTime          @updatedAt
   createdById      String?

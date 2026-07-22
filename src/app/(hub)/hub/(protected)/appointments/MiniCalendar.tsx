@@ -80,8 +80,7 @@ export default function MiniCalendar({
             <button
               key={i}
               type="button"
-              disabled={isPast}
-              className={`mini-cal-day${isSelected ? " mini-cal-day-selected" : ""}${isToday ? " mini-cal-day-today" : ""}`}
+              className={`mini-cal-day${isSelected ? " mini-cal-day-selected" : ""}${isToday ? " mini-cal-day-today" : ""}${isPast ? " mini-cal-day-past" : ""}`}
               onClick={() => onChange(key)}
             >
               {d.getDate()}

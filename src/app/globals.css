@@ -2810,10 +2810,12 @@
   width:32px; height:32px; margin:0 auto; cursor:pointer;
 }
 .mini-cal-day:hover:not(:disabled){ background:#F0E6D8; }
-.mini-cal-day:disabled{ color:#c9c2b8; cursor:not-allowed; }
+.mini-cal-day-past{ color:#a89e8f; }
 .mini-cal-day-today{ border:1px solid #5C1A1F; }
 .mini-cal-day-selected{ background:#5C1A1F; color:#F6F3EE; }
 .mini-cal-day-selected:hover{ background:#5C1A1F; }
+
+.sched-backdated-notice{ background:#F6EFE3; border:1px solid #D9C9A8; border-radius:8px; padding:12px 14px; font-family:var(--sans); font-size:12.5px; color:#7A5A2E; margin:0 0 16px; }
 
 .sched-time-chips{ display:flex; flex-wrap:wrap; gap:8px; }
 .sched-chip{ font-family:var(--sans); font-size:12.5px; padding:9px 14px; border-radius:20px; border:1px solid rgba(0,0,0,0.12); background:#fff; color:#2B2622; cursor:pointer; }
