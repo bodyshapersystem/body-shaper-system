@@ -11,6 +11,7 @@ import {
   payInstallment,
   getClientPaymentSchedule,
 } from "./actions";
+import SendPaymentReminderButton from "@/app/(hub)/hub/(protected)/clients/[id]/SendPaymentReminderButton";
 
 type ClientOption = { id: string; firstName: string; lastName: string };
 
@@ -366,12 +367,18 @@ export default function PaymentRecorder({ clients }: { clients: ClientOption[] }
               <button type="button" className="pay-plan-save-btn pay-generate-btn" onClick={handleGenerateSchedule}>
                 Generate Payment Schedule
               </button>
+              <div style={{ marginTop: 12 }}>
+                <SendPaymentReminderButton clientId={clientId} />
+              </div>
             </div>
           )}
 
           {schedule.length > 0 && (
             <div className="sched-section">
               <h4 className="sched-subheading">Payment Schedule</h4>
+              <div style={{ marginBottom: 12 }}>
+                <SendPaymentReminderButton clientId={clientId} />
+              </div>
               <ul className="pay-schedule-list">
                 {schedule.map((s) => (
                   <li key={s.id} className="pay-schedule-row">
