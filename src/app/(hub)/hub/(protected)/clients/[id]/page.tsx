@@ -491,9 +491,7 @@ export default async function ClientDetailPage({
             <a href="/hub/payments" className="sched-cta" style={{ display: "inline-block", marginBottom: 24, textDecoration: "none" }}>
               Record Payment →
             </a>
-            {overview && overview.balanceCents !== null && overview.balanceCents > 0 && (
-              <SendPaymentReminderButton clientId={client.id} />
-            )}
+            <SendPaymentReminderButton clientId={client.id} />
           </div>
           {payments.length === 0 ? (
             <p className="dash-empty">No payments recorded yet.</p>

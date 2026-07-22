@@ -298,11 +298,24 @@ export async function sendPaymentReminderAction(clientId: string) {
   if (!client) return { error: "Client not found." };
 
   const overview = await getClientOverviewSummary(clientId);
-  if (!overview || overview.balanceCents === null || overview.balanceCents <= 0) {
-    return { error: "This client has no outstanding balance to remind them about." };
+  if (!overview) return { error: "Client not found." };
+
+  // balanceCents needs a Plan Total to be set (planTotal - paid). Many
+  // clients have real PENDING payments recorded without ever having a
+  // Plan Total entered, so fall back to that — either signal means
+  // there's a real amount owed to remind them about.
+  const amountCents =
+    overview.balanceCents !== null && overview.balanceCents > 0
+      ? overview.balanceCents
+      : overview.pendingCents > 0
+      ? overview.pendingCents
+      : null;
+
+  if (amountCents === null) {
+    return { error: "This client has no outstanding balance or pending payment to remind them about." };
   }
 
-  const amountLabel = `$${(overview.balanceCents / 100).toFixed(2)}`;
+  const amountLabel = `$${(amountCents / 100).toFixed(2)}`;
   const result = await sendPaymentReminderEmail({
     clientId: client.id,
     firstName: client.firstName,
