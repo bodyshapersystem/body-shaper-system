@@ -3,6 +3,7 @@
 import { useState, useTransition, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { createAppointment, getClientSessionContext } from "./actions";
+import MiniCalendar from "./MiniCalendar";
 
 type ClientOption = { id: string; firstName: string; lastName: string };
 
@@ -371,7 +372,7 @@ export default function AppointmentScheduler({ clients }: { clients: ClientOptio
               </button>
             </div>
             {dateMode === "custom" && (
-              <input type="date" value={customDate} onChange={(e) => setCustomDate(e.target.value)} className="sched-date-input" />
+              <MiniCalendar value={customDate} onChange={setCustomDate} />
             )}
           </div>
 
