@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { sendBlueprintReceivedEmail } from "@/lib/email/service";
 import { createOrUpdateDraftAssessment } from "@/lib/blueprint-assessments";
+import { createNotification } from "@/lib/notifications";
 import { parseJotformPayload, extractContactField, extractName, fetchJotformSubmissionAnswers, fetchMostRecentSubmissionAnswers, extractNameFromAnswers, extractContactFromAnswers } from "@/lib/jotform-webhook-utils";
 import type { Prisma } from "@prisma/client";
 
@@ -135,6 +136,18 @@ export async function POST(request: NextRequest) {
     jotformSubmissionId,
     jotformRawData: raw as Prisma.InputJsonValue,
     goals,
+  });
+
+  // Per direction: incoming leads should show up in Hub notifications.
+  // Distinguishes a brand-new lead from an existing one resubmitting
+  // (e.g. retaking their Blueprint) since both are real, meaningful
+  // events but read differently to the Owner.
+  await createNotification({
+    category: "FORMS",
+    description: existing
+      ? `${lead.firstName} ${lead.lastName} resubmitted their Body Blueprint™`
+      : `New lead: ${lead.firstName} ${lead.lastName} submitted their Body Blueprint™`,
+    linkUrl: `/hub/leads/${lead.id}`,
   });
 
   await prisma.leadStatusHistory.create({
