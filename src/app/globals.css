@@ -3151,10 +3151,10 @@
 }
 
 /* ---------- Appointments — mockup-matched redesign (Milestone 49) ---------- */
-.apt-header{ background:var(--olive,#6D7A64); color:#F6F3EE; border-radius:16px; padding:26px 28px; display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:14px; margin-bottom:22px; }
-.apt-header-title{ font-family:var(--serif); font-size:30px; margin:0 0 4px; text-transform:lowercase; }
-.apt-header-sub{ font-family:var(--sans); font-size:13px; color:rgba(246,243,238,0.8); margin:0; }
-.apt-new-btn{ background:#F6F3EE; color:var(--olive,#6D7A64); font-family:var(--sans); font-size:12.5px; letter-spacing:.03em; text-decoration:none; padding:11px 20px; border-radius:8px; white-space:nowrap; transition:opacity .15s; }
+.apt-header{ background:#3A0F16 url('/images/rewards/society-rules-bg.jpg') center/cover no-repeat; color:#B8A088; border-radius:16px; padding:26px 28px; display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:14px; margin-bottom:22px; }
+.apt-header-title{ font-family:var(--serif); font-size:30px; margin:0 0 4px; text-transform:lowercase; color:#B8A088; text-shadow:0 1px 5px rgba(0,0,0,0.5); }
+.apt-header-sub{ font-family:var(--sans); font-size:13px; color:#B8A088; margin:0; text-shadow:0 1px 4px rgba(0,0,0,0.45); }
+.apt-new-btn{ background:#F6F3EE; color:#5C1A1F; font-family:var(--sans); font-size:12.5px; letter-spacing:.03em; text-decoration:none; padding:11px 20px; border-radius:8px; white-space:nowrap; transition:opacity .15s; }
 .apt-new-btn:hover{ opacity:.9; }
 
 .apt-toolbar{ display:flex; align-items:center; justify-content:space-between; gap:14px; flex-wrap:wrap; margin-bottom:14px; }
