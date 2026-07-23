@@ -30,7 +30,7 @@ const businessJsonLd = {
   },
   sameAs: [
     "https://instagram.com/bodyshapersystem_mia",
-    "https://www.google.com/maps?cid=13270517675364589804",
+    "https://maps.google.com/?cid=13270517675364589804",
   ],
   founder: {
     "@type": "Person",
