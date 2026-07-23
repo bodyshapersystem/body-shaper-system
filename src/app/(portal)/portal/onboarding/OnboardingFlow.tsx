@@ -20,7 +20,29 @@ export default function OnboardingFlow({
   const router = useRouter();
   const [step, setStep] = useState<1 | 2 | 3 | "done">(initialStep);
   const [checking, setChecking] = useState(false);
+  const [clickedContinue, setClickedContinue] = useState(false);
+  const [showRetry, setShowRetry] = useState(false);
   const pollRef = useRef<NodeJS.Timeout | null>(null);
+  const retryTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Reset the "already clicked Continue" flag whenever the step
+  // actually advances, so the next real step's Continue button works
+  // normally again.
+  useEffect(() => {
+    setClickedContinue(false);
+    setShowRetry(false);
+  }, [step]);
+
+  // If nothing advances within 40s of clicking Continue, offer a way
+  // back to the real link instead of leaving them stuck on "waiting"
+  // forever if they closed the Jotform tab without finishing it.
+  useEffect(() => {
+    if (!clickedContinue) return;
+    retryTimeoutRef.current = setTimeout(() => setShowRetry(true), 40000);
+    return () => {
+      if (retryTimeoutRef.current) clearTimeout(retryTimeoutRef.current);
+    };
+  }, [clickedContinue]);
 
   // Poll for real completion while this screen is open — the actual
   // signature happens on the real Jotform form (external tab); this
@@ -92,13 +114,34 @@ export default function OnboardingFlow({
         <p className="onb-step-sub">{current.sub}</p>
         {step === 3 ? (
           <a href="/portal/messages" className="onb-cta">Message Your Specialist</a>
+        ) : clickedContinue ? (
+          <div className="onb-cta onb-cta-processing" aria-live="polite">
+            Waiting for your submission to process…
+          </div>
         ) : (
-          <a href={step === 1 ? agreementUrl : consentUrl} className="onb-cta" target="_blank" rel="noopener noreferrer">
+          <a
+            href={step === 1 ? agreementUrl : consentUrl}
+            className="onb-cta"
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={() => setClickedContinue(true)}
+          >
             Continue
           </a>
         )}
         {step !== 3 && (
-          <p className="onb-poll-hint">{checking ? "Checking…" : "You'll be brought back here automatically once it's submitted."}</p>
+          <p className="onb-poll-hint">
+            {clickedContinue
+              ? "Already submitted? This can take up to a minute — no need to submit again."
+              : checking
+              ? "Checking…"
+              : "You'll be brought back here automatically once it's submitted."}
+          </p>
+        )}
+        {clickedContinue && showRetry && (
+          <button type="button" className="onb-retry-link" onClick={() => setClickedContinue(false)}>
+            Didn't finish, or the form didn't open? Click here to try again.
+          </button>
         )}
       </div>
     </div>
