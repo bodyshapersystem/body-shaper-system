@@ -13,6 +13,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "/reviews",
     "/faq",
     "/policies",
+    "/book-appointment",
   ];
 
   return routes.map((route) => ({

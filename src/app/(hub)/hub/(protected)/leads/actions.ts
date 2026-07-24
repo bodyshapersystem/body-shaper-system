@@ -209,7 +209,7 @@ export async function convertLeadToClient(leadId: string, clientType: "STANDARD"
   return await finishConversion(lead, authData.user.id, user.id, clientType);
 }
 
-async function finishConversion(
+export async function finishConversion(
   lead: { id: string; firstName: string; lastName: string; email: string; phone: string | null; city: string | null },
   authUserId: string,
   convertedById: string,
