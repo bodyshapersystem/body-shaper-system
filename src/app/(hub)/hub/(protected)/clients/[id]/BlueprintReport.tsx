@@ -311,7 +311,7 @@ export default async function BlueprintReport({
   return (
     <div className="bbp-root">
       {/* ---------- Hero Photo — now shown in both Owner Hub and Client Portal per direction ---------- */}
-      <img src="/images/blueprint/hero-blueprint-experience.png" alt="" className="bbp-hero-photo-block" />
+      <img src="/images/blueprint/hero-blueprint-experience.jpg" alt="Emmy Branger, founder of Body Shaper System" className="bbp-hero-photo-block" />
 
       {/* ---------- Executive Summary ---------- */}
       <div className="bbp-hero">
