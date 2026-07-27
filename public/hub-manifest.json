@@ -1,0 +1,38 @@
+{
+  "name": "Body Shaper System™ Hub",
+  "short_name": "BSS Hub",
+  "description": "Manage clients, appointments, payments, and your business — Body Shaper System™ Owner Hub.",
+  "id": "/hub/dashboard",
+  "start_url": "/hub/dashboard",
+  "scope": "/hub/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#F5EEE4",
+  "theme_color": "#5C1A1F",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}
