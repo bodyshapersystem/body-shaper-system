@@ -58,6 +58,12 @@ export const metadata: Metadata = {
   alternates: {
     canonical: "https://www.bodyshapersystem.com",
   },
+  manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "BSS Portal",
+  },
   icons: {
     icon: [
       { url: "/favicon.ico", sizes: "any" },
