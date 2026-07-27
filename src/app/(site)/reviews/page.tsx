@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { buildMetadata } from "@/lib/seo";
-import { GOOGLE_MAPS_URL } from "@/lib/site-links";
+import { GOOGLE_MAPS_URL, GOOGLE_REVIEW_URL } from "@/lib/site-links";
 
 export const metadata: Metadata = buildMetadata({
   title: "Reviews",
@@ -87,7 +87,8 @@ export default function ReviewsPage() {
     See what real clients are saying on our Google Business Profile — Body Shaper System™ LLC.
   </p>
   <div className="actions reveal" style={{display: 'flex', gap: '16px', justifyContent: 'center', flexWrap: 'wrap'}}>
-    <a href={GOOGLE_MAPS_URL} target="_blank" rel="noopener noreferrer" className="btn btn-primary">See &amp; Leave a Google Review</a>
+    <a href={GOOGLE_MAPS_URL} target="_blank" rel="noopener noreferrer" className="btn btn-primary">See Our Google Reviews</a>
+    <a href={GOOGLE_REVIEW_URL} target="_blank" rel="noopener noreferrer" className="btn btn-dark-outline">Leave a Review</a>
   </div>
 </section>
 

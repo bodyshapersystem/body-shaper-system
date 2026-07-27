@@ -15,8 +15,13 @@ export const GOOGLE_MAPS_URL = `https://maps.google.com/?cid=${GOOGLE_CID}`;
 // Place ID ("ChIJ..." format) in its placeid param — a CID does NOT
 // work there (confirmed with a real 404 from Google, not a guess).
 // CID and Place ID are different identifiers for the same location;
-// we don't have the Place ID yet. Until we do, point both "read" and
-// "write a review" actions at the one link that's actually verified
-// to work — one tap further to the review composer, but never a
-// dead end. Update this the moment we have the real Place ID.
-export const GOOGLE_REVIEW_URL = GOOGLE_MAPS_URL;
+// we don't have the Place ID yet.
+//
+// This is the stable version of a working link Emmy found: searching
+// "opiniones de body shaper system llc" on Google surfaces the real
+// rate/review panel for the business. Her original link had a bunch
+// of session-specific tokens (authuser, sxsrf, si, ved, biw/bih/dpr —
+// tied to her exact device and logged-in Google account slot) that
+// would behave unpredictably or expire for any other visitor, so only
+// the actual search query was kept.
+export const GOOGLE_REVIEW_URL = "https://www.google.com/search?q=opiniones+de+body+shaper+system+llc";
