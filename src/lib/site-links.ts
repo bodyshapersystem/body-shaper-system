@@ -4,11 +4,19 @@
  * centralized here so there's exactly one place to update them.
  */
 
-// Body Shaper System™'s verified Google Business Profile. Using the
-// CID (not a ChIJ-style Place ID) — Google's write-review endpoint
-// accepts it under the same `placeid` query param.
-export const GOOGLE_REVIEW_URL = "https://search.google.com/local/writereview?placeid=13270517675364589804";
+// Body Shaper System™'s verified Google Business Profile CID.
+export const GOOGLE_CID = "13270517675364589804";
 
-// Same CID, different endpoint — opens the real Maps listing itself
-// (where visitors can read every review), not the write-a-review flow.
-export const GOOGLE_MAPS_URL = "https://maps.google.com/?cid=13270517675364589804";
+// The real Maps listing — confirmed working. Visitors can read every
+// review here, and tap the star rating to write one themselves.
+export const GOOGLE_MAPS_URL = `https://maps.google.com/?cid=${GOOGLE_CID}`;
+
+// IMPORTANT: search.google.com/local/writereview requires a real
+// Place ID ("ChIJ..." format) in its placeid param — a CID does NOT
+// work there (confirmed with a real 404 from Google, not a guess).
+// CID and Place ID are different identifiers for the same location;
+// we don't have the Place ID yet. Until we do, point both "read" and
+// "write a review" actions at the one link that's actually verified
+// to work — one tap further to the review composer, but never a
+// dead end. Update this the moment we have the real Place ID.
+export const GOOGLE_REVIEW_URL = GOOGLE_MAPS_URL;
