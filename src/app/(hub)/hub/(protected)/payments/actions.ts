@@ -199,13 +199,15 @@ export async function getFullPaymentDiscount() {
 }
 
 /**
- * Generates a real Payment Schedule: splits the assessment's
- * planTotalCents evenly across `installmentCount` PENDING Payment
- * rows, spaced `cadenceDays` apart starting today. The last
- * installment absorbs any rounding remainder so the sum always
- * equals the plan total exactly. Refuses to run if a schedule
- * already exists for this client (no duplicate schedules) or if no
- * plan total is set yet.
+ * Generates a real Payment Schedule: splits the client's remaining
+ * BALANCE (planTotalCents minus whatever's already PAID — e.g. a
+ * deposit) evenly across `installmentCount` PENDING Payment rows,
+ * spaced `cadenceDays` apart starting today. The last installment
+ * absorbs any rounding remainder so the sum always equals the real
+ * balance exactly — not the raw plan total, which would double-bill
+ * anything already paid. Refuses to run if a schedule already exists
+ * for this client (no duplicate schedules), if no plan total is set
+ * yet, or if the balance is already $0.
  */
 export async function generatePaymentSchedule(
   clientId: string,
@@ -224,9 +226,10 @@ export async function generatePaymentSchedule(
     return { error: "Enter a valid number of installments (1–24)." };
   }
 
-  const [assessment, existingSchedule] = await Promise.all([
+  const [assessment, existingSchedule, paidAgg] = await Promise.all([
     prisma.blueprintAssessment.findUnique({ where: { id: assessmentId } }),
     prisma.payment.findFirst({ where: { clientId, installmentTotal: { not: null } } }),
+    prisma.payment.aggregate({ where: { clientId, status: "PAID" }, _sum: { amountCents: true } }),
   ]);
 
   if (!assessment?.planTotalCents) {
@@ -236,8 +239,19 @@ export async function generatePaymentSchedule(
     return { error: "A payment schedule already exists for this client." };
   }
 
-  const base = Math.floor(assessment.planTotalCents / installmentCount);
-  const remainder = assessment.planTotalCents - base * installmentCount;
+  // Real fix: installments must be generated from the remaining
+  // BALANCE (Plan Total minus whatever's already been paid — e.g. a
+  // deposit), never the raw Plan Total itself, or the client would be
+  // billed for their deposit a second time.
+  const paidCents = paidAgg._sum.amountCents ?? 0;
+  const balanceCents = Math.max(assessment.planTotalCents - paidCents, 0);
+
+  if (balanceCents <= 0) {
+    return { error: "This client's balance is already $0 — nothing left to schedule." };
+  }
+
+  const base = Math.floor(balanceCents / installmentCount);
+  const remainder = balanceCents - base * installmentCount;
 
   const rows = Array.from({ length: installmentCount }, (_, i) => {
     const dueDate = new Date();
