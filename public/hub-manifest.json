@@ -7,29 +7,29 @@
   "scope": "/hub/",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#F5EEE4",
-  "theme_color": "#5C1A1F",
+  "background_color": "#2B2622",
+  "theme_color": "#2B2622",
   "icons": [
     {
-      "src": "/icon-192.png",
+      "src": "/icon-hub-192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/icon-192.png",
+      "src": "/icon-hub-192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "maskable"
     },
     {
-      "src": "/icon-512.png",
+      "src": "/icon-hub-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/icon-512.png",
+      "src": "/icon-hub-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"

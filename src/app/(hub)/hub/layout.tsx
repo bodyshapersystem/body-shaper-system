@@ -11,6 +11,10 @@ export const metadata: Metadata = {
     statusBarStyle: "black-translucent",
     title: "BSS Hub",
   },
+  icons: {
+    icon: [{ url: "/icon-hub-192.png", sizes: "192x192" }, { url: "/icon-hub-512.png", sizes: "512x512" }],
+    apple: [{ url: "/apple-touch-icon-hub.png", sizes: "180x180" }],
+  },
 };
 
 export default function HubLayout({ children }: { children: React.ReactNode }) {
