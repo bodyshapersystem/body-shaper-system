@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { buildMetadata } from "@/lib/seo";
+import { GOOGLE_MAPS_URL, GOOGLE_REVIEW_URL } from "@/lib/site-links";
 
 export const metadata: Metadata = buildMetadata({
   title: "Reviews",
@@ -75,6 +76,19 @@ export default function ReviewsPage() {
         </div>
       </div>
     </div>
+  </div>
+</section>
+
+{/* GOOGLE REVIEWS */}
+<section className="section" style={{textAlign: 'center', background: 'var(--beige)'}}>
+  <span className="eyebrow reveal" style={{display: 'block'}}>Verified on Google</span>
+  <h2 className="reveal" style={{fontFamily: 'var(--serif)', fontWeight: '400', fontSize: 'clamp(28px,3.6vw,42px)', margin: '16px 0 14px'}}>Read Our Google Reviews.</h2>
+  <p className="reveal" style={{maxWidth: '480px', margin: '0 auto 32px', opacity: 0.75}}>
+    See what real clients are saying on our Google Business Profile — Body Shaper System™ LLC.
+  </p>
+  <div className="actions reveal" style={{display: 'flex', gap: '16px', justifyContent: 'center', flexWrap: 'wrap'}}>
+    <a href={GOOGLE_MAPS_URL} target="_blank" rel="noopener noreferrer" className="btn btn-primary">See Our Google Reviews</a>
+    <a href={GOOGLE_REVIEW_URL} target="_blank" rel="noopener noreferrer" className="btn btn-dark-outline">Leave a Review</a>
   </div>
 </section>
 

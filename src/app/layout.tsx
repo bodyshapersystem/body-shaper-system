@@ -3,6 +3,7 @@ import Script from "next/script";
 import "./globals.css";
 import BrandOverlay, { type BrandOverlayMotif } from "@/components/BrandOverlay";
 import AnalyticsEventTracker from "@/components/AnalyticsEventTracker";
+import { GOOGLE_MAPS_URL } from "@/lib/site-links";
 
 const ALL_MOTIFS: BrandOverlayMotif[] = ["target", "dotgrid"];
 
@@ -30,7 +31,7 @@ const businessJsonLd = {
   },
   sameAs: [
     "https://instagram.com/bodyshapersystem_mia",
-    "https://maps.google.com/?cid=13270517675364589804",
+    GOOGLE_MAPS_URL,
   ],
   founder: {
     "@type": "Person",

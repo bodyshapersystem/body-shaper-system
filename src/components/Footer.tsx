@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { INSTAGRAM_URL, WHATSAPP_URL } from "@/lib/nav";
+import { GOOGLE_MAPS_URL } from "@/lib/site-links";
 
 export default function Footer() {
   return (
@@ -28,7 +29,7 @@ export default function Footer() {
             <h4>Connect</h4>
             <a href={INSTAGRAM_URL}>Instagram — @bodyshapersystem_mia</a>
             <a href={WHATSAPP_URL}>WhatsApp — Chat with a Specialist</a>
-            <a href="https://maps.google.com/?cid=13270517675364589804" target="_blank" rel="noopener noreferrer">
+            <a href={GOOGLE_MAPS_URL} target="_blank" rel="noopener noreferrer">
               Find us on Google
             </a>
             <a href="https://bodyshapersystem.com">bodyshapersystem.com</a>

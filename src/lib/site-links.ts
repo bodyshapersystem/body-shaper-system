@@ -8,3 +8,7 @@
 // CID (not a ChIJ-style Place ID) — Google's write-review endpoint
 // accepts it under the same `placeid` query param.
 export const GOOGLE_REVIEW_URL = "https://search.google.com/local/writereview?placeid=13270517675364589804";
+
+// Same CID, different endpoint — opens the real Maps listing itself
+// (where visitors can read every review), not the write-a-review flow.
+export const GOOGLE_MAPS_URL = "https://maps.google.com/?cid=13270517675364589804";
