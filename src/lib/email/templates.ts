@@ -310,6 +310,7 @@ export function buildWelcomeActivationEmail(params: {
       bodyParagraphs: [
         `${greeting}, welcome — I'm so glad you're here.`,
         "Your Client Portal has been prepared for you, with your Body Blueprint™, appointments, progress, and documents all in one place.",
+        "<strong>Tip: save it to your phone like an app.</strong><br>After you activate below, open the Portal in Safari (iPhone) or Chrome (Android) and:<br>📱 <strong>iPhone:</strong> tap the Share icon, then \"Add to Home Screen.\"<br>📱 <strong>Android:</strong> tap the menu (⋮), then \"Install app\" or \"Add to Home Screen.\"<br>You'll get a real app icon — no App Store needed.",
       ],
       infoMomentIcon: "⏱",
       infoMomentHtml: "Activate your account below to set your password and step inside your Portal.",
