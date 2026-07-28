@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { buildMetadata } from "@/lib/seo";
 import { WHATSAPP_URL, JOTFORM_BLUEPRINT_URL } from "@/lib/nav";
-import { GOOGLE_MAPS_URL } from "@/lib/site-links";
+import { GOOGLE_REVIEW_URL } from "@/lib/site-links";
 
 export const metadata: Metadata = buildMetadata({
   title: "Links",
@@ -14,7 +14,7 @@ const LINKS = [
   { label: "Book Your Blueprint Consultation", sub: "Reserve online with a $350 deposit", href: "/book-appointment", bg: "burgundy" },
   { label: "Build My Blueprint™ — Free Assessment", sub: "Tell us your goals, get your plan", href: JOTFORM_BLUEPRINT_URL, bg: "stone" },
   { label: "Chat with a Specialist", sub: "WhatsApp", href: WHATSAPP_URL, bg: "burgundy" },
-  { label: "See Our Google Reviews", sub: "Read what real clients say", href: GOOGLE_MAPS_URL, bg: "stone" },
+  { label: "See Our Google Reviews", sub: "Read what real clients say", href: GOOGLE_REVIEW_URL, bg: "stone" },
   { label: "Visit Our Website", sub: "bodyshapersystem.com", href: "/", bg: "burgundy" },
 ] as const;
 
