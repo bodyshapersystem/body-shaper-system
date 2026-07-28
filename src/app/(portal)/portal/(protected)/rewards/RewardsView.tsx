@@ -324,7 +324,7 @@ export default function RewardsView({
                     </li>
                     <li>Choose ONE of the captions below.</li>
                     <li>Post it to your Instagram Story.</li>
-                    <li>Tag @bodyshapersystem_mia.</li>
+                    <li>Tag @bodyshapersystem.</li>
                     <li>Keep your story live for at least 24 hours.</li>
                   </ol>
                 )}
@@ -392,7 +392,7 @@ export default function RewardsView({
             <div className="rw-society-rules-card">
               <p className="rw-society-rules-title">Society Rules</p>
               <ul className="rw-society-rules-list">
-                <li>Always tag @bodyshapersystem_mia</li>
+                <li>Always tag @bodyshapersystem</li>
                 <li>Complete missions before the deadline</li>
                 <li>Never reveal what your mission is</li>
                 <li>Use the official text we provide</li>

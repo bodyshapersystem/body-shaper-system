@@ -30,7 +30,7 @@ const businessJsonLd = {
     addressCountry: "US",
   },
   sameAs: [
-    "https://instagram.com/bodyshapersystem_mia",
+    "https://instagram.com/bodyshapersystem",
     GOOGLE_MAPS_URL,
   ],
   founder: {

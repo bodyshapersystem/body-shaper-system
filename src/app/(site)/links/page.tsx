@@ -51,7 +51,7 @@ export default function LinksPage() {
           ))}
         </div>
         <p style={{ fontFamily: "var(--sans)", fontSize: 11, color: "#a89e8f", marginTop: 40 }}>
-          @bodyshapersystem_mia
+          @bodyshapersystem
         </p>
       </div>
     </div>

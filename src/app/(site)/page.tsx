@@ -208,7 +208,7 @@ export default function HomePage() {
       </section>
 
       <section className="journey section" id="techtalks">
-        <span className="eyebrow reveal">@bodyshapersystem_mia</span>
+        <span className="eyebrow reveal">@bodyshapersystem</span>
         <h2 className="reveal">Follow the Journey</h2>
         <p className="reveal">
           Follow our transformations, Body Talks™, technology education,
@@ -236,7 +236,7 @@ export default function HomePage() {
           href={INSTAGRAM_URL}
           className="btn btn-dark-outline reveal"
         >
-          Follow @bodyshapersystem_mia
+          Follow @bodyshapersystem
         </a>
       </section>
 
