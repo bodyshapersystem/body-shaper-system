@@ -12,6 +12,9 @@ const FAQ_DATA: FaqCategory[] = [
       { q: "What is the Body Blueprint™?", a: "It's the personalized evaluation process we use to understand your goals, body composition, lifestyle and priorities before recommending a Personalized System™ — never before." },
       { q: "Why don't you recommend the same treatment for everyone?", a: "Because no two bodies are identical. Two clients with the same goal can require completely different strategies — that's the entire philosophy behind Body Shaper System™." },
       { q: "How do I know which system is right for me?", a: "Every recommendation begins with your Body Blueprint™. It's how we determine the system, technologies and timeline that make sense for your body." },
+      { q: "How much does body contouring cost in Miami?", a: "Pricing depends entirely on your Personalized System™ — the technologies, number of sessions and timeline your Body Blueprint™ recommends. Start with a consultation and we'll give you exact pricing for your plan." },
+      { q: "Do you serve my area?", a: "Yes — we bring the In-Home Experience™ directly to you throughout Miami-Dade, Broward and Palm Beach counties, including Miami, Miami Beach, Coconut Grove, Coral Gables, Brickell and Kendall." },
+      { q: "How many sessions do I need to see results?", a: "This varies by system and body type — your Body Blueprint™ determines the exact number of sessions for your goals, so there's no one-size-fits-all answer." },
     ],
   },
   {

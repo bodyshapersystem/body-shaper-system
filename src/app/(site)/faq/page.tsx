@@ -23,6 +23,38 @@ const faqJsonLd = {
     },
     {
       "@type": "Question",
+      name: "How do I know which system is right for me?",
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: "Every recommendation begins with your Body Blueprint™. It's how we determine the system, technologies and timeline that make sense for your body.",
+      },
+    },
+    {
+      "@type": "Question",
+      name: "How much does body contouring cost in Miami?",
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: "Pricing depends entirely on your Personalized System™ — the technologies, number of sessions and timeline your Body Blueprint™ recommends. Start with a consultation and we'll give you exact pricing for your plan.",
+      },
+    },
+    {
+      "@type": "Question",
+      name: "Do you serve my area?",
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: "Yes — we bring the In-Home Experience™ directly to you throughout Miami-Dade, Broward and Palm Beach counties, including Miami, Miami Beach, Coconut Grove, Coral Gables, Brickell and Kendall.",
+      },
+    },
+    {
+      "@type": "Question",
+      name: "How many sessions do I need to see results?",
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: "This varies by system and body type — your Body Blueprint™ determines the exact number of sessions for your goals, so there's no one-size-fits-all answer.",
+      },
+    },
+    {
+      "@type": "Question",
       name: "Why don't you recommend the same treatment for everyone?",
       acceptedAnswer: {
         "@type": "Answer",
