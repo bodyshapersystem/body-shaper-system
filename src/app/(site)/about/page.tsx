@@ -9,9 +9,24 @@ export const metadata: Metadata = buildMetadata({
   path: "/about",
 });
 
+const emmyJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Person",
+  name: "Emmy Branger",
+  jobTitle: "Founder",
+  worksFor: {
+    "@type": "HealthAndBeautyBusiness",
+    name: "Body Shaper System™",
+    url: "https://www.bodyshapersystem.com",
+  },
+  sameAs: ["https://instagram.com/bodyshapersystem"],
+  image: "https://www.bodyshapersystem.com/images/about-meet-emmy.jpg",
+};
+
 export default function AboutPage() {
   return (
     <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(emmyJsonLd) }} />
       {/* TOP — WORDMARK */}
       <section className="about-top">
         <div className="about-wordmark reveal in">

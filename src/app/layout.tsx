@@ -36,6 +36,7 @@ const businessJsonLd = {
   founder: {
     "@type": "Person",
     name: "Emmy Branger",
+    jobTitle: "Founder",
   },
   foundingDate: "2017",
   makesOffer: [
