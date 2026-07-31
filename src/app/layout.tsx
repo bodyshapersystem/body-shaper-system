@@ -4,6 +4,7 @@ import "./globals.css";
 import BrandOverlay, { type BrandOverlayMotif } from "@/components/BrandOverlay";
 import AnalyticsEventTracker from "@/components/AnalyticsEventTracker";
 import { GOOGLE_MAPS_URL } from "@/lib/site-links";
+import { FACEBOOK_URL } from "@/lib/nav";
 
 const ALL_MOTIFS: BrandOverlayMotif[] = ["target", "dotgrid"];
 
@@ -31,6 +32,7 @@ const businessJsonLd = {
   },
   sameAs: [
     "https://instagram.com/bodyshapersystem",
+    FACEBOOK_URL,
     GOOGLE_MAPS_URL,
   ],
   founder: {

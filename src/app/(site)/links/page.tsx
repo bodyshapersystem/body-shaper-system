@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { buildMetadata } from "@/lib/seo";
-import { WHATSAPP_URL, JOTFORM_BLUEPRINT_URL } from "@/lib/nav";
+import { WHATSAPP_URL, JOTFORM_BLUEPRINT_URL, FACEBOOK_URL } from "@/lib/nav";
 import { GOOGLE_REVIEW_URL } from "@/lib/site-links";
 
 export const metadata: Metadata = buildMetadata({
@@ -16,6 +16,7 @@ const LINKS = [
   { label: "Chat with a Specialist", sub: "WhatsApp", href: WHATSAPP_URL, bg: "burgundy" },
   { label: "See Our Google Reviews", sub: "Read what real clients say", href: GOOGLE_REVIEW_URL, bg: "stone" },
   { label: "Visit Our Website", sub: "bodyshapersystem.com", href: "/", bg: "burgundy" },
+  { label: "Follow on Facebook", sub: "@bodyshapersystem", href: FACEBOOK_URL, bg: "stone" },
 ] as const;
 
 const BG_IMAGE: Record<"burgundy" | "stone", string> = {
