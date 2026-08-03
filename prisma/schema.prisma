@@ -363,6 +363,13 @@ model BlueprintAssessment {
   validatedFrequency     String?
   initialSessionCount    Int?
   validatedSessionCount  Int?
+  // Manual credit for sessions the client already completed BEFORE
+  // being added to the portal (e.g. they started treatment in person
+  // weeks/months before onboarding) — added on top of the real
+  // COMPLETED-Appointment count everywhere progress is shown, without
+  // needing to fabricate backdated Appointment rows for history that
+  // predates this system. Set directly by the Owner, defaults to 0.
+  priorCompletedSessions Int     @default(0)
   complementarySessions  String?
   homeCareGuidance       String?
   optimizationNotes      String?
@@ -1065,6 +1072,7 @@ enum EmailTemplate {
   SOCIETY_WELCOME
   WE_MISS_YOU
   FIRST_SESSION_CHECKIN
+  NEW_PROGRESS_PHOTOS
 }
 
 enum EmailStatus {

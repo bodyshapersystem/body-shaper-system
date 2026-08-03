@@ -6,6 +6,7 @@ import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { revalidatePath } from "next/cache";
 import { recordStrategyChange, getActiveAssessmentForClient } from "@/lib/blueprint-assessments";
 import { createNotification } from "@/lib/notifications";
+import { sendNewProgressPhotosEmail } from "@/lib/email/service";
 import type { PhotoType, Visibility, BodyType } from "@prisma/client";
 
 const VALID_BODY_TYPES: BodyType[] = ["hourglass", "pear", "apple", "rectangle", "inverted_triangle"];
@@ -189,6 +190,8 @@ export async function recordProgressPhoto(
 
   const assessment = await getActiveAssessmentForClient(clientId);
 
+  const visibility = data.visibility ?? "INTERNAL_ONLY";
+
   await prisma.photo.create({
     data: {
       clientId,
@@ -198,11 +201,26 @@ export async function recordProgressPhoto(
       takenAt: data.takenAt ? new Date(data.takenAt) : undefined,
       specialistId: user.id,
       notes: data.notes,
-      visibility: data.visibility ?? "INTERNAL_ONLY",
+      visibility,
     },
   });
 
   await maybeAdvanceToBaselineCompleted(clientId);
+
+  // Only notify the client for photos they can actually see — an
+  // internal-only photo is deliberately not something to email them
+  // about.
+  if (visibility === "CLIENT_VISIBLE") {
+    const client = await prisma.client.findUnique({ where: { id: clientId } });
+    if (client) {
+      await sendNewProgressPhotosEmail({
+        clientId,
+        firstName: client.firstName,
+        email: client.email,
+        portalUrl: "https://www.bodyshapersystem.com/portal/photos",
+      }).catch(() => undefined);
+    }
+  }
 
   revalidatePath(`/hub/clients/${clientId}`);
   return { success: true };
@@ -454,6 +472,8 @@ export async function updateSystemDetails(assessmentId: string, formData: FormDa
   const validatedSessionCount = validatedSessionCountRaw ? Number(validatedSessionCountRaw) : null;
   const complementarySessions = (formData.get("complementarySessions") as string) || null;
   const homeCareGuidance = (formData.get("homeCareGuidance") as string) || null;
+  const priorCompletedSessionsRaw = formData.get("priorCompletedSessions");
+  const priorCompletedSessions = priorCompletedSessionsRaw ? Math.max(Number(priorCompletedSessionsRaw), 0) : 0;
 
   const assessment = await prisma.blueprintAssessment.findUnique({ where: { id: assessmentId }, select: { clientId: true } });
   if (!assessment) return { error: "Assessment not found." };
@@ -468,6 +488,7 @@ export async function updateSystemDetails(assessmentId: string, formData: FormDa
       validatedSessionCount,
       complementarySessions,
       homeCareGuidance,
+      priorCompletedSessions,
     },
   });
 

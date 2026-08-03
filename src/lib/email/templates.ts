@@ -533,16 +533,17 @@ export function buildSystemCompletedEmail(params: {
     subject: `Congratulations, ${name} — you completed your ${systemName}!`,
     html: emailShell({
       eyebrowScript: "congratulations!",
-      headline: "you did it.",
-      headlineAccent: `you completed your ${systemName}!`,
+      headline: "you completed",
+      headlineAccent: `your ${systemName}!`,
       subheadlineLines: ["YOUR RESULTS ARE", "WORTH CELEBRATING."],
       bodyParagraphs: [
-        `${greeting}, this is more than the end of a program — it's the beginning of your next chapter.`,
-        "Your dedication, consistency, and trust in the Body Shaper System™ process made this transformation possible. We are so proud of you.",
+        `${greeting}, we want to congratulate you on the results you've achieved — they reflect the work we built together, session by session.`,
+        "Your before-and-after photos and full progress are already updated in your Client Portal.",
+        "<strong>What's next?</strong><br>✦ <strong>Upgrade to your next system</strong> — keep building on the results you already have.<br>✦ <strong>Maintenance</strong> — a lighter plan to help you hold onto your results long-term.<br>Either way, we'd love to keep working with you.",
       ],
-      featureCard: { variant: "A", icon: "✨", text: "Your transformation doesn't stop here. Let's keep building on your results and elevating your next level." },
+      featureCard: { variant: "A", icon: "✨", text: "Ready for what's next? Let's talk about your next system or a maintenance plan." },
       featureCardIcon: "✨",
-      ctaLabel: "View My Next Steps",
+      ctaLabel: "View My Results in the Portal",
       ctaUrl: portalUrl,
       closingText: "Thank you for trusting us with your journey — we can't wait to see what's next for you.",
     }),
@@ -578,6 +579,33 @@ export function buildSessionReminderEmail(params: {
       ctaLabel: "View My Appointment Details",
       ctaUrl: portalUrl,
       closingText: "If you need to make any changes, please contact your concierge as soon as possible.",
+    }),
+  };
+}
+
+export function buildNewProgressPhotosEmail(params: {
+  firstName: string;
+  portalUrl: string;
+}): { subject: string; html: string } {
+  const { firstName, portalUrl } = params;
+  const name = firstName?.trim() || "beautiful";
+  const greeting = firstName?.trim() ? `Hi ${firstName.trim()}` : "Hello beautiful";
+  return {
+    subject: `New progress photos added, ${name}`,
+    html: emailShell({
+      eyebrowScript: "new update.",
+      headline: "new progress",
+      headlineAccent: "photos added.",
+      subheadlineLines: ["SEE HOW FAR", "YOU'VE COME."],
+      bodyParagraphs: [
+        `${greeting}, new progress photos have been added to your Client Portal.`,
+        "Take a look and see your transformation building session by session.",
+      ],
+      featureCard: { variant: "A", icon: "📸", text: "Log in to your Client Portal to view your latest progress photos." },
+      featureCardIcon: "📸",
+      ctaLabel: "View My Progress",
+      ctaUrl: portalUrl,
+      closingText: "Every session is a step forward — we're proud of you.",
     }),
   };
 }

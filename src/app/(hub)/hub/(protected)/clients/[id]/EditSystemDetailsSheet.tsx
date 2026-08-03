@@ -15,6 +15,7 @@ export default function EditSystemDetailsSheet({
   validatedSessionCount,
   complementarySessions,
   homeCareGuidance,
+  priorCompletedSessions,
 }: {
   assessmentId: string;
   recommendedSystem: string;
@@ -24,6 +25,7 @@ export default function EditSystemDetailsSheet({
   validatedSessionCount: string;
   complementarySessions: string;
   homeCareGuidance: string;
+  priorCompletedSessions: string;
 }) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
@@ -86,6 +88,13 @@ export default function EditSystemDetailsSheet({
                 <label className="sched-label">
                   Sessions
                   <input name="validatedSessionCount" type="number" defaultValue={validatedSessionCount} className="sched-select" />
+                </label>
+                <label className="sched-label">
+                  Prior Completed Sessions
+                  <input name="priorCompletedSessions" type="number" min={0} defaultValue={priorCompletedSessions} className="sched-select" />
+                  <span className="pay-history-meta" style={{ display: "block", marginTop: 4 }}>
+                    Sessions already done before joining the portal — no appointment records needed.
+                  </span>
                 </label>
               </div>
               <label className="sched-label">

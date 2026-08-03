@@ -13,6 +13,7 @@ import {
   buildSystemCompletedEmail,
   buildSessionReminderEmail,
   buildNewDocumentAvailableEmail,
+  buildNewProgressPhotosEmail,
   buildAmbassadorWelcomeEmail,
   buildWeMissYouEmail,
   buildSocietyWelcomeEmail,
@@ -48,7 +49,8 @@ type EmailTemplateName =
   | "AMBASSADOR_WELCOME"
   | "SOCIETY_WELCOME"
   | "WE_MISS_YOU"
-  | "FIRST_SESSION_CHECKIN";
+  | "FIRST_SESSION_CHECKIN"
+  | "NEW_PROGRESS_PHOTOS";
 
 async function logAndSend(params: {
   clientId?: string;
@@ -329,6 +331,13 @@ export async function sendSessionReminderEmail(params: {
 }
 
 /** Sent when the Owner uploads a new CLIENT_VISIBLE document. */
+/** Sent when new client-visible progress photos are added — skipped for INTERNAL_ONLY photos. */
+export async function sendNewProgressPhotosEmail(params: { clientId: string; firstName: string; email: string; portalUrl: string }) {
+  const { clientId, firstName, email, portalUrl } = params;
+  const { subject, html } = buildNewProgressPhotosEmail({ firstName, portalUrl });
+  return logAndSend({ clientId, template: "NEW_PROGRESS_PHOTOS", sender: SENDERS.concierge, recipient: email, subject, html });
+}
+
 export async function sendNewDocumentAvailableEmail(params: {
   clientId: string;
   firstName: string;

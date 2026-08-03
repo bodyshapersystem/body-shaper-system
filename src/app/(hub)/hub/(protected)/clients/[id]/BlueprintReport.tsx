@@ -503,6 +503,7 @@ export default async function BlueprintReport({
                 validatedSessionCount={String(assessment.validatedSessionCount ?? assessment.initialSessionCount ?? "")}
                 complementarySessions={assessment.complementarySessions ?? ""}
                 homeCareGuidance={assessment.homeCareGuidance ?? ""}
+                priorCompletedSessions={String(assessment.priorCompletedSessions ?? 0)}
               />
             )}
           </p>
@@ -552,6 +553,7 @@ export default async function BlueprintReport({
                 validatedSessionCount={String(assessment.validatedSessionCount ?? assessment.initialSessionCount ?? "")}
                 complementarySessions={assessment.complementarySessions ?? ""}
                 homeCareGuidance={assessment.homeCareGuidance ?? ""}
+                priorCompletedSessions={String(assessment.priorCompletedSessions ?? 0)}
               />
             )}
           </p>

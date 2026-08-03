@@ -401,17 +401,23 @@ export async function getClientOverviewSummary(clientId: string) {
 
   const assessment = client.blueprintAssessments[0];
   const totalSessions = assessment?.validatedSessionCount ?? null;
-  const remaining = totalSessions !== null ? Math.max(totalSessions - completedCount, 0) : null;
+  // Real completed appointments + the manual pre-portal credit, so a
+  // client who started treatment before joining the portal shows
+  // accurate progress without needing fabricated backdated appointments.
+  const priorCompletedSessions = assessment?.priorCompletedSessions ?? 0;
+  const totalCompletedCount = completedCount + priorCompletedSessions;
+  const remaining = totalSessions !== null ? Math.max(totalSessions - totalCompletedCount, 0) : null;
   const planTotalCents = assessment?.planTotalCents ?? null;
   const paidCents = paidAgg._sum.amountCents ?? 0;
   const pendingCents = pendingAgg._sum.amountCents ?? 0;
   const balanceCents = planTotalCents !== null ? Math.max(planTotalCents - paidCents, 0) : null;
-  const overallProgressPercent = totalSessions !== null && totalSessions > 0 ? Math.round((completedCount / totalSessions) * 100) : null;
+  const overallProgressPercent = totalSessions !== null && totalSessions > 0 ? Math.round((totalCompletedCount / totalSessions) * 100) : null;
 
   return {
     system: assessment?.recommendedSystem ?? null,
     totalSessions,
-    completedCount,
+    completedCount: totalCompletedCount,
+    priorCompletedSessions,
     remaining,
     onHoldCount: noShowCount,
     overallProgressPercent,

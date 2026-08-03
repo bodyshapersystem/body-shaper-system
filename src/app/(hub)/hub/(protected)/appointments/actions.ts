@@ -131,14 +131,15 @@ export async function updateAppointment(
     const assessment = client?.blueprintAssessments[0];
     const totalSessions = assessment?.validatedSessionCount ?? null;
     if (client && totalSessions !== null) {
-      const completedCount = await prisma.appointment.count({ where: { clientId: client.id, status: "COMPLETED" } });
+      const realCompletedCount = await prisma.appointment.count({ where: { clientId: client.id, status: "COMPLETED" } });
+      const completedCount = realCompletedCount + (assessment?.priorCompletedSessions ?? 0);
       if (completedCount === totalSessions) {
         await sendSystemCompletedEmail({
           clientId: client.id,
           firstName: client.firstName,
           email: client.email,
           systemName: assessment?.recommendedSystem ?? "Personalized System™",
-          portalUrl: "https://www.bodyshapersystem.com/portal/dashboard",
+          portalUrl: "https://www.bodyshapersystem.com/portal/blueprint",
         }).catch(() => undefined);
         await createNotification({
           clientId: client.id,
