@@ -51,11 +51,11 @@ export default function StrategySheet({ clientId, ctaLabel }: { clientId: string
                 </label>
               </div>
               <label className="sched-label">
-                Complementary Technologies
+                After Care
                 <input name="complementarySessions" className="sched-select" />
               </label>
               <label className="sched-label">
-                Home-Care Guidance
+                Home Care Guidance
                 <textarea name="homeCareGuidance" rows={2} className="sched-textarea" />
               </label>
               <label className="sched-label">

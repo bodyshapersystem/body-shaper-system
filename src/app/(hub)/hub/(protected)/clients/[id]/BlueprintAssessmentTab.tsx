@@ -368,7 +368,7 @@ export default function BlueprintAssessmentTab({
                 <span>{assessment.validatedSessionCount ?? "Not yet validated"}</span>
               </div>
               <div className="cl-summary-row">
-                <span>Complementary</span>
+                <span>After Care</span>
                 <span>{assessment.complementarySessions ?? "Not set"}</span>
               </div>
               <div className="cl-summary-row">

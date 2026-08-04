@@ -98,7 +98,7 @@ export default function EditSystemDetailsSheet({
                 </label>
               </div>
               <label className="sched-label">
-                Complementary Sessions
+                After Care
                 <input name="complementarySessions" defaultValue={complementarySessions} className="sched-select" />
               </label>
               <label className="sched-label">
