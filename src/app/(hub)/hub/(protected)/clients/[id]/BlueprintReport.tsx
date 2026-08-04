@@ -312,18 +312,22 @@ export default async function BlueprintReport({
   return (
     <div className="bbp-root">
       {/* ---------- Hero Photo — now shown in both Owner Hub and Client Portal per direction ---------- */}
-      <img src="/images/blueprint/hero-blueprint-experience.jpg" alt="Emmy Branger, founder of Body Shaper System" className="bbp-hero-photo-block" />
+      <div className="bbp-hero-photo-wrap">
+        <img src="/images/blueprint/hero-blueprint-experience.jpg" alt="Emmy Branger, founder of Body Shaper System" className="bbp-hero-photo-block" />
+        <div className="bbp-hero-photo-overlay">
+          <p className="bbp-hero-eyebrow bbp-hero-eyebrow-onphoto">the body blueprint™</p>
+          <p className="bbp-hero-welcome-line bbp-hero-welcome-line-onphoto">Welcome back,</p>
+          <p className="bbp-hero-name bbp-hero-name-onphoto">
+            {client.firstName} {client.lastName}
+          </p>
+        </div>
+      </div>
 
       {/* ---------- Executive Summary ---------- */}
       <div className="bbp-hero">
         <div className="bbp-hero-welcome bp-tex-cream">
           <div className="bbp-hero-welcome-body">
             <div>
-              <p className="bbp-hero-eyebrow">the body blueprint™</p>
-              <p className="bbp-hero-welcome-line">Welcome back,</p>
-              <p className="bbp-hero-name">
-                {client.firstName} {client.lastName}
-              </p>
               <div className="bbp-badge-row">
                 {assessment.recommendedSystem && <span className="bbp-badge">{assessment.recommendedSystem}</span>}
                 <span className="bbp-badge">{STATUS_LABELS[assessment.status] ?? assessment.status}</span>

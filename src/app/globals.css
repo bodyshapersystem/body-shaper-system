@@ -3707,19 +3707,34 @@
 }
 
 /* ---------- Blueprint hero — real photography for Client Portal only, as its own standalone block (no overlap with text) ---------- */
+.bbp-hero-photo-wrap{
+  position:relative;
+  margin-bottom:20px;
+}
 .bbp-hero-photo-block{
   width:100%;
-  max-height:420px;
+  max-height:560px;
   object-fit:cover;
   object-position:center 20%;
   border-radius:22px;
   display:block;
-  margin-bottom:20px;
+  margin-bottom:0;
   box-shadow:0 16px 40px rgba(43,38,34,0.18);
   border:1px solid rgba(200,161,90,0.25);
 }
+.bbp-hero-photo-overlay{
+  position:absolute;
+  left:0; right:0; bottom:0;
+  padding:28px 32px;
+  background:linear-gradient(to top, rgba(20,16,13,0.72) 0%, rgba(20,16,13,0.35) 55%, rgba(20,16,13,0) 100%);
+  border-radius:0 0 22px 22px;
+}
+.bbp-hero-eyebrow-onphoto{ color:rgba(241,235,225,0.85) !important; }
+.bbp-hero-welcome-line-onphoto{ color:rgba(241,235,225,0.85) !important; }
+.bbp-hero-name-onphoto{ color:#F1EBE1 !important; text-shadow:0 2px 10px rgba(0,0,0,0.4); }
 @media (max-width:760px){
-  .bbp-hero-photo-block{ max-height:260px; }
+  .bbp-hero-photo-block{ max-height:340px; }
+  .bbp-hero-photo-overlay{ padding:20px 20px; }
 }
 
 /* ---------- Blueprint — real texture card backgrounds, "last version" set (Milestone: texture fill) ---------- */
