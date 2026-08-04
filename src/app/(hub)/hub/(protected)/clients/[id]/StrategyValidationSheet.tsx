@@ -1,13 +1,9 @@
 "use client";
 
-// Rebuilt after a stale React Client Manifest error in production
-// (digest 138904925 — "Could not find the module .../StrategySheet.tsx#default
-// in the React Client Manifest"). No functional change; this forces a
-// clean rebuild of this client component's bundle.
 import { useState, useTransition } from "react";
 import { validateAssessment } from "./blueprint-actions";
 
-export default function StrategySheet({ clientId, ctaLabel }: { clientId: string; ctaLabel: string }) {
+export default function StrategyValidationSheet({ clientId, ctaLabel }: { clientId: string; ctaLabel: string }) {
   const [open, setOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState("");

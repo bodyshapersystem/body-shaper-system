@@ -3,7 +3,7 @@ import { AccordionGroup, AccordionItem } from "./AccordionGroup";
 import { RulerIcon, ScaleIcon, CameraIcon, NoteIcon, StrategyIcon } from "./BlueprintIcons";
 import PhotoCaptureSheet from "./PhotoCaptureSheet";
 import ObservationSheet from "./ObservationSheet";
-import StrategySheet from "./StrategySheet";
+import StrategyValidationSheet from "./StrategyValidationSheet";
 import MeasurementSheet from "./MeasurementSheet";
 import BodyCompositionSheet from "./BodyCompositionSheet";
 import BodyTypeSheet from "./BodyTypeSheet";
@@ -389,7 +389,7 @@ export default function BlueprintAssessmentTab({
 
         {canManage && assessment.status !== "VALIDATED" && (
           <div style={{ marginTop: 20 }}>
-            <StrategySheet
+            <StrategyValidationSheet
               clientId={client.id}
               ctaLabel={canValidate ? "Validate Blueprint Assessment™" : "Save (validation requires completed baseline)"}
             />
