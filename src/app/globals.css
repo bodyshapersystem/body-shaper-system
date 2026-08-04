@@ -2947,7 +2947,7 @@
 .bbp-focus-list li{ font-family:var(--sans); font-size:12.5px; color:#F1EBE1; display:flex; align-items:center; gap:8px; }
 .bbp-focus-dot{ width:4px; height:4px; border-radius:100%; background:var(--bbp-gold); flex-shrink:0; }
 
-.bbp-system-card{ border-radius:14px; padding:18px 20px; background:var(--olive,#8A8B6C); color:#F1EBE1; display:flex; align-items:center; justify-content:space-between; gap:14px; margin-bottom:18px; }
+.bbp-system-card{ border-radius:14px; padding:18px 20px; background:#5C1A1F; color:#F1EBE1; display:flex; align-items:center; justify-content:space-between; gap:14px; margin-bottom:18px; }
 .bbp-system-name{ font-family:var(--serif); font-size:21px; margin:0; }
 .bbp-system-sub{ font-family:var(--sans); font-size:10px; letter-spacing:0.06em; text-transform:uppercase; color:rgba(241,235,225,0.7); margin-top:4px; }
 .bbp-protocol-list{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:9px; }
