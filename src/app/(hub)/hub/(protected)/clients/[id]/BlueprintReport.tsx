@@ -7,10 +7,10 @@ import { BODY_TYPE_CONTENT, getBodyTypeRationale } from "@/lib/body-types";
 import EditSystemDetailsSheet from "./EditSystemDetailsSheet";
 import MarkSystemCompletedButton from "./MarkSystemCompletedButton";
 import RecordRenphoScanSheet from "./RecordRenphoScanSheet";
-import RenphoMetricsGrid from "./RenphoMetricsGrid";
 import BodyTypeSheet from "./BodyTypeSheet";
 import { getPhotoSignedUrl } from "./blueprint-actions";
 import { getBusinessTimezone, formatDateInTimezone } from "@/lib/format-datetime";
+import { computeBlueprintScore } from "@/lib/blueprint-score";
 
 type ClientWithBlueprint = Prisma.ClientGetPayload<{
   include: {
@@ -219,7 +219,7 @@ export default async function BlueprintReport({
   const assessment = client.blueprintAssessments[0];
   if (!assessment) return null;
 
-  const [completedCount, nextAppointment, paidAgg, specialist, completedAppointments, paidPayments, timezone] = await Promise.all([
+  const [completedCount, nextAppointment, paidAgg, specialist, completedAppointments, paidPayments, timezone, blueprintScore] = await Promise.all([
     // Per direction: an appointment counts as done once its time has
     // passed, without requiring the Owner to manually flip its status
     // to Completed first. Still respects explicit CANCELLED/NO_SHOW
@@ -237,6 +237,7 @@ export default async function BlueprintReport({
     }),
     prisma.payment.findMany({ where: { clientId, status: "PAID" }, orderBy: { paidAt: "asc" } }),
     getBusinessTimezone(),
+    computeBlueprintScore(clientId),
   ]);
   const nextPendingPayment = await prisma.payment.findFirst({
     where: { clientId, status: { in: ["PENDING", "PARTIAL"] } },
@@ -394,28 +395,90 @@ export default async function BlueprintReport({
             <RecordRenphoScanSheet clientId={clientId} assessmentId={assessment.id} />
           </div>
         )}
-        <div className="bbp-composition bbp-composition-archived">
-          {/* "your body at a glance" card archived per direction — kept as a comment, not deleted, in case it's revisited later:
-          <div className="bbp-card bbp-composition-visual">
+        <div className="bbp-composition">
+          <div className="bbp-card bbp-card-dark bbp-composition-visual">
             <div>
-              <p className="bbp-composition-heading">your body<br />at a glance.</p>
+              <p className="bbp-composition-heading">
+                your body
+                <br />
+                at a glance.
+              </p>
               <p className="bbp-composition-copy">These numbers tell a story. We're here to rewrite it.</p>
+              <span className="bbp-composition-rule" />
+              {latestRenpho ? (
+                <ul className="bbp-glance-list">
+                  <li>
+                    <span>Weight</span>
+                    <strong>{latestRenpho.weightKg ? (latestRenpho.weightKg * 2.2046226).toFixed(1) : "—"} lbs</strong>
+                  </li>
+                  <li>
+                    <span>BMI</span>
+                    <strong>{latestRenpho.bmi?.toFixed(1) ?? "—"}</strong>
+                  </li>
+                  <li>
+                    <span>Body Fat %</span>
+                    <strong>{latestRenpho.bodyFatPercent?.toFixed(1) ?? "—"}%</strong>
+                  </li>
+                  <li>
+                    <span>Visceral Fat</span>
+                    <strong>{latestRenpho.visceralFat ?? "—"}</strong>
+                  </li>
+                  <li>
+                    <span>Muscle Mass</span>
+                    <strong>{latestRenpho.muscleMassKg ? (latestRenpho.muscleMassKg * 2.2046226).toFixed(1) : "—"} lbs</strong>
+                  </li>
+                  <li>
+                    <span>Bone Mass</span>
+                    <strong>{latestRenpho.boneMassKg ? (latestRenpho.boneMassKg * 2.2046226).toFixed(1) : "—"} lbs</strong>
+                  </li>
+                  <li>
+                    <span>BMR</span>
+                    <strong>{latestRenpho.bmr ?? "—"} kcal</strong>
+                  </li>
+                  <li>
+                    <span>Metabolic Age</span>
+                    <strong>{latestRenpho.bodyAge ?? "—"}</strong>
+                  </li>
+                </ul>
+              ) : (
+                <EmptyState title="no composition data yet." sub="Record a RENPHO scan to populate this section of the Blueprint." />
+              )}
+              {mode === "owner" && (
+                <Link href={`/hub/clients/${clientId}?tab=blueprint`} className="bbp-composition-cta">
+                  view full analysis →
+                </Link>
+              )}
             </div>
-            {mode === "owner" && (
-              <Link href={`/hub/clients/${clientId}?tab=blueprint`} className="bbp-composition-cta">
-                view full analysis →
-              </Link>
-            )}
-          </div>
-          */}
 
-          <div className="bbp-card" style={{ display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
-            {latestRenpho ? (
-              <RenphoMetricsGrid latestRenpho={latestRenpho} />
-            ) : (
-              <EmptyState title="no composition data yet." sub="Record a RENPHO scan to populate this section of the Blueprint." />
-            )}
-            {latestRenpho && <p className="bbp-source-note">* body composition synchronized from RENPHO Health</p>}
+            <div className="bbp-composition-illustration-wrap">
+              {blueprintScore && (
+                <div className="bbp-score-gauge" style={{ background: `conic-gradient(#C9A876 ${blueprintScore.score * 3.6}deg, rgba(255,255,255,0.12) 0)` }}>
+                  <div className="bbp-score-gauge-inner">
+                    <strong>{blueprintScore.score}</strong>
+                    <span>Blueprint
+                      <br />Score™</span>
+                  </div>
+                </div>
+              )}
+              <BodyTypeIllustration bodyType={assessment.bodyType} maxHeight={280} className="bbp-composition-illustration" />
+            </div>
+          </div>
+
+          <div className="bbp-glance-footer">
+            <div>
+              <p className="bbp-glance-footer-label">Last Updated</p>
+              <p className="bbp-glance-footer-value">{formatDateInTimezone(latestRenpho?.scanDate ?? assessment.updatedAt, timezone)}</p>
+            </div>
+            <div>
+              <p className="bbp-glance-footer-label">Body Profile</p>
+              <p className="bbp-glance-footer-value">{assessment.bodyType ? BODY_TYPE_CONTENT[assessment.bodyType].label : "Not set"}</p>
+            </div>
+            <div>
+              <p className="bbp-glance-footer-label">Journey Phase</p>
+              <p className="bbp-glance-footer-value">
+                Phase {phase.num} — {phase.name}
+              </p>
+            </div>
           </div>
         </div>
       </div>
