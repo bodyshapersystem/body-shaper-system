@@ -156,7 +156,7 @@ export default async function ClientDetailPage({
                 </form>
               )}
               {hasPermission(user, "clients.convert") && (
-                <EditClientNameSheet clientId={client.id} firstName={client.firstName} lastName={client.lastName} phone={client.phone ?? ""} />
+                <EditClientNameSheet clientId={client.id} firstName={client.firstName} lastName={client.lastName} phone={client.phone ?? ""} email={client.email} />
               )}
               {hasPermission(user, "clients.convert") && <DeleteClientButton clientId={client.id} />}
               {hasPermission(user, "clients.convert") && (

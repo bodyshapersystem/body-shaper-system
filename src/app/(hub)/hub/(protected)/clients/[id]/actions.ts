@@ -570,22 +570,43 @@ export async function updateClientNameInfo(clientId: string, formData: FormData)
   const firstName = String(formData.get("firstName") || "").trim();
   const lastName = String(formData.get("lastName") || "").trim();
   const phone = (formData.get("phone") as string) || null;
+  const email = String(formData.get("email") || "").trim().toLowerCase();
 
   if (!firstName) {
     return { error: "First name is required." };
   }
+  if (!email || !email.includes("@")) {
+    return { error: "Enter a valid email address." };
+  }
+
+  const existing = await prisma.client.findUnique({ where: { id: clientId }, include: { user: true } });
+  if (!existing) return { error: "Client not found." };
+
+  const emailChanged = email !== existing.email.toLowerCase();
+
+  if (emailChanged) {
+    // Real login credential — must update the actual Supabase Auth
+    // user, not just our own tables, or they'd be locked out of
+    // logging in with their new email.
+    const admin = createSupabaseAdminClient();
+    const { error: authError } = await admin.auth.admin.updateUserById(existing.user.authUserId, { email, email_confirm: true });
+    if (authError) {
+      return { error: `Could not update the login email: ${authError.message}` };
+    }
+  }
 
   await prisma.client.update({
     where: { id: clientId },
-    data: { firstName, lastName, phone },
+    data: { firstName, lastName, phone, email },
   });
 
-  // Keep the portal User record's display name in sync too, since
-  // it's shown separately in a few places (e.g. login/session data).
-  const client = await prisma.client.findUnique({ where: { id: clientId }, select: { userId: true } });
-  if (client) {
-    await prisma.user.update({ where: { id: client.userId }, data: { fullName: `${firstName} ${lastName}`.trim() } });
-  }
+  // Keep the portal User record's display name and email in sync too,
+  // since they're shown/used separately in a few places (e.g.
+  // login/session data, email sends).
+  await prisma.user.update({
+    where: { id: existing.userId },
+    data: { fullName: `${firstName} ${lastName}`.trim(), email },
+  });
 
   revalidatePath(`/hub/clients/${clientId}`);
   revalidatePath("/hub/clients");

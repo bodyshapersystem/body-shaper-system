@@ -6,7 +6,7 @@ import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { revalidatePath } from "next/cache";
 import { recordStrategyChange, getActiveAssessmentForClient } from "@/lib/blueprint-assessments";
 import { createNotification } from "@/lib/notifications";
-import { sendNewProgressPhotosEmail } from "@/lib/email/service";
+import { sendNewProgressPhotosEmail, sendSystemCompletedEmail } from "@/lib/email/service";
 import type { PhotoType, Visibility, BodyType } from "@prisma/client";
 
 const VALID_BODY_TYPES: BodyType[] = ["hourglass", "pear", "apple", "rectangle", "inverted_triangle"];
@@ -494,6 +494,47 @@ export async function updateSystemDetails(assessmentId: string, formData: FormDa
 
   revalidatePath(`/hub/clients/${assessment.clientId}`);
   return { success: true };
+}
+
+/**
+ * Manual "Finish System" button, per direction — sends the real
+ * System Completed email and marks the assessment COMPLETED
+ * on demand, rather than only relying on the automatic trigger (which
+ * fires from the appointments flow when the completed-session count
+ * exactly matches the validated total, and can miss real cases like a
+ * system finished with a different number than originally planned).
+ */
+export async function markSystemCompleted(clientId: string, assessmentId: string) {
+  const user = await getCurrentHubUser();
+  if (!user || !hasPermission(user, "blueprints.manage")) {
+    return { error: "You don't have permission to do this." };
+  }
+
+  const [client, assessment] = await Promise.all([
+    prisma.client.findUnique({ where: { id: clientId } }),
+    prisma.blueprintAssessment.findUnique({ where: { id: assessmentId } }),
+  ]);
+  if (!client || !assessment) return { error: "Client or assessment not found." };
+
+  const result = await sendSystemCompletedEmail({
+    clientId,
+    firstName: client.firstName,
+    email: client.email,
+    systemName: assessment.recommendedSystem ?? "Personalized System™",
+    portalUrl: "https://www.bodyshapersystem.com/portal/blueprint",
+  });
+
+  await prisma.blueprintAssessment.update({ where: { id: assessmentId }, data: { status: "COMPLETED" } });
+
+  await createNotification({
+    clientId,
+    category: "GENERAL",
+    description: `${client.firstName} ${client.lastName} was marked as having completed their ${assessment.recommendedSystem ?? "system"}`,
+    linkUrl: `/hub/clients/${clientId}`,
+  });
+
+  revalidatePath(`/hub/clients/${clientId}`);
+  return { success: true, emailSent: result.success, emailError: result.success ? undefined : result.error };
 }
 
 /**

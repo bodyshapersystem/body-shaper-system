@@ -5,6 +5,7 @@ import BodyTypeIllustration from "@/components/BodyTypeIllustration";
 import { TargetMarkIcon } from "./BlueprintIcons";
 import { BODY_TYPE_CONTENT, getBodyTypeRationale } from "@/lib/body-types";
 import EditSystemDetailsSheet from "./EditSystemDetailsSheet";
+import MarkSystemCompletedButton from "./MarkSystemCompletedButton";
 import RecordRenphoScanSheet from "./RecordRenphoScanSheet";
 import RenphoMetricsGrid from "./RenphoMetricsGrid";
 import BodyTypeSheet from "./BodyTypeSheet";
@@ -557,6 +558,9 @@ export default async function BlueprintReport({
               />
             )}
           </p>
+          {mode === "owner" && assessment.status !== "COMPLETED" && (
+            <MarkSystemCompletedButton clientId={clientId} assessmentId={assessment.id} />
+          )}
           <div className="bbp-arch-grid">
             <div>
               <p className="bbp-arch-col-label">technologies / interests</p>

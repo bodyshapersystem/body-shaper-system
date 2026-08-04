@@ -9,11 +9,13 @@ export default function EditClientNameSheet({
   firstName,
   lastName,
   phone,
+  email,
 }: {
   clientId: string;
   firstName: string;
   lastName: string;
   phone: string;
+  email: string;
 }) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
@@ -45,7 +47,7 @@ export default function EditClientNameSheet({
             <div className="bp-sheet-handle" />
             <h3 className="bp-sheet-title">Edit Client Name</h3>
             <p className="pay-history-meta" style={{ marginBottom: 12 }}>
-              For fixing bad imports (e.g. a client whose name got saved as their email). Email itself isn't editable here.
+              Changing the email also updates their real login — they'll need to use the new email to sign in next time.
             </p>
             <form action={handleSubmit} className="bp-sheet-form">
               <label className="sched-label">
@@ -55,6 +57,10 @@ export default function EditClientNameSheet({
               <label className="sched-label">
                 Last Name
                 <input name="lastName" defaultValue={lastName} className="sched-select" />
+              </label>
+              <label className="sched-label">
+                Email
+                <input name="email" type="email" defaultValue={email} required className="sched-select" />
               </label>
               <label className="sched-label">
                 Phone
