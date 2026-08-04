@@ -312,10 +312,18 @@ export default async function BlueprintReport({
   return (
     <div className="bbp-root">
       {/* ---------- Hero Photo — now shown in both Owner Hub and Client Portal per direction ---------- */}
-      <div className="bbp-hero-photo-wrap">
-        <img src="/images/blueprint/hero-blueprint-experience.jpg" alt="Emmy Branger, founder of Body Shaper System" className="bbp-hero-photo-block" />
-        <div className="bbp-hero-photo-overlay">
-          <p className="bbp-hero-eyebrow bbp-hero-eyebrow-onphoto">the body blueprint™</p>
+      <div className="bbp-hero-photo-wrap bbp-hero-photo-wrap-editorial">
+        <img src="/images/blueprint/hero-blueprint-experience.jpg" alt="Emmy Branger, founder of Body Shaper System" className="bbp-hero-photo-block bbp-hero-photo-block-dark" />
+        <div className="bbp-hero-photo-darken" />
+        <div className="bbp-hero-wordmark">
+          <span>body</span>
+          <span>shaper</span>
+          <span>system.</span>
+        </div>
+        <div className="bbp-hero-photo-overlay bbp-hero-photo-overlay-editorial">
+          <p className="bbp-hero-heading-line1">THE BODY</p>
+          <p className="bbp-hero-heading-line2">blueprint</p>
+          <div className="bbp-hero-gold-rule" />
           <p className="bbp-hero-welcome-line bbp-hero-welcome-line-onphoto">Welcome back,</p>
           <p className="bbp-hero-name bbp-hero-name-onphoto">
             {client.firstName} {client.lastName}

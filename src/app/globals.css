@@ -3711,6 +3711,13 @@
   position:relative;
   margin-bottom:20px;
 }
+.bbp-hero-photo-wrap-editorial{
+  min-height:520px;
+  border-radius:22px;
+  overflow:hidden;
+  box-shadow:0 16px 40px rgba(43,38,34,0.18);
+  border:1px solid rgba(200,161,90,0.25);
+}
 .bbp-hero-photo-block{
   width:100%;
   max-height:560px;
@@ -3722,12 +3729,68 @@
   box-shadow:0 16px 40px rgba(43,38,34,0.18);
   border:1px solid rgba(200,161,90,0.25);
 }
+.bbp-hero-photo-block-dark{
+  height:100%;
+  min-height:520px;
+  border-radius:0;
+  box-shadow:none;
+  border:none;
+  filter:brightness(0.55) saturate(0.85);
+}
+.bbp-hero-photo-darken{
+  position:absolute;
+  inset:0;
+  background:linear-gradient(115deg, rgba(20,16,13,0.88) 0%, rgba(20,16,13,0.55) 42%, rgba(20,16,13,0.15) 75%);
+  pointer-events:none;
+}
+.bbp-hero-wordmark{
+  position:absolute;
+  top:28px; left:32px;
+  display:flex;
+  flex-direction:column;
+  font-family:var(--serif);
+  font-size:19px;
+  line-height:1.15;
+  color:#E9DCC4;
+}
 .bbp-hero-photo-overlay{
   position:absolute;
   left:0; right:0; bottom:0;
   padding:36px 32px 32px;
   background:linear-gradient(to top, rgba(20,16,13,0.8) 0%, rgba(20,16,13,0.5) 45%, rgba(20,16,13,0) 100%);
   border-radius:0 0 22px 22px;
+}
+.bbp-hero-photo-overlay-editorial{
+  position:absolute;
+  left:0; right:auto; bottom:auto; top:44%;
+  transform:translateY(-50%);
+  width:min(78%, 480px);
+  padding:0 0 0 32px;
+  background:none;
+  border-radius:0;
+}
+.bbp-hero-heading-line1{
+  font-family:var(--sans);
+  font-size:clamp(24px,4vw,34px);
+  letter-spacing:0.12em;
+  color:#EFE3CB;
+  margin:0;
+  font-weight:500;
+}
+.bbp-hero-heading-line2{
+  font-family:var(--serif);
+  font-style:italic;
+  font-size:clamp(52px,9vw,84px);
+  line-height:0.95;
+  color:#EBD9AE;
+  margin:0 0 14px;
+  text-shadow:0 4px 20px rgba(0,0,0,0.4);
+}
+.bbp-hero-gold-rule{
+  width:64px;
+  height:2px;
+  background:#C9A876;
+  margin-bottom:14px;
 }
 .bbp-hero-eyebrow-onphoto{
   font-family:var(--sans) !important;
@@ -3741,11 +3804,11 @@
   font-style:italic !important;
   font-size:19px !important;
   color:#E3AFA0 !important;
-  margin-top:6px !important;
+  margin-top:0 !important;
 }
 .bbp-hero-name-onphoto{
   font-family:var(--serif) !important;
-  font-size:46px !important;
+  font-size:32px !important;
   font-weight:600 !important;
   color:#FFFDF8 !important;
   text-shadow:0 3px 14px rgba(0,0,0,0.5);
@@ -3754,7 +3817,11 @@
 }
 @media (max-width:760px){
   .bbp-hero-photo-block{ max-height:340px; }
+  .bbp-hero-photo-wrap-editorial{ min-height:420px; }
+  .bbp-hero-photo-block-dark{ min-height:420px; }
   .bbp-hero-photo-overlay{ padding:20px 20px; }
+  .bbp-hero-photo-overlay-editorial{ width:88%; padding-left:20px; top:50%; }
+  .bbp-hero-wordmark{ top:18px; left:20px; font-size:15px; }
 }
 
 /* ---------- Blueprint — real texture card backgrounds, "last version" set (Milestone: texture fill) ---------- */
