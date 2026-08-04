@@ -486,49 +486,58 @@ export default async function BlueprintReport({
       {/* ---------- Section 02 / 03 / 04 ---------- */}
       <div className="bbp-row-3" style={{ marginBottom: 40 }}>
         {/* 02 — Measurements */}
-        <div className="bbp-card bbp-panel bp-tex-cream bbp-measurements-final">
-          <div className="bbp-mf-layout">
-            <div className="bbp-mf-text bbp-mf-text-backing">
-              <p className="bbp-mf-mark">✦</p>
-              <span className="bbp-mf-rule" />
-              <h3 className="bbp-mf-headline">measurements</h3>
-              <span className="bbp-mf-rule-sm" />
-              <p className="bbp-mf-eyebrow">YOUR BASELINE STARTS HERE.</p>
-              <p className="bbp-mf-copy">
-                Professional measurements will be recorded during your first Blueprint Session™ to create accurate progress tracking and visible results.
-              </p>
-              <div className="bbp-mf-note">
-                <span className="bbp-mf-note-icon">✦</span>
-                <p>All measurements are taken by your specialist using a consistent, professional method to ensure accuracy.</p>
-              </div>
-              {mode === "owner" && (
-                <Link href={`/hub/clients/${clientId}?tab=blueprint`} className="bbp-composition-cta" style={{ marginTop: 14, display: "inline-flex" }}>
-                  edit measurements →
-                </Link>
-              )}
-            </div>
-            <div className="bbp-mf-diagram">
-              <img src="/images/blueprint/measurements-diagram.jpeg" alt="" className="bbp-mf-diagram-img" />
-              <div className="bbp-mf-points">
-                {(
-                  [
-                    { label: "bust", key: "chestCm" },
-                    { label: "waist", key: "waistCm" },
-                    { label: "abdomen", key: "lowerAbdomenCm" },
-                    { label: "hips", key: "hipsCm" },
-                    { label: "right thigh", key: "rightThighCm" },
-                    { label: "left thigh", key: "leftThighCm" },
-                    { label: "left arm", key: "leftArmCm" },
-                  ] as const
-                ).map((m) => (
-                  <div className="bbp-mf-point" key={m.key}>
-                    <span>{m.label}</span>
-                    <span className="bbp-mf-point-line" />
-                    <strong>{latestBodyMeasurement?.[m.key] != null ? `${latestBodyMeasurement[m.key]!.toFixed(1)} cm` : "—"}</strong>
-                  </div>
-                ))}
-              </div>
-            </div>
+        <div className="bbp-card bbp-card-dark bbp-composition-visual bbp-measurements-final">
+          <div>
+            <p className="bbp-composition-heading">
+              your measurements
+              <br />
+              at a glance.
+            </p>
+            <p className="bbp-composition-copy">Your baseline — tracked with precision, session after session.</p>
+            <span className="bbp-composition-rule" />
+            {latestBodyMeasurement ? (
+              <ul className="bbp-glance-list">
+                <li>
+                  <span>Bust</span>
+                  <strong>{latestBodyMeasurement.chestCm != null ? `${latestBodyMeasurement.chestCm.toFixed(1)} cm` : "—"}</strong>
+                </li>
+                <li>
+                  <span>Waist</span>
+                  <strong>{latestBodyMeasurement.waistCm != null ? `${latestBodyMeasurement.waistCm.toFixed(1)} cm` : "—"}</strong>
+                </li>
+                <li>
+                  <span>Abdomen</span>
+                  <strong>{latestBodyMeasurement.lowerAbdomenCm != null ? `${latestBodyMeasurement.lowerAbdomenCm.toFixed(1)} cm` : "—"}</strong>
+                </li>
+                <li>
+                  <span>Hips</span>
+                  <strong>{latestBodyMeasurement.hipsCm != null ? `${latestBodyMeasurement.hipsCm.toFixed(1)} cm` : "—"}</strong>
+                </li>
+                <li>
+                  <span>Right Thigh</span>
+                  <strong>{latestBodyMeasurement.rightThighCm != null ? `${latestBodyMeasurement.rightThighCm.toFixed(1)} cm` : "—"}</strong>
+                </li>
+                <li>
+                  <span>Left Thigh</span>
+                  <strong>{latestBodyMeasurement.leftThighCm != null ? `${latestBodyMeasurement.leftThighCm.toFixed(1)} cm` : "—"}</strong>
+                </li>
+                <li>
+                  <span>Right Arm</span>
+                  <strong>{latestBodyMeasurement.rightArmCm != null ? `${latestBodyMeasurement.rightArmCm.toFixed(1)} cm` : "—"}</strong>
+                </li>
+                <li>
+                  <span>Left Arm</span>
+                  <strong>{latestBodyMeasurement.leftArmCm != null ? `${latestBodyMeasurement.leftArmCm.toFixed(1)} cm` : "—"}</strong>
+                </li>
+              </ul>
+            ) : (
+              <EmptyState title="no measurements yet." sub="Professional measurements will be recorded during your first Blueprint Session™." />
+            )}
+            {mode === "owner" && (
+              <Link href={`/hub/clients/${clientId}?tab=blueprint`} className="bbp-composition-cta">
+                edit measurements →
+              </Link>
+            )}
           </div>
         </div>
 
