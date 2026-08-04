@@ -2902,7 +2902,7 @@
 .bbp-completion-card{ background:var(--bbp-ink); color:#F1EBE1; }
 .bbp-completion-value{ font-family:var(--serif); font-size:32px; line-height:1; margin-top:4px; }
 .bbp-badge-row{ display:flex; flex-wrap:wrap; gap:8px; margin:8px 0; }
-.bbp-badge{ font-family:var(--sans); font-size:10.5px; letter-spacing:0.04em; text-transform:uppercase; padding:5px 12px; border-radius:100px; background:var(--bbp-ivory); border:1px solid var(--bbp-line); color:var(--charcoal); }
+.bbp-badge{ font-family:var(--sans); font-size:10.5px; letter-spacing:0.04em; text-transform:uppercase; padding:5px 12px; border-radius:100px; background:#3A0F16 url('/images/rewards/society-rules-bg.jpg') center/cover no-repeat; border:1px solid rgba(184,160,136,0.35); color:#B8A088; text-shadow:0 1px 3px rgba(0,0,0,0.4); }
 
 /* ---------- body composition hero (Section 01) ---------- */
 .bbp-composition{ display:grid; grid-template-columns:300px 1fr; gap:16px; }
@@ -3773,8 +3773,9 @@
   border-radius:0 18px 18px 0;
 }
 .bp-tex-taupe .bbp-badge, .bp-tex-cream .bbp-badge, .bp-tex-linen .bbp-badge{
-  background:rgba(255,255,255,0.75) !important;
-  color:#1E1A16 !important;
+  background:#3A0F16 url('/images/rewards/society-rules-bg.jpg') center/cover no-repeat !important;
+  color:#B8A088 !important;
+  text-shadow:0 1px 3px rgba(0,0,0,0.4);
 }
 .bp-tex-taupe .bbp-hero-meta-label, .bp-tex-taupe .bbp-hero-meta-value,
 .bp-tex-cream .bbp-hero-meta-label, .bp-tex-cream .bbp-hero-meta-value,
