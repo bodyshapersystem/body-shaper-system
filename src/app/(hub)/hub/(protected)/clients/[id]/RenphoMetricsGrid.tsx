@@ -44,10 +44,13 @@ export default function RenphoMetricsGrid({ latestRenpho }: { latestRenpho: Renp
       : null;
   const bone = unit === "kg" ? latestRenpho.boneMassKg : latestRenpho.boneMassKg != null ? latestRenpho.boneMassKg * KG_TO_LB : null;
 
-  const tiles = [
+  const heroTiles = [
     { label: "Weight", value: fmt(weight), unit },
+    { label: "Body Fat", value: fmt(latestRenpho.bodyFatPercent), unit: "%" },
+  ];
+
+  const tiles = [
     { label: "BMI", value: fmt(latestRenpho.bmi), unit: "" },
-    { label: "Body Fat %", value: fmt(latestRenpho.bodyFatPercent), unit: "%" },
     { label: "Visceral Fat", value: fmt(latestRenpho.visceralFat, 0), unit: "" },
     { label: "Muscle Mass", value: fmt(muscle), unit },
     { label: "Skeletal Muscle", value: fmt(skeletal), unit },
@@ -78,6 +81,20 @@ export default function RenphoMetricsGrid({ latestRenpho }: { latestRenpho: Renp
           </button>
         </div>
       </div>
+
+      <div className="bbp-stat-hero-row">
+        {heroTiles.map((t) => (
+          <div className="bbp-stat-hero-tile" key={t.label}>
+            <p className="bbp-stat-hero-value">
+              {t.value}
+              {t.value !== "—" && t.unit ? <span className="bbp-stat-hero-unit">{t.unit}</span> : null}
+            </p>
+            <p className="bbp-stat-hero-label">{t.label}</p>
+          </div>
+        ))}
+      </div>
+      <div className="bbp-stat-gold-rule" />
+
       <div className="bbp-stat-tiles">
         {tiles.map((t) => (
           <div className="bbp-stat-tile" key={t.label}>
