@@ -2882,7 +2882,7 @@
 
 /* ---------- generic card ---------- */
 .bbp-card{ background:var(--bbp-card); border:1px solid var(--bbp-line); border-radius:18px; }
-.bbp-card-dark{ background:var(--bbp-ink); border-radius:18px; color:#F1EBE1; position:relative; overflow:hidden; }
+.bbp-card-dark{ background:var(--bbp-ink) !important; border-radius:18px; color:#F1EBE1 !important; position:relative; overflow:hidden; }
 
 /* ---------- hero / executive summary ---------- */
 .bbp-hero{ display:grid; grid-template-columns:1fr 300px; gap:16px; margin-bottom:14px; }
@@ -2908,20 +2908,20 @@
 /* ---------- body composition hero (Section 01) ---------- */
 .bbp-composition{ display:flex; flex-direction:column; gap:16px; }
 .bbp-composition-visual{ padding:28px; display:flex; flex-direction:row; gap:24px; justify-content:space-between; min-height:360px; }
-.bbp-composition-heading{ font-family:var(--serif); font-size:26px; line-height:1.15; color:#F1EBE1; }
-.bbp-composition-copy{ font-family:var(--sans); font-size:12.5px; color:rgba(241,235,225,0.7); max-width:260px; margin-top:10px; }
+.bbp-composition-heading{ font-family:var(--serif); font-size:26px; line-height:1.15; color:#F1EBE1 !important; }
+.bbp-composition-copy{ font-family:var(--sans); font-size:12.5px; color:rgba(241,235,225,0.7) !important; max-width:260px; margin-top:10px; }
 .bbp-composition-rule{ display:block; width:48px; height:2px; background:#C9A876; margin:16px 0; }
 .bbp-composition-illustration{ margin:12px -8px; }
 .bbp-composition-illustration-wrap{ position:relative; display:flex; flex-direction:column; align-items:flex-end; justify-content:flex-start; min-width:160px; }
-.bbp-composition-cta{ font-family:var(--sans); font-size:10.5px; letter-spacing:0.08em; text-transform:uppercase; color:#F1EBE1; border:1px solid var(--bbp-line-dark); border-radius:8px; padding:11px 18px; align-self:flex-start; text-decoration:none; display:inline-block; margin-top:16px; }
+.bbp-composition-cta{ font-family:var(--sans); font-size:10.5px; letter-spacing:0.08em; text-transform:uppercase; color:#F1EBE1 !important; border:1px solid var(--bbp-line-dark); border-radius:8px; padding:11px 18px; align-self:flex-start; text-decoration:none; display:inline-block; margin-top:16px; }
 .bbp-glance-list{ list-style:none; margin:0; padding:0; max-width:280px; }
 .bbp-glance-list li{ display:flex; justify-content:space-between; align-items:baseline; padding:7px 0; border-bottom:1px solid rgba(241,235,225,0.12); }
-.bbp-glance-list li span{ font-family:var(--sans); font-size:11px; letter-spacing:0.04em; text-transform:uppercase; color:rgba(241,235,225,0.55); }
-.bbp-glance-list li strong{ font-family:var(--serif); font-size:15px; color:#F1EBE1; font-weight:500; }
+.bbp-glance-list li span{ font-family:var(--sans); font-size:11px; letter-spacing:0.04em; text-transform:uppercase; color:rgba(241,235,225,0.55) !important; }
+.bbp-glance-list li strong{ font-family:var(--serif); font-size:15px; color:#F1EBE1 !important; font-weight:500; }
 .bbp-score-gauge{ width:110px; height:110px; border-radius:50%; display:flex; align-items:center; justify-content:center; margin-bottom:16px; }
-.bbp-score-gauge-inner{ width:88px; height:88px; border-radius:50%; background:#1E1A16; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; }
-.bbp-score-gauge-inner strong{ font-family:var(--serif); font-size:28px; color:#C9A876; line-height:1; }
-.bbp-score-gauge-inner span{ font-family:var(--sans); font-size:8px; letter-spacing:0.06em; text-transform:uppercase; color:rgba(241,235,225,0.65); margin-top:4px; line-height:1.3; }
+.bbp-score-gauge-inner{ width:88px; height:88px; border-radius:50%; background:#1E1A16 !important; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; }
+.bbp-score-gauge-inner strong{ font-family:var(--serif); font-size:28px; color:#C9A876 !important; line-height:1; }
+.bbp-score-gauge-inner span{ font-family:var(--sans); font-size:8px; letter-spacing:0.06em; text-transform:uppercase; color:rgba(241,235,225,0.65) !important; margin-top:4px; line-height:1.3; }
 .bbp-glance-footer{ display:grid; grid-template-columns:repeat(3,1fr); gap:16px; padding:18px 24px; background:var(--bbp-card); border:1px solid var(--bbp-line); border-radius:14px; }
 .bbp-glance-footer-label{ font-family:var(--sans); font-size:10px; letter-spacing:0.06em; text-transform:uppercase; color:var(--bbp-muted-light); margin:0; }
 .bbp-glance-footer-value{ font-family:var(--serif); font-size:15px; color:var(--charcoal,#2B2622); margin-top:3px; }
