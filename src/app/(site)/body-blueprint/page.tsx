@@ -88,10 +88,10 @@ export default function BodyBlueprintPage() {
   <DecoArc className="bp-hero-arc" gold />
   <DecoGrid className="bp-hero-grid" />
   <section className="page-hero">
-    <div className="photo reveal"><img src="/images/blueprint-hero.jpg" alt="Emmy Branger, founder of Body Shaper System, reviewing a client blueprint" /></div>
+    <div className="photo reveal"><img src="/images/blueprint-hero-poster.jpg" alt="The Body Blueprint™ — Emmy Branger, founder of Body Shaper System, reviewing a client's Body Blueprint™" /></div>
     <div className="reveal">
-      <span className="eyebrow">The Body Blueprint™</span>
-      <h1>Every transformation begins with <em>a blueprint.</em></h1>
+      <span className="eyebrow sr-only">The Body Blueprint™</span>
+      <h1 className="sr-only">Every transformation begins with a blueprint.</h1>
       <p>Before recommending any technology, we first understand your body.</p>
       <a href="#build" className="btn btn-primary">Build My Blueprint™</a>
     </div>
