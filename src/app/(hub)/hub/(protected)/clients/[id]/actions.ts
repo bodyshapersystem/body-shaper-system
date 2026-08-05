@@ -415,6 +415,7 @@ export async function getClientOverviewSummary(clientId: string) {
 
   return {
     system: assessment?.recommendedSystem ?? null,
+    assessmentId: assessment?.id ?? null,
     totalSessions,
     completedCount: totalCompletedCount,
     priorCompletedSessions,

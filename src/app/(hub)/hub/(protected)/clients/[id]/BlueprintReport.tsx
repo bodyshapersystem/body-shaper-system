@@ -443,11 +443,6 @@ export default async function BlueprintReport({
               ) : (
                 <EmptyState title="no composition data yet." sub="Record a RENPHO scan to populate this section of the Blueprint." />
               )}
-              {mode === "owner" && (
-                <Link href={`/hub/clients/${clientId}?tab=blueprint`} className="bbp-composition-cta">
-                  view full analysis →
-                </Link>
-              )}
             </div>
 
             <div className="bbp-composition-illustration-wrap">
@@ -532,11 +527,6 @@ export default async function BlueprintReport({
               </ul>
             ) : (
               <EmptyState title="no measurements yet." sub="Professional measurements will be recorded during your first Blueprint Session™." />
-            )}
-            {mode === "owner" && (
-              <Link href={`/hub/clients/${clientId}?tab=blueprint`} className="bbp-composition-cta">
-                edit measurements →
-              </Link>
             )}
           </div>
         </div>

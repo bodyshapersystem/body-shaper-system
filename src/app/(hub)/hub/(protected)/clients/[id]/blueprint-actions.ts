@@ -504,6 +504,35 @@ export async function updateSystemDetails(assessmentId: string, formData: FormDa
  * exactly matches the validated total, and can miss real cases like a
  * system finished with a different number than originally planned).
  */
+/**
+ * Dedicated, narrow action for editing ONLY priorCompletedSessions -
+ * used by the quick-edit next to the Progress Overview ring in the
+ * client's Overview tab. Deliberately does NOT reuse
+ * updateSystemDetails, which resends every System Details field from
+ * its own form; calling it with a partial form here would have
+ * overwritten recommendedSystem/goals/etc. with null.
+ */
+export async function setPriorCompletedSessions(assessmentId: string, formData: FormData) {
+  const user = await getCurrentHubUser();
+  if (!user || !hasPermission(user, "blueprints.manage")) {
+    return { error: "You don't have permission to do this." };
+  }
+
+  const raw = formData.get("priorCompletedSessions");
+  const value = raw != null && raw !== "" ? Math.max(Math.round(Number(raw)), 0) : 0;
+  if (!Number.isFinite(value)) {
+    return { error: "Enter a valid number of sessions." };
+  }
+
+  const assessment = await prisma.blueprintAssessment.findUnique({ where: { id: assessmentId }, select: { clientId: true } });
+  if (!assessment) return { error: "Assessment not found." };
+
+  await prisma.blueprintAssessment.update({ where: { id: assessmentId }, data: { priorCompletedSessions: value } });
+
+  revalidatePath(`/hub/clients/${assessment.clientId}`);
+  return { success: true };
+}
+
 export async function markSystemCompleted(clientId: string, assessmentId: string) {
   const user = await getCurrentHubUser();
   if (!user || !hasPermission(user, "blueprints.manage")) {

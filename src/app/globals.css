@@ -2414,6 +2414,7 @@
 .cl-summary-row span:first-child{ color:#8a7f74; }
 .cl-summary-row span:last-child{ color:#2B2622; font-weight:500; }
 
+.cl-edit-sessions-link{ background:none; border:none; padding:0; font-family:var(--sans); font-size:11px; color:var(--cat,#5C1A1F); text-decoration:underline; cursor:pointer; margin-bottom:10px; display:inline-block; }
 .cl-ring-wrap{ display:flex; align-items:center; gap:20px; }
 .cl-ring{ width:100px; height:100px; border-radius:50%; flex-shrink:0; display:flex; align-items:center; justify-content:center; }
 .cl-ring-inner{ width:74px; height:74px; border-radius:50%; background:#fff; display:flex; flex-direction:column; align-items:center; justify-content:center; }

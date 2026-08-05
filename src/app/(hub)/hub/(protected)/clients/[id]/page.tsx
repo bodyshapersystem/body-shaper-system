@@ -14,6 +14,7 @@ import SendPaymentReminderButton from "./SendPaymentReminderButton";
 import CollaborationSheet from "./CollaborationSheet";
 import ClientTypeSelect from "./ClientTypeSelect";
 import EditClientNameSheet from "./EditClientNameSheet";
+import EditPriorSessionsButton from "./EditPriorSessionsButton";
 import RequiresContentReleaseToggle from "./RequiresContentReleaseToggle";
 import { getBusinessTimezone, formatDateInTimezone, formatTimeInTimezone } from "@/lib/format-datetime";
 import { CATEGORY_ICONS as NOTIFICATION_ICONS } from "@/lib/notifications";
@@ -248,6 +249,9 @@ export default async function ClientDetailPage({
           <div>
             <div className="pd-card" style={{ marginBottom: 20 }}>
               <h3 style={{ fontFamily: "var(--sans)", fontSize: 13, marginBottom: 16 }}>Progress Overview</h3>
+              {overview.assessmentId && (
+                <EditPriorSessionsButton assessmentId={overview.assessmentId} currentValue={overview.priorCompletedSessions} />
+              )}
               <div className="cl-ring-wrap">
                 <div
                   className="cl-ring"
