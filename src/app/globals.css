@@ -2931,6 +2931,7 @@
 .bbp-glance-footer{ display:grid; grid-template-columns:repeat(3,1fr); gap:16px; padding:18px 24px; background:#4A3624 url('/images/textures/bronze-satin.jpg') center/cover no-repeat !important; border:1px solid rgba(200,161,90,0.3); border-radius:14px; }
 .bbp-glance-footer-label{ font-family:var(--sans); font-size:10px; letter-spacing:0.06em; text-transform:uppercase; color:rgba(241,235,225,0.7) !important; margin:0; }
 .bbp-glance-footer-value{ font-family:var(--serif); font-size:15px; color:#FFFDF8 !important; margin-top:3px; text-shadow:0 1px 4px rgba(0,0,0,0.35); }
+.bbp-glance-footer-metal{ background:#2B2118 url('/images/textures/bronze-compass.jpg') center/cover no-repeat !important; border-radius:10px; padding:12px 14px; margin:-6px; }
 @media (max-width:700px){
   .bbp-composition-visual{ flex-direction:column; }
   .bbp-composition-illustration-wrap{ align-items:flex-start; }

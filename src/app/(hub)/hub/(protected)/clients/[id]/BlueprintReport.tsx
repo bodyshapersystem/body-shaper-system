@@ -458,7 +458,6 @@ export default async function BlueprintReport({
                   </div>
                 </div>
               )}
-              <BodyTypeIllustration bodyType={assessment.bodyType} maxHeight={280} className="bbp-composition-illustration" />
             </div>
           </div>
 
@@ -471,7 +470,7 @@ export default async function BlueprintReport({
               <p className="bbp-glance-footer-label">Body Profile</p>
               <p className="bbp-glance-footer-value">{assessment.bodyType ? BODY_TYPE_CONTENT[assessment.bodyType].label : "Not set"}</p>
             </div>
-            <div>
+            <div className="bbp-glance-footer-metal">
               <p className="bbp-glance-footer-label">Journey Phase</p>
               <p className="bbp-glance-footer-value">
                 Phase {phase.num} — {phase.name}
