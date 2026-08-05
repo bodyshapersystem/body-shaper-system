@@ -2904,9 +2904,7 @@
 .bbp-hero-meta-label{ font-family:var(--sans); font-size:9.5px; letter-spacing:0.1em; text-transform:uppercase; color:var(--bbp-muted-light); }
 .bbp-hero-meta-value{ font-family:var(--sans); font-size:12.5px; color:var(--bbp-gold-dark); }
 .bbp-hero-side{ display:flex; flex-direction:column; gap:12px; }
-.bbp-phase-card, .bbp-completion-card{ border-radius:18px; padding:18px 22px; display:flex; align-items:center; justify-content:space-between; }
-.bbp-phase-card{ background:var(--bbp-card); border:1px solid var(--bbp-line); }
-.bbp-completion-card{ background:var(--bbp-ink); color:#F1EBE1; }
+.bbp-completion-card{ border-radius:18px; padding:18px 22px; display:flex; align-items:center; justify-content:space-between; background:var(--bbp-ink); color:#F1EBE1; }
 .bbp-completion-value{ font-family:var(--serif); font-size:32px; line-height:1; margin-top:4px; }
 .bbp-badge-row{ display:flex; flex-wrap:wrap; gap:8px; margin:8px 0; }
 .bbp-badge{ font-family:var(--sans); font-size:10.5px; letter-spacing:0.04em; text-transform:uppercase; padding:5px 12px; border-radius:100px; background:#3A0F16 url('/images/rewards/society-rules-bg.jpg') center/cover no-repeat; border:1px solid rgba(184,160,136,0.35); color:#B8A088; text-shadow:0 1px 3px rgba(0,0,0,0.4); }

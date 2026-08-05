@@ -367,14 +367,6 @@ export default async function BlueprintReport({
         </div>
 
         <div className="bbp-hero-side">
-          <div className="bbp-phase-card">
-            <div>
-              <p className="bbp-hero-meta-label">Journey Phase</p>
-              <p style={{ fontFamily: "var(--serif)", fontSize: 30, lineHeight: 1, marginTop: 4 }}>{phase.num}</p>
-              <p className="bbp-hero-meta-label" style={{ color: "var(--bbp-gold-dark)", marginTop: 2 }}>{phase.name}</p>
-            </div>
-            <TargetMarkIcon size={36} />
-          </div>
           <div className="bbp-completion-card">
             <div>
               <p className="bbp-hero-meta-label" style={{ color: "rgba(241,235,225,0.6)" }}>Program Completion</p>
