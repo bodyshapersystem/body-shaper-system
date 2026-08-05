@@ -252,7 +252,8 @@ export default async function BlueprintReport({
     mode === "client" ? assessment.specialistObservations.filter((o) => o.visibility === "CLIENT_VISIBLE") : assessment.specialistObservations;
 
   const totalSessions = assessment.validatedSessionCount ?? null;
-  const completionPercent = totalSessions !== null && totalSessions > 0 ? Math.round((completedCount / totalSessions) * 100) : null;
+  const realCompletedForBlueprint = completedCount + (assessment.priorCompletedSessions ?? 0);
+  const completionPercent = totalSessions !== null && totalSessions > 0 ? Math.round((realCompletedForBlueprint / totalSessions) * 100) : null;
   const paidCents = paidAgg._sum.amountCents ?? 0;
   const planTotalCents = assessment.planTotalCents;
   const balanceCents = planTotalCents !== null ? Math.max(planTotalCents - paidCents, 0) : null;
@@ -379,7 +380,9 @@ export default async function BlueprintReport({
               <p className="bbp-hero-meta-label" style={{ color: "rgba(241,235,225,0.6)" }}>Program Completion</p>
               <p className="bbp-completion-value">{completionPercent !== null ? `${completionPercent}%` : "—"}</p>
               <p style={{ fontFamily: "var(--sans)", fontSize: 10, color: "rgba(241,235,225,0.6)", marginTop: 2 }}>
-                {totalSessions !== null ? `${completedCount} of ${totalSessions} sessions` : `${completedCount} sessions completed · plan not set yet`}
+                {totalSessions !== null
+                  ? `${realCompletedForBlueprint} of ${totalSessions} sessions`
+                  : `${realCompletedForBlueprint} sessions completed · plan not set yet`}
               </p>
             </div>
             <TargetMarkIcon size={32} />
