@@ -229,7 +229,7 @@ export default async function PortalDashboardPage() {
           )}
 
           {/* Payments Overview */}
-          <div className="pd-card" style={{ marginBottom: 20 }}>
+          <div className="pd-card pd-card-taupe" style={{ marginBottom: 20 }}>
             <h3 style={{ fontFamily: "var(--sans)", fontSize: 13, marginBottom: 14 }}>Payments Overview</h3>
             <div className="cl-summary-list" style={{ marginBottom: 12 }}>
               <div className="cl-summary-row"><span>Collected</span><strong>{money(collectedCents)}</strong></div>
@@ -242,11 +242,11 @@ export default async function PortalDashboardPage() {
           {/* Quick Actions */}
           <h3 className="dash-section-title">Quick Actions</h3>
           <div className="doc-card-grid" style={{ marginBottom: 20 }}>
-            <Link href="/portal/blueprint" className="doc-client-card">📘 Blueprint™</Link>
-            <Link href="/portal/daily-trackers" className="doc-client-card">💧 Daily Trackers</Link>
-            <Link href="/portal/documents" className="doc-client-card">📄 Documents</Link>
-            <Link href="/portal/rewards" className="doc-client-card">⭐ Rewards</Link>
-            <Link href="/portal/payments" className="doc-client-card">💳 Payments</Link>
+            <Link href="/portal/blueprint" className="doc-client-card doc-client-card-burgundy">📘 Blueprint™</Link>
+            <Link href="/portal/daily-trackers" className="doc-client-card doc-client-card-burgundy">💧 Daily Trackers</Link>
+            <Link href="/portal/documents" className="doc-client-card doc-client-card-burgundy">📄 Documents</Link>
+            <Link href="/portal/rewards" className="doc-client-card doc-client-card-burgundy">⭐ Rewards</Link>
+            <Link href="/portal/payments" className="doc-client-card doc-client-card-burgundy">💳 Payments</Link>
           </div>
         </div>
 

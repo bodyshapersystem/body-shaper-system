@@ -2181,6 +2181,12 @@
 .pd-card h3{ font-family:var(--sans); font-size:13px; font-weight:600; color:#2B2622; margin-bottom:16px; }
 .pd-card-dark{ background:var(--cat,#5C1A1F); color:#F6F3EE; border:none; }
 .pd-card-dark h3{ color:#F6F3EE; }
+.pd-card-taupe{ background:#8A7355 url('/images/textures/taupe-marble-gold-waves.png') center/cover no-repeat !important; border:none !important; }
+.pd-card-taupe h3{ color:#FFFDF8 !important; text-shadow:0 1px 4px rgba(0,0,0,0.3); }
+.pd-card-taupe .cl-summary-row{ color:#FFFDF8 !important; border-bottom-color:rgba(255,253,248,0.2) !important; }
+.pd-card-taupe .cl-summary-row span{ color:rgba(255,253,248,0.75) !important; }
+.pd-card-taupe .cl-summary-row strong{ color:#FFFDF8 !important; }
+.pd-card-taupe .cap-secondary-btn{ color:#FFFDF8 !important; border-color:rgba(255,253,248,0.4) !important; }
 .pd-summary-list, .pd-activity-list{ list-style:none; }
 .pd-summary-list li{ display:flex; justify-content:space-between; padding:8px 0; border-top:1px solid rgba(0,0,0,0.06); font-family:var(--sans); font-size:12.5px; }
 .pd-summary-list li:first-child{ border-top:none; }
@@ -3380,6 +3386,7 @@
 .doc-card-actions{ display:flex; gap:12px; flex-wrap:wrap; }
 .doc-card-link{ font-family:var(--sans); font-size:11.5px; color:var(--cat,#5C1A1F); text-decoration:underline; }
 .doc-client-card{ display:flex; align-items:center; gap:12px; background:#fff; border-radius:14px; padding:16px; box-shadow:0 2px 10px rgba(0,0,0,0.05); text-decoration:none; color:inherit; }
+.doc-client-card-burgundy{ background:#5C1A1F !important; color:#F1EBE1 !important; }
 .doc-progress-label{ font-family:var(--sans); font-size:11px; letter-spacing:.05em; text-transform:uppercase; color:#8a7f74; margin:0 0 8px; }
 
 /* ---------- Daily Trackers™ (Milestone 55) ---------- */
@@ -3635,7 +3642,7 @@
 
 /* Society Points — brushed dark metal */
 .rw-card-metal{
-  background:linear-gradient(155deg,#3d3128 0%,#2B2B2B 55%,#1a1512 100%) !important;
+  background:#2B2118 url('/images/textures/bronze-compass.jpg') center/cover no-repeat !important;
   box-shadow:0 8px 24px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.04);
   padding:22px 20px;
 }
