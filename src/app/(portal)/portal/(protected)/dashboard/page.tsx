@@ -195,7 +195,7 @@ export default async function PortalDashboardPage() {
             </div>
 
             {/* Card 3 — Your Journey */}
-            <div className="rw-stat-card rw-card-stone" style={{ padding: 20 }}>
+            <div className="rw-stat-card rw-card-stone rw-card-stone-waves" style={{ padding: 20 }}>
               <h3 className="trk-card-title">Your Journey</h3>
               <p style={{ fontFamily: "var(--serif)", fontSize: 15, color: "#6B4E3D", marginBottom: 4 }}>● {journeyPhase}</p>
               {totalSessions !== null && <p className="pay-history-meta" style={{ marginBottom: 10 }}>Week {weekNumber} of {Math.ceil(totalSessions / 1.5)}</p>}
@@ -253,7 +253,7 @@ export default async function PortalDashboardPage() {
         <div className="cap-side">
           {/* Appointment Card */}
           {nextAppointmentDetail ? (
-            <div className="apd-panel apd-panel-marble" style={{ position: "static", width: "100%", borderRadius: 18 }}>
+            <div className="apd-panel apd-panel-marble apd-panel-marble-dash" style={{ position: "static", width: "100%", borderRadius: 18 }}>
               <div className="apd-time-row">
                 <span className="apd-status-pill" style={{ background: "rgba(246,243,238,0.2)" }}>Confirmed</span>
               </div>

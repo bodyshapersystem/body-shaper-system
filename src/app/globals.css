@@ -3660,6 +3660,8 @@
   box-shadow:0 6px 18px rgba(110,91,77,0.1);
   padding:18px;
 }
+.rw-card-stone-waves{ background:#8A7355 url('/images/textures/taupe-marble-gold-waves.png') center/cover no-repeat !important; }
+.apd-panel-marble-dash{ background:#3A0F16 url('/images/rewards/burgundy-marble-2.jpg') center/cover no-repeat !important; }
 .rw-card-watermark{ position:absolute; top:8px; right:14px; font-size:46px; color:rgba(110,91,77,0.1); pointer-events:none; }
 
 /* Progress — frosted glass */
