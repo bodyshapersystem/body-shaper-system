@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { getBusinessTimezone, formatDateInTimezone, formatTimeInTimezone, getTimeBasedGreeting } from "@/lib/format-datetime";
-import { getPhotoSignedUrl } from "@/app/(hub)/hub/(protected)/clients/[id]/blueprint-actions";
+import { getClientPhotoSignedUrl } from "../photos/actions";
 import { buildGoogleCalendarUrl } from "@/lib/google-calendar";
 import BookSessionButton from "./BookSessionButton";
 
@@ -116,7 +116,7 @@ export default async function PortalDashboardPage() {
     const firstB = bodyMeasurements[0];
     const lastB = bodyMeasurements[bodyMeasurements.length - 1];
     const [beforeUrl, afterUrl] = photos.length >= 2
-      ? await Promise.all([getPhotoSignedUrl(photos[0].storagePath), getPhotoSignedUrl(photos[photos.length - 1].storagePath)])
+      ? await Promise.all([getClientPhotoSignedUrl(photos[0].id), getClientPhotoSignedUrl(photos[photos.length - 1].id)])
       : [null, null];
 
     transformation = {
