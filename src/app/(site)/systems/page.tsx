@@ -69,19 +69,23 @@ export default function SystemsPage() {
 
 
 {/* HERO */}
-<div className="sys-hero-wrap">
-  <DecoArc className="sys-hero-arc" />
-  <DecoRing className="sys-hero-ring" />
-  <DecoDots className="sys-hero-dots" />
-  <section className="page-hero">
-    <div className="photo reveal"><img src="/images/systems-hero.jpg" alt="Emmy Branger, founder of Body Shaper System, reviewing treatment systems" /></div>
-    <div className="reveal">
-      <span className="eyebrow">Personalized Systems™</span>
-      <h1>Five systems. <em>One built for you.</em></h1>
-      <p>Five curated systems designed to support different goals, life stages and transformation journeys. Every recommendation begins with your Body Blueprint™.</p>
-      <a href="/body-blueprint" className="btn btn-dark-outline">Learn About The Blueprint™</a>
-    </div>
-  </section>
+<section className="sys-hero-photo" id="top">
+  <h1 className="sr-only">
+    Personalized Systems™ — One Blueprint. Five Systems. Built entirely for you.
+  </h1>
+  <div className="sys-hero-photo-inner">
+    <img
+      src="/images/systems-hero-banner.webp"
+      alt="Body Shaper System — Personalized Systems™: one blueprint, five systems built entirely for you — Sculpt Start, Sculpt Signature, Mom Reset, GLP-1 Reshape, Total Body Optimization"
+      fetchPriority="high"
+      loading="eager"
+      decoding="sync"
+    />
+  </div>
+</section>
+
+<div className="sys-hero-cta-wrap reveal">
+  <a href="/body-blueprint" className="btn btn-dark-outline">Learn About The Blueprint™</a>
 </div>
 
 <div className="wave-divider">
