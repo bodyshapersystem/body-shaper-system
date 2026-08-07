@@ -15,20 +15,26 @@ export default function InHomeExperiencePage() {
     <>
 
 
-{/* HERO (video-style) */}
-<section className="hero" style={{minHeight: '80vh'}}>
-  <div className="hero-bg" style={{background: "linear-gradient(180deg, rgba(20,17,15,0.55) 0%, rgba(20,17,15,0.45) 40%, rgba(20,17,15,0.92) 100%), url('/images/inhome-lifestyle.jpeg') center/cover"}}>
-  </div>
-  <div className="hero-content reveal">
-    <span className="eyebrow" style={{color: 'rgba(245,238,228,0.8)'}}>The In-Home Experience™</span>
-    <h1 style={{marginTop: '16px'}}>Luxury body optimization.<br /><em>Delivered to your home.</em></h1>
-    <p>Experience advanced body contouring through a personalized luxury service designed around your lifestyle. We bring professional equipment, personalized care and advanced technologies directly to your home — so your transformation happens where you feel most comfortable.</p>
-    <div className="hero-actions">
-      <a href="#build" className="btn btn-primary">Build My Blueprint™</a>
-      <a href={WHATSAPP_URL} className="btn btn-outline">Reserve Your Appointment</a>
-    </div>
+{/* HERO */}
+<section className="sys-hero-photo" id="top">
+  <h1 className="sr-only">
+    The In-Home Experience™ — Expert care, where you are. Premium technology, personalized treatment, total convenience.
+  </h1>
+  <div className="sys-hero-photo-inner">
+    <img
+      src="/images/inhome-hero-banner.webp"
+      alt="Body Shaper System — The In-Home Experience™: expert care, where you are. Premium technology, personalized treatment, total convenience. How it works: we come to you, personalized care, advanced technology, visible results, real confidence."
+      fetchPriority="high"
+      loading="eager"
+      decoding="sync"
+    />
   </div>
 </section>
+
+<div className="sys-hero-cta-wrap reveal">
+  <a href="#build" className="btn btn-primary">Build My Blueprint™</a>
+  <a href={WHATSAPP_URL} className="btn btn-dark-outline">Reserve Your Appointment</a>
+</div>
 
 <div className="wave-divider">
   <svg viewBox="0 0 180 40" fill="none"><path d="M0 20C20 5 40 5 60 20C80 35 100 35 120 20C140 5 160 5 180 20" stroke="#6B5240" strokeWidth="1"/></svg>
