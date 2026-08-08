@@ -550,7 +550,7 @@ export async function markSystemCompleted(clientId: string, assessmentId: string
     firstName: client.firstName,
     email: client.email,
     systemName: assessment.recommendedSystem ?? "Personalized System™",
-    portalUrl: "https://www.bodyshapersystem.com/portal/blueprint",
+    portalUrl: "https://www.bodyshapersystem.com/portal/system-complete",
   });
 
   await prisma.blueprintAssessment.update({ where: { id: assessmentId }, data: { status: "COMPLETED" } });
@@ -564,6 +564,54 @@ export async function markSystemCompleted(clientId: string, assessmentId: string
 
   revalidatePath(`/hub/clients/${clientId}`);
   return { success: true, emailSent: result.success, emailError: result.success ? undefined : result.error };
+}
+
+/**
+ * System Completion™ landing page content — the highlights, next-system
+ * proposal, and featured before/after photos shown when a client clicks
+ * through from the "you completed your system" email. Photos are picked
+ * from the client's own already-uploaded CLIENT_VISIBLE photos (never
+ * re-uploaded here) — pass the Photo ids to feature, in display order.
+ */
+export async function updateSystemCompletionContent(
+  clientId: string,
+  assessmentId: string,
+  data: {
+    completionHighlights?: string;
+    nextSystemName?: string;
+    nextSystemProposal?: string;
+    completionPhotoIds?: string[];
+  }
+) {
+  const user = await getCurrentHubUser();
+  if (!user || !hasPermission(user, "blueprints.manage")) {
+    return { error: "You don't have permission to do this." };
+  }
+
+  const assessment = await prisma.blueprintAssessment.findUnique({ where: { id: assessmentId } });
+  if (!assessment || assessment.clientId !== clientId) return { error: "Assessment not found." };
+
+  if (data.completionPhotoIds?.length) {
+    const count = await prisma.photo.count({
+      where: { id: { in: data.completionPhotoIds }, clientId, visibility: "CLIENT_VISIBLE" },
+    });
+    if (count !== data.completionPhotoIds.length) {
+      return { error: "One or more selected photos aren't valid client-visible photos for this client." };
+    }
+  }
+
+  await prisma.blueprintAssessment.update({
+    where: { id: assessmentId },
+    data: {
+      completionHighlights: data.completionHighlights,
+      nextSystemName: data.nextSystemName,
+      nextSystemProposal: data.nextSystemProposal,
+      completionPhotoUrls: data.completionPhotoIds ?? undefined,
+    },
+  });
+
+  revalidatePath(`/hub/clients/${clientId}`);
+  return { success: true };
 }
 
 /**

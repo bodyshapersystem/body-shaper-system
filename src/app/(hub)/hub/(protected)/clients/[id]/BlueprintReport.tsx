@@ -6,6 +6,7 @@ import { TargetMarkIcon } from "./BlueprintIcons";
 import { BODY_TYPE_CONTENT, getBodyTypeRationale } from "@/lib/body-types";
 import EditSystemDetailsSheet from "./EditSystemDetailsSheet";
 import MarkSystemCompletedButton from "./MarkSystemCompletedButton";
+import SystemCompletionEditor from "./SystemCompletionEditor";
 import RecordRenphoScanSheet from "./RecordRenphoScanSheet";
 import BodyTypeSheet from "./BodyTypeSheet";
 import { getPhotoSignedUrl } from "./blueprint-actions";
@@ -305,6 +306,19 @@ export default async function BlueprintReport({
   const [beforeUrl, afterUrl] = beforeAfter
     ? await Promise.all([getPhotoSignedUrl(beforeAfter.before.storagePath), getPhotoSignedUrl(beforeAfter.after.storagePath)])
     : [null, null];
+
+  // Client-visible photos available to feature on the System Completion™
+  // landing page — resolved here (server side) so the editor component
+  // just needs to render <img>, no extra client-side fetching.
+  const completionPhotoOptions = await Promise.all(
+    photos
+      .filter((p) => p.visibility === "CLIENT_VISIBLE")
+      .map(async (p) => ({
+        id: p.id,
+        url: await getPhotoSignedUrl(p.storagePath),
+        label: `${p.type}${p.takenAt ? " — " + p.takenAt.toISOString().slice(0, 10) : ""}`,
+      }))
+  ).then((list) => list.filter((p): p is { id: string; url: string; label: string } => Boolean(p.url)));
 
   // Real historical series (ascending) for the progress preview chart —
   // no synthetic data points.
@@ -628,6 +642,21 @@ export default async function BlueprintReport({
           </p>
           {mode === "owner" && assessment.status !== "COMPLETED" && (
             <MarkSystemCompletedButton clientId={clientId} assessmentId={assessment.id} />
+          )}
+          {mode === "owner" && (
+            <SystemCompletionEditor
+              clientId={clientId}
+              assessmentId={assessment.id}
+              initialHighlights={assessment.completionHighlights ?? ""}
+              initialNextSystemName={assessment.nextSystemName ?? ""}
+              initialNextSystemProposal={assessment.nextSystemProposal ?? ""}
+              initialSelectedPhotoIds={
+                Array.isArray(assessment.completionPhotoUrls)
+                  ? (assessment.completionPhotoUrls as unknown[]).filter((v): v is string => typeof v === "string")
+                  : []
+              }
+              photoOptions={completionPhotoOptions}
+            />
           )}
           <div className="bbp-arch-grid">
             <div>

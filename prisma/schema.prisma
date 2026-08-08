@@ -378,6 +378,15 @@ model BlueprintAssessment {
   validatedById   String?
   validatedAt     DateTime?
 
+  // System Completion™ landing page — shown when a client clicks through
+  // from the "you completed your system" email instead of the generic
+  // blueprint page. Populated by the Owner via the Hub at completion time;
+  // all optional so completion still works if these are left blank.
+  completionHighlights String?   // short bullet-style summary of results achieved, e.g. "- Abdomen: visibly more defined, fibrosis reduced\n- Legs/glutes: cellulite noticeably reduced"
+  completionPhotoUrls  Json?     // array of storage paths for the before/after images featured on this page (separate from the regular session photo gallery)
+  nextSystemName        String?  // e.g. "Sculpt Signature™"
+  nextSystemProposal    String?  // bullet-style breakdown of the proposed sessions, e.g. "- 6 Exilis® (4 legs, 2 abdomen)\n- 6 Endospheres® (legs)\n- 2 additional EMS"
+
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   createdById String?

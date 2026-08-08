@@ -2790,6 +2790,36 @@
 
 .pay-history-meta{ font-family:var(--sans); font-size:12px; color:#8a7f74; margin:0; }
 
+/* ---------- System Completion™ landing page (Client Portal) ---------- */
+.sc-wrap{ max-width:640px; margin:0 auto; padding:48px 20px 80px; }
+.sc-empty{ max-width:480px; margin:0 auto; padding:80px 20px; text-align:center; }
+.sc-hero{ text-align:center; margin-bottom:44px; }
+.sc-eyebrow{ font-family:var(--serif); font-style:italic; font-size:15px; color:var(--mocha); display:block; margin-bottom:10px; }
+.sc-headline{ font-family:var(--serif); font-weight:400; font-size:clamp(28px,5vw,40px); color:var(--charcoal); line-height:1.15; margin:0 0 14px; }
+.sc-headline em{ font-style:italic; color:var(--mocha); }
+.sc-sub{ font-family:var(--sans); font-size:12px; letter-spacing:0.1em; text-transform:uppercase; color:#8a7f74; margin:0; }
+.sc-section{ margin-bottom:40px; }
+.sc-section-title{ font-family:var(--serif); font-weight:400; font-size:20px; color:var(--charcoal); margin:0 0 16px; text-align:center; }
+.sc-highlights{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:10px; }
+.sc-highlights li{
+  font-family:var(--sans); font-size:14.5px; color:#3a352f; line-height:1.5;
+  padding:14px 18px; background:var(--beige); border-radius:2px; border-left:2px solid var(--mocha);
+}
+.sc-photo-stack{ display:flex; flex-direction:column; gap:16px; }
+.sc-photo{ width:100%; border-radius:2px; display:block; }
+.sc-proposal{
+  background:var(--charcoal); color:var(--ivory); border-radius:4px; padding:36px 28px; text-align:center;
+}
+.sc-proposal .sc-eyebrow{ color:var(--rose); }
+.sc-proposal-title{ font-family:var(--serif); font-weight:400; font-size:26px; margin:0 0 20px; color:var(--ivory); }
+.sc-proposal-list{ text-align:left; margin-bottom:26px; }
+.sc-proposal-list li{ background:rgba(245,238,228,0.06); border-left-color:var(--rose); color:var(--ivory); }
+.sc-cta{ display:inline-block; }
+@media(max-width:600px){
+  .sc-wrap{ padding:32px 16px 60px; }
+  .sc-proposal{ padding:28px 20px; }
+}
+
 .pay-schedule-setup{ display:flex; gap:14px; }
 .pay-schedule-setup label{ flex:1; }
 .pay-generate-btn{ color:var(--cat,#5C1A1F); border-color:rgba(92,26,31,0.3); margin-top:4px; }
