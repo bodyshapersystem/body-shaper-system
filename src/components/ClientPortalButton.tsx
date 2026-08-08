@@ -27,7 +27,7 @@ export default function ClientPortalButton({
       <span className="cp-icon">
         <IconUser />
       </span>
-      Client Portal
+      Sign In
     </Link>
   );
 }
