@@ -229,19 +229,19 @@ export default function HomePage() {
         </p>
         <div className="ig-strip reveal">
           <a href={INSTAGRAM_URL} className="tile">
-            <img src="/images/ig1-bodytalks.jpg" alt="Body Talks™ — why one treatment isn't enough" />
+            <img src="/images/ig1-sculpt-systems.jpg" alt="Sculpt Start™ & Sculpt Signature™" />
           </a>
           <a href={INSTAGRAM_URL} className="tile">
-            <img src="/images/ig2-plant-emmy.jpg" alt="Emmy Branger with the Endospheres® device" />
+            <img src="/images/ig2-office-briefcase.jpg" alt="Body Shaper System™ — behind the scenes" />
           </a>
           <a href={INSTAGRAM_URL} className="tile">
-            <img src="/images/ig3-notmassage.jpg" alt="This isn't a massage. It's technology." />
+            <img src="/images/ig3-glp1-reshape.jpg" alt="GLP-1 Reshape™ Talks" />
           </a>
           <a href={INSTAGRAM_URL} className="tile">
-            <img src="/images/ig4-hormonas.jpg" alt="Hormonas de la Felicidad — Body Shaper System" />
+            <img src="/images/ig4-body-blueprint.jpg" alt="The Body Blueprint™ — Science. Strategy. Transformation." />
           </a>
           <a href={INSTAGRAM_URL} className="tile">
-            <img src="/images/ig5-exilis-hand.jpg" alt="Exilis® session in progress" />
+            <img src="/images/ig5-ideal-system.jpg" alt="What is the ideal system for you?" />
           </a>
         </div>
         <a
