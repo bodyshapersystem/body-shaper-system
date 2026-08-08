@@ -1581,6 +1581,22 @@
   to{opacity:1;transform:translateY(0);}
 }
 
+.home-hero-whatsapp-btn{
+  position:absolute;top:4.5%;right:4.9%;z-index:2;
+  display:inline-flex;align-items:center;gap:8px;
+  padding:11px 18px;border:1px solid rgba(245,238,228,0.75);border-radius:2px;
+  color:#F5EEE4;font-family:var(--sans);font-size:12px;letter-spacing:0.06em;text-transform:uppercase;
+  text-decoration:none;background:rgba(20,17,15,0.15);backdrop-filter:blur(2px);
+  transition:background .25s ease, border-color .25s ease;
+}
+.home-hero-whatsapp-btn:hover{
+  background:rgba(37,155,86,0.85);border-color:rgba(37,155,86,0.9);
+}
+@media(max-width:600px){
+  .home-hero-whatsapp-btn{top:3.2%;right:5vw;padding:9px 14px;font-size:10.5px;gap:6px;}
+  .home-hero-whatsapp-btn svg{width:12px;height:12px;}
+}
+
 .home-hero-hit{
   position:absolute;cursor:pointer;transition:background .25s ease, box-shadow .25s ease, transform .25s ease;
   background:rgba(107,82,64,0);

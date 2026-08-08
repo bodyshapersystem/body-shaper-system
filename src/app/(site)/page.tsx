@@ -21,7 +21,7 @@ export default function HomePage() {
         <div className="home-hero-photo-inner">
           <img
             src="/images/home-hero.webp"
-            alt="Body Shaper System personalized body optimization technology"
+            alt="Body Shaper System — The future of body optimization. Science. Strategy. Transformation."
             fetchPriority="high"
             loading="eager"
             decoding="sync"
@@ -32,16 +32,28 @@ export default function HomePage() {
             href={WHATSAPP_URL}
             target="_blank"
             rel="noopener noreferrer"
+            className="home-hero-whatsapp-btn"
+            aria-label="Chat with a Specialist on WhatsApp"
+          >
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M12 2C6.48 2 2 6.48 2 12c0 1.85.5 3.58 1.37 5.07L2 22l5.09-1.33A9.94 9.94 0 0 0 12 22c5.52 0 10-4.48 10-10S17.52 2 12 2Z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round"/>
+              <path d="M8.5 9.5c0 3.5 2.5 6 6 6 .5 0 1-.5 1-1v-1l-2-1-1 1c-1-.5-2-1.5-2.5-2.5l1-1-1-2h-1c-.5 0-1 .5-1 1.5Z" fill="currentColor"/>
+            </svg>
+            WhatsApp
+          </a>
+
+          <a
+            href="/in-home-experience"
             className="home-hero-hit"
-            style={{ left: "76.24%", top: "2.6%", width: "22.48%", height: "4.49%" }}
-            aria-label="Book now via WhatsApp"
+            style={{ left: "4.89%", top: "47.04%", width: "33.24%", height: "4.23%" }}
+            aria-label="The In-Home Experience™"
           />
 
           <a
-            href={JOTFORM_BLUEPRINT_URL}
-            className="home-hero-hit cta-main"
-            style={{ left: "2.05%", top: "46.45%", width: "35.58%", height: "4.23%" }}
-            aria-label="Start My Body Blueprint™"
+            href="/systems"
+            className="home-hero-hit"
+            style={{ left: "2.44%", top: "88.16%", width: "21.51%", height: "2.93%" }}
+            aria-label="Explore The System"
           />
         </div>
       </section>
