@@ -43,17 +43,10 @@ export default function HomePage() {
           </a>
 
           <a
-            href="/in-home-experience"
-            className="home-hero-hit"
-            style={{ left: "4.89%", top: "47.04%", width: "33.24%", height: "4.23%" }}
-            aria-label="The In-Home Experience™"
-          />
-
-          <a
             href="/systems"
             className="home-hero-hit"
-            style={{ left: "2.44%", top: "88.16%", width: "21.51%", height: "2.93%" }}
-            aria-label="Explore The System"
+            style={{ left: "4.27%", top: "57.14%", width: "24.17%", height: "3.22%" }}
+            aria-label="Explore Systems"
           />
         </div>
       </section>
