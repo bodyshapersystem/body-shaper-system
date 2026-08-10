@@ -90,6 +90,12 @@ const VIDEOS: VideoSource[] = [
     title: "GLP-1 Reshape™",
     description: "Perder peso no siempre es el final del camino — a veces es el comienzo de una nueva etapa. GLP-1 Reshape™ ayuda a recuperar firmeza, mejorar la piel y redefinir tu contorno corporal durante o después de GLP-1.",
   },
+  {
+    type: "instagram",
+    id: "DbHUHl7u9SF",
+    title: "El Lujo de Recibirlo en Casa",
+    description: "Llevamos nuestros sistemas directamente hasta la comodidad de tu hogar. Sin salas de espera, sin prisas — solo tú, tecnología de última generación y una experiencia completamente privada.",
+  },
 ];
 
 function VideoEmbed({ video }: { video: VideoSource }) {
