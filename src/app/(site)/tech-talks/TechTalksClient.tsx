@@ -78,6 +78,12 @@ const VIDEOS: VideoSource[] = [
     title: "Un Sistema, No Solo un Tratamiento",
     description: "La verdadera transformación no depende de una sola máquina — depende de combinar las tecnologías correctas, en el orden correcto, para tu cuerpo.",
   },
+  {
+    type: "instagram",
+    id: "Dax_W7TOTDM",
+    title: "No Existe un Sistema Para Todo el Mundo",
+    description: "Existe un sistema que funciona para ti. Empezamos entendiendo dónde está tu cuerpo hoy, tu objetivo, y qué cambios quieres lograr — antes de recomendar cualquier tratamiento.",
+  },
 ];
 
 function VideoEmbed({ video }: { video: VideoSource }) {
