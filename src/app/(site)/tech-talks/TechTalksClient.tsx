@@ -71,7 +71,14 @@ type VideoSource = { type: "youtube" | "instagram"; id: string; title: string; d
 // youtube.com/watch?v=XXXXXXXXXXX or youtu.be/XXXXXXXXXXX) or the
 // Instagram Reel/post ID (from instagram.com/reel/XXXXXXXXXXX/).
 // Empty until Emmy sends links/files to add.
-const VIDEOS: VideoSource[] = [];
+const VIDEOS: VideoSource[] = [
+  {
+    type: "instagram",
+    id: "DajKIwju2ss",
+    title: "Un Sistema, No Solo un Tratamiento",
+    description: "La verdadera transformación no depende de una sola máquina — depende de combinar las tecnologías correctas, en el orden correcto, para tu cuerpo.",
+  },
+];
 
 function VideoEmbed({ video }: { video: VideoSource }) {
   if (video.type === "youtube") {
