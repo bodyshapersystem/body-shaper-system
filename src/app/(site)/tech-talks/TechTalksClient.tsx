@@ -84,6 +84,12 @@ const VIDEOS: VideoSource[] = [
     title: "No Existe un Sistema Para Todo el Mundo",
     description: "Existe un sistema que funciona para ti. Empezamos entendiendo dónde está tu cuerpo hoy, tu objetivo, y qué cambios quieres lograr — antes de recomendar cualquier tratamiento.",
   },
+  {
+    type: "instagram",
+    id: "Da807sdOUbA",
+    title: "GLP-1 Reshape™",
+    description: "Perder peso no siempre es el final del camino — a veces es el comienzo de una nueva etapa. GLP-1 Reshape™ ayuda a recuperar firmeza, mejorar la piel y redefinir tu contorno corporal durante o después de GLP-1.",
+  },
 ];
 
 function VideoEmbed({ video }: { video: VideoSource }) {
