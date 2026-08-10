@@ -65,8 +65,40 @@ const EDU_ARTICLES: { cat: EduCategory; tag: string; title: string; desc: string
   { cat: "myths", tag: "Education", title: "Myths vs Facts", desc: "Separating what's true about body contouring from what's marketing.", href: "#article-myths" },
 ];
 
+type VideoSource = { type: "youtube" | "instagram"; id: string; title: string; description: string; language?: "es" | "en" };
+
+// Real videos go here — id is the YouTube video ID (from a URL like
+// youtube.com/watch?v=XXXXXXXXXXX or youtu.be/XXXXXXXXXXX) or the
+// Instagram Reel/post ID (from instagram.com/reel/XXXXXXXXXXX/).
+// Empty until Emmy sends links/files to add.
+const VIDEOS: VideoSource[] = [];
+
+function VideoEmbed({ video }: { video: VideoSource }) {
+  if (video.type === "youtube") {
+    return (
+      <iframe
+        className="tt-video-frame"
+        src={`https://www.youtube-nocookie.com/embed/${video.id}`}
+        title={video.title}
+        loading="lazy"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+        allowFullScreen
+      />
+    );
+  }
+  return (
+    <iframe
+      className="tt-video-frame tt-video-frame-ig"
+      src={`https://www.instagram.com/reel/${video.id}/embed`}
+      title={video.title}
+      loading="lazy"
+      allowFullScreen
+    />
+  );
+}
+
 export default function TechTalksClient() {
-  const [mainTab, setMainTab] = useState<"technologies" | "education">("technologies");
+  const [mainTab, setMainTab] = useState<"technologies" | "education" | "videos">("technologies");
   const [subTab, setSubTab] = useState<"exilis" | "endospheres" | "ems" | "lymphatic">("exilis");
   const [eduQuery, setEduQuery] = useState("");
   const [eduCategory, setEduCategory] = useState<EduCategory>("all");
@@ -105,6 +137,34 @@ export default function TechTalksClient() {
 <div className="tt-tabs reveal">
   <button className={`tt-tab${mainTab === "technologies" ? " active" : ""}`} onClick={() => setMainTab("technologies")}>Technologies</button>
   <button className={`tt-tab${mainTab === "education" ? " active" : ""}`} onClick={() => setMainTab("education")}>Body Education</button>
+  <button className={`tt-tab${mainTab === "videos" ? " active" : ""}`} onClick={() => setMainTab("videos")}>Videos</button>
+</div>
+
+{/* PANEL: VIDEOS */}
+<div id="panel-videos" className={`tt-panel${mainTab === "videos" ? " active" : ""}`}>
+  <div className="tt-videos-intro reveal">
+    <span className="eyebrow">Body Talks™</span>
+    <h2>Videos en Español</h2>
+    <p>Explicaciones claras y directas sobre nuestras tecnologías y tu transformación.</p>
+  </div>
+
+  {VIDEOS.length === 0 ? (
+    <div className="tt-videos-empty reveal">
+      <p>Nuevos videos próximamente.</p>
+    </div>
+  ) : (
+    <div className="tt-videos-grid reveal">
+      {VIDEOS.map((v) => (
+        <div key={v.id} className="tt-video-card">
+          <div className="tt-video-embed-wrap">
+            <VideoEmbed video={v} />
+          </div>
+          <h3>{v.title}</h3>
+          <p>{v.description}</p>
+        </div>
+      ))}
+    </div>
+  )}
 </div>
 
 {/* PANEL: TECHNOLOGIES */}
