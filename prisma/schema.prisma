@@ -456,6 +456,12 @@ model Photo {
   specialistId  String?
   notes         String?
   visibility    Visibility @default(INTERNAL_ONLY)
+  // Explicit session grouping — set by the Owner when the automatic
+  // "chunks of 4 in upload order" grouping gets it wrong (e.g. an old
+  // incomplete session's leftover photos merging with a new session's
+  // uploads because both land in the same chunk-of-4). Null = fall
+  // back to the automatic chunking, so existing clients are unaffected.
+  sessionNumber Int?
 
   @@map("photos")
 }

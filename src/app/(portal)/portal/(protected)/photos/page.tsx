@@ -53,11 +53,30 @@ export default async function ProgressPhotosPage() {
     getBusinessTimezone(),
   ]);
 
-  // Chunk into sequential groups of 4 — the current in-progress
-  // session (if not yet a full 4) is always the last chunk.
+  // Grouping: if the Owner has set explicit sessionNumber values (used
+  // to correct cases where automatic chunking merged an old incomplete
+  // session's leftovers with a new session's uploads), group by that.
+  // Otherwise fall back to the original "chunks of 4 in upload order"
+  // behavior, unchanged for every client that's never needed a manual
+  // fix.
+  const hasExplicitSessions = photos.length > 0 && photos.every((p) => p.sessionNumber != null);
   const sessions: (typeof photos)[] = [];
-  for (let i = 0; i < photos.length; i += SESSION_SIZE) {
-    sessions.push(photos.slice(i, i + SESSION_SIZE));
+  if (hasExplicitSessions) {
+    const bySession = new Map<number, typeof photos>();
+    for (const p of photos) {
+      const n = p.sessionNumber as number;
+      if (!bySession.has(n)) bySession.set(n, []);
+      bySession.get(n)!.push(p);
+    }
+    for (const n of Array.from(bySession.keys()).sort((a, b) => a - b)) {
+      sessions.push(bySession.get(n)!);
+    }
+  } else {
+    // Chunk into sequential groups of 4 — the current in-progress
+    // session (if not yet a full 4) is always the last chunk.
+    for (let i = 0; i < photos.length; i += SESSION_SIZE) {
+      sessions.push(photos.slice(i, i + SESSION_SIZE));
+    }
   }
 
   const sessionsWithUrls = await Promise.all(
