@@ -14,13 +14,33 @@ const SLOT_LABELS: Record<string, string> = {
   DETAIL: "Detail",
 };
 
+const MEASUREMENT_FIELDS: { key: "chestCm" | "waistCm" | "highWaistCm" | "lowerAbdomenCm" | "hipsCm" | "neckCm" | "shoulderCm" | "rightArmCm" | "leftArmCm" | "rightThighCm" | "leftThighCm"; label: string }[] = [
+  { key: "chestCm", label: "Chest" },
+  { key: "waistCm", label: "Waist" },
+  { key: "lowerAbdomenCm", label: "Abdomen" },
+  { key: "hipsCm", label: "Hips" },
+  { key: "rightThighCm", label: "R. Thigh" },
+  { key: "leftThighCm", label: "L. Thigh" },
+  { key: "rightArmCm", label: "R. Arm" },
+  { key: "leftArmCm", label: "L. Arm" },
+  { key: "neckCm", label: "Neck" },
+  { key: "shoulderCm", label: "Shoulder" },
+];
+
+function dayKey(date: Date, timezone: string): string {
+  // en-CA gives YYYY-MM-DD directly — used purely as a same-day
+  // comparison key between a photo session's date and a measurement's
+  // date, both in the business's real timezone.
+  return new Intl.DateTimeFormat("en-CA", { timeZone: timezone }).format(date);
+}
+
 const SESSION_SIZE = 4;
 
 export default async function ProgressPhotosPage() {
   const client = await getCurrentPortalClient();
   if (!client) redirect("/portal/login");
 
-  const [photos, timezone] = await Promise.all([
+  const [photos, bodyMeasurements, timezone] = await Promise.all([
     // Real sessions are groups of 4 photos in upload order — not by
     // calendar date. A client can shoot two full sessions (8 photos)
     // in the same sitting/day, and they still need to read as two
@@ -29,6 +49,7 @@ export default async function ProgressPhotosPage() {
       where: { clientId: client.id, visibility: "CLIENT_VISIBLE" },
       orderBy: { uploadedAt: "asc" },
     }),
+    prisma.bodyMeasurement.findMany({ where: { clientId: client.id }, orderBy: { measuredAt: "asc" } }),
     getBusinessTimezone(),
   ]);
 
@@ -52,7 +73,9 @@ export default async function ProgressPhotosPage() {
         month: "long",
         day: "numeric",
       });
-      return { sessionNumber: index + 1, dateLabel, photos: withUrls, isComplete: sessionPhotos.length === SESSION_SIZE };
+      const sessionDayKey = dayKey(sessionPhotos[0].takenAt ?? sessionPhotos[0].uploadedAt, timezone);
+      const matchedMeasurement = bodyMeasurements.find((m) => dayKey(m.measuredAt, timezone) === sessionDayKey) ?? null;
+      return { sessionNumber: index + 1, dateLabel, photos: withUrls, isComplete: sessionPhotos.length === SESSION_SIZE, matchedMeasurement };
     })
   );
 
@@ -104,7 +127,7 @@ export default async function ProgressPhotosPage() {
             </div>
           )}
 
-          {sessionsWithUrls.map(({ sessionNumber, dateLabel, photos: sessionPhotos, isComplete }) => (
+          {sessionsWithUrls.map(({ sessionNumber, dateLabel, photos: sessionPhotos, isComplete, matchedMeasurement }) => (
             <div className="simple-card" key={sessionNumber} style={{ marginBottom: 20 }}>
               <h3>
                 Session {sessionNumber} — {dateLabel}
@@ -138,6 +161,21 @@ export default async function ProgressPhotosPage() {
                   );
                 })}
               </div>
+              {matchedMeasurement && (
+                <div style={{ marginTop: 16, paddingTop: 14, borderTop: "1px solid var(--line)" }}>
+                  <p className="pay-history-meta" style={{ marginBottom: 8, textTransform: "uppercase", letterSpacing: "0.06em" }}>
+                    Measurements this session
+                  </p>
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: "10px 24px" }}>
+                    {MEASUREMENT_FIELDS.filter(({ key }) => matchedMeasurement[key] != null).map(({ key, label }) => (
+                      <div key={key} style={{ fontFamily: "var(--sans)", fontSize: 13 }}>
+                        <span style={{ color: "#8a7f74" }}>{label}: </span>
+                        <strong>{(matchedMeasurement[key] as number).toFixed(1)} cm</strong>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           ))}
         </>
