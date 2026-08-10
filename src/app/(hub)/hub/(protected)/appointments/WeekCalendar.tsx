@@ -49,6 +49,12 @@ function toDateParam(d: Date) {
   return d.toISOString().slice(0, 10);
 }
 
+function toTimeParam(h: number) {
+  const hour = Math.floor(h);
+  const min = h % 1 === 0 ? 0 : 30;
+  return `${String(hour).padStart(2, "0")}:${String(min).padStart(2, "0")}`;
+}
+
 export default function WeekCalendar({
   view,
   rangeStartIso,
@@ -117,6 +123,17 @@ export default function WeekCalendar({
     if (currentFilters.therapistId) params.set("therapistId", currentFilters.therapistId);
     if (currentFilters.system) params.set("system", currentFilters.system);
     return params.toString();
+  }
+
+  // Href for clicking an empty slot: keeps the current view/week/date and
+  // filters intact, adds prefillDate/prefillTime so the New Appointment
+  // form below opens already set to this slot, and jumps to it via the
+  // #new-appointment anchor (Link scrolls to it automatically).
+  function newApptHref(dateKey: string, hourFraction: number) {
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("prefillDate", dateKey);
+    params.set("prefillTime", toTimeParam(hourFraction));
+    return `/hub/appointments?${params.toString()}#new-appointment`;
   }
 
   // ---------- Navigation targets, per view ----------
@@ -246,7 +263,13 @@ export default function WeekCalendar({
                 <div key={h} className="apt-day-row">
                   <div className="apt-day-row-label">{fmtHour(h)}</div>
                   <div className="apt-day-row-events">
-                    {slotEvents.length === 0 && <span className="apt-day-row-empty">—</span>}
+                    {slotEvents.length === 0 && (
+                      canManage ? (
+                        <Link href={newApptHref(dayKey, h)} className="apt-day-row-add">+ add appointment</Link>
+                      ) : (
+                        <span className="apt-day-row-empty">—</span>
+                      )
+                    )}
                     {slotEvents.map((e) => (
                       <button key={e.id} type="button" className={`apt-day-card wk-event-${e.category}`} onClick={() => setSelected(e)}>
                         <span className="wk-event-time">{timeInZone(e.startsAt)}</span>
@@ -346,6 +369,11 @@ export default function WeekCalendar({
                 });
                 return (
                   <div key={`${key}-${h}`} className={`wk-cell ${isToday(d) ? "wk-cell-today" : ""}`}>
+                    {slotEvents.length === 0 && canManage && (
+                      <Link href={newApptHref(key, h)} className="wk-cell-add" aria-label={`Add appointment ${key} ${fmtHour(h)}`}>
+                        +
+                      </Link>
+                    )}
                     {slotEvents.map((e) => (
                       <button
                         key={e.id}

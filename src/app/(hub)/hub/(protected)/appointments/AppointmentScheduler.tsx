@@ -63,7 +63,15 @@ function dateKey(d: Date) {
 
 type Step = 1 | 2 | 3 | 4;
 
-export default function AppointmentScheduler({ clients }: { clients: ClientOption[] }) {
+export default function AppointmentScheduler({
+  clients,
+  initialDate,
+  initialTime,
+}: {
+  clients: ClientOption[];
+  initialDate?: string;
+  initialTime?: string;
+}) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [step, setStep] = useState<Step>(1);
@@ -84,9 +92,12 @@ export default function AppointmentScheduler({ clients }: { clients: ClientOptio
     d.setDate(d.getDate() + 1);
     return d;
   }, []);
-  const [dateMode, setDateMode] = useState<"today" | "tomorrow" | "custom">("today");
-  const [customDate, setCustomDate] = useState(dateKey(today));
-  const [time, setTime] = useState<string | null>(null);
+  // A slot clicked directly on the calendar (initialDate/initialTime) always
+  // wins over the today/tomorrow shortcuts, since the whole point is that
+  // the date+time are already decided by which cell was clicked.
+  const [dateMode, setDateMode] = useState<"today" | "tomorrow" | "custom">(initialDate ? "custom" : "today");
+  const [customDate, setCustomDate] = useState(initialDate ?? dateKey(today));
+  const [time, setTime] = useState<string | null>(initialTime ?? null);
 
   const [error, setError] = useState("");
   const [scheduled, setScheduled] = useState<{ clientId: string } | null>(null);
@@ -102,6 +113,10 @@ export default function AppointmentScheduler({ clients }: { clients: ClientOptio
       const ctx = await getClientSessionContext(id);
       setContext(ctx);
       setLoadingContext(false);
+      // Slot was clicked directly on the calendar — date/time are already
+      // decided, so skip straight past both "Continue" clicks and show
+      // the tech + date/time sections together.
+      if (initialDate) setStep(3);
     });
   }
 
@@ -223,6 +238,16 @@ export default function AppointmentScheduler({ clients }: { clients: ClientOptio
 
   return (
     <div className="sched-form">
+      {initialDate && (
+        <div className="sched-prefill-banner">
+          Scheduling for{" "}
+          <strong>
+            {new Date(initialDate + "T00:00:00").toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric" })}
+            {initialTime ? ` at ${fmtTime(initialTime)}` : ""}
+          </strong>{" "}
+          — just pick the client below.
+        </div>
+      )}
       {/* ---------- Step 1: Client + Summary ---------- */}
       <div className="sched-section">
         <label className="sched-label" htmlFor="client-select">

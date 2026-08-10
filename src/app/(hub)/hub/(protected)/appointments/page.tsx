@@ -30,14 +30,14 @@ function startOfMonth(d: Date) {
 export default async function HubAppointmentsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ view?: string; week?: string; date?: string; month?: string; zone?: string; status?: string; therapistId?: string; system?: string }>;
+  searchParams: Promise<{ view?: string; week?: string; date?: string; month?: string; zone?: string; status?: string; therapistId?: string; system?: string; prefillDate?: string; prefillTime?: string }>;
 }) {
   const user = await getCurrentHubUser();
   if (!user) redirect("/hub/login");
   const canManage = hasPermission(user, "appointments.manage");
   const timezone = await getBusinessTimezone();
 
-  const { view: viewParam, week: weekParam, date: dateParam, month: monthParam, zone, status, therapistId, system } = await searchParams;
+  const { view: viewParam, week: weekParam, date: dateParam, month: monthParam, zone, status, therapistId, system, prefillDate, prefillTime } = await searchParams;
   const view = (viewParam === "day" || viewParam === "month" ? viewParam : "week") as "day" | "week" | "month";
 
   // Real date range per view — this is what actually gets fetched from
@@ -168,7 +168,7 @@ export default async function HubAppointmentsPage({
       {canManage && (
         <div id="new-appointment" style={{ marginTop: 32 }}>
           <h3 className="dash-section-title">New Appointment</h3>
-          <AppointmentScheduler clients={clients} />
+          <AppointmentScheduler clients={clients} initialDate={prefillDate} initialTime={prefillTime} />
         </div>
       )}
     </div>
