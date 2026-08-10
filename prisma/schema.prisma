@@ -545,6 +545,22 @@ model Measurement {
   bmr                    Int?
   bodyAge                Int?
   fatFreeWeightKg        Float?
+  // Tape-measure circumferences (cm) — separate device/method from the
+  // RENPHO bioimpedance scan above, so tracked as their own optional
+  // fields on the same measurement record rather than forcing every
+  // scan to have both types filled in.
+  neckCm                 Float?
+  shoulderCm             Float?
+  bicepsLeftCm           Float?
+  bicepsRightCm          Float?
+  chestCm                Float?
+  waistCm                Float?
+  abdomenCm              Float?
+  hipCm                  Float?
+  thighLeftCm            Float?
+  thighRightCm           Float?
+  calfLeftCm             Float?
+  calfRightCm            Float?
   deviceSource     String   @default("RENPHO Health")
   notes            String?
   createdAt        DateTime @default(now())
