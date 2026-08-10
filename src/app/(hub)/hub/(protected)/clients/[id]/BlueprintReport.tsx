@@ -9,6 +9,7 @@ import MarkSystemCompletedButton from "./MarkSystemCompletedButton";
 import SystemCompletionEditor from "./SystemCompletionEditor";
 import RecordRenphoScanSheet from "./RecordRenphoScanSheet";
 import BodyTypeSheet from "./BodyTypeSheet";
+import MeasurementCompare from "./MeasurementCompare";
 import { getPhotoSignedUrl } from "./blueprint-actions";
 import { getBusinessTimezone, formatDateInTimezone } from "@/lib/format-datetime";
 import { computeBlueprintScore } from "@/lib/blueprint-score";
@@ -536,6 +537,7 @@ export default async function BlueprintReport({
             ) : (
               <EmptyState title="no measurements yet." sub="Professional measurements will be recorded during your first Blueprint Session™." />
             )}
+            <MeasurementCompare measurements={assessment.bodyMeasurements} />
           </div>
         </div>
 

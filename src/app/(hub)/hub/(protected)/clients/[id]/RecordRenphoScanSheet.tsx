@@ -58,21 +58,6 @@ export default function RecordRenphoScanSheet({ clientId, assessmentId }: { clie
                 <label className="sched-label">Metabolic Age<input name="bodyAge" type="number" className="sched-select" /></label>
                 <label className="sched-label">Fat-Free Weight (kg)<input name="fatFreeWeightKg" type="number" step="0.1" className="sched-select" /></label>
               </div>
-              <p className="pay-history-meta" style={{ margin: "14px 0 6px" }}>Tape measurements (cm) — optional, separate from the RENPHO scan above</p>
-              <div className="bp-sheet-grid">
-                <label className="sched-label">Neck<input name="neckCm" type="number" step="0.1" className="sched-select" /></label>
-                <label className="sched-label">Shoulder<input name="shoulderCm" type="number" step="0.1" className="sched-select" /></label>
-                <label className="sched-label">Chest<input name="chestCm" type="number" step="0.1" className="sched-select" /></label>
-                <label className="sched-label">Waist<input name="waistCm" type="number" step="0.1" className="sched-select" /></label>
-                <label className="sched-label">Abdomen<input name="abdomenCm" type="number" step="0.1" className="sched-select" /></label>
-                <label className="sched-label">Hip<input name="hipCm" type="number" step="0.1" className="sched-select" /></label>
-                <label className="sched-label">L-Biceps<input name="bicepsLeftCm" type="number" step="0.1" className="sched-select" /></label>
-                <label className="sched-label">R-Biceps<input name="bicepsRightCm" type="number" step="0.1" className="sched-select" /></label>
-                <label className="sched-label">L-Thigh<input name="thighLeftCm" type="number" step="0.1" className="sched-select" /></label>
-                <label className="sched-label">R-Thigh<input name="thighRightCm" type="number" step="0.1" className="sched-select" /></label>
-                <label className="sched-label">L-Calf<input name="calfLeftCm" type="number" step="0.1" className="sched-select" /></label>
-                <label className="sched-label">R-Calf<input name="calfRightCm" type="number" step="0.1" className="sched-select" /></label>
-              </div>
               <label className="sched-label">
                 Notes
                 <textarea name="notes" rows={2} className="sched-textarea" />

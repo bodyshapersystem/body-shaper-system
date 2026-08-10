@@ -52,6 +52,14 @@ export default function MeasurementSheet({ clientId, label = "+ Update Measureme
                   <input name="chestCm" type="number" step="0.1" className="sched-select" />
                 </label>
                 <label className="sched-label">
+                  Neck (cm)
+                  <input name="neckCm" type="number" step="0.1" className="sched-select" />
+                </label>
+                <label className="sched-label">
+                  Shoulder (cm)
+                  <input name="shoulderCm" type="number" step="0.1" className="sched-select" />
+                </label>
+                <label className="sched-label">
                   Right Arm (cm)
                   <input name="rightArmCm" type="number" step="0.1" className="sched-select" />
                 </label>
