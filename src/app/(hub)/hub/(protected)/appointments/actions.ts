@@ -27,7 +27,7 @@ export async function createAppointment(formData: FormData) {
     return { error: "Client, title, and start time are required." };
   }
 
-  let technologies: string[] | undefined;
+  let technologies: { name: string; minutes: number; bodyArea?: string; intensity?: string; notes?: string }[] | undefined;
   if (technologiesRaw) {
     try {
       const parsed = JSON.parse(technologiesRaw);
@@ -76,6 +76,7 @@ export async function createAppointment(formData: FormData) {
       dateLabel: formatDateInTimezone(appointment.startsAt, timezone, { weekday: "long", month: "long", day: "numeric" }),
       timeLabel: formatTimeInTimezone(appointment.startsAt, timezone),
       systemName: client.blueprintAssessments[0]?.recommendedSystem ?? undefined,
+      technologyNames: technologies?.map((t) => t.name),
       portalUrl: "https://www.bodyshapersystem.com/portal/appointments",
     }).catch(() => undefined);
     await createNotification({

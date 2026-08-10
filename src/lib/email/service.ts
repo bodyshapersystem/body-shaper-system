@@ -275,10 +275,11 @@ export async function sendAppointmentConfirmationEmail(params: {
   dateLabel: string;
   timeLabel: string;
   systemName?: string;
+  technologyNames?: string[];
   portalUrl: string;
 }) {
-  const { clientId, firstName, email, sessionTitle, dateLabel, timeLabel, systemName, portalUrl } = params;
-  const { subject, html } = buildAppointmentConfirmationEmail({ firstName, sessionTitle, dateLabel, timeLabel, systemName, portalUrl });
+  const { clientId, firstName, email, sessionTitle, dateLabel, timeLabel, systemName, technologyNames, portalUrl } = params;
+  const { subject, html } = buildAppointmentConfirmationEmail({ firstName, sessionTitle, dateLabel, timeLabel, systemName, technologyNames, portalUrl });
   return logAndSend({
     clientId,
     template: "APPOINTMENT_CONFIRMATION",

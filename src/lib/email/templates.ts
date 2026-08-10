@@ -465,9 +465,10 @@ export function buildAppointmentConfirmationEmail(params: {
   dateLabel: string;
   timeLabel: string;
   systemName?: string;
+  technologyNames?: string[];
   portalUrl: string;
 }): { subject: string; html: string } {
-  const { firstName, sessionTitle, dateLabel, timeLabel, systemName, portalUrl } = params;
+  const { firstName, sessionTitle, dateLabel, timeLabel, systemName, technologyNames, portalUrl } = params;
   const name = firstName?.trim() || "beautiful";
   const greeting = firstName?.trim() ? `Hi ${firstName.trim()}` : "Hello beautiful";
   const rows = [
@@ -476,6 +477,7 @@ export function buildAppointmentConfirmationEmail(params: {
     { label: "Time", value: timeLabel },
   ];
   if (systemName) rows.push({ label: "System", value: systemName });
+  if (technologyNames && technologyNames.length > 0) rows.push({ label: "Technology", value: technologyNames.join(", ") });
   return {
     subject: `Your session is confirmed, ${name}`,
     html: emailShell({
