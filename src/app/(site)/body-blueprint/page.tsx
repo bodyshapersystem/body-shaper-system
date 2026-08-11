@@ -3,9 +3,9 @@ import { buildMetadata } from "@/lib/seo";
 import { JOTFORM_BLUEPRINT_URL, WHATSAPP_URL } from "@/lib/nav";
 
 export const metadata: Metadata = buildMetadata({
-  title: "The Body Blueprint™",
+  title: "Free Body Assessment for Fat Reduction & Toning | Miami",
   description:
-    "Every transformation begins with a blueprint. The Body Blueprint™ is a personalized evaluation of how your body functions, used to design your Personalized System™.",
+    "Start with a personalized Body Blueprint™ assessment — a real evaluation of your body used to design your fat reduction, skin tightening or toning treatment plan in Miami.",
   path: "/body-blueprint",
 });
 

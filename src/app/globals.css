@@ -1456,6 +1456,7 @@
 .tt-deco{position:absolute;pointer-events:none;z-index:0;}
 .tt-hero-wrap{position:relative;overflow:hidden;}
 .tt-hero-wrap .hero-content{position:relative;z-index:1;}
+.tt-seo-intro{font-size:13.5px;opacity:0.75;max-width:560px;margin-top:14px;}
 .tt-hero-arc{top:-60px;right:-70px;width:300px;height:300px;opacity:0.18;}
 .tt-hero-ring{bottom:8%;left:4vw;width:110px;height:110px;opacity:0.16;}
 

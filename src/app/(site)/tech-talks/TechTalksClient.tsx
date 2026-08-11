@@ -150,6 +150,7 @@ export default function TechTalksClient() {
       <span className="eyebrow" style={{color: 'var(--rose)'}}>Tech Talks™</span>
       <h1>Understand the Technology.<br /><em>Trust the Strategy.</em></h1>
       <p>Learn the science behind every transformation. Every treatment begins with understanding how your body works. At Body Shaper System™, we don't sell individual sessions — we create Personalized Systems™ based on your unique Body Blueprint™.</p>
+      <p className="tt-seo-intro">Whether you're researching non-surgical body contouring, skin tightening after weight loss, cellulite reduction, or how muscle-toning technologies like EMS actually work — this is where we break it down in plain language, backed by real client results in Miami.</p>
     </div>
   </section>
 </div>

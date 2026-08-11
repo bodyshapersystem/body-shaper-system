@@ -3,9 +3,9 @@ import { buildMetadata } from "@/lib/seo";
 import { WHATSAPP_URL, JOTFORM_BLUEPRINT_URL } from "@/lib/nav";
 
 export const metadata: Metadata = buildMetadata({
-  title: "About Us",
+  title: "Miami Body Contouring Studio Since 2017 | Body Shaper System™",
   description:
-    "The story behind Body Shaper System™ — how a private treatment suite in Coconut Grove became a personalized body optimization methodology, founded by Emmy Branger in Miami.",
+    "The story behind Body Shaper System™ — how a private Miami treatment studio became a personalized body contouring and skin tightening methodology, founded by Emmy Branger.",
   path: "/about",
 });
 

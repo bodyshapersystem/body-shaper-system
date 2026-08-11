@@ -3,9 +3,9 @@ import { buildMetadata } from "@/lib/seo";
 import TechTalksClient from "./TechTalksClient";
 
 export const metadata: Metadata = buildMetadata({
-  title: "Tech Talks™",
+  title: "Body Contouring Technology Explained | Exilis, EMS & More",
   description:
-    "Learn the science behind every transformation — Exilis®, Endospheres®, EMS® and Lymphatic Protocols™ explained, plus the Body Education™ library.",
+    "How non-surgical body contouring actually works — fat reduction, skin tightening, cellulite reduction and muscle toning technology explained, plus real client videos.",
   path: "/tech-talks",
 });
 

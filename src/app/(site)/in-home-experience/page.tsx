@@ -4,9 +4,9 @@ import { JOTFORM_BLUEPRINT_URL, WHATSAPP_URL } from "@/lib/nav";
 import ServiceAreaMap from "@/components/ServiceAreaMap";
 
 export const metadata: Metadata = buildMetadata({
-  title: "The In-Home Experience™",
+  title: "Mobile Body Contouring — In-Home Treatments in Miami",
   description:
-    "Luxury body optimization, delivered to your home. Professional equipment, personalized care and advanced technology — Exilis®, Endospheres®, EMS® and Lymphatic Protocols™ — brought directly to you.",
+    "Professional body contouring, skin tightening and cellulite reduction delivered to your home in Miami — Exilis®, Endospheres® and EMS® technology, no clinic visit required.",
   path: "/in-home-experience",
 });
 

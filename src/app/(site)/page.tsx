@@ -4,9 +4,9 @@ import { INSTAGRAM_URL, JOTFORM_BLUEPRINT_URL, WHATSAPP_URL } from "@/lib/nav";
 import { buildMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = buildMetadata({
-  title: "Personalized Body Systems, Delivered to You",
+  title: "Non-Surgical Body Contouring & Skin Tightening in Miami",
   description:
-    "Since 2017, Body Shaper System™ has designed personalized body optimization systems in Miami — built on your unique Body Blueprint™, delivered through luxury in-home treatments.",
+    "Personalized, non-surgical body contouring, skin tightening and cellulite reduction — luxury in-home treatments in Miami, built on your Body Blueprint™. Since 2017.",
   path: "/",
 });
 

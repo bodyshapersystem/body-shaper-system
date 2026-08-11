@@ -3,9 +3,9 @@ import { buildMetadata } from "@/lib/seo";
 import { JOTFORM_BLUEPRINT_URL, WHATSAPP_URL } from "@/lib/nav";
 
 export const metadata: Metadata = buildMetadata({
-  title: "Personalized Systems™",
+  title: "Fat Reduction, Skin Tightening & Toning Systems | Miami",
   description:
-    "Five curated Personalized Systems™ — Sculpt Start™, Sculpt Signature™, Mom Reset™, GLP-1 Reshape™ and Total Body Optimization™ — each built on your Body Blueprint™.",
+    "Five personalized treatment systems for fat reduction, skin tightening, cellulite reduction and muscle toning — including GLP-1 skin firming and postpartum body contouring in Miami.",
   path: "/systems",
 });
 
