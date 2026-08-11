@@ -10,6 +10,8 @@ import SystemCompletionEditor from "./SystemCompletionEditor";
 import RecordRenphoScanSheet from "./RecordRenphoScanSheet";
 import BodyTypeSheet from "./BodyTypeSheet";
 import MeasurementCompare from "./MeasurementCompare";
+import BodyCompositionGlance from "./BodyCompositionGlance";
+import MeasurementsGlance from "./MeasurementsGlance";
 import { getPhotoSignedUrl } from "./blueprint-actions";
 import { getBusinessTimezone, formatDateInTimezone } from "@/lib/format-datetime";
 import { computeBlueprintScore } from "@/lib/blueprint-score";
@@ -416,40 +418,7 @@ export default async function BlueprintReport({
               <p className="bbp-composition-copy">These numbers tell a story. We're here to rewrite it.</p>
               <span className="bbp-composition-rule" />
               {latestRenpho ? (
-                <ul className="bbp-glance-list">
-                  <li>
-                    <span>Weight</span>
-                    <strong>{latestRenpho.weightKg ? (latestRenpho.weightKg * 2.2046226).toFixed(1) : "—"} lbs</strong>
-                  </li>
-                  <li>
-                    <span>BMI</span>
-                    <strong>{latestRenpho.bmi?.toFixed(1) ?? "—"}</strong>
-                  </li>
-                  <li>
-                    <span>Body Fat %</span>
-                    <strong>{latestRenpho.bodyFatPercent?.toFixed(1) ?? "—"}%</strong>
-                  </li>
-                  <li>
-                    <span>Visceral Fat</span>
-                    <strong>{latestRenpho.visceralFat ?? "—"}</strong>
-                  </li>
-                  <li>
-                    <span>Muscle Mass</span>
-                    <strong>{latestRenpho.muscleMassKg ? (latestRenpho.muscleMassKg * 2.2046226).toFixed(1) : "—"} lbs</strong>
-                  </li>
-                  <li>
-                    <span>Bone Mass</span>
-                    <strong>{latestRenpho.boneMassKg ? (latestRenpho.boneMassKg * 2.2046226).toFixed(1) : "—"} lbs</strong>
-                  </li>
-                  <li>
-                    <span>BMR</span>
-                    <strong>{latestRenpho.bmr ?? "—"} kcal</strong>
-                  </li>
-                  <li>
-                    <span>Metabolic Age</span>
-                    <strong>{latestRenpho.bodyAge ?? "—"}</strong>
-                  </li>
-                </ul>
+                <BodyCompositionGlance latestRenpho={latestRenpho} />
               ) : (
                 <EmptyState title="no composition data yet." sub="Record a RENPHO scan to populate this section of the Blueprint." />
               )}
@@ -500,40 +469,7 @@ export default async function BlueprintReport({
             <p className="bbp-composition-copy">Your baseline — tracked with precision, session after session.</p>
             <span className="bbp-composition-rule" />
             {latestBodyMeasurement ? (
-              <ul className="bbp-glance-list">
-                <li>
-                  <span>Bust</span>
-                  <strong>{latestBodyMeasurement.chestCm != null ? `${latestBodyMeasurement.chestCm.toFixed(1)} cm` : "—"}</strong>
-                </li>
-                <li>
-                  <span>Waist</span>
-                  <strong>{latestBodyMeasurement.waistCm != null ? `${latestBodyMeasurement.waistCm.toFixed(1)} cm` : "—"}</strong>
-                </li>
-                <li>
-                  <span>Abdomen</span>
-                  <strong>{latestBodyMeasurement.lowerAbdomenCm != null ? `${latestBodyMeasurement.lowerAbdomenCm.toFixed(1)} cm` : "—"}</strong>
-                </li>
-                <li>
-                  <span>Hips</span>
-                  <strong>{latestBodyMeasurement.hipsCm != null ? `${latestBodyMeasurement.hipsCm.toFixed(1)} cm` : "—"}</strong>
-                </li>
-                <li>
-                  <span>Right Thigh</span>
-                  <strong>{latestBodyMeasurement.rightThighCm != null ? `${latestBodyMeasurement.rightThighCm.toFixed(1)} cm` : "—"}</strong>
-                </li>
-                <li>
-                  <span>Left Thigh</span>
-                  <strong>{latestBodyMeasurement.leftThighCm != null ? `${latestBodyMeasurement.leftThighCm.toFixed(1)} cm` : "—"}</strong>
-                </li>
-                <li>
-                  <span>Right Arm</span>
-                  <strong>{latestBodyMeasurement.rightArmCm != null ? `${latestBodyMeasurement.rightArmCm.toFixed(1)} cm` : "—"}</strong>
-                </li>
-                <li>
-                  <span>Left Arm</span>
-                  <strong>{latestBodyMeasurement.leftArmCm != null ? `${latestBodyMeasurement.leftArmCm.toFixed(1)} cm` : "—"}</strong>
-                </li>
-              </ul>
+              <MeasurementsGlance latestBodyMeasurement={latestBodyMeasurement} />
             ) : (
               <EmptyState title="no measurements yet." sub="Professional measurements will be recorded during your first Blueprint Session™." />
             )}
