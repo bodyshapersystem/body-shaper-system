@@ -20,6 +20,16 @@ export default function BodyCompositionGlance({ latestRenpho }: { latestRenpho: 
 
   if (!latestRenpho) return null;
 
+  // Clinically-recognized "needs attention" thresholds — not arbitrary
+  // styling. BMI >=25 (overweight/obese per WHO), body fat % >=32
+  // (commonly used female "high" threshold; imperfect for male
+  // clients since sex isn't reliably stored per-client here), and
+  // visceral fat >=10 (standard bioimpedance-scale "high" cutoff,
+  // matches what RENPHO itself flags as Alto in the PDF report).
+  const bmiHigh = latestRenpho.bmi != null && latestRenpho.bmi >= 25;
+  const bodyFatHigh = latestRenpho.bodyFatPercent != null && latestRenpho.bodyFatPercent >= 32;
+  const visceralHigh = latestRenpho.visceralFat != null && latestRenpho.visceralFat >= 10;
+
   return (
     <>
       <div className="bbp-glance-header">
@@ -32,15 +42,15 @@ export default function BodyCompositionGlance({ latestRenpho }: { latestRenpho: 
         </li>
         <li>
           <span>BMI</span>
-          <strong>{latestRenpho.bmi?.toFixed(1) ?? "—"}</strong>
+          <strong className={bmiHigh ? "bbp-glance-attention" : ""}>{latestRenpho.bmi?.toFixed(1) ?? "—"}</strong>
         </li>
         <li>
           <span>Body Fat %</span>
-          <strong>{latestRenpho.bodyFatPercent?.toFixed(1) ?? "—"}%</strong>
+          <strong className={bodyFatHigh ? "bbp-glance-attention" : ""}>{latestRenpho.bodyFatPercent?.toFixed(1) ?? "—"}%</strong>
         </li>
         <li>
           <span>Visceral Fat</span>
-          <strong>{latestRenpho.visceralFat ?? "—"}</strong>
+          <strong className={visceralHigh ? "bbp-glance-attention" : ""}>{latestRenpho.visceralFat ?? "—"}</strong>
         </li>
         <li>
           <span>Muscle Mass</span>

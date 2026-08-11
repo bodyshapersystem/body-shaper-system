@@ -3035,6 +3035,7 @@
 .unit-toggle-dark .unit-toggle-btn{ color:rgba(245,238,228,0.6); }
 .unit-toggle-dark .unit-toggle-btn.active{ background:rgba(245,238,228,0.9); color:var(--charcoal); }
 .bbp-glance-list{ list-style:none; margin:0; padding:0; max-width:280px; }
+.bbp-glance-attention{ color:#B24A52 !important; }
 .bbp-glance-list li{ display:flex; justify-content:space-between; align-items:baseline; padding:7px 0; border-bottom:1px solid rgba(241,235,225,0.12); }
 .bbp-glance-list li span{ font-family:var(--sans); font-size:11px; letter-spacing:0.04em; text-transform:uppercase; color:rgba(241,235,225,0.55) !important; }
 .bbp-glance-list li strong{ font-family:var(--serif); font-size:15px; color:#F1EBE1 !important; font-weight:500; }
