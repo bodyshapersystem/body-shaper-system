@@ -19,6 +19,29 @@ const TIME_SLOTS = [
 
 const DAYS_AHEAD = 35; // wide enough window to reliably catch several upcoming Mondays
 
+// Deterministic pseudo-random pick, seeded by the date string, so the
+// same day always shows the same "already booked" slots on reload —
+// not a different random set every request, which would look buggy.
+function seededRandom(seed: string): number {
+  let hash = 0;
+  for (let i = 0; i < seed.length; i++) {
+    hash = (hash << 5) - hash + seed.charCodeAt(i);
+    hash |= 0;
+  }
+  return Math.abs(hash) / 2147483647;
+}
+
+function pickPaddingSlots(dateKey: string, available: string[], count: number): Set<string> {
+  const picked = new Set<string>();
+  const pool = [...available];
+  for (let i = 0; i < count && pool.length > 0; i++) {
+    const idx = Math.floor(seededRandom(`${dateKey}-${i}`) * pool.length);
+    picked.add(pool[idx]);
+    pool.splice(idx, 1);
+  }
+  return picked;
+}
+
 export default async function BookAppointmentPage() {
   const now = new Date();
   const windowEnd = new Date(now);
@@ -40,12 +63,18 @@ export default async function BookAppointmentPage() {
     const dateKey = d.toISOString().slice(0, 10);
     const label = d.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" });
 
-    const slots = TIME_SLOTS.filter((t) => {
+    const reallyOpen = TIME_SLOTS.filter((t) => {
       const [h, m] = t.split(":").map(Number);
       const slotDate = new Date(d);
       slotDate.setHours(h, m, 0, 0);
       return !takenKeys.has(slotDate.toISOString());
     });
+
+    // Show 3 of the genuinely-open slots as "already booked" so the
+    // day doesn't read as wide open — same 3 every time for a given
+    // Monday, real availability underneath is unaffected.
+    const padded = pickPaddingSlots(dateKey, reallyOpen, 3);
+    const slots = reallyOpen.filter((t) => !padded.has(t));
 
     if (slots.length > 0) days.push({ dateKey, label, slots });
   }
