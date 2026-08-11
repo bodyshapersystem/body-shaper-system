@@ -109,12 +109,20 @@ export default async function SystemCompletePage() {
       {photoUrls.length > 0 && (
         <section className="sc-section">
           <h2 className="sc-section-title">Your Transformation</h2>
-          <div className="sc-photo-stack">
-            {photoUrls.map((url, i) => (
+          {/* First 4 = the session's individual angle photos, shown as a
+             compact row. Any photo beyond that (e.g. a designed
+             before/after comparison graphic) is featured full-width
+             below them, so the difference actually reads clearly. */}
+          <div className="sc-photo-grid">
+            {photoUrls.slice(0, 4).map((url, i) => (
               // eslint-disable-next-line @next/next/no-img-element
-              <img key={i} src={url} alt="Before and after progress" className="sc-photo" />
+              <img key={i} src={url} alt="Session progress photo" className="sc-photo-grid-item" />
             ))}
           </div>
+          {photoUrls.slice(4).map((url, i) => (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img key={`featured-${i}`} src={url} alt="Before and after comparison" className="sc-photo-featured" />
+          ))}
         </section>
       )}
 
