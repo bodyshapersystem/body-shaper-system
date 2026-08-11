@@ -7,6 +7,7 @@ export const NAV_ITEMS: NavItem[] = [
   { label: "Home", href: "/" },
   { label: "The In-Home Experience™", href: "/in-home-experience" },
   { label: "The Body Blueprint™", href: "/body-blueprint" },
+  { label: "Book Your Blueprint™", href: "/book-appointment" },
   { label: "Our Systems", href: "/systems" },
   { label: "Transformations", href: "/transformations" },
   { label: "Tech Talks™", href: "/tech-talks" },

@@ -11,13 +11,13 @@ export const metadata: Metadata = buildMetadata({
 
 export const dynamic = "force-dynamic";
 
+// Body Blueprint™ deposit bookings: Mondays only, 11:00 AM – 4:30 PM.
 const TIME_SLOTS = [
-  "08:00", "08:30", "09:00", "09:30", "10:00", "10:30", "11:00", "11:30",
-  "12:00", "12:30", "13:00", "13:30", "14:00", "14:30", "15:00", "15:30",
-  "16:00", "16:30", "17:00", "17:30", "18:00", "18:30", "19:00", "19:30",
+  "11:00", "11:30", "12:00", "12:30", "13:00", "13:30",
+  "14:00", "14:30", "15:00", "15:30", "16:00", "16:30",
 ];
 
-const DAYS_AHEAD = 14;
+const DAYS_AHEAD = 35; // wide enough window to reliably catch several upcoming Mondays
 
 export default async function BookAppointmentPage() {
   const now = new Date();
@@ -35,6 +35,8 @@ export default async function BookAppointmentPage() {
     const d = new Date(now);
     d.setDate(d.getDate() + i);
     d.setHours(0, 0, 0, 0);
+    if (d.getDay() !== 1) continue; // Mondays only
+
     const dateKey = d.toISOString().slice(0, 10);
     const label = d.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" });
 
@@ -53,7 +55,7 @@ export default async function BookAppointmentPage() {
       <span className="eyebrow">Reserve Your Spot</span>
       <h1 style={{ marginBottom: 10 }}>Book Your Body Blueprint™ Consultation</h1>
       <p style={{ marginBottom: 32, opacity: 0.75 }}>
-        A $350 deposit reserves your appointment and goes toward your Personalized System™. Pick a date and time below.
+        A $350 deposit reserves your appointment and goes toward your Personalized System™. Body Blueprint™ consultations are offered Mondays, 11:00 AM – 4:30 PM — pick a date and time below.
       </p>
       <BookingForm days={days} />
     </div>
