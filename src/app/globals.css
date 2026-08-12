@@ -203,7 +203,7 @@
     .client-portal-btn-desktop{display:none;}
     nav.menu{
       position:fixed;top:0;right:-100%;height:100dvh;width:82%;max-width:380px;
-      background-image:url(/images/drawer-background.png);
+      background-image:url(/images/drawer-background.webp);
       background-size:cover;background-position:center;background-repeat:no-repeat;
       flex-direction:column;justify-content:flex-start;
       gap:0;padding:0;transition:right .28s ease, transform .22s ease;box-shadow:-10px 0 40px rgba(0,0,0,0.1);
@@ -2103,7 +2103,7 @@
 .psb{
   width:250px; flex-shrink:0;
   background-color:var(--beige);
-  background-image:url(/images/sidebar-waves.png);
+  background-image:url(/images/sidebar-waves.webp);
   background-size:auto 100%;background-position:right center;background-repeat:no-repeat;
   color:#2B2622; padding:0;
   display:flex; flex-direction:column; position:sticky; top:0; height:100dvh;
