@@ -38,8 +38,8 @@ export default async function SystemDepositSuccessPage({ searchParams }: { searc
       <h1 style={{ marginBottom: 16 }}>{firstName ? `Thank you, ${firstName}!` : "Your deposit is confirmed!"}</h1>
       {systemName && amountLabel ? (
         <p style={{ fontSize: 17, marginBottom: 24 }}>
-          Your <strong>{amountLabel}</strong> starting deposit for <strong>{systemName}</strong> is confirmed. The
-          remaining balance is due separately, once your sessions are scheduled.
+          Your <strong>{amountLabel}</strong> starting deposit for <strong>{systemName}</strong> is confirmed.
+          If applicable, any remaining balance is paid separately, once your sessions are scheduled.
         </p>
       ) : (
         <p style={{ fontSize: 17, marginBottom: 24 }}>

@@ -46,8 +46,8 @@ export default function SystemDepositButton({
               <strong>{priceLabel}</strong>
             </div>
             <div>
-              <span>Remaining balance</span>
-              <strong>Applies — based on your final treatment plan</strong>
+              <span>If applicable</span>
+              <strong>Any remaining balance is paid separately, after your treatment plan is finalized</strong>
             </div>
           </div>
 
