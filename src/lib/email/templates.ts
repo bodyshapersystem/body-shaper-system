@@ -459,6 +459,40 @@ export function buildPaymentConfirmationEmail(params: {
   };
 }
 
+export function buildSystemDepositReceivedEmail(params: {
+  firstName: string;
+  systemName: string;
+  amountLabel: string;
+  portalUrl: string;
+}): { subject: string; html: string } {
+  const { firstName, systemName, amountLabel, portalUrl } = params;
+  const name = firstName?.trim() || "beautiful";
+  const greeting = firstName?.trim() ? `Hi ${firstName.trim()}` : "Hello beautiful";
+  const rows = [
+    { label: "System", value: systemName },
+    { label: "Deposit Received", value: amountLabel },
+    { label: "Balance", value: "Due separately, once your sessions are scheduled" },
+  ];
+  return {
+    subject: `Your ${systemName} deposit is confirmed, ${name}`,
+    html: emailShell({
+      eyebrowScript: "you're on your way.",
+      headline: "your deposit",
+      headlineAccent: "is confirmed.",
+      subheadlineLines: ["WE'VE RECEIVED YOUR DEPOSIT —", "LET'S GET YOU SCHEDULED."],
+      bodyParagraphs: [
+        `${greeting}, thank you for reserving your ${systemName}. Your deposit is confirmed below.`,
+        "We'll reach out shortly to schedule your first session and go over the remaining balance.",
+      ],
+      featureCard: { variant: "B", rows },
+      featureCardIcon: "✦",
+      ctaLabel: "View My Portal",
+      ctaUrl: portalUrl,
+      closingText: "We can't wait to start building your transformation.",
+    }),
+  };
+}
+
 export function buildAppointmentConfirmationEmail(params: {
   firstName: string;
   sessionTitle: string;

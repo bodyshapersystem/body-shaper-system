@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { buildMetadata } from "@/lib/seo";
 import { JOTFORM_BLUEPRINT_URL, WHATSAPP_URL } from "@/lib/nav";
+import SystemDepositButton from "./SystemDepositButton";
 
 export const metadata: Metadata = buildMetadata({
   title: "Fat Reduction, Skin Tightening & Toning Systems | Miami",
@@ -117,6 +118,7 @@ export default function SystemsPage() {
       <div className="sessions">4–8 Sessions</div>
       <div className="price-label">Investment Starts At</div>
       <div className="price">$700</div>
+      <SystemDepositButton systemName="Sculpt Start™" priceCents={70000} priceLabel="$700" />
     </div>
 
     <div className="system-card">
@@ -131,6 +133,7 @@ export default function SystemsPage() {
       <div className="sessions">8–16 Sessions</div>
       <div className="price-label">Investment Starts At</div>
       <div className="price">$1,680</div>
+      <SystemDepositButton systemName="Sculpt Signature™" priceCents={168000} priceLabel="$1,680" />
     </div>
 
     <div className="system-card">
@@ -145,6 +148,7 @@ export default function SystemsPage() {
       <div className="sessions">6–16 Sessions</div>
       <div className="price-label">Investment Starts At</div>
       <div className="price">$2,090</div>
+      <SystemDepositButton systemName="Mom Reset™" priceCents={209000} priceLabel="$2,090" />
     </div>
 
     <div className="system-card">
@@ -159,6 +163,7 @@ export default function SystemsPage() {
       <div className="sessions">8–20 Sessions</div>
       <div className="price-label">Investment Starts At</div>
       <div className="price">$1,700</div>
+      <SystemDepositButton systemName="GLP-1 Reshape™" priceCents={170000} priceLabel="$1,700" />
     </div>
 
     <div className="system-card">
@@ -173,6 +178,7 @@ export default function SystemsPage() {
       <div className="sessions">12–24 Sessions</div>
       <div className="price-label">Investment Starts At</div>
       <div className="price">$2,890</div>
+      <SystemDepositButton systemName="Total Body Optimization™" priceCents={289000} priceLabel="$2,890" />
     </div>
   </div>
 </section>

@@ -5,6 +5,7 @@ import {
   buildWelcomeActivationEmail,
   buildBodyBlueprintCompletedEmail,
   buildPaymentConfirmationEmail,
+  buildSystemDepositReceivedEmail,
   buildPaymentReminderEmail,
   buildFirstSessionCheckinEmail,
   buildBlueprintReceivedEmail,
@@ -251,6 +252,35 @@ export async function sendPaymentConfirmationEmail(params: {
 }) {
   const { clientId, firstName, email, amountLabel, portalUrl } = params;
   const { subject, html } = buildPaymentConfirmationEmail({ firstName, amountLabel, portalUrl });
+  return logAndSend({
+    clientId,
+    template: "PAYMENT_CONFIRMATION",
+    sender: SENDERS.concierge,
+    recipient: email,
+    subject,
+    html,
+  });
+}
+
+/**
+ * Sent when a client pays a system's "Starting At" price online
+ * (/systems) as a deposit, before any sessions are scheduled — richer
+ * than the generic payment confirmation (names the system, notes the
+ * balance is due separately) but logged under the same
+ * PAYMENT_CONFIRMATION EmailTemplate category since it's still
+ * fundamentally a payment receipt, avoiding a schema migration for a
+ * one-purpose enum value.
+ */
+export async function sendSystemDepositReceivedEmail(params: {
+  clientId: string;
+  firstName: string;
+  email: string;
+  systemName: string;
+  amountLabel: string;
+  portalUrl: string;
+}) {
+  const { clientId, firstName, email, systemName, amountLabel, portalUrl } = params;
+  const { subject, html } = buildSystemDepositReceivedEmail({ firstName, systemName, amountLabel, portalUrl });
   return logAndSend({
     clientId,
     template: "PAYMENT_CONFIRMATION",

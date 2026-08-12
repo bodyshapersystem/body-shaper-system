@@ -1,9 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getStripeClient, BLUEPRINT_DEPOSIT_CENTS } from "@/lib/stripe";
-import { createSupabaseAdminClient } from "@/lib/supabase/admin";
-import { finishConversion } from "@/app/(hub)/hub/(protected)/leads/actions";
-import { sendAppointmentConfirmationEmail } from "@/lib/email/service";
+import { findOrCreateClientFromCheckout } from "@/lib/checkout-client";
+import { sendAppointmentConfirmationEmail, sendSystemDepositReceivedEmail } from "@/lib/email/service";
 import { createNotification } from "@/lib/notifications";
 import { getBusinessTimezone, formatDateInTimezone, formatTimeInTimezone } from "@/lib/format-datetime";
 import type Stripe from "stripe";
@@ -11,18 +10,24 @@ import type Stripe from "stripe";
 export const dynamic = "force-dynamic";
 
 /**
- * Real webhook for the public "Book an Appointment" deposit flow
- * (/book-appointment). On checkout.session.completed:
- *   1. If no Client exists for this email yet, create a real Lead and
- *      immediately convert it to a Client (reusing the exact same
- *      finishConversion() the Hub's manual conversion uses - same
- *      Rewards welcome bonus, portal invitation, welcome email).
- *   2. Create the real Appointment for the requested date/time.
- *   3. Create the real Payment record (DEPOSIT, PAID) tied to it.
- *   4. Send the appointment confirmation email + a Hub notification.
- * Idempotent — checks for an existing Payment with this Checkout
- * Session ID as its reference before doing anything, so Stripe's
- * automatic webhook retries can never double-book or double-charge.
+ * Real webhook for every public paid-deposit flow. On
+ * checkout.session.completed, branches on metadata.flowType:
+ *
+ *  - "consultation_deposit" (/book-appointment): $350 toward a
+ *    specific Body Blueprint™ consultation slot. Creates the real
+ *    Appointment for that date/time + a DEPOSIT Payment.
+ *
+ *  - "system_deposit" (/systems): the system's "Starting At" price,
+ *    paid upfront with the balance due separately once sessions are
+ *    scheduled. No specific appointment time yet — just a DEPOSIT
+ *    Payment noting which system, so Emmy can follow up to schedule
+ *    and collect the remainder.
+ *
+ * Both branches share the same real client creation/lookup
+ * (findOrCreateClientFromCheckout) and are idempotent — checks for an
+ * existing Payment with this Checkout Session ID as its reference
+ * before doing anything, so Stripe's automatic webhook retries can
+ * never double-book or double-charge.
  */
 export async function POST(request: NextRequest) {
   const signature = request.headers.get("stripe-signature");
@@ -47,9 +52,10 @@ export async function POST(request: NextRequest) {
 
   const session = event.data.object as Stripe.Checkout.Session;
   const meta = session.metadata ?? {};
-  const { firstName, lastName, email, phone, city, startsAt: startsAtRaw } = meta;
+  const { firstName, lastName, email, phone, city } = meta;
+  const flowType = meta.flowType ?? "consultation_deposit"; // default: pre-existing sessions never had flowType set
 
-  if (!firstName || !lastName || !email || !startsAtRaw) {
+  if (!firstName || !lastName || !email) {
     console.error("[stripe-webhook] missing required metadata on session", session.id, meta);
     return NextResponse.json({ error: "Missing booking metadata." }, { status: 400 });
   }
@@ -63,52 +69,64 @@ export async function POST(request: NextRequest) {
   const owner = await prisma.user.findFirst({ where: { email: "hello@bodyshapersystem.com" } });
   const systemUserId = owner?.id;
 
-  let clientId: string;
-  let clientEmail = email;
+  const clientResult = await findOrCreateClientFromCheckout({
+    firstName,
+    lastName,
+    email,
+    phone,
+    city,
+    source: flowType === "system_deposit" ? "Website System Deposit" : "Website Deposit Booking",
+    systemUserId,
+  });
+  if (!clientResult.success) {
+    console.error("[stripe-webhook] client creation failed:", clientResult.error);
+    return NextResponse.json({ error: clientResult.error }, { status: 500 });
+  }
+  const { clientId, client } = clientResult;
 
-  const existingClient = await prisma.client.findFirst({ where: { email } });
-  if (existingClient) {
-    clientId = existingClient.id;
-  } else {
-    const lead = await prisma.lead.create({
-      data: { firstName, lastName, email, phone: phone || null, city: city || null, source: "Website Deposit Booking", createdById: systemUserId },
+  if (flowType === "system_deposit") {
+    const systemName = meta.systemName || "a Personalized System™";
+
+    await prisma.payment.create({
+      data: {
+        clientId,
+        amountCents: session.amount_total ?? 0,
+        method: "CARD",
+        status: "PAID",
+        paymentType: "DEPOSIT",
+        origin: "CLIENT_PAYMENT",
+        reference: session.id,
+        paidAt: new Date(),
+        notes: `${systemName} — starting-price deposit paid online. Balance due separately once sessions are scheduled.`,
+        createdById: systemUserId,
+      },
     });
-    await prisma.leadStatusHistory.create({
-      data: { leadId: lead.id, toStatus: "NEW", changedById: systemUserId, note: "Created from a paid online booking" },
+
+    await sendSystemDepositReceivedEmail({
+      clientId,
+      firstName: client.firstName,
+      email: client.email,
+      systemName,
+      amountLabel: `$${((session.amount_total ?? 0) / 100).toFixed(2)}`,
+      portalUrl: "https://www.bodyshapersystem.com/portal/appointments",
+    }).catch(() => undefined);
+
+    await createNotification({
+      clientId,
+      category: "APPOINTMENTS",
+      description: `${client.firstName} ${client.lastName} paid the starting deposit for ${systemName} online — needs scheduling + balance follow-up`,
+      linkUrl: `/hub/clients/${clientId}`,
     });
 
-    const admin = createSupabaseAdminClient();
-    const { data: authData, error: authError } = await admin.auth.admin.createUser({ email, email_confirm: true });
-
-    let authUserId: string;
-    if (authError || !authData.user) {
-      if (authError?.message?.toLowerCase().includes("already")) {
-        const { data: list } = await admin.auth.admin.listUsers();
-        const found = list?.users.find((u) => u.email?.toLowerCase() === email.toLowerCase());
-        if (!found) {
-          console.error("[stripe-webhook] auth account exists but could not be found for", email);
-          return NextResponse.json({ error: "Auth lookup failed." }, { status: 500 });
-        }
-        authUserId = found.id;
-      } else {
-        console.error("[stripe-webhook] failed to create auth account:", authError);
-        return NextResponse.json({ error: "Auth creation failed." }, { status: 500 });
-      }
-    } else {
-      authUserId = authData.user.id;
-    }
-
-    const conversion = await finishConversion(lead, authUserId, systemUserId ?? "", "STANDARD");
-    if (!conversion.success || !conversion.clientId) {
-      console.error("[stripe-webhook] conversion failed:", conversion.error);
-      return NextResponse.json({ error: conversion.error ?? "Conversion failed." }, { status: 500 });
-    }
-    clientId = conversion.clientId;
+    return NextResponse.json({ received: true, clientId, flowType });
   }
 
-  const client = await prisma.client.findUnique({ where: { id: clientId } });
-  if (!client) return NextResponse.json({ error: "Client lookup failed after creation." }, { status: 500 });
-  clientEmail = client.email;
+  // --- consultation_deposit (original flow) ---
+  const startsAtRaw = meta.startsAt;
+  if (!startsAtRaw) {
+    console.error("[stripe-webhook] missing startsAt for consultation_deposit", session.id, meta);
+    return NextResponse.json({ error: "Missing booking metadata." }, { status: 400 });
+  }
 
   const startsAt = new Date(startsAtRaw);
   const appointment = await prisma.appointment.create({
@@ -143,7 +161,7 @@ export async function POST(request: NextRequest) {
   await sendAppointmentConfirmationEmail({
     clientId,
     firstName: client.firstName,
-    email: clientEmail,
+    email: client.email,
     sessionTitle: appointment.title,
     dateLabel: formatDateInTimezone(startsAt, timezone, { weekday: "long", month: "long", day: "numeric" }),
     timeLabel: formatTimeInTimezone(startsAt, timezone),
@@ -159,3 +177,4 @@ export async function POST(request: NextRequest) {
 
   return NextResponse.json({ received: true, clientId, appointmentId: appointment.id });
 }
+
