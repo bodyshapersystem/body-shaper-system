@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getStripeClient, BLUEPRINT_DEPOSIT_CENTS } from "@/lib/stripe";
 import { findOrCreateClientFromCheckout } from "@/lib/checkout-client";
-import { sendAppointmentConfirmationEmail, sendSystemDepositReceivedEmail } from "@/lib/email/service";
+import { sendAppointmentConfirmationEmail, sendSystemDepositReceivedEmail, sendPaymentConfirmationEmail } from "@/lib/email/service";
 import { createNotification } from "@/lib/notifications";
 import { getBusinessTimezone, formatDateInTimezone, formatTimeInTimezone } from "@/lib/format-datetime";
 import type Stripe from "stripe";
@@ -22,6 +22,14 @@ export const dynamic = "force-dynamic";
  *    scheduled. No specific appointment time yet — just a DEPOSIT
  *    Payment noting which system, so Emmy can follow up to schedule
  *    and collect the remainder.
+ *
+ *  - "custom_payment_link" (Hub → Payments → generate a link): any
+ *    custom amount for an already-selected existing client (full
+ *    system payments, packages, remaining balances — anything the
+ *    two fixed flows above don't cover). Skips lead creation
+ *    entirely since the client is already known; records a
+ *    CUSTOM_AMOUNT Payment and sends the standard payment
+ *    confirmation email.
  *
  * Both branches share the same real client creation/lookup
  * (findOrCreateClientFromCheckout) and are idempotent — checks for an
@@ -68,6 +76,55 @@ export async function POST(request: NextRequest) {
 
   const owner = await prisma.user.findFirst({ where: { email: "hello@bodyshapersystem.com" } });
   const systemUserId = owner?.id;
+
+  // custom_payment_link: the client already exists (Emmy picked them
+  // when generating the link in the Hub) — skip lead creation
+  // entirely and just record the payment against that exact client.
+  if (flowType === "custom_payment_link") {
+    const clientId = meta.clientId;
+    if (!clientId) {
+      console.error("[stripe-webhook] missing clientId for custom_payment_link", session.id, meta);
+      return NextResponse.json({ error: "Missing clientId." }, { status: 400 });
+    }
+    const client = await prisma.client.findUnique({ where: { id: clientId } });
+    if (!client) {
+      console.error("[stripe-webhook] client not found for custom_payment_link", clientId);
+      return NextResponse.json({ error: "Client not found." }, { status: 400 });
+    }
+    const description = meta.description || "Custom Payment";
+
+    await prisma.payment.create({
+      data: {
+        clientId,
+        amountCents: session.amount_total ?? 0,
+        method: "CARD",
+        status: "PAID",
+        paymentType: "CUSTOM_AMOUNT",
+        origin: "CLIENT_PAYMENT",
+        reference: session.id,
+        paidAt: new Date(),
+        notes: `${description} — paid online via custom payment link.`,
+        createdById: systemUserId,
+      },
+    });
+
+    await sendPaymentConfirmationEmail({
+      clientId,
+      firstName: client.firstName,
+      email: client.email,
+      amountLabel: `$${((session.amount_total ?? 0) / 100).toFixed(2)}`,
+      portalUrl: "https://www.bodyshapersystem.com/portal/appointments",
+    }).catch(() => undefined);
+
+    await createNotification({
+      clientId,
+      category: "APPOINTMENTS",
+      description: `${client.firstName} ${client.lastName} paid a custom payment link — ${description}`,
+      linkUrl: `/hub/clients/${clientId}`,
+    });
+
+    return NextResponse.json({ received: true, clientId, flowType });
+  }
 
   const clientResult = await findOrCreateClientFromCheckout({
     firstName,

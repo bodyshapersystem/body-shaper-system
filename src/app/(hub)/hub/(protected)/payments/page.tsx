@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { getCurrentHubUser, hasPermission } from "@/lib/permissions";
 import { updatePaymentStatus, getFinancialOverview } from "./actions";
 import PaymentRecorder from "./PaymentRecorder";
+import PaymentLinkGenerator from "./PaymentLinkGenerator";
 
 export const dynamic = "force-dynamic";
 
@@ -67,9 +68,12 @@ export default async function HubPaymentsPage() {
       </div>
 
       {canManage && (
-        <div className="sched-wrap">
-          <PaymentRecorder clients={clients.map((c) => ({ id: c.id, firstName: c.firstName, lastName: c.lastName }))} />
-        </div>
+        <>
+          <PaymentLinkGenerator clients={clients.map((c) => ({ id: c.id, firstName: c.firstName, lastName: c.lastName }))} />
+          <div className="sched-wrap">
+            <PaymentRecorder clients={clients.map((c) => ({ id: c.id, firstName: c.firstName, lastName: c.lastName }))} />
+          </div>
+        </>
       )}
 
       <h3 className="dash-section-title" style={{ marginTop: 40 }}>
