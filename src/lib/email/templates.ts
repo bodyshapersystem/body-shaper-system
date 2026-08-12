@@ -471,7 +471,7 @@ export function buildSystemDepositReceivedEmail(params: {
   const rows = [
     { label: "System", value: systemName },
     { label: "Deposit Received", value: amountLabel },
-    { label: "Balance", value: "Due separately, once your sessions are scheduled" },
+    { label: "Remaining Balance", value: "Applies — due separately, once your sessions are scheduled" },
   ];
   return {
     subject: `Your ${systemName} deposit is confirmed, ${name}`,

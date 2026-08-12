@@ -33,49 +33,49 @@ export default function SystemDepositButton({
   }
 
   return (
-    <>
-      <button type="button" className="system-deposit-cta" onClick={() => setOpen(true)}>
-        Reserve at {priceLabel}
+    <div className="system-deposit-wrap">
+      <button type="button" className="system-deposit-cta" onClick={() => setOpen((v) => !v)}>
+        {open ? "Cancel" : `Reserve at ${priceLabel}`}
       </button>
 
       {open && (
-        <div className="system-deposit-overlay" onClick={() => setOpen(false)}>
-          <div className="system-deposit-modal" onClick={(e) => e.stopPropagation()}>
-            <button type="button" className="system-deposit-close" onClick={() => setOpen(false)} aria-label="Close">
-              ×
-            </button>
-            <h3 style={{ marginBottom: 6 }}>{systemName}</h3>
-            <p style={{ fontSize: 13, opacity: 0.7, marginBottom: 22 }}>
-              Reserve with the {priceLabel} starting deposit today. The remaining balance is due separately, once your
-              sessions are scheduled.
-            </p>
-
-            <form action={handleSubmit}>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 12 }}>
-                <input name="firstName" placeholder="First Name" required style={inputStyle} />
-                <input name="lastName" placeholder="Last Name" required style={inputStyle} />
-              </div>
-              <div style={{ marginBottom: 12 }}>
-                <input name="email" type="email" placeholder="Email" required style={{ ...inputStyle, width: "100%" }} />
-              </div>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 22 }}>
-                <input name="phone" type="tel" placeholder="Phone" style={inputStyle} />
-                <input name="city" placeholder="City" style={inputStyle} />
-              </div>
-
-              {error && <p style={{ color: "#8B3A3F", fontSize: 13, marginBottom: 14 }}>{error}</p>}
-
-              <button type="submit" className="btn btn-primary" disabled={isPending} style={{ width: "100%", border: "none", cursor: "pointer" }}>
-                {isPending ? "Redirecting to secure checkout…" : `Pay ${priceLabel} — Reserve My System`}
-              </button>
-              <p style={{ fontSize: 11, opacity: 0.55, marginTop: 10, textAlign: "center" }}>
-                Secure payment via Stripe.
-              </p>
-            </form>
+        <div className="system-deposit-inline">
+          <div className="system-deposit-breakdown">
+            <div>
+              <span>Starting deposit today</span>
+              <strong>{priceLabel}</strong>
+            </div>
+            <div>
+              <span>Remaining balance</span>
+              <strong>Applies — based on your final treatment plan</strong>
+            </div>
           </div>
+
+          <form action={handleSubmit}>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 10 }}>
+              <input name="firstName" placeholder="First Name" required style={inputStyle} />
+              <input name="lastName" placeholder="Last Name" required style={inputStyle} />
+            </div>
+            <div style={{ marginBottom: 10 }}>
+              <input name="email" type="email" placeholder="Email" required style={{ ...inputStyle, width: "100%" }} />
+            </div>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 16 }}>
+              <input name="phone" type="tel" placeholder="Phone" style={inputStyle} />
+              <input name="city" placeholder="City" style={inputStyle} />
+            </div>
+
+            {error && <p style={{ color: "#8B3A3F", fontSize: 13, marginBottom: 12 }}>{error}</p>}
+
+            <button type="submit" className="btn btn-primary" disabled={isPending} style={{ width: "100%", border: "none", cursor: "pointer" }}>
+              {isPending ? "Redirecting to secure checkout…" : `Pay ${priceLabel} — Reserve My System`}
+            </button>
+            <p style={{ fontSize: 11, opacity: 0.55, marginTop: 10, textAlign: "center" }}>
+              Secure payment via Stripe.
+            </p>
+          </form>
         </div>
       )}
-    </>
+    </div>
   );
 }
 
