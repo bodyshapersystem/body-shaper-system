@@ -182,6 +182,7 @@ export async function recordProgressPhoto(
     type: PhotoType;
     takenAt?: string;
     notes?: string;
+    sessionNumber?: number;
   }
 ) {
   const user = await getCurrentHubUser();
@@ -207,6 +208,7 @@ export async function recordProgressPhoto(
       specialistId: user.id,
       notes: data.notes,
       visibility,
+      sessionNumber: data.sessionNumber,
     },
   });
 

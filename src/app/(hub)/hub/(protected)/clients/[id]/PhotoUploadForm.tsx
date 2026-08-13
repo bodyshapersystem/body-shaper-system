@@ -46,11 +46,13 @@ export default function PhotoUploadForm({ clientId }: { clientId: string }) {
           return;
         }
 
+        const sessionNumberRaw = formData.get("sessionNumber");
         const result = await recordProgressPhoto(clientId, {
           storagePath: signed.path,
           type: formData.get("type") as "FRONT" | "LEFT" | "RIGHT" | "BACK" | "DETAIL",
           takenAt: (formData.get("takenAt") as string) || undefined,
           notes: (formData.get("notes") as string) || undefined,
+          sessionNumber: sessionNumberRaw ? Number(sessionNumberRaw) : undefined,
         });
 
         if (result?.error) {
@@ -82,6 +84,7 @@ export default function PhotoUploadForm({ clientId }: { clientId: string }) {
         ))}
       </select>
       <input name="takenAt" type="date" style={inputStyle} />
+      <input name="sessionNumber" type="number" min="1" placeholder="Session #" style={inputStyle} />
       <input name="file" type="file" accept="image/*" required />
       <input name="notes" placeholder="Notes" style={inputStyle} />
       <button type="submit" className="auth-submit" disabled={isPending || uploading} style={{ width: "auto", padding: "10px 20px" }}>

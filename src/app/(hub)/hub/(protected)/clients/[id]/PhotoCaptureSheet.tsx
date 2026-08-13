@@ -47,9 +47,11 @@ export default function PhotoCaptureSheet({ clientId }: { clientId: string }) {
           return;
         }
 
+        const sessionNumberRaw = formData.get("sessionNumber");
         const result = await recordProgressPhoto(clientId, {
           storagePath: signed.path,
           type: formData.get("type") as "FRONT" | "LEFT" | "RIGHT" | "BACK" | "DETAIL",
+          sessionNumber: sessionNumberRaw ? Number(sessionNumberRaw) : undefined,
         });
 
         if (result?.error) {
@@ -90,6 +92,10 @@ export default function PhotoCaptureSheet({ clientId }: { clientId: string }) {
                     </option>
                   ))}
                 </select>
+              </label>
+              <label className="sched-label">
+                Session Number (optional)
+                <input name="sessionNumber" type="number" min="1" placeholder="e.g. 3" className="sched-select" />
               </label>
               <label className="sched-label">
                 Photo

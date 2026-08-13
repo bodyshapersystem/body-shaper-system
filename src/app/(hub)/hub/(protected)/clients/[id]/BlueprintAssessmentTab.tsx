@@ -1,4 +1,5 @@
 import PhotoGallery from "./PhotoGallery";
+import PhotoSessionHistory from "./PhotoSessionHistory";
 import { AccordionGroup, AccordionItem } from "./AccordionGroup";
 import { RulerIcon, ScaleIcon, CameraIcon, NoteIcon, StrategyIcon } from "./BlueprintIcons";
 import PhotoCaptureSheet from "./PhotoCaptureSheet";
@@ -291,6 +292,7 @@ export default function BlueprintAssessmentTab({
             <PhotoCaptureSheet clientId={client.id} />
           </div>
         )}
+        <PhotoSessionHistory clientId={client.id} />
       </AccordionItem>
 
       {/* ---------- Section 4: Specialist Observations ---------- */}
