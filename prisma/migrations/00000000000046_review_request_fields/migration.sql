@@ -1,0 +1,3 @@
+ALTER TABLE "blueprint_assessments" ADD COLUMN IF NOT EXISTS "completedAt" TIMESTAMP(3);
+ALTER TABLE "blueprint_assessments" ADD COLUMN IF NOT EXISTS "reviewRequestSentAt" TIMESTAMP(3);
+ALTER TYPE "EmailTemplate" ADD VALUE IF NOT EXISTS 'GOOGLE_REVIEW_REQUEST';

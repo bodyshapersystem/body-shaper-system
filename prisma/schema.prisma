@@ -387,6 +387,15 @@ model BlueprintAssessment {
   nextSystemName        String?  // e.g. "Sculpt Signature™"
   nextSystemProposal    String?  // bullet-style breakdown of the proposed sessions, e.g. "- 6 Exilis® (4 legs, 2 abdomen)\n- 6 Endospheres® (legs)\n- 2 additional EMS"
 
+  // Google review request — completedAt is set once, at the moment
+  // markSystemCompleted runs, and never touched again (unlike
+  // updatedAt, which shifts on every later edit) so the "send 1 day
+  // after completion" cron has a stable timestamp to check against.
+  // reviewRequestSentAt prevents the cron from ever double-sending,
+  // and also gets set when Emmy sends it manually from the Hub.
+  completedAt          DateTime?
+  reviewRequestSentAt  DateTime?
+
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   createdById String?
@@ -1090,6 +1099,7 @@ enum EmailTemplate {
   WE_MISS_YOU
   FIRST_SESSION_CHECKIN
   NEW_PROGRESS_PHOTOS
+  GOOGLE_REVIEW_REQUEST
 }
 
 enum EmailStatus {

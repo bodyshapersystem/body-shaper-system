@@ -1,11 +1,13 @@
 import "server-only";
 import { prisma } from "@/lib/prisma";
 import { getResendClient, SENDERS } from "./resend";
+import { GOOGLE_MAPS_URL } from "@/lib/site-links";
 import {
   buildWelcomeActivationEmail,
   buildBodyBlueprintCompletedEmail,
   buildPaymentConfirmationEmail,
   buildSystemDepositReceivedEmail,
+  buildGoogleReviewRequestEmail,
   buildPaymentReminderEmail,
   buildFirstSessionCheckinEmail,
   buildBlueprintReceivedEmail,
@@ -51,7 +53,8 @@ type EmailTemplateName =
   | "SOCIETY_WELCOME"
   | "WE_MISS_YOU"
   | "FIRST_SESSION_CHECKIN"
-  | "NEW_PROGRESS_PHOTOS";
+  | "NEW_PROGRESS_PHOTOS"
+  | "GOOGLE_REVIEW_REQUEST";
 
 async function logAndSend(params: {
   clientId?: string;
@@ -284,6 +287,30 @@ export async function sendSystemDepositReceivedEmail(params: {
   return logAndSend({
     clientId,
     template: "PAYMENT_CONFIRMATION",
+    sender: SENDERS.concierge,
+    recipient: email,
+    subject,
+    html,
+  });
+}
+
+/**
+ * "Would you leave us a Google review?" — sent manually (Hub button on
+ * the client's profile) or automatically, 1 day after markSystemCompleted
+ * (see /api/cron/google-review-requests). Warm, personal tone by design —
+ * this is the ask most likely to actually get a review, not a generic
+ * automated nag.
+ */
+export async function sendGoogleReviewRequestEmail(params: {
+  clientId: string;
+  firstName: string;
+  email: string;
+}) {
+  const { clientId, firstName, email } = params;
+  const { subject, html } = buildGoogleReviewRequestEmail({ firstName, reviewUrl: GOOGLE_MAPS_URL });
+  return logAndSend({
+    clientId,
+    template: "GOOGLE_REVIEW_REQUEST",
     sender: SENDERS.concierge,
     recipient: email,
     subject,

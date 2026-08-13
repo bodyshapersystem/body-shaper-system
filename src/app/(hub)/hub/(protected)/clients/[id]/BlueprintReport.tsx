@@ -6,6 +6,7 @@ import { TargetMarkIcon } from "./BlueprintIcons";
 import { BODY_TYPE_CONTENT, getBodyTypeRationale } from "@/lib/body-types";
 import EditSystemDetailsSheet from "./EditSystemDetailsSheet";
 import MarkSystemCompletedButton from "./MarkSystemCompletedButton";
+import SendGoogleReviewButton from "./SendGoogleReviewButton";
 import SystemCompletionEditor from "./SystemCompletionEditor";
 import RecordRenphoScanSheet from "./RecordRenphoScanSheet";
 import BodyTypeSheet from "./BodyTypeSheet";
@@ -580,6 +581,9 @@ export default async function BlueprintReport({
           </p>
           {mode === "owner" && assessment.status !== "COMPLETED" && (
             <MarkSystemCompletedButton clientId={clientId} assessmentId={assessment.id} />
+          )}
+          {mode === "owner" && (
+            <SendGoogleReviewButton clientId={clientId} assessmentId={assessment.id} alreadySent={!!assessment.reviewRequestSentAt} />
           )}
           {mode === "owner" && (
             <SystemCompletionEditor

@@ -6,7 +6,7 @@ import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { revalidatePath } from "next/cache";
 import { recordStrategyChange, getActiveAssessmentForClient } from "@/lib/blueprint-assessments";
 import { createNotification } from "@/lib/notifications";
-import { sendNewProgressPhotosEmail, sendSystemCompletedEmail } from "@/lib/email/service";
+import { sendNewProgressPhotosEmail, sendSystemCompletedEmail, sendGoogleReviewRequestEmail } from "@/lib/email/service";
 import type { PhotoType, Visibility, BodyType } from "@prisma/client";
 
 const VALID_BODY_TYPES: BodyType[] = ["hourglass", "pear", "apple", "rectangle", "inverted_triangle"];
@@ -555,7 +555,7 @@ export async function markSystemCompleted(clientId: string, assessmentId: string
     portalUrl: "https://www.bodyshapersystem.com/portal/system-complete",
   });
 
-  await prisma.blueprintAssessment.update({ where: { id: assessmentId }, data: { status: "COMPLETED" } });
+  await prisma.blueprintAssessment.update({ where: { id: assessmentId }, data: { status: "COMPLETED", completedAt: new Date() } });
 
   await createNotification({
     clientId,
@@ -563,6 +563,29 @@ export async function markSystemCompleted(clientId: string, assessmentId: string
     description: `${client.firstName} ${client.lastName} was marked as having completed their ${assessment.recommendedSystem ?? "system"}`,
     linkUrl: `/hub/clients/${clientId}`,
   });
+
+  revalidatePath(`/hub/clients/${clientId}`);
+  return { success: true, emailSent: result.success, emailError: result.success ? undefined : result.error };
+}
+
+/**
+ * Sends the Google review request email right now, whenever Emmy
+ * clicks the button — independent of the automatic 1-day-after-
+ * completion cron. Updates reviewRequestSentAt either way, so the
+ * automatic cron won't also send one later for the same assessment.
+ */
+export async function sendGoogleReviewRequestNow(clientId: string, assessmentId: string) {
+  const user = await getCurrentHubUser();
+  if (!user || !hasPermission(user, "blueprints.manage")) {
+    return { error: "You don't have permission to do this." };
+  }
+
+  const client = await prisma.client.findUnique({ where: { id: clientId } });
+  if (!client) return { error: "Client not found." };
+
+  const result = await sendGoogleReviewRequestEmail({ clientId, firstName: client.firstName, email: client.email });
+
+  await prisma.blueprintAssessment.update({ where: { id: assessmentId }, data: { reviewRequestSentAt: new Date() } });
 
   revalidatePath(`/hub/clients/${clientId}`);
   return { success: true, emailSent: result.success, emailError: result.success ? undefined : result.error };

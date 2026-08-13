@@ -493,6 +493,32 @@ export function buildSystemDepositReceivedEmail(params: {
   };
 }
 
+export function buildGoogleReviewRequestEmail(params: {
+  firstName: string;
+  reviewUrl: string;
+}): { subject: string; html: string } {
+  const { firstName, reviewUrl } = params;
+  const name = firstName?.trim() || "beautiful";
+  const greeting = firstName?.trim() ? `Hi ${firstName.trim()}` : "Hi beautiful";
+  return {
+    subject: `A small favor, ${name}? 💛`,
+    html: emailShell({
+      eyebrowScript: "thank you for trusting us.",
+      headline: "would you",
+      headlineAccent: "share your experience?",
+      subheadlineLines: ["YOUR WORDS HELP OTHER WOMEN", "FIND US, TOO."],
+      bodyParagraphs: [
+        `${greeting}, it's been such a joy working with you and being part of your journey. Getting to see your results come together is exactly why we do this.`,
+        "If you have a minute, it would mean the world to us if you left a quick Google review sharing your experience. It's one of the biggest ways women just like you find us — and your words genuinely help.",
+        "No pressure at all, and truly no need to write an essay — even a couple of honest sentences helps enormously.",
+      ],
+      ctaLabel: "Leave a Google Review",
+      ctaUrl: reviewUrl,
+      closingText: "Thank you again for trusting us with something as personal as your body. We're so glad you're here.",
+    }),
+  };
+}
+
 export function buildAppointmentConfirmationEmail(params: {
   firstName: string;
   sessionTitle: string;

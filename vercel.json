@@ -7,6 +7,10 @@
     {
       "path": "/api/cron/society-welcome",
       "schedule": "0 * * * *"
+    },
+    {
+      "path": "/api/cron/google-review-requests",
+      "schedule": "0 * * * *"
     }
   ]
 }
