@@ -428,7 +428,7 @@ export async function getPhotoSignedUrl(storagePath: string) {
  * is left), instead of every later photo sliding into the gap the
  * way position-based chunking would otherwise cause.
  */
-async function backfillSessionNumbers(clientId: string) {
+export async function backfillSessionNumbers(clientId: string) {
   const photos = await prisma.photo.findMany({
     where: { clientId, sessionNumber: null },
     orderBy: { uploadedAt: "asc" },

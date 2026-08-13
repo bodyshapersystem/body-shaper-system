@@ -1,6 +1,8 @@
 import { prisma } from "@/lib/prisma";
-import { getPhotoSignedUrl } from "./blueprint-actions";
+import { getPhotoSignedUrl, backfillSessionNumbers } from "./blueprint-actions";
+import { getCurrentHubUser, hasPermission } from "@/lib/permissions";
 import PhotoDeleteButton from "./PhotoDeleteButton";
+import AddPhotoToSessionButton from "./AddPhotoToSessionButton";
 
 const SLOT_LABELS: Record<string, string> = {
   FRONT: "Front",
@@ -21,6 +23,18 @@ const SESSION_SIZE = 4;
  * otherwise fall back to chunks of 4 in upload order.
  */
 export default async function PhotoSessionHistory({ clientId }: { clientId: string }) {
+  const user = await getCurrentHubUser();
+  const canManage = !!user && hasPermission(user, "documents.manage");
+
+  // Freeze session numbers every time this view opens (idempotent —
+  // only touches photos that don't have one yet), so "Add Photo to
+  // Session N" always targets a real, stable session and never lands
+  // a new photo in limbo the way it would for a client still fully in
+  // legacy position-based fallback.
+  if (canManage) {
+    await backfillSessionNumbers(clientId);
+  }
+
   const photos = await prisma.photo.findMany({
     where: { clientId },
     orderBy: { uploadedAt: "asc" },
@@ -80,6 +94,7 @@ export default async function PhotoSessionHistory({ clientId }: { clientId: stri
               </div>
             ))}
           </div>
+          {canManage && <AddPhotoToSessionButton clientId={clientId} sessionNumber={sessionNumber} />}
         </div>
       ))}
     </div>
