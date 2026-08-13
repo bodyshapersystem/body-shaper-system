@@ -192,6 +192,24 @@ export async function recordProgressPhoto(
 
   const assessment = await getActiveAssessmentForClient(clientId);
 
+  // If this client already has any explicitly-numbered sessions (from
+  // a prior freeze via deletePhoto, or a manual entry), a new photo
+  // uploaded without picking a session must not be left null — that
+  // would fail the "every photo has sessionNumber" check the history
+  // view uses and drop the WHOLE client back into fragile chunk-of-4
+  // fallback. Freeze any remaining unlabeled photos and start a real
+  // new session for this one instead. Clients with zero explicit
+  // sessions yet are left alone — unchanged legacy behavior.
+  let sessionNumber = data.sessionNumber;
+  if (sessionNumber == null) {
+    const hasAnyExplicit = await prisma.photo.count({ where: { clientId, sessionNumber: { not: null } } });
+    if (hasAnyExplicit > 0) {
+      await backfillSessionNumbers(clientId);
+      const currentMax = await prisma.photo.aggregate({ where: { clientId }, _max: { sessionNumber: true } });
+      sessionNumber = (currentMax._max.sessionNumber ?? 0) + 1;
+    }
+  }
+
   // Emmy's rule: every photo she uploads for a client is always
   // visible to that client — there's no real "internal only" photo
   // in her workflow, so this is hardcoded rather than left as a
@@ -208,7 +226,7 @@ export async function recordProgressPhoto(
       specialistId: user.id,
       notes: data.notes,
       visibility,
-      sessionNumber: data.sessionNumber,
+      sessionNumber,
     },
   });
 
@@ -400,6 +418,39 @@ export async function getPhotoSignedUrl(storagePath: string) {
  * measurements/scans/observations/strategy history are all
  * unaffected by removing a photo.
  */
+/**
+ * Freezes the current session grouping into explicit sessionNumber
+ * values for every one of this client's photos that doesn't have one
+ * yet — using the exact same chunk-of-4-in-upload-order rule the
+ * portal/Hub already use for display. Called right before a delete
+ * so the grouping becomes permanent at that moment: removing a photo
+ * afterward just leaves its session with fewer photos (2, 3, whatever
+ * is left), instead of every later photo sliding into the gap the
+ * way position-based chunking would otherwise cause.
+ */
+async function backfillSessionNumbers(clientId: string) {
+  const photos = await prisma.photo.findMany({
+    where: { clientId, sessionNumber: null },
+    orderBy: { uploadedAt: "asc" },
+  });
+  if (photos.length === 0) return;
+
+  const existingMax = await prisma.photo.aggregate({
+    where: { clientId, sessionNumber: { not: null } },
+    _max: { sessionNumber: true },
+  });
+  let nextSession = (existingMax._max.sessionNumber ?? 0) + 1;
+
+  for (let i = 0; i < photos.length; i += 4) {
+    const chunk = photos.slice(i, i + 4);
+    await prisma.photo.updateMany({
+      where: { id: { in: chunk.map((p) => p.id) } },
+      data: { sessionNumber: nextSession },
+    });
+    nextSession += 1;
+  }
+}
+
 export async function deletePhoto(photoId: string) {
   const user = await getCurrentHubUser();
   if (!user || !hasPermission(user, "documents.manage")) {
@@ -408,6 +459,10 @@ export async function deletePhoto(photoId: string) {
 
   const photo = await prisma.photo.findUnique({ where: { id: photoId } });
   if (!photo) return { error: "Photo not found." };
+
+  // Lock in every other photo's session before removing this one, so
+  // deleting never reshuffles unrelated sessions.
+  await backfillSessionNumbers(photo.clientId);
 
   const admin = createSupabaseAdminClient();
   await admin.storage.from("client-documents").remove([photo.storagePath]);
