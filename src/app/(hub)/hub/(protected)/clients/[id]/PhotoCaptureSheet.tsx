@@ -50,7 +50,6 @@ export default function PhotoCaptureSheet({ clientId }: { clientId: string }) {
         const result = await recordProgressPhoto(clientId, {
           storagePath: signed.path,
           type: formData.get("type") as "FRONT" | "LEFT" | "RIGHT" | "BACK" | "DETAIL",
-          visibility: formData.get("visibility") as "INTERNAL_ONLY" | "CLIENT_VISIBLE",
         });
 
         if (result?.error) {
@@ -90,13 +89,6 @@ export default function PhotoCaptureSheet({ clientId }: { clientId: string }) {
                       {t.charAt(0) + t.slice(1).toLowerCase()}
                     </option>
                   ))}
-                </select>
-              </label>
-              <label className="sched-label">
-                Visibility
-                <select name="visibility" defaultValue="INTERNAL_ONLY" className="sched-select">
-                  <option value="INTERNAL_ONLY">Internal Only</option>
-                  <option value="CLIENT_VISIBLE">Client Visible</option>
                 </select>
               </label>
               <label className="sched-label">

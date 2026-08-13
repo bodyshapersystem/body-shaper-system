@@ -180,7 +180,6 @@ export async function recordProgressPhoto(
   data: {
     storagePath: string;
     type: PhotoType;
-    visibility?: Visibility;
     takenAt?: string;
     notes?: string;
   }
@@ -192,7 +191,11 @@ export async function recordProgressPhoto(
 
   const assessment = await getActiveAssessmentForClient(clientId);
 
-  const visibility = data.visibility ?? "INTERNAL_ONLY";
+  // Emmy's rule: every photo she uploads for a client is always
+  // visible to that client — there's no real "internal only" photo
+  // in her workflow, so this is hardcoded rather than left as a
+  // choice that could accidentally get left on the wrong default.
+  const visibility: Visibility = "CLIENT_VISIBLE";
 
   await prisma.photo.create({
     data: {
@@ -209,10 +212,12 @@ export async function recordProgressPhoto(
 
   await maybeAdvanceToBaselineCompleted(clientId);
 
-  // Only notify the client for photos they can actually see — an
-  // internal-only photo is deliberately not something to email them
-  // about.
-  if (visibility === "CLIENT_VISIBLE") {
+  // Email every 2 photos (not every single one) — e.g. front+back
+  // triggers one email, left+right triggers the next. Counts all of
+  // this client's CLIENT_VISIBLE photos (now always all of them) and
+  // fires only when that running total lands on an even number.
+  const totalVisiblePhotos = await prisma.photo.count({ where: { clientId, visibility: "CLIENT_VISIBLE" } });
+  if (totalVisiblePhotos % 2 === 0) {
     const client = await prisma.client.findUnique({ where: { id: clientId } });
     if (client) {
       await sendNewProgressPhotosEmail({

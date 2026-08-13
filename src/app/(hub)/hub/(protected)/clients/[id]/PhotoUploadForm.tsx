@@ -49,7 +49,6 @@ export default function PhotoUploadForm({ clientId }: { clientId: string }) {
         const result = await recordProgressPhoto(clientId, {
           storagePath: signed.path,
           type: formData.get("type") as "FRONT" | "LEFT" | "RIGHT" | "BACK" | "DETAIL",
-          visibility: formData.get("visibility") as "INTERNAL_ONLY" | "CLIENT_VISIBLE",
           takenAt: (formData.get("takenAt") as string) || undefined,
           notes: (formData.get("notes") as string) || undefined,
         });
@@ -83,10 +82,6 @@ export default function PhotoUploadForm({ clientId }: { clientId: string }) {
         ))}
       </select>
       <input name="takenAt" type="date" style={inputStyle} />
-      <select name="visibility" defaultValue="INTERNAL_ONLY" style={inputStyle}>
-        <option value="INTERNAL_ONLY">Internal Only</option>
-        <option value="CLIENT_VISIBLE">Client Visible</option>
-      </select>
       <input name="file" type="file" accept="image/*" required />
       <input name="notes" placeholder="Notes" style={inputStyle} />
       <button type="submit" className="auth-submit" disabled={isPending || uploading} style={{ width: "auto", padding: "10px 20px" }}>
