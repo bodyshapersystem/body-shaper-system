@@ -35,7 +35,10 @@ export async function createBookingCheckoutSession(formData: FormData) {
   const stripe = getStripeClient();
   const session = await stripe.checkout.sessions.create({
     mode: "payment",
-    payment_method_types: ["card"],
+    // payment_method_types intentionally omitted — Stripe Checkout
+    // Sessions automatically offer whatever's enabled in the
+    // Dashboard (card, Klarna, etc.) when this is left unset, so no
+    // code change is needed when a new method gets turned on there.
     customer_email: email,
     line_items: [
       {
