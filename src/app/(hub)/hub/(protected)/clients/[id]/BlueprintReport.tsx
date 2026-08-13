@@ -419,7 +419,7 @@ export default async function BlueprintReport({
               <p className="bbp-composition-copy">These numbers tell a story. We're here to rewrite it.</p>
               <span className="bbp-composition-rule" />
               {latestRenpho ? (
-                <BodyCompositionGlance latestRenpho={latestRenpho} />
+                <BodyCompositionGlance latestRenpho={latestRenpho} previousRenpho={assessment.renphoScans[1]} />
               ) : (
                 <EmptyState title="no composition data yet." sub="Record a RENPHO scan to populate this section of the Blueprint." />
               )}
@@ -470,7 +470,7 @@ export default async function BlueprintReport({
             <p className="bbp-composition-copy">Your baseline — tracked with precision, session after session.</p>
             <span className="bbp-composition-rule" />
             {latestBodyMeasurement ? (
-              <MeasurementsGlance latestBodyMeasurement={latestBodyMeasurement} />
+              <MeasurementsGlance latestBodyMeasurement={latestBodyMeasurement} previousBodyMeasurement={assessment.bodyMeasurements[1]} />
             ) : (
               <EmptyState title="no measurements yet." sub="Professional measurements will be recorded during your first Blueprint Session™." />
             )}

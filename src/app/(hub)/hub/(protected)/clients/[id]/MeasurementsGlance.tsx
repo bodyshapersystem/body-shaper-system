@@ -15,49 +15,65 @@ type LatestBodyMeasurement = {
   leftArmCm: number | null;
 } | null;
 
-export default function MeasurementsGlance({ latestBodyMeasurement }: { latestBodyMeasurement: LatestBodyMeasurement }) {
+const FIELDS: { key: keyof NonNullable<LatestBodyMeasurement>; label: string }[] = [
+  { key: "chestCm", label: "Bust" },
+  { key: "waistCm", label: "Waist" },
+  { key: "lowerAbdomenCm", label: "Abdomen" },
+  { key: "hipsCm", label: "Hips" },
+  { key: "rightThighCm", label: "Right Thigh" },
+  { key: "leftThighCm", label: "Left Thigh" },
+  { key: "rightArmCm", label: "Right Arm" },
+  { key: "leftArmCm", label: "Left Arm" },
+];
+
+export default function MeasurementsGlance({
+  latestBodyMeasurement,
+  previousBodyMeasurement,
+}: {
+  latestBodyMeasurement: LatestBodyMeasurement;
+  previousBodyMeasurement?: LatestBodyMeasurement;
+}) {
   const [unit, setUnit] = useState<LengthUnit>("cm");
 
   if (!latestBodyMeasurement) return null;
+
+  // Every circumference here — smaller is the goal, always (this is a
+  // body contouring business; treated consistently as "smaller =
+  // improved" for this glance view).
+  const improvements: string[] = [];
+  const trends = new Map<string, "up" | "down">();
+  for (const { key, label } of FIELDS) {
+    const curr = latestBodyMeasurement[key];
+    const prev = previousBodyMeasurement?.[key];
+    if (curr == null || prev == null || curr === prev) continue;
+    const wentDown = curr < prev;
+    trends.set(key, wentDown ? "down" : "up");
+    if (wentDown) improvements.push(label.toLowerCase());
+  }
+
+  function trendColor(key: string): string | undefined {
+    const t = trends.get(key);
+    if (!t) return undefined;
+    return t === "down" ? "#4a7a4a" : "#B24A52";
+  }
 
   return (
     <>
       <div className="bbp-glance-header">
         <UnitToggle value={unit} options={["cm", "in"]} onChange={setUnit} dark />
       </div>
+      {improvements.length > 0 && (
+        <p style={{ color: "#4a7a4a", fontSize: 12.5, marginBottom: 10, fontFamily: "var(--sans)" }}>
+          🎉 Congratulations — {improvements.join(", ")} decreased since the last measurement.
+        </p>
+      )}
       <ul className="bbp-glance-list">
-        <li>
-          <span>Bust</span>
-          <strong>{formatLength(latestBodyMeasurement.chestCm, unit)}</strong>
-        </li>
-        <li>
-          <span>Waist</span>
-          <strong>{formatLength(latestBodyMeasurement.waistCm, unit)}</strong>
-        </li>
-        <li>
-          <span>Abdomen</span>
-          <strong>{formatLength(latestBodyMeasurement.lowerAbdomenCm, unit)}</strong>
-        </li>
-        <li>
-          <span>Hips</span>
-          <strong>{formatLength(latestBodyMeasurement.hipsCm, unit)}</strong>
-        </li>
-        <li>
-          <span>Right Thigh</span>
-          <strong>{formatLength(latestBodyMeasurement.rightThighCm, unit)}</strong>
-        </li>
-        <li>
-          <span>Left Thigh</span>
-          <strong>{formatLength(latestBodyMeasurement.leftThighCm, unit)}</strong>
-        </li>
-        <li>
-          <span>Right Arm</span>
-          <strong>{formatLength(latestBodyMeasurement.rightArmCm, unit)}</strong>
-        </li>
-        <li>
-          <span>Left Arm</span>
-          <strong>{formatLength(latestBodyMeasurement.leftArmCm, unit)}</strong>
-        </li>
+        {FIELDS.map(({ key, label }) => (
+          <li key={key}>
+            <span>{label}</span>
+            <strong style={{ color: trendColor(key) }}>{formatLength(latestBodyMeasurement[key], unit)}</strong>
+          </li>
+        ))}
       </ul>
     </>
   );
