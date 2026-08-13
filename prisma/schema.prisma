@@ -107,6 +107,14 @@ model User {
   createdById String?
   lastLoginAt DateTime?
 
+  // Two-Factor Authentication (TOTP, Google Authenticator-style).
+  // totpSecret is set as soon as enrollment starts (so the QR/manual
+  // key can be shown again if the page reloads before confirming) but
+  // totpEnabled only flips true once a real 6-digit code is verified
+  // — an unconfirmed secret never gates login.
+  totpSecret  String?
+  totpEnabled Boolean @default(false)
+
   leadsCreated      Lead[]              @relation("LeadCreatedBy")
   leadStatusChanges LeadStatusHistory[]
   clientRecord      Client?

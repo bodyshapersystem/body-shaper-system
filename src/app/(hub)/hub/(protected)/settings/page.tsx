@@ -8,6 +8,7 @@ import PasswordChangeSheet from "./PasswordChangeSheet";
 import LogoUploadWidget from "./LogoUploadWidget";
 import AvatarUploadWidget from "./AvatarUploadWidget";
 import LogOutAllDevicesButton from "./LogOutAllDevicesButton";
+import TotpSettings from "./TotpSettings";
 
 export const dynamic = "force-dynamic";
 
@@ -291,8 +292,8 @@ export default async function HubSettingsPage() {
           <div className="settings-security-list">
             <div className="settings-security-row">
               <span>Two-Factor Authentication</span>
-              <span className="pay-history-meta">Not available yet</span>
             </div>
+            <TotpSettings enabled={!!user.totpEnabled} />
             <div className="settings-security-row">
               <span>Active Sessions</span>
               <span className="pay-history-meta">Not available yet</span>

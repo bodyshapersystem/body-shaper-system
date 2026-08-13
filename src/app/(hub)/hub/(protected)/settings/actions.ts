@@ -5,6 +5,66 @@ import { getCurrentHubUser, hasPermission } from "@/lib/permissions";
 import { revalidatePath } from "next/cache";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { randomUUID } from "crypto";
+import { generateTotpSecret, generateTotpQrCodeDataUrl, verifyTotpCode } from "@/lib/totp";
+
+/**
+ * Step 1 of enabling 2FA — generates a fresh secret, saves it
+ * unconfirmed (totpEnabled stays false, so it can't gate login until
+ * a real code is verified), and returns the QR code + manual entry
+ * key for the authenticator app.
+ */
+export async function startTotpEnrollment() {
+  const user = await getCurrentHubUser();
+  if (!user) return { error: "Not signed in." };
+
+  const secret = generateTotpSecret();
+  await prisma.user.update({ where: { id: user.id }, data: { totpSecret: secret, totpEnabled: false } });
+
+  const qrCodeDataUrl = await generateTotpQrCodeDataUrl(user.email, secret);
+  return { success: true, qrCodeDataUrl, manualKey: secret };
+}
+
+/**
+ * Step 2 — verifies the 6-digit code from the authenticator app
+ * against the secret saved in step 1. Only on success does
+ * totpEnabled flip true and actually start gating login.
+ */
+export async function confirmTotpEnrollment(code: string) {
+  const user = await getCurrentHubUser();
+  if (!user) return { error: "Not signed in." };
+
+  const fresh = await prisma.user.findUnique({ where: { id: user.id } });
+  if (!fresh?.totpSecret) return { error: "Start setup again — no pending secret found." };
+
+  if (!verifyTotpCode(fresh.totpSecret, code)) {
+    return { error: "That code didn't match. Check the time on your phone and try again." };
+  }
+
+  await prisma.user.update({ where: { id: user.id }, data: { totpEnabled: true } });
+  revalidatePath("/hub/settings");
+  return { success: true };
+}
+
+/**
+ * Turning 2FA off requires a valid current code — not just a click —
+ * so someone with a stolen, already-logged-in browser session can't
+ * silently disable the second factor for later use.
+ */
+export async function disableTotp(code: string) {
+  const user = await getCurrentHubUser();
+  if (!user) return { error: "Not signed in." };
+
+  const fresh = await prisma.user.findUnique({ where: { id: user.id } });
+  if (!fresh?.totpEnabled || !fresh.totpSecret) return { error: "2FA isn't currently enabled." };
+
+  if (!verifyTotpCode(fresh.totpSecret, code)) {
+    return { error: "That code didn't match." };
+  }
+
+  await prisma.user.update({ where: { id: user.id }, data: { totpEnabled: false, totpSecret: null } });
+  revalidatePath("/hub/settings");
+  return { success: true };
+}
 
 export async function updateBusinessSettings(formData: FormData) {
   const user = await getCurrentHubUser();

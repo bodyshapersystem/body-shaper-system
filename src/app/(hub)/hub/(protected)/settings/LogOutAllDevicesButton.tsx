@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
+import { clearTotpCookie } from "../../login/actions";
 
 export default function LogOutAllDevicesButton() {
   const [isPending, setIsPending] = useState(false);
@@ -12,6 +13,7 @@ export default function LogOutAllDevicesButton() {
     setIsPending(true);
     const supabase = createSupabaseBrowserClient();
     await supabase.auth.signOut({ scope: "global" });
+    await clearTotpCookie();
     setDone(true);
     window.location.href = "/hub/login";
   }
