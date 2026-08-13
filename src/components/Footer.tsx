@@ -45,6 +45,10 @@ export default function Footer() {
       </div>
       <div className="footer-bottom">
         <span>© 2026 Body Shaper System™. All rights reserved.</span>
+        <span style={{ display: "flex", gap: 14 }}>
+          <Link href="/privacy">Privacy Policy</Link>
+          <Link href="/terms">Terms of Service</Link>
+        </span>
         <span>Miami, Florida</span>
       </div>
     </footer>

@@ -4,19 +4,19 @@ import { getStripeClient, isStripeConfigured } from "@/lib/stripe";
 import GtagPurchaseEvent from "@/components/GtagPurchaseEvent";
 
 export const metadata: Metadata = buildMetadata({
-  title: "Your Deposit Is Confirmed",
-  description: "Your Personalized System™ deposit is confirmed.",
-  path: "/systems/deposit-success",
+  title: "Payment Received",
+  description: "Your payment is confirmed.",
+  path: "/payment-received",
   noIndex: true,
 });
 
 export const dynamic = "force-dynamic";
 
-export default async function SystemDepositSuccessPage({ searchParams }: { searchParams: Promise<{ session_id?: string }> }) {
+export default async function PaymentReceivedPage({ searchParams }: { searchParams: Promise<{ session_id?: string }> }) {
   const { session_id } = await searchParams;
 
   let firstName: string | null = null;
-  let systemName: string | null = null;
+  let description: string | null = null;
   let amountLabel: string | null = null;
   let amountUsd: number | null = null;
 
@@ -24,7 +24,7 @@ export default async function SystemDepositSuccessPage({ searchParams }: { searc
     try {
       const session = await getStripeClient().checkout.sessions.retrieve(session_id);
       firstName = session.metadata?.firstName ?? null;
-      systemName = session.metadata?.systemName ?? null;
+      description = session.metadata?.description ?? null;
       if (session.amount_total != null) {
         amountUsd = session.amount_total / 100;
         amountLabel = `$${amountUsd.toFixed(2)}`;
@@ -38,23 +38,19 @@ export default async function SystemDepositSuccessPage({ searchParams }: { searc
   return (
     <div className="section" style={{ maxWidth: 560, margin: "0 auto", padding: "80px 24px", textAlign: "center" }}>
       {session_id && amountUsd != null && (
-        <GtagPurchaseEvent transactionId={session_id} valueUsd={amountUsd} itemName={systemName ?? "Personalized System™ Deposit"} />
+        <GtagPurchaseEvent transactionId={session_id} valueUsd={amountUsd} itemName={description ?? "Custom Payment"} />
       )}
-      <span className="eyebrow">You're On Your Way</span>
-      <h1 style={{ marginBottom: 16 }}>{firstName ? `Thank you, ${firstName}!` : "Your deposit is confirmed!"}</h1>
-      {systemName && amountLabel ? (
+      <span className="eyebrow">Payment Received</span>
+      <h1 style={{ marginBottom: 16 }}>{firstName ? `Thank you, ${firstName}!` : "Thank you!"}</h1>
+      {amountLabel && description ? (
         <p style={{ fontSize: 17, marginBottom: 24 }}>
-          Your <strong>{amountLabel}</strong> starting deposit for <strong>{systemName}</strong> is confirmed.
-          If applicable, any remaining balance is paid separately, once your sessions are scheduled.
+          Your payment of <strong>{amountLabel}</strong> for <strong>{description}</strong> is confirmed.
         </p>
       ) : (
         <p style={{ fontSize: 17, marginBottom: 24 }}>
-          Your deposit was received — check your email in the next few minutes for the details.
+          Your payment was received — check your email in the next few minutes for the details.
         </p>
       )}
-      <p style={{ opacity: 0.7, marginBottom: 32 }}>
-        We'll reach out shortly to schedule your first session. We've also sent a link to activate your Client Portal.
-      </p>
       <a href="/" className="btn btn-dark-outline">
         Back to Home
       </a>

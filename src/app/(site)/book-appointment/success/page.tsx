@@ -3,6 +3,7 @@ import { buildMetadata } from "@/lib/seo";
 import { getStripeClient, isStripeConfigured } from "@/lib/stripe";
 import { prisma } from "@/lib/prisma";
 import { getBusinessTimezone, formatDateInTimezone, formatTimeInTimezone } from "@/lib/format-datetime";
+import GtagPurchaseEvent from "@/components/GtagPurchaseEvent";
 
 export const metadata: Metadata = buildMetadata({
   title: "You're Booked!",
@@ -38,6 +39,7 @@ export default async function BookingSuccessPage({ searchParams }: { searchParam
 
   return (
     <div className="section" style={{ maxWidth: 560, margin: "0 auto", padding: "80px 24px", textAlign: "center" }}>
+      {session_id && <GtagPurchaseEvent transactionId={session_id} valueUsd={350} itemName="Body Blueprint™ Consultation Deposit" />}
       <span className="eyebrow">You're All Set</span>
       <h1 style={{ marginBottom: 16 }}>{firstName ? `Thank you, ${firstName}!` : "You're booked!"}</h1>
       {dateLabel && timeLabel ? (

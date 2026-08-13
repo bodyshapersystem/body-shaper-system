@@ -72,8 +72,12 @@ export async function createPaymentLink(formData: FormData) {
       description,
       createdByUserId: user.id,
     },
-    success_url: `${SITE_URL}/hub/clients/${client.id}?paid=1`,
-    cancel_url: `${SITE_URL}/hub/clients/${client.id}`,
+    // Real bug fix: this used to point to /hub/clients/[id], a
+    // Hub-only page requiring Owner login — the client paying isn't
+    // logged into the Hub, so they'd hit a login wall right after
+    // paying. Points to the public confirmation page instead.
+    success_url: `${SITE_URL}/payment-received?session_id={CHECKOUT_SESSION_ID}`,
+    cancel_url: `${SITE_URL}/`,
   });
 
   if (!session.url) {
