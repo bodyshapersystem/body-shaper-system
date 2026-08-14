@@ -15,8 +15,9 @@ export default function HomePage() {
     <>
       <section className="home-hero-photo" id="top">
         <h1 className="sr-only">
-          Body Shaper System™ — Your Body. Your Blueprint. Your System.
-          Personalized Body Systems, Delivered to You.
+          Body Shaper System™ — Personalized, Non-Surgical Body Contouring
+          and Body Sculpting in Miami. In-Home Treatments Built on Your Body
+          Blueprint™.
         </h1>
         <div className="home-hero-photo-inner">
           <img
@@ -61,12 +62,13 @@ export default function HomePage() {
       <section className="section what-is">
         <span className="eyebrow reveal">What is Body Shaper System™</span>
         <h2 className="reveal">
-          A personalized approach to non-invasive body contouring.
+          A personalized approach to non-invasive body contouring in Miami.
         </h2>
         <p className="reveal">
           Instead of recommending the same treatment to everyone, we begin with
           a comprehensive Body Blueprint™ designed to understand your body,
-          your goals and your lifestyle.
+          your goals and your lifestyle — the foundation of every personalized
+          body sculpting plan we build.
         </p>
         <p className="reveal">
           From there, we create a personalized system built specifically for
@@ -167,10 +169,11 @@ export default function HomePage() {
           <span className="eyebrow" style={{ color: "#C79E93" }}>
             The In-Home Experience™
           </span>
-          <h2>Luxury body contouring, delivered directly to your home.</h2>
+          <h2>Luxury, mobile body contouring — delivered directly to your home in Miami.</h2>
           <p>
             Professional equipment. Personalized care. Advanced technology. An
-            elevated experience designed entirely around your schedule.
+            elevated in-home body contouring experience designed entirely
+            around your schedule — no studio visit required.
           </p>
           <div className="feature-row">
             <span className="f">Professional Equipment</span>

@@ -220,7 +220,7 @@ export default function TechTalksClient() {
       <p>Exilis® is an FDA-cleared technology that uses controlled monopolar radiofrequency to safely heat the deeper layers of the skin while protecting the surface.</p>
       <p>The controlled thermal energy stimulates fibroblasts, encouraging the natural production of collagen and elastin. As collagen remodels over time, skin gradually becomes firmer, smoother and tighter.</p>
       <p>In selected areas, the same thermal energy may also support body contouring by complementing the body's natural metabolic processes.</p>
-      <p>Exilis® is never treated as a standalone solution. It becomes significantly more effective when incorporated into a Personalized System™ designed through your Body Blueprint™.</p>
+      <p>Exilis® is never treated as a standalone solution. It becomes significantly more effective when incorporated into a Personalized System™ designed through your Body Blueprint™ — Exilis in Miami, delivered directly to your home.</p>
     </div>
 
     <div className="step-flow">
@@ -289,7 +289,7 @@ export default function TechTalksClient() {
       <h4>What Is Endospheres®?</h4>
       <p>Endospheres® uses a patented compressive micro-vibration technology designed to stimulate circulation, support lymphatic movement and improve skin texture.</p>
       <p>The rotating silicone spheres create rhythmic mechanical stimulation that may help reduce the appearance of cellulite while promoting a lighter, smoother feeling in the treated area.</p>
-      <p>At Body Shaper System™, Endospheres® is integrated into Personalized Systems™ and frequently combined with complementary technologies to maximize results.</p>
+      <p>At Body Shaper System™, Endospheres® in Miami is integrated into Personalized Systems™ and frequently combined with complementary technologies to maximize results.</p>
     </div>
 
     <div className="step-flow">
@@ -364,7 +364,7 @@ export default function TechTalksClient() {
     <div className="tech-copy">
       <h4>What Is EMS®?</h4>
       <p>EMS — Electrical Muscle Stimulation — uses controlled electrical impulses to activate muscle contractions that closely mimic natural, voluntary contractions.</p>
-      <p>These contractions help stimulate muscle fibers that may be difficult to engage through everyday movement alone, supporting muscle tone, strength and body sculpting when incorporated into a personalized treatment strategy.</p>
+      <p>These contractions help stimulate muscle fibers that may be difficult to engage through everyday movement alone, supporting muscle tone, strength and EMS body sculpting when incorporated into a personalized treatment strategy.</p>
       <p>EMS® is not a replacement for exercise or a healthy lifestyle — it complements an overall body optimization plan. At Body Shaper System™, EMS® is frequently combined with Exilis®, Endospheres® and Lymphatic Protocols™ for enhanced results.</p>
     </div>
 

@@ -18,7 +18,9 @@ export default function InHomeExperiencePage() {
 {/* HERO */}
 <section className="sys-hero-photo" id="top">
   <h1 className="sr-only">
-    The In-Home Experience™ — Expert care, where you are. Premium technology, personalized treatment, total convenience.
+    The In-Home Experience™ — Mobile, At-Home Body Contouring in Miami.
+    Expert care, where you are. Premium technology, personalized treatment,
+    total convenience.
   </h1>
   <div className="sys-hero-photo-inner">
     <img
@@ -76,6 +78,11 @@ export default function InHomeExperiencePage() {
   <div style={{textAlign: 'center', maxWidth: '600px', margin: '0 auto'}}>
     <span className="eyebrow reveal">Our Technologies</span>
     <h2 className="reveal" style={{fontFamily: 'var(--serif)', fontWeight: '400', fontSize: 'clamp(28px,3.6vw,42px)', margin: '16px 0'}}>Technologies We Bring</h2>
+    <p className="reveal" style={{color: '#6a635a', fontSize: '14.5px', lineHeight: 1.7, margin: '0 0 8px'}}>
+      Exilis®, Endospheres® and EMS body sculpting — the same non-invasive
+      body contouring technology you'd find in a Miami studio, brought
+      directly to your home.
+    </p>
   </div>
   <div className="tech-grid reveal">
     <div className="tech-card">
@@ -98,7 +105,7 @@ export default function InHomeExperiencePage() {
       <div className="tech-media" style={{backgroundImage: 'url(\'/images/tech-device-1.jpeg\')', backgroundSize: 'cover', backgroundPosition: 'center'}}></div>
       <div className="tech-body">
         <h4>EMS</h4>
-        <p>Electrical muscle stimulation for toning and muscle preservation.</p>
+        <p>Electrical muscle stimulation for muscle toning, definition and preservation.</p>
         <a href="/tech-talks">Learn More</a>
       </div>
     </div>

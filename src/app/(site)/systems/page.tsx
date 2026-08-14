@@ -105,6 +105,15 @@ export default function SystemsPage() {
     </div>
   </div>
 
+  <p className="sys-intro reveal">
+    Every system below is a starting point, not a fixed package — your Body
+    Blueprint™ determines the real mix of fat reduction, skin tightening and
+    muscle toning your body needs. Whether you're looking for postpartum
+    body contouring, support after significant weight loss, or a
+    personalized body contouring plan built around your goals, each system
+    is delivered as a mobile, in-home experience across Miami.
+  </p>
+
   <div className="systems-grid reveal">
     <div className="system-card">
       <div className="num">01</div>
@@ -141,7 +150,7 @@ export default function SystemsPage() {
       <h3>Mom Reset™</h3>
       <div className="best-for-label">Best For</div>
       <ul>
-        <li>Postpartum recovery</li>
+        <li>Postpartum body contouring</li>
         <li>Core strengthening</li>
         <li>Body confidence</li>
       </ul>
@@ -156,9 +165,9 @@ export default function SystemsPage() {
       <h3>GLP-1 Reshape™</h3>
       <div className="best-for-label">Best For</div>
       <ul>
-        <li>Body recomposition</li>
+        <li>Post-GLP-1 body contouring</li>
         <li>Muscle preservation</li>
-        <li>Skin support</li>
+        <li>Skin tightening after weight loss</li>
       </ul>
       <div className="sessions">8–20 Sessions</div>
       <div className="price-label">Investment Starts At</div>
@@ -172,7 +181,7 @@ export default function SystemsPage() {
       <div className="best-for-label">Best For</div>
       <ul>
         <li>Multiple body goals</li>
-        <li>Full body transformation</li>
+        <li>Muscle toning &amp; definition</li>
         <li>Long-term optimization</li>
       </ul>
       <div className="sessions">12–24 Sessions</div>
