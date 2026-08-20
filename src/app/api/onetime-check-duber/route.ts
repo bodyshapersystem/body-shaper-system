@@ -10,7 +10,7 @@ export async function GET() {
 
   const documents = await prisma.document.findMany({
     where: { clientId: client.id },
-    select: { id: true, category: true, title: true, createdAt: true },
+    select: { id: true, category: true, title: true, uploadedAt: true },
   });
 
   const status = await getOnboardingStatus(client.id);
