@@ -13,7 +13,7 @@ export async function submitReferralLead(clientId: string, formData: FormData) {
 
   if (!firstName || !lastName || !email) return { error: "Please fill in your name and email." };
 
-  const existing = await prisma.lead.findFirst({ where: { email } });
+  const existing = await prisma.lead.findFirst({ where: { email: { equals: email, mode: "insensitive" } } });
   if (existing) return { error: "It looks like you're already in our system — our team will be in touch soon!" };
 
   await prisma.lead.create({

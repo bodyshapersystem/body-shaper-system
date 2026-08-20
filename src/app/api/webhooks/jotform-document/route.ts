@@ -107,7 +107,12 @@ export async function POST(request: NextRequest) {
     console.error("[jotform-document] no email found in payload or via API, falling back to name match. raw keys:", JSON.stringify(Object.keys(raw)));
   }
 
-  let client = email ? await prisma.client.findFirst({ where: { email }, orderBy: { createdAt: "desc" } }) : null;
+  // Case-insensitive: a real, recurring mismatch (Duber Baptista typed
+  // "duberbaptista@..." on the waiver while his Client record has
+  // "Duberbaptista@..." saved) silently 404'd here since Postgres
+  // string equality is case-sensitive by default — his onboarding got
+  // stuck in a loop even though he'd genuinely signed both forms.
+  let client = email ? await prisma.client.findFirst({ where: { email: { equals: email, mode: "insensitive" } }, orderBy: { createdAt: "desc" } }) : null;
 
   if (!client && !email) {
     // Last resort: the client genuinely left Email blank on this form
@@ -159,7 +164,7 @@ export async function POST(request: NextRequest) {
       const { firstName, lastName } = extractName(raw);
       const phone = extractContactField(raw, ["phone", "phone number"]);
 
-      const existingLead = await prisma.lead.findFirst({ where: { email }, orderBy: { createdAt: "desc" } });
+      const existingLead = await prisma.lead.findFirst({ where: { email: { equals: email, mode: "insensitive" } }, orderBy: { createdAt: "desc" } });
       if (!existingLead) {
         await prisma.lead.create({
           data: {

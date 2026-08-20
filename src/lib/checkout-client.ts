@@ -24,7 +24,11 @@ export async function findOrCreateClientFromCheckout(params: {
 }): Promise<{ success: true; clientId: string; client: Client } | { success: false; error: string }> {
   const { firstName, lastName, email, phone, city, source, systemUserId } = params;
 
-  const existingClient = await prisma.client.findFirst({ where: { email } });
+  // Case-insensitive: a Stripe checkout where someone types their email
+  // in different casing than an existing Client record would otherwise
+  // silently create a duplicate Client instead of finding the real one
+  // (same class of bug found and fixed in the Jotform document webhook).
+  const existingClient = await prisma.client.findFirst({ where: { email: { equals: email, mode: "insensitive" } } });
   if (existingClient) {
     return { success: true, clientId: existingClient.id, client: existingClient };
   }
