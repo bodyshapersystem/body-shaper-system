@@ -5,6 +5,9 @@ import { prisma } from "@/lib/prisma";
  * already exist in this system (created by the real Jotform webhooks,
  * with real e-signatures, not a simplified in-app checkbox):
  *   Step 1: "Prepare Your Experience™" -> Document.category = POLICIES_APPOINTMENTS
+ *     (skipped entirely for Ambassadors — they complete their own
+ *     Ambassador Intake form instead, which isn't a policies
+ *     agreement and doesn't produce this document)
  *   Step 2: "Almost Ready™" (Waiver)   -> Document.category = CONSENT_TREATMENT
  *   Step 3 (only when it genuinely applies): Content Release Agreement
  *   -> PHOTOGRAPHY_AUTHORIZATION
@@ -28,7 +31,7 @@ export async function getOnboardingStatus(clientId: string) {
     needsRelease ? prisma.document.findFirst({ where: { clientId, category: "PHOTOGRAPHY_AUTHORIZATION" } }) : Promise.resolve(null),
   ]);
 
-  const agreementComplete = !!agreementDoc;
+  const agreementComplete = isAmbassador || !!agreementDoc;
   const consentComplete = !!consentDoc;
   const releaseComplete = !needsRelease || !!releaseDoc;
 
