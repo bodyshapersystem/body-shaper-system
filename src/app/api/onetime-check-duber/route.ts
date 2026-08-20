@@ -20,6 +20,7 @@ export async function GET() {
     clientId: client.id,
     firstName: client.firstName,
     lastName: client.lastName,
+    email: client.email,
     clientType: client.clientType,
     requiresContentRelease: client.requiresContentRelease,
     documents,
