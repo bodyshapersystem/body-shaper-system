@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import UnitToggle from "@/components/UnitToggle";
-import { formatWeight, type WeightUnit } from "@/lib/units";
+import { formatWeight, kgToLb, type WeightUnit } from "@/lib/units";
 
 type RenphoFields = {
   weightKg: number | null;
@@ -33,24 +33,45 @@ export default function BodyCompositionGlance({ latestRenpho, previousRenpho }: 
 
   // Change vs. the previous scan — lower is the goal for weight/fat/
   // visceral fat, higher is the goal for muscle mass. Wine red if it
-  // moved the wrong way, green if it moved the right way. improvements
-  // collects plain-language wins for the congrats line below.
-  const improvements: string[] = [];
-  function trend(key: keyof RenphoFields, label: string, lowerIsBetter: boolean): "up" | "down" | null {
+  // moved the wrong way, green if it moved the right way. Each win
+  // now carries its real quantified delta (e.g. "-2.3 lb"), not just
+  // the field name — meant to be screenshot-worthy for the client to
+  // post, not just an internal note.
+  type Win = { label: string; deltaText: string };
+  const wins: Win[] = [];
+
+  function weightDelta(key: "weightKg" | "muscleMassKg", label: string, lowerIsBetter: boolean): "up" | "down" | null {
     const curr = latestRenpho![key];
     const prev = previousRenpho?.[key];
-    if (curr == null || prev == null) return null;
-    if (curr === prev) return null;
+    if (curr == null || prev == null || curr === prev) return null;
     const wentDown = curr < prev;
     const improved = lowerIsBetter ? wentDown : !wentDown;
-    if (improved) improvements.push(label);
+    if (improved) {
+      const diffKg = Math.abs(curr - prev);
+      const diffDisplay = unit === "kg" ? diffKg : kgToLb(diffKg);
+      wins.push({ label, deltaText: `${wentDown ? "-" : "+"}${diffDisplay.toFixed(1)} ${unit}` });
+    }
     return wentDown ? "down" : "up";
   }
-  const weightTrend = trend("weightKg", "weight", true);
-  const bmiTrend = trend("bmi", "BMI", true);
-  const bodyFatTrend = trend("bodyFatPercent", "body fat %", true);
-  const visceralTrend = trend("visceralFat", "visceral fat", true);
-  const muscleTrend = trend("muscleMassKg", "muscle mass", false);
+
+  function percentDelta(key: "bmi" | "bodyFatPercent" | "visceralFat", label: string, decimals: number): "up" | "down" | null {
+    const curr = latestRenpho![key];
+    const prev = previousRenpho?.[key];
+    if (curr == null || prev == null || curr === prev) return null;
+    const wentDown = curr < prev; // lower is always better for these three
+    if (wentDown) {
+      const diff = Math.abs(curr - prev);
+      const unitSuffix = key === "bodyFatPercent" ? "%" : "";
+      wins.push({ label, deltaText: `-${diff.toFixed(decimals)}${unitSuffix}` });
+    }
+    return wentDown ? "down" : "up";
+  }
+
+  const weightTrend = weightDelta("weightKg", "Weight", true);
+  const bmiTrend = percentDelta("bmi", "BMI", 1);
+  const bodyFatTrend = percentDelta("bodyFatPercent", "Body Fat", 1);
+  const visceralTrend = percentDelta("visceralFat", "Visceral Fat", 0);
+  const muscleTrend = weightDelta("muscleMassKg", "Muscle Mass", false);
 
   function trendColor(t: "up" | "down" | null, lowerIsBetter: boolean): string | undefined {
     if (!t) return undefined;
@@ -63,10 +84,18 @@ export default function BodyCompositionGlance({ latestRenpho, previousRenpho }: 
       <div className="bbp-glance-header">
         <UnitToggle value={unit} options={["lb", "kg"]} onChange={setUnit} dark />
       </div>
-      {improvements.length > 0 && (
-        <p style={{ color: "#4a7a4a", fontSize: 12.5, marginBottom: 10, fontFamily: "var(--sans)" }}>
-          🎉 Congratulations — {improvements.join(", ")} improved since the last scan.
-        </p>
+      {wins.length > 0 && (
+        <div className="bbp-progress-card">
+          <p className="bbp-progress-card-title">🎉 Progress since last scan</p>
+          <div className="bbp-progress-card-stats">
+            {wins.map((w) => (
+              <span key={w.label} className="bbp-progress-stat">
+                <strong>{w.deltaText}</strong>
+                <span>{w.label}</span>
+              </span>
+            ))}
+          </div>
+        </div>
       )}
       <ul className="bbp-glance-list">
         <li>

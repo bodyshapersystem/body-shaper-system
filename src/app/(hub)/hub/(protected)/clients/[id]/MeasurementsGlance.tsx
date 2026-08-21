@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import UnitToggle from "@/components/UnitToggle";
-import { formatLength, type LengthUnit } from "@/lib/units";
+import { formatLength, cmToIn, type LengthUnit } from "@/lib/units";
 
 type LatestBodyMeasurement = {
   chestCm: number | null;
@@ -39,8 +39,11 @@ export default function MeasurementsGlance({
 
   // Every circumference here — smaller is the goal, always (this is a
   // body contouring business; treated consistently as "smaller =
-  // improved" for this glance view).
-  const improvements: string[] = [];
+  // improved" for this glance view). Each win carries its real
+  // quantified delta (e.g. "-2.0 cm"), meant to be screenshot-worthy
+  // for the client to post, not just an internal note.
+  type Win = { label: string; deltaText: string };
+  const wins: Win[] = [];
   const trends = new Map<string, "up" | "down">();
   for (const { key, label } of FIELDS) {
     const curr = latestBodyMeasurement[key];
@@ -48,7 +51,11 @@ export default function MeasurementsGlance({
     if (curr == null || prev == null || curr === prev) continue;
     const wentDown = curr < prev;
     trends.set(key, wentDown ? "down" : "up");
-    if (wentDown) improvements.push(label.toLowerCase());
+    if (wentDown) {
+      const diffCm = Math.abs(curr - prev);
+      const diffDisplay = unit === "cm" ? diffCm : cmToIn(diffCm);
+      wins.push({ label, deltaText: `-${diffDisplay.toFixed(1)} ${unit}` });
+    }
   }
 
   function trendColor(key: string): string | undefined {
@@ -62,10 +69,18 @@ export default function MeasurementsGlance({
       <div className="bbp-glance-header">
         <UnitToggle value={unit} options={["cm", "in"]} onChange={setUnit} dark />
       </div>
-      {improvements.length > 0 && (
-        <p style={{ color: "#4a7a4a", fontSize: 12.5, marginBottom: 10, fontFamily: "var(--sans)" }}>
-          🎉 Congratulations — {improvements.join(", ")} decreased since the last measurement.
-        </p>
+      {wins.length > 0 && (
+        <div className="bbp-progress-card">
+          <p className="bbp-progress-card-title">🎉 Progress since last measurement</p>
+          <div className="bbp-progress-card-stats">
+            {wins.map((w) => (
+              <span key={w.label} className="bbp-progress-stat">
+                <strong>{w.deltaText}</strong>
+                <span>{w.label}</span>
+              </span>
+            ))}
+          </div>
+        </div>
       )}
       <ul className="bbp-glance-list">
         {FIELDS.map(({ key, label }) => (
