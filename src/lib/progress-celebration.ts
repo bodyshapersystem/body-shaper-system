@@ -94,15 +94,15 @@ const MEASUREMENT_FIELDS: { key: string; label: string }[] = [
  * currently model per-zone — a reasonable simplification for now).
  */
 export function getPositiveMeasurementChanges(
-  latest: Record<string, number | null>,
-  previous: Record<string, number | null> | null | undefined,
+  latest: Record<string, unknown>,
+  previous: Record<string, unknown> | null | undefined,
   unit: "cm" | "in"
 ): MetricChange[] {
   if (!previous) return [];
   const changes: MetricChange[] = [];
   for (const f of MEASUREMENT_FIELDS) {
-    const curr = latest[f.key];
-    const prev = previous[f.key];
+    const curr = latest[f.key] as number | null | undefined;
+    const prev = previous[f.key] as number | null | undefined;
     if (curr == null || prev == null) continue;
     const diffCm = curr - prev;
     if (diffCm < -0.2) {
