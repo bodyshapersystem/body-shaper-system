@@ -258,6 +258,7 @@ model Client {
   photos               Photo[]
   notifications        Notification[]
   dailyTrackers        DailyTracker[]
+  peptideLogs          PeptideLog[]
   collaboration        Collaboration?
   referrals            Lead[]           @relation("ClientReferrals")
   formSubmissions      FormSubmission[]
@@ -659,6 +660,19 @@ model Notification {
   createdAt   DateTime             @default(now())
 
   @@map("notifications")
+}
+
+model PeptideLog {
+  id             String   @id @default(cuid())
+  clientId       String
+  client         Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  peptideName    String
+  administeredAt DateTime // real date + time the client actually took it
+  dosage         String?
+  notes          String?
+  createdAt      DateTime @default(now())
+
+  @@map("peptide_logs")
 }
 
 model DailyTracker {

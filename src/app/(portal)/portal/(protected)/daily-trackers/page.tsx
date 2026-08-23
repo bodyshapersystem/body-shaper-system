@@ -48,6 +48,12 @@ export default async function DailyTrackersPage() {
     .map((t) => ({ date: t.date.toISOString(), weightLbs: t.weightLbs as number }))
     .reverse();
 
+  const peptideLogs = await prisma.peptideLog.findMany({
+    where: { clientId: client.id },
+    orderBy: { administeredAt: "desc" },
+    take: 30,
+  });
+
   return (
     <div className="cat-body portal-page">
       <TrackersView
@@ -74,6 +80,13 @@ export default async function DailyTrackersPage() {
         streak={streak}
         achievements={achievements}
         weightHistory={weightHistory}
+        peptideLogs={peptideLogs.map((p) => ({
+          id: p.id,
+          peptideName: p.peptideName,
+          administeredAt: p.administeredAt.toISOString(),
+          dosage: p.dosage,
+          notes: p.notes,
+        }))}
       />
     </div>
   );

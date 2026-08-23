@@ -2,12 +2,12 @@ import { prisma } from "@/lib/prisma";
 
 /**
  * Blueprint Score™ — a real, transparent 0-100 score computed from
- * actual client data, not a fabricated number. Five components:
+ * actual client data, not a fabricated number. Six components:
  *
  * 1. Session Adherence (0-25 pts): how much of the validated session
  *    plan has actually been completed. Neutral half-credit if no
  *    session count has been set yet.
- * 2. Attendance Reliability (0-15 pts): completed vs no-show rate.
+ * 2. Attendance Reliability (0-10 pts): completed vs no-show rate.
  *    Full credit if there are no no-shows on record (including zero
  *    appointments at all — nothing to penalize yet).
  * 3. Body Composition Trend / RENPHO (0-25 pts): compares the
@@ -18,11 +18,15 @@ import { prisma } from "@/lib/prisma";
  *    latest professional measurement session (waist/hips/bust/thighs/
  *    arms — averaged across whichever fields exist on both), same
  *    logic as #3. Neutral half-credit with fewer than two sessions.
- * 5. Progress Photo Consistency (0-15 pts): real progress photos are
+ * 5. Progress Photo Consistency (0-10 pts): real progress photos are
  *    tracked in full sessions of 4 (front/left/right/back) - this
  *    rewards actually having multiple complete before/after sessions
  *    on file, not just appointments attended. Full credit at 2+
  *    complete sessions, half at 1, none at 0.
+ * 6. Tracking Engagement (0-10 pts): how many of the last 14 days
+ *    have SOME real self-reported activity on file — a Daily
+ *    Tracker™ entry and/or a Peptide Calendar™ dose log. Rewards
+ *    actually using the tools between sessions, not just showing up.
  *
  * Every component is independently computed from real rows — nothing
  * here is randomized or hardcoded per client.
@@ -35,9 +39,14 @@ export async function computeBlueprintScore(clientId: string): Promise<{
     compositionTrend: number;
     measurementsTrend: number;
     photoConsistency: number;
+    trackingEngagement: number;
   };
 } | null> {
-  const [assessment, completedCount, noShowCount, scans, bodyMeasurements, photoCount] = await Promise.all([
+  const fourteenDaysAgo = new Date();
+  fourteenDaysAgo.setDate(fourteenDaysAgo.getDate() - 14);
+  fourteenDaysAgo.setHours(0, 0, 0, 0);
+
+  const [assessment, completedCount, noShowCount, scans, bodyMeasurements, photoCount, recentTrackers, recentPeptideLogs] = await Promise.all([
     prisma.blueprintAssessment.findFirst({
       where: { clientId, status: { in: ["ACTIVE", "BASELINE_PENDING", "BASELINE_COMPLETED", "VALIDATED", "IN_PROGRESS", "COMPLETED"] } },
       orderBy: { version: "desc" },
@@ -55,6 +64,8 @@ export async function computeBlueprintScore(clientId: string): Promise<{
       select: { waistCm: true, hipsCm: true, chestCm: true, rightThighCm: true, leftThighCm: true, rightArmCm: true, leftArmCm: true },
     }),
     prisma.photo.count({ where: { clientId, visibility: "CLIENT_VISIBLE" } }),
+    prisma.dailyTracker.findMany({ where: { clientId, date: { gte: fourteenDaysAgo } }, select: { date: true } }),
+    prisma.peptideLog.findMany({ where: { clientId, administeredAt: { gte: fourteenDaysAgo } }, select: { administeredAt: true } }),
   ]);
 
   if (!assessment) return null;
@@ -66,7 +77,7 @@ export async function computeBlueprintScore(clientId: string): Promise<{
   const sessionAdherence = totalSessions && totalSessions > 0 ? Math.min(realCompleted / totalSessions, 1) * 25 : 12.5;
 
   const totalAttended = completedCount + noShowCount;
-  const attendanceReliability = totalAttended > 0 ? (completedCount / totalAttended) * 15 : 15;
+  const attendanceReliability = totalAttended > 0 ? (completedCount / totalAttended) * 10 : 10;
 
   let compositionTrend = 12.5;
   if (scans.length >= 2) {
@@ -97,9 +108,16 @@ export async function computeBlueprintScore(clientId: string): Promise<{
   }
 
   const completePhotoSessions = Math.floor(photoCount / 4);
-  const photoConsistency = (Math.min(completePhotoSessions, 2) / 2) * 15;
+  const photoConsistency = (Math.min(completePhotoSessions, 2) / 2) * 10;
 
-  const score = Math.round(sessionAdherence + attendanceReliability + compositionTrend + measurementsTrend + photoConsistency);
+  const engagedDays = new Set<string>();
+  for (const t of recentTrackers) engagedDays.add(t.date.toISOString().slice(0, 10));
+  for (const p of recentPeptideLogs) engagedDays.add(p.administeredAt.toISOString().slice(0, 10));
+  const trackingEngagement = Math.min(engagedDays.size / 14, 1) * 10;
+
+  const score = Math.round(
+    sessionAdherence + attendanceReliability + compositionTrend + measurementsTrend + photoConsistency + trackingEngagement
+  );
 
   return {
     score,
@@ -109,6 +127,7 @@ export async function computeBlueprintScore(clientId: string): Promise<{
       compositionTrend: Math.round(compositionTrend),
       measurementsTrend: Math.round(measurementsTrend),
       photoConsistency: Math.round(photoConsistency),
+      trackingEngagement: Math.round(trackingEngagement),
     },
   };
 }

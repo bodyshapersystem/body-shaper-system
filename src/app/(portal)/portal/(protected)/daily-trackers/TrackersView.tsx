@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import { updateTodayTracker, requestNextSession } from "./actions";
 import { computeDailyCompletionPercent, computeRecoveryScore, getCompletedCategories, type TrackerDay, type Achievement } from "@/lib/daily-tracker-scoring";
+import PeptideCalendar from "./PeptideCalendar";
 
 type TodayTracker = {
   waterGlasses: number;
@@ -29,6 +30,7 @@ export default function TrackersView({
   streak,
   achievements,
   weightHistory,
+  peptideLogs,
 }: {
   firstName: string;
   todayTracker: TodayTracker;
@@ -36,6 +38,7 @@ export default function TrackersView({
   streak: number;
   achievements: Achievement[];
   weightHistory: { date: string; weightLbs: number }[];
+  peptideLogs: { id: string; peptideName: string; administeredAt: string; dosage: string | null; notes: string | null }[];
 }) {
   const [isPending, startTransition] = useTransition();
   const [water, setWater] = useState(todayTracker?.waterGlasses ?? 0);
@@ -333,13 +336,27 @@ export default function TrackersView({
           <div className="trk-progress-circle" style={{ margin: "0 auto 14px", background: `conic-gradient(#6B4E3D ${completionPercent}%, rgba(0,0,0,0.06) 0)` }}>
             <div className="trk-progress-circle-inner"><strong>{completionPercent}%</strong></div>
           </div>
-          <ul className="trk-checklist">
-            {(["hydration", "movement", "sleep", "compression", "nutrition", "symptoms", "weight"] as const).map((k) => (
-              <li key={k}>{completed[k] ? "✅" : "⬜"} {k.charAt(0).toUpperCase() + k.slice(1)}</li>
+          <ul className="trk-checklist trk-checklist-chips">
+            {([
+              { key: "hydration", icon: "💧", label: "Hydration" },
+              { key: "movement", icon: "👟", label: "Movement" },
+              { key: "sleep", icon: "😴", label: "Sleep" },
+              { key: "compression", icon: "🎽", label: "Compression" },
+              { key: "nutrition", icon: "🥗", label: "Nutrition" },
+              { key: "symptoms", icon: "📝", label: "Symptoms" },
+              { key: "weight", icon: "⚖️", label: "Weight" },
+            ] as const).map(({ key, icon, label }) => (
+              <li key={key} className={`trk-chip ${completed[key] ? "trk-chip-done" : ""}`}>
+                <span className="trk-chip-icon">{completed[key] ? "✓" : icon}</span>
+                {label}
+              </li>
             ))}
           </ul>
         </div>
       </div>
+
+      {/* ---------- Peptide Calendar ---------- */}
+      <PeptideCalendar logs={peptideLogs} />
 
       {/* ---------- Achievements ---------- */}
       <h3 className="dash-section-title" style={{ marginTop: 32 }}>Achievements</h3>

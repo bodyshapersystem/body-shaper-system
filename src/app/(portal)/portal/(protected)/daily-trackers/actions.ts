@@ -63,3 +63,48 @@ export async function requestNextSession(note: string) {
   revalidatePath("/portal/messages");
   return { success: true };
 }
+
+/**
+ * Peptide Calendar™ — the client logs which peptide they administered,
+ * and when (real date + time, not just "today"), so there's an actual
+ * record to look back on. This also feeds the Blueprint Score's
+ * Tracking Engagement component (see src/lib/blueprint-score.ts).
+ */
+export async function logPeptideDose(fields: {
+  peptideName: string;
+  administeredAt: string; // ISO datetime from the client's local date+time inputs
+  dosage?: string;
+  notes?: string;
+}) {
+  const client = await getCurrentPortalClient();
+  if (!client) return { error: "Not signed in." };
+
+  const peptideName = fields.peptideName.trim();
+  if (!peptideName) return { error: "Please enter which peptide you took." };
+  if (!fields.administeredAt) return { error: "Please pick a date and time." };
+
+  await prisma.peptideLog.create({
+    data: {
+      clientId: client.id,
+      peptideName,
+      administeredAt: new Date(fields.administeredAt),
+      dosage: fields.dosage?.trim() || null,
+      notes: fields.notes?.trim() || null,
+    },
+  });
+
+  revalidatePath("/portal/daily-trackers");
+  return { success: true };
+}
+
+export async function deletePeptideLog(logId: string) {
+  const client = await getCurrentPortalClient();
+  if (!client) return { error: "Not signed in." };
+
+  const log = await prisma.peptideLog.findUnique({ where: { id: logId } });
+  if (!log || log.clientId !== client.id) return { error: "Not found." };
+
+  await prisma.peptideLog.delete({ where: { id: logId } });
+  revalidatePath("/portal/daily-trackers");
+  return { success: true };
+}
