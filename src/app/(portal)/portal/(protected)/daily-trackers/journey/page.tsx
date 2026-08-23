@@ -5,9 +5,11 @@ import JourneyView from "../JourneyView";
 
 export const dynamic = "force-dynamic";
 
-export default async function PeptideJourneyPage() {
+export default async function PeptideJourneyPage({ searchParams }: { searchParams: Promise<{ preview?: string }> }) {
   const client = await getCurrentPortalClient();
   if (!client) redirect("/portal/login");
+
+  const { preview } = await searchParams;
 
   const [protocol, logs, activeAssessment] = await Promise.all([
     prisma.peptideProtocol.findFirst({ where: { clientId: client.id, active: true }, orderBy: { updatedAt: "desc" } }),
@@ -23,6 +25,7 @@ export default async function PeptideJourneyPage() {
     <div className="cat-body portal-page dtj-page-wrap">
       <JourneyView
         currentSystemName={activeAssessment?.recommendedSystem ?? null}
+        forceWelcome={preview === "welcome"}
         protocol={
           protocol
             ? {

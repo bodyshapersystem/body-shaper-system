@@ -70,11 +70,11 @@ const CHECKIN_ROWS: { key: keyof LogEntry; label: string }[] = [
   { key: "nausea", label: "Nausea / discomfort" },
 ];
 
-export default function JourneyView({ protocol, logs, currentSystemName }: { protocol: Protocol; logs: LogEntry[]; currentSystemName: string | null }) {
+export default function JourneyView({ protocol, logs, currentSystemName, forceWelcome }: { protocol: Protocol; logs: LogEntry[]; currentSystemName: string | null; forceWelcome?: boolean }) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [settingUp, setSettingUp] = useState(!protocol);
-  const [showWelcome, setShowWelcome] = useState(false);
+  const [showWelcome, setShowWelcome] = useState(!!forceWelcome && !!protocol);
   const [error, setError] = useState("");
 
   // Protocol form state
