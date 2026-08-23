@@ -816,3 +816,51 @@ export function buildWeMissYouEmail(params: {
     }),
   };
 }
+
+export function buildMidpointDataReadyEmail(params: { firstName: string; systemName: string }): { subject: string; html: string } {
+  const { firstName, systemName } = params;
+  return {
+    subject: "You're halfway there ✦ Your Midpoint Data is ready",
+    html: emailShell({
+      eyebrowScript: "your body has been responding.",
+      headline: "your midpoint",
+      headlineAccent: "data is ready.",
+      subheadlineLines: ["NOW LET'S SEE WHAT THE DATA IS TELLING US."],
+      bodyParagraphs: [
+        `Hi ${firstName}, you just reached an important moment in your Body Shaper System journey.`,
+        `You're officially halfway through your ${systemName}. ✦`,
+        "Over the first half of your System, your body has been giving us information — through your measurements, body composition, progress and the way it has responded session by session.",
+        "Now we have enough data to start connecting the dots.",
+        "Your Midpoint Data™ compares where you started with where your body is today so we can understand what changed, what's working, what may need more support, and how we approach your next phase.",
+        "This isn't about changing the plan simply for the sake of changing it. Sometimes the best next step is to continue exactly as planned. Other times, your body gives us a signal that allows us to refine your strategy.",
+        "Your body changed. Now your data gets to tell the story.",
+      ],
+      ctaLabel: "View My Midpoint Data",
+      ctaUrl: "https://www.bodyshapersystem.com/portal/blueprint",
+      closingText: "Your Midpoint Data lives inside your Body Blueprint™, where you'll be able to compare your progress and see how your body is responding.",
+    }),
+  };
+}
+
+export function buildMidpointDataMissingEmail(params: { firstName: string; systemName: string }): { subject: string; html: string } {
+  const { firstName, systemName } = params;
+  return {
+    subject: "You're halfway there ✦ Let's update your Blueprint",
+    html: emailShell({
+      eyebrowScript: "your midpoint review is ready.",
+      headline: "let's update",
+      headlineAccent: "your blueprint.",
+      subheadlineLines: ["WE JUST NEED YOUR UPDATED DATA."],
+      bodyParagraphs: [
+        `Hi ${firstName}, you've officially reached the halfway point of your ${systemName}. ✦`,
+        "This is one of the most important checkpoints in your journey because your body has now had time to respond to the first phase of your System.",
+        "Before we unlock your Midpoint Data™, we need to update your Body Blueprint.",
+        "Your new measurements and body-composition data allow us to compare where you started to where you are now, and understand how your body is responding before we move into the second half of your System.",
+      ],
+      ctaLabel: "Update My Body Blueprint",
+      ctaUrl: "https://www.bodyshapersystem.com/portal/blueprint",
+      closingText: "Halfway isn't just a milestone. It's where your progress starts becoming strategy.",
+    }),
+  };
+}
+

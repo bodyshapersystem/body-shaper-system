@@ -260,6 +260,7 @@ model Client {
   dailyTrackers        DailyTracker[]
   peptideLogs          PeptideLog[]
   peptideProtocols     PeptideProtocol[]
+  midpointReviews      MidpointReview[]
   collaboration        Collaboration?
   referrals            Lead[]           @relation("ClientReferrals")
   formSubmissions      FormSubmission[]
@@ -416,6 +417,7 @@ model BlueprintAssessment {
   specialistObservations SpecialistObservation[]
   strategyChanges        StrategyChange[]
   progressSnapshots      ProgressSnapshot[]
+  midpointReviews        MidpointReview[]
 
   @@unique([clientId, version])
   @@map("blueprint_assessments")
@@ -663,6 +665,56 @@ model Notification {
   createdAt   DateTime             @default(now())
 
   @@map("notifications")
+}
+
+model MidpointReview {
+  id           String              @id @default(cuid())
+  clientId     String
+  client       Client              @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  assessmentId String
+  assessment   BlueprintAssessment @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
+
+  triggeredAt      DateTime  @default(now()) // when the session completing 50% was marked COMPLETED
+  hasSufficientData Boolean  @default(false)
+
+  // Baseline vs. midpoint snapshots — captured once and frozen, so
+  // this screen never silently shifts if later scans/measurements
+  // are added. Weight/composition from Measurement (RENPHO); waist
+  // from BodyMeasurement (tape).
+  baselineWeightKg         Float?
+  baselineBodyFatPercent   Float?
+  baselineMuscleMassKg     Float?
+  baselineSkeletalMuscleKg Float?
+  baselineBodyWaterPercent Float?
+  baselineWaistCm          Float?
+
+  midpointWeightKg         Float?
+  midpointBodyFatPercent   Float?
+  midpointMuscleMassKg     Float?
+  midpointSkeletalMuscleKg Float?
+  midpointBodyWaterPercent Float?
+  midpointWaistCm          Float?
+
+  insightText        String? // "Your Midpoint Insight" plain-language read of the comparison
+  nextPhaseCategory  String? // CONTINUE | MUSCLE_SUPPORT | FIRMNESS_SUPPORT | TISSUE_SUPPORT | SYSTEM_EVOLUTION
+  nextPhaseCopy      String? // the category's body copy (may be Owner-edited)
+  suggestedAddOn     String? // "EMS" | "Exilis" | "Endospheres" | a System name — display only, not auto-sold
+
+  // CONTINUE never needs review (no commercial ask). Every other
+  // category is gated: NOT_APPLICABLE (n/a, i.e. CONTINUE) |
+  // PENDING_REVIEW | APPROVED | DECLINED. Only APPROVED is ever shown
+  // to the client for a commercial category.
+  reviewStatus String    @default("NOT_APPLICABLE")
+  reviewedById String?
+  reviewedAt   DateTime?
+
+  dataReadyEmailSent   Boolean @default(false)
+  dataMissingEmailSent Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("midpoint_reviews")
 }
 
 model PeptideProtocol {
@@ -1161,6 +1213,8 @@ enum EmailTemplate {
   FIRST_SESSION_CHECKIN
   NEW_PROGRESS_PHOTOS
   GOOGLE_REVIEW_REQUEST
+  MIDPOINT_DATA_READY
+  MIDPOINT_DATA_MISSING
 }
 
 enum EmailStatus {

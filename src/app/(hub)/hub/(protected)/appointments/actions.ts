@@ -3,9 +3,10 @@
 import { prisma } from "@/lib/prisma";
 import { getCurrentHubUser, hasPermission } from "@/lib/permissions";
 import { revalidatePath } from "next/cache";
-import { sendAppointmentConfirmationEmail, sendSystemCompletedEmail } from "@/lib/email/service";
+import { sendAppointmentConfirmationEmail, sendSystemCompletedEmail, sendMidpointDataReadyEmail, sendMidpointDataMissingEmail } from "@/lib/email/service";
 import { createNotification } from "@/lib/notifications";
 import { getBusinessTimezone, formatDateInTimezone, formatTimeInTimezone } from "@/lib/format-datetime";
+import { isMidpointEligible, getOrCreateMidpointReview } from "@/lib/midpoint";
 
 export async function createAppointment(formData: FormData) {
   const user = await getCurrentHubUser();
@@ -148,6 +149,32 @@ export async function updateAppointment(
           description: `${client.firstName} ${client.lastName} completed their ${assessment?.recommendedSystem ?? "Personalized System™"}`,
           linkUrl: `/hub/clients/${client.id}`,
         });
+      }
+
+      // Real Midpoint Data™ trigger — fires once, the first time
+      // completed sessions cross 50% of the validated total. Never
+      // hardcoded to a specific session number, and never re-fires
+      // (getOrCreateMidpointReview returns the existing row if one's
+      // already on file for this assessment).
+      if (assessment && isMidpointEligible(completedCount, totalSessions)) {
+        const alreadyExists = await prisma.midpointReview.findFirst({ where: { assessmentId: assessment.id } });
+        if (!alreadyExists) {
+          const review = await getOrCreateMidpointReview(client.id, assessment.id);
+          const systemName = assessment.recommendedSystem ?? "Personalized System™";
+          if (review.hasSufficientData) {
+            await sendMidpointDataReadyEmail({ clientId: client.id, firstName: client.firstName, email: client.email, systemName }).catch(() => undefined);
+            await prisma.midpointReview.update({ where: { id: review.id }, data: { dataReadyEmailSent: true } });
+          } else {
+            await sendMidpointDataMissingEmail({ clientId: client.id, firstName: client.firstName, email: client.email, systemName }).catch(() => undefined);
+            await prisma.midpointReview.update({ where: { id: review.id }, data: { dataMissingEmailSent: true } });
+          }
+          await createNotification({
+            clientId: client.id,
+            category: "GENERAL",
+            description: `${client.firstName} ${client.lastName} reached their Midpoint — ${review.hasSufficientData ? "data ready for review" : "awaiting updated Blueprint"}`,
+            linkUrl: `/hub/clients/${client.id}`,
+          });
+        }
       }
     }
   }

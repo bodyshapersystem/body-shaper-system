@@ -8,6 +8,8 @@ import {
   buildPaymentConfirmationEmail,
   buildSystemDepositReceivedEmail,
   buildGoogleReviewRequestEmail,
+  buildMidpointDataReadyEmail,
+  buildMidpointDataMissingEmail,
   buildPaymentReminderEmail,
   buildFirstSessionCheckinEmail,
   buildBlueprintReceivedEmail,
@@ -54,7 +56,9 @@ type EmailTemplateName =
   | "WE_MISS_YOU"
   | "FIRST_SESSION_CHECKIN"
   | "NEW_PROGRESS_PHOTOS"
-  | "GOOGLE_REVIEW_REQUEST";
+  | "GOOGLE_REVIEW_REQUEST"
+  | "MIDPOINT_DATA_READY"
+  | "MIDPOINT_DATA_MISSING";
 
 async function logAndSend(params: {
   clientId?: string;
@@ -461,4 +465,16 @@ export async function sendWeMissYouEmail(params: {
     blueprintUrl: "https://form.jotform.com/beautyboxmia/lets-build-your-blueprint",
   });
   return logAndSend({ clientId, template: "WE_MISS_YOU", sender: SENDERS.concierge, recipient: email, subject, html });
+}
+
+export async function sendMidpointDataReadyEmail(params: { clientId: string; firstName: string; email: string; systemName: string }) {
+  const { clientId, firstName, email, systemName } = params;
+  const { subject, html } = buildMidpointDataReadyEmail({ firstName, systemName });
+  return logAndSend({ clientId, template: "MIDPOINT_DATA_READY", sender: SENDERS.concierge, recipient: email, subject, html });
+}
+
+export async function sendMidpointDataMissingEmail(params: { clientId: string; firstName: string; email: string; systemName: string }) {
+  const { clientId, firstName, email, systemName } = params;
+  const { subject, html } = buildMidpointDataMissingEmail({ firstName, systemName });
+  return logAndSend({ clientId, template: "MIDPOINT_DATA_MISSING", sender: SENDERS.concierge, recipient: email, subject, html });
 }
