@@ -1,8 +1,8 @@
 import { redirect } from "next/navigation";
 import { getCurrentPortalClient } from "@/lib/permissions";
 import { prisma } from "@/lib/prisma";
-import { computeStreak, computeAchievements, type TrackerDay } from "@/lib/daily-tracker-scoring";
-import TrackersView from "./TrackersView";
+import { computeStreak, type TrackerDay } from "@/lib/daily-tracker-scoring";
+import TodayView from "./TodayView";
 
 export const dynamic = "force-dynamic";
 
@@ -41,22 +41,10 @@ export default async function DailyTrackersPage() {
   }));
 
   const streak = computeStreak(days);
-  const achievements = computeAchievements(days, streak);
-
-  const weightHistory = recentTrackers
-    .filter((t) => t.weightLbs !== null)
-    .map((t) => ({ date: t.date.toISOString(), weightLbs: t.weightLbs as number }))
-    .reverse();
-
-  const peptideLogs = await prisma.peptideLog.findMany({
-    where: { clientId: client.id },
-    orderBy: { administeredAt: "desc" },
-    take: 30,
-  });
 
   return (
-    <div className="cat-body portal-page">
-      <TrackersView
+    <div className="cat-body portal-page dtj-page-wrap">
+      <TodayView
         firstName={client.firstName}
         todayTracker={
           todayTracker
@@ -78,15 +66,6 @@ export default async function DailyTrackersPage() {
         }
         days={days}
         streak={streak}
-        achievements={achievements}
-        weightHistory={weightHistory}
-        peptideLogs={peptideLogs.map((p) => ({
-          id: p.id,
-          peptideName: p.peptideName,
-          administeredAt: p.administeredAt.toISOString(),
-          dosage: p.dosage,
-          notes: p.notes,
-        }))}
       />
     </div>
   );
