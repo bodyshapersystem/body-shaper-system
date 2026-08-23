@@ -4320,3 +4320,28 @@
 }
 .dtj-smart-reminders-card span{ font-size:11px; text-transform:uppercase; letter-spacing:0.04em; color:var(--mocha); }
 .dtj-smart-reminders-card p{ font-size:12.5px; color:var(--charcoal); margin:2px 0 0; }
+
+/* ---- Insights / Body Response Timeline™ ---- */
+.dtj-summary-card{ background:#fff; border-radius:16px; padding:16px 18px; margin:16px 0 20px; border:1px solid rgba(107,82,64,0.1); }
+.dtj-summary-stats{ display:flex; justify-content:space-between; margin-top:8px; }
+.dtj-summary-stats div{ display:flex; flex-direction:column; align-items:center; }
+.dtj-summary-stats strong{ font-family:var(--serif); font-size:24px; color:var(--charcoal); }
+.dtj-summary-stats span{ font-family:var(--sans); font-size:10px; color:var(--taupe); text-transform:lowercase; margin-top:2px; }
+
+.dtj-timeline{ margin-bottom:14px; }
+.dtj-timeline-row{ display:flex; gap:12px; }
+.dtj-timeline-marker-col{ display:flex; flex-direction:column; align-items:center; }
+.dtj-timeline-icon{
+  width:32px; height:32px; border-radius:50%; background:#fff; border:1px solid rgba(107,82,64,0.15);
+  display:flex; align-items:center; justify-content:center; font-size:14px; flex-shrink:0;
+}
+.dtj-timeline-line{ width:1px; flex:1; background:rgba(107,82,64,0.15); min-height:22px; }
+.dtj-timeline-content{ padding-bottom:18px; }
+.dtj-timeline-when{ font-family:var(--sans); font-size:10.5px; color:var(--taupe); margin:0 0 2px; }
+.dtj-timeline-title{ font-family:var(--sans); font-size:13px; color:var(--charcoal); margin:0; font-weight:500; }
+.dtj-timeline-detail{ font-family:var(--sans); font-size:11.5px; color:var(--taupe); margin:2px 0 0; }
+
+.dtj-view-all-btn{
+  width:100%; padding:12px; border-radius:24px; border:1px solid var(--mocha); background:transparent;
+  color:var(--mocha); font-family:var(--sans); font-size:12.5px; cursor:pointer; margin-bottom:14px;
+}
