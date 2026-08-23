@@ -11,9 +11,9 @@ export default async function PeptideJourneyPage({ searchParams }: { searchParam
 
   const { preview } = await searchParams;
 
-  const [protocol, logs, activeAssessment] = await Promise.all([
-    prisma.peptideProtocol.findFirst({ where: { clientId: client.id, active: true }, orderBy: { updatedAt: "desc" } }),
-    prisma.peptideLog.findMany({ where: { clientId: client.id }, orderBy: { administeredAt: "desc" }, take: 30 }),
+  const [protocols, logs, activeAssessment] = await Promise.all([
+    prisma.peptideProtocol.findMany({ where: { clientId: client.id, active: true }, orderBy: { createdAt: "asc" } }),
+    prisma.peptideLog.findMany({ where: { clientId: client.id }, orderBy: { administeredAt: "desc" }, take: 50 }),
     prisma.blueprintAssessment.findFirst({
       where: { clientId: client.id, status: { in: ["ACTIVE", "VALIDATED", "IN_PROGRESS", "COMPLETED"] } },
       orderBy: { version: "desc" },
@@ -26,24 +26,20 @@ export default async function PeptideJourneyPage({ searchParams }: { searchParam
       <JourneyView
         currentSystemName={activeAssessment?.recommendedSystem ?? null}
         forceWelcome={preview === "welcome"}
-        protocol={
-          protocol
-            ? {
-                id: protocol.id,
-                peptideName: protocol.peptideName,
-                goalCategory: protocol.goalCategory,
-                customGoal: protocol.customGoal,
-                dose: protocol.dose,
-                frequency: protocol.frequency,
-                injectionDays: protocol.injectionDays,
-                injectionTime: protocol.injectionTime,
-                injectionSite: protocol.injectionSite,
-                provider: protocol.provider,
-                reminderEnabled: protocol.reminderEnabled,
-                refillOrderByDate: protocol.refillOrderByDate ? protocol.refillOrderByDate.toISOString() : null,
-              }
-            : null
-        }
+        protocols={protocols.map((protocol) => ({
+          id: protocol.id,
+          peptideName: protocol.peptideName,
+          goalCategory: protocol.goalCategory,
+          customGoal: protocol.customGoal,
+          dose: protocol.dose,
+          frequency: protocol.frequency,
+          injectionDays: protocol.injectionDays,
+          injectionTime: protocol.injectionTime,
+          injectionSite: protocol.injectionSite,
+          provider: protocol.provider,
+          reminderEnabled: protocol.reminderEnabled,
+          refillOrderByDate: protocol.refillOrderByDate ? protocol.refillOrderByDate.toISOString() : null,
+        }))}
         logs={logs.map((l) => ({
           id: l.id,
           peptideName: l.peptideName,

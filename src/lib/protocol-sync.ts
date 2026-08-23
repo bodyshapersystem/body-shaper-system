@@ -34,8 +34,8 @@ export async function getWeekSync(clientId: string): Promise<{
   const weekEnd = new Date(weekStart);
   weekEnd.setDate(weekEnd.getDate() + 7);
 
-  const [protocol, peptideLogs, appointments, todayTracker] = await Promise.all([
-    prisma.peptideProtocol.findFirst({ where: { clientId, active: true } }),
+  const [protocols, peptideLogs, appointments, todayTracker] = await Promise.all([
+    prisma.peptideProtocol.findMany({ where: { clientId, active: true } }),
     prisma.peptideLog.findMany({ where: { clientId, administeredAt: { gte: weekStart, lt: weekEnd } } }),
     prisma.appointment.findMany({ where: { clientId, startsAt: { gte: weekStart, lt: weekEnd } }, orderBy: { startsAt: "asc" } }),
     prisma.dailyTracker.findFirst({ where: { clientId, date: { gte: new Date(now.toDateString()) } }, orderBy: { date: "desc" } }),
@@ -43,8 +43,10 @@ export async function getWeekSync(clientId: string): Promise<{
 
   const tasks: WeekTask[] = [];
 
-  // Peptide injection occurrences this week, from the active protocol's schedule.
-  if (protocol) {
+  // Peptide injection occurrences this week, across every active
+  // protocol — a client doing 2-3 peptides together gets each one's
+  // schedule represented, not just a single protocol's.
+  for (const protocol of protocols) {
     for (let i = 0; i < 7; i++) {
       const day = new Date(weekStart);
       day.setDate(day.getDate() + i);
@@ -56,11 +58,11 @@ export async function getWeekSync(clientId: string): Promise<{
       const scheduledAt = new Date(day);
       scheduledAt.setHours(h, m, 0, 0);
 
-      const loggedThatDay = peptideLogs.some((l) => l.administeredAt.toDateString() === day.toDateString());
+      const loggedThatDay = peptideLogs.some((l) => l.peptideName === protocol.peptideName && l.administeredAt.toDateString() === day.toDateString());
       const status: WeekTask["status"] = loggedThatDay ? "complete" : scheduledAt < now ? "skipped" : "pending";
 
       tasks.push({
-        id: `peptide-${i}`,
+        id: `peptide-${protocol.id}-${i}`,
         label: `${protocol.peptideName} Injection`,
         detail: `${day.toLocaleDateString("en-US", { weekday: "short" })} · ${scheduledAt.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })}`,
         status,
