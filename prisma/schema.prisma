@@ -259,6 +259,7 @@ model Client {
   notifications        Notification[]
   dailyTrackers        DailyTracker[]
   peptideLogs          PeptideLog[]
+  peptideProtocols     PeptideProtocol[]
   collaboration        Collaboration?
   referrals            Lead[]           @relation("ClientReferrals")
   formSubmissions      FormSubmission[]
@@ -662,6 +663,28 @@ model Notification {
   @@map("notifications")
 }
 
+model PeptideProtocol {
+  id                String    @id @default(cuid())
+  clientId          String
+  client            Client    @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  peptideName       String
+  dose              String?
+  frequency         String // "Daily" | "Weekly" | "Bi-weekly" | "Custom"
+  injectionDays     String[] @default([]) // e.g. ["MON"] for weekly
+  injectionTime     String // 24h "HH:MM"
+  injectionSite     String?
+  protocolStartDate DateTime?
+  provider          String?
+  notes             String?
+  reminderEnabled   Boolean   @default(true)
+  refillOrderByDate DateTime?
+  active            Boolean   @default(true)
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  @@map("peptide_protocols")
+}
+
 model PeptideLog {
   id             String   @id @default(cuid())
   clientId       String
@@ -669,7 +692,19 @@ model PeptideLog {
   peptideName    String
   administeredAt DateTime // real date + time the client actually took it
   dosage         String?
+  injectionSite  String?
   notes          String?
+
+  // Post-injection check-in — real, self-reported, 1-5 dot ratings.
+  // This is tracking/adherence only; never used to suggest dose changes.
+  appetite  Int?
+  energy    Int?
+  bloating  Int?
+  digestion Int?
+  sleepRating Int?
+  mood      Int?
+  nausea    Int?
+
   createdAt      DateTime @default(now())
 
   @@map("peptide_logs")

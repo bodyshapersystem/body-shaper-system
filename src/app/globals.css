@@ -4233,3 +4233,52 @@
   padding:16px; margin-bottom:12px;
 }
 .dtj-footer-tag{ text-align:center; font-family:var(--sans); font-size:10px; letter-spacing:0.05em; color:var(--taupe); margin-top:8px; }
+
+/* ---- Peptide Journey™ ---- */
+.dtj-page-title{ font-family:var(--serif); font-style:italic; font-size:19px; color:var(--charcoal); margin:0; }
+.dtj-page-sub{ font-family:var(--sans); font-size:12.5px; color:var(--taupe); margin-top:4px; }
+.dtj-journey-header{ display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; }
+.dtj-link-small{ background:none; border:none; color:var(--mocha); font-family:var(--sans); font-size:11.5px; text-decoration:underline; cursor:pointer; }
+.dtj-field-label{ display:block; font-family:var(--sans); font-size:10.5px; letter-spacing:0.04em; text-transform:uppercase; color:var(--taupe); margin:10px 0 5px; }
+
+.dtj-vial-card{
+  display:flex; gap:14px; align-items:center; background:#fff; border-radius:16px; padding:16px;
+  margin-bottom:14px; border:1px solid rgba(107,82,64,0.1);
+}
+.dtj-vial-icon{ font-size:34px; }
+.dtj-vial-name{ font-family:var(--serif); font-size:17px; color:var(--charcoal); }
+
+.dtj-protocol-rows{ background:#fff; border-radius:16px; padding:6px 16px; margin-bottom:14px; border:1px solid rgba(107,82,64,0.1); }
+.dtj-protocol-row{
+  display:flex; justify-content:space-between; align-items:center; padding:11px 0;
+  border-bottom:1px solid rgba(107,82,64,0.08); font-family:var(--sans); font-size:13px;
+}
+.dtj-protocol-row:last-child{ border-bottom:none; }
+.dtj-protocol-row span{ color:var(--taupe); }
+.dtj-protocol-row strong{ color:var(--charcoal); font-weight:500; }
+
+.dtj-toggle{ width:38px; height:22px; border-radius:12px; background:rgba(107,82,64,0.2); border:none; position:relative; cursor:pointer; }
+.dtj-toggle-on{ background:var(--mocha); }
+.dtj-toggle-dot{ position:absolute; top:2px; left:2px; width:18px; height:18px; border-radius:50%; background:#fff; transition:left .2s ease; }
+.dtj-toggle-on .dtj-toggle-dot{ left:18px; }
+
+.dtj-next-injection-card{
+  background:var(--mocha); color:var(--ivory); border-radius:16px; padding:16px 18px; margin-bottom:12px; text-align:center;
+}
+.dtj-next-injection-date{ font-family:var(--serif); font-size:18px; margin:2px 0; }
+.dtj-next-injection-countdown{ font-family:var(--sans); font-size:12px; color:var(--rose); }
+
+.dtj-refill-card{
+  display:flex; justify-content:space-between; align-items:center; background:#fff; border:1px solid rgba(107,82,64,0.15);
+  border-radius:14px; padding:12px 16px; margin-bottom:14px; font-family:var(--sans); font-size:12.5px; color:var(--charcoal);
+}
+
+.dtj-log-btn{
+  width:100%; padding:14px; border-radius:24px; border:none; background:var(--rose); color:#fff;
+  font-family:var(--sans); font-size:13.5px; letter-spacing:0.02em; cursor:pointer; margin-bottom:14px;
+}
+
+.dtj-dotrow{ display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; font-family:var(--sans); font-size:12.5px; color:var(--charcoal); }
+.dtj-dotrow-dots{ display:flex; gap:5px; }
+.dtj-rating-dot{ width:16px; height:16px; border-radius:50%; border:1.5px solid var(--rose); background:transparent; cursor:pointer; padding:0; }
+.dtj-rating-dot-filled{ background:var(--rose); }
