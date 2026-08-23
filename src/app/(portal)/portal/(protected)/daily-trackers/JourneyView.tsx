@@ -35,6 +35,27 @@ type LogEntry = {
 };
 
 const DAY_CHIPS = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
+
+function VialIcon() {
+  return (
+    <svg width="52" height="68" viewBox="0 0 52 68" fill="none" className="dtj-vial-svg">
+      <rect x="16" y="2" width="20" height="9" rx="2" fill="var(--rose)" />
+      <rect x="16" y="2" width="20" height="3" rx="1.5" fill="var(--mocha)" opacity="0.4" />
+      <rect x="18" y="11" width="16" height="5" fill="#D8CFC2" />
+      <path
+        d="M14 16h24v38a6 6 0 0 1-6 6H20a6 6 0 0 1-6-6V16z"
+        fill="rgba(255,255,255,0.5)"
+        stroke="var(--mocha)"
+        strokeWidth="1.4"
+      />
+      <line x1="18" y1="34" x2="34" y2="34" stroke="var(--mocha)" strokeWidth="1" opacity="0.5" />
+      <line x1="18" y1="39" x2="30" y2="39" stroke="var(--mocha)" strokeWidth="1" opacity="0.5" />
+      <line x1="18" y1="44" x2="32" y2="44" stroke="var(--mocha)" strokeWidth="1" opacity="0.35" />
+      <path d="M15 40h22v13a5 5 0 0 1-5 5H20a5 5 0 0 1-5-5V40z" fill="var(--rose)" opacity="0.25" />
+    </svg>
+  );
+}
+
 const CHECKIN_ROWS: { key: keyof LogEntry; label: string }[] = [
   { key: "appetite", label: "Appetite" },
   { key: "energy", label: "Energy" },
@@ -185,7 +206,7 @@ export default function JourneyView({ protocol, logs }: { protocol: Protocol; lo
       </div>
 
       <div className="dtj-vial-card">
-        <div className="dtj-vial-icon">💊</div>
+        <VialIcon />
         <div className="dtj-vial-info">
           <p className="dtj-mini-label">selected peptide</p>
           <p className="dtj-vial-name">{protocol!.peptideName}</p>

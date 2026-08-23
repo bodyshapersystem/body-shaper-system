@@ -4245,7 +4245,7 @@
   display:flex; gap:14px; align-items:center; background:#fff; border-radius:16px; padding:16px;
   margin-bottom:14px; border:1px solid rgba(107,82,64,0.1);
 }
-.dtj-vial-icon{ font-size:34px; }
+.dtj-vial-svg{ flex-shrink:0; }
 .dtj-vial-name{ font-family:var(--serif); font-size:17px; color:var(--charcoal); }
 
 .dtj-protocol-rows{ background:#fff; border-radius:16px; padding:6px 16px; margin-bottom:14px; border:1px solid rgba(107,82,64,0.1); }
@@ -4282,3 +4282,41 @@
 .dtj-dotrow-dots{ display:flex; gap:5px; }
 .dtj-rating-dot{ width:16px; height:16px; border-radius:50%; border:1.5px solid var(--rose); background:transparent; cursor:pointer; padding:0; }
 .dtj-rating-dot-filled{ background:var(--rose); }
+
+/* ---- Protocol Sync™ ---- */
+.dtj-consistency-card{
+  display:flex; justify-content:space-between; align-items:center; background:#fff; border-radius:16px;
+  padding:16px 18px; margin:16px 0; border:1px solid rgba(107,82,64,0.1);
+}
+.dtj-consistency-num{ font-family:var(--serif); font-size:34px; color:var(--charcoal); line-height:1.1; }
+.dtj-consistency-ring{ width:56px; height:56px; border-radius:50%; display:flex; align-items:center; justify-content:center; }
+.dtj-consistency-ring-inner{ width:44px; height:44px; border-radius:50%; background:#fff; display:flex; align-items:center; justify-content:center; color:var(--rose); font-size:16px; }
+
+.dtj-week-row{ display:flex; justify-content:space-between; margin-bottom:18px; }
+.dtj-week-day{
+  display:flex; flex-direction:column; align-items:center; gap:4px; font-family:var(--sans); font-size:11px;
+  color:var(--taupe); width:32px; height:52px; justify-content:center; border-radius:16px;
+}
+.dtj-week-day-today{ background:var(--mocha); color:var(--ivory); }
+.dtj-week-daynum{ font-family:var(--serif); font-size:14px; }
+
+.dtj-task-list{ margin-bottom:16px; }
+.dtj-task-row{
+  display:flex; align-items:center; gap:12px; background:#fff; border-radius:14px; padding:12px 14px;
+  margin-bottom:8px; border:1px solid rgba(107,82,64,0.1);
+}
+.dtj-task-icon{ font-size:17px; }
+.dtj-task-info{ flex:1; }
+.dtj-task-label{ font-family:var(--sans); font-size:13px; color:var(--charcoal); margin:0; }
+.dtj-task-detail{ font-family:var(--sans); font-size:11px; color:var(--taupe); margin:1px 0 0; }
+.dtj-status-mark{ width:22px; height:22px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:12px; flex-shrink:0; }
+.dtj-status-complete{ background:var(--mocha); color:#fff; }
+.dtj-status-skipped{ background:rgba(178,74,82,0.15); color:#B24A52; }
+.dtj-status-pending{ border:1.5px solid rgba(107,82,64,0.25); }
+
+.dtj-smart-reminders-card{
+  background:rgba(199,158,147,0.15); border-radius:14px; padding:12px 16px; margin-bottom:12px;
+  font-family:var(--sans);
+}
+.dtj-smart-reminders-card span{ font-size:11px; text-transform:uppercase; letter-spacing:0.04em; color:var(--mocha); }
+.dtj-smart-reminders-card p{ font-size:12.5px; color:var(--charcoal); margin:2px 0 0; }
