@@ -1,6 +1,8 @@
 "use client";
 
 import type { WeekTask } from "@/lib/protocol-sync";
+import type { AddonType } from "@/lib/tech-support-config";
+import TechSupportSection from "./TechSupportSection";
 
 function consistencyTier(score: number): string {
   if (score >= 90) return "excellent";
@@ -19,10 +21,14 @@ export default function ProtocolSyncView({
   tasks,
   consistencyScore,
   weekDays,
+  systemName,
+  allowedAddons,
 }: {
   tasks: WeekTask[];
   consistencyScore: number;
   weekDays: { label: string; dateNum: number; isToday: boolean }[];
+  systemName: string | null;
+  allowedAddons: AddonType[];
 }) {
   return (
     <div className="dtj-today">
@@ -62,6 +68,8 @@ export default function ProtocolSyncView({
           </div>
         ))}
       </div>
+
+      <TechSupportSection allowedAddons={allowedAddons} systemName={systemName} />
 
       <div className="dtj-smart-reminders-card">
         <span>smart reminders</span>

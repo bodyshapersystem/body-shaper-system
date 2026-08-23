@@ -261,6 +261,7 @@ model Client {
   peptideLogs          PeptideLog[]
   peptideProtocols     PeptideProtocol[]
   midpointReviews      MidpointReview[]
+  techSupportPurchases TechSupportPurchase[]
   collaboration        Collaboration?
   referrals            Lead[]           @relation("ClientReferrals")
   formSubmissions      FormSubmission[]
@@ -665,6 +666,23 @@ model Notification {
   createdAt   DateTime             @default(now())
 
   @@map("notifications")
+}
+
+model TechSupportPurchase {
+  id              String    @id @default(cuid())
+  clientId        String
+  client          Client    @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  systemName      String // client's System at time of purchase — display only, doesn't imply the System itself changed
+  addonType       String // "EMS" | "Exilis" | "Endospheres"
+  sessionsAdded   Int
+  amountCents     Int
+  stripeSessionId String?   @unique
+  status          String    @default("PENDING") // PENDING | PAID
+  bookingStatus   String    @default("NOT_BOOKED") // NOT_BOOKED | BOOKED
+  purchasedAt     DateTime?
+  createdAt       DateTime  @default(now())
+
+  @@map("tech_support_purchases")
 }
 
 model MidpointReview {

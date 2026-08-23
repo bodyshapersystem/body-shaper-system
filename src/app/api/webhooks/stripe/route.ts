@@ -31,6 +31,12 @@ export const dynamic = "force-dynamic";
  *    CUSTOM_AMOUNT Payment and sends the standard payment
  *    confirmation email.
  *
+ *  - "tech_support_addon" (Portal → Protocol Sync™ → Tech Support™):
+ *    an existing, already-authenticated client buying individual
+ *    EMS/Exilis/Endospheres sessions to add to their current System.
+ *    Records a real TechSupportPurchase (not a generic Payment) so
+ *    the Hub can see it distinctly from deposits/full payments.
+ *
  * Both branches share the same real client creation/lookup
  * (findOrCreateClientFromCheckout) and are idempotent — checks for an
  * existing Payment with this Checkout Session ID as its reference
@@ -76,6 +82,59 @@ export async function POST(request: NextRequest) {
 
   const owner = await prisma.user.findFirst({ where: { email: "hello@bodyshapersystem.com" } });
   const systemUserId = owner?.id;
+
+  // tech_support_addon: an existing, authenticated client bought
+  // individual add-on sessions for their current System. Records a
+  // real TechSupportPurchase, distinct from Payment, so the Hub can
+  // track add-on sessions and booking status separately.
+  if (flowType === "tech_support_addon") {
+    const clientId = meta.clientId;
+    const addonType = meta.addonType;
+    const sessions = Number(meta.sessions ?? 1);
+    const systemName = meta.systemName || "Personalized System™";
+    if (!clientId || !addonType) {
+      console.error("[stripe-webhook] missing clientId/addonType for tech_support_addon", session.id, meta);
+      return NextResponse.json({ error: "Missing clientId or addonType." }, { status: 400 });
+    }
+    const client = await prisma.client.findUnique({ where: { id: clientId } });
+    if (!client) {
+      console.error("[stripe-webhook] client not found for tech_support_addon", clientId);
+      return NextResponse.json({ error: "Client not found." }, { status: 400 });
+    }
+
+    const existing = await prisma.techSupportPurchase.findFirst({ where: { stripeSessionId: session.id } });
+    if (existing) return NextResponse.json({ received: true, clientId, flowType, alreadyProcessed: true });
+
+    await prisma.techSupportPurchase.create({
+      data: {
+        clientId,
+        systemName,
+        addonType,
+        sessionsAdded: sessions,
+        amountCents: session.amount_total ?? 0,
+        stripeSessionId: session.id,
+        status: "PAID",
+        purchasedAt: new Date(),
+      },
+    });
+
+    await sendPaymentConfirmationEmail({
+      clientId,
+      firstName: client.firstName,
+      email: client.email,
+      amountLabel: `$${((session.amount_total ?? 0) / 100).toFixed(2)}`,
+      portalUrl: "https://www.bodyshapersystem.com/portal/daily-trackers/protocol",
+    }).catch(() => undefined);
+
+    await createNotification({
+      clientId,
+      category: "APPOINTMENTS",
+      description: `${client.firstName} ${client.lastName} added ${sessions} ${addonType} session${sessions > 1 ? "s" : ""} to their ${systemName} — SYSTEM ADD-ON PURCHASED`,
+      linkUrl: `/hub/clients/${clientId}`,
+    });
+
+    return NextResponse.json({ received: true, clientId, flowType });
+  }
 
   // custom_payment_link: the client already exists (Emmy picked them
   // when generating the link in the Hub) — skip lead creation
