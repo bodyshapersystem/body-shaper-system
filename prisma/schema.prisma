@@ -240,6 +240,8 @@ model Client {
   // to false so nobody is unexpectedly required to complete it;
   // the Owner turns this on per-client when it genuinely applies.
   requiresContentRelease Boolean @default(false)
+  lastCelebratedMeasurementId     String? // Measurement.id of the last body-composition scan the client has already seen a Congratulations overlay for
+  lastCelebratedBodyMeasurementId String? // BodyMeasurement.id of the last tape-measurement session already celebrated
   address                String? // full street address — distinct from `city` (Service Zone)
   birthday               DateTime?
   importedLastAppointmentAt DateTime? // historical, from legacy import — real appointments use the Appointment table instead

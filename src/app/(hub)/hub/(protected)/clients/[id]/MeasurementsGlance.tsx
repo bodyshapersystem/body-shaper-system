@@ -3,6 +3,9 @@
 import { useState } from "react";
 import UnitToggle from "@/components/UnitToggle";
 import { formatLength, cmToIn, type LengthUnit } from "@/lib/units";
+import type { MetricChange } from "@/lib/progress-celebration";
+import ProgressCelebrationOverlay from "@/app/(portal)/portal/(protected)/blueprint/ProgressCelebrationOverlay";
+import { markMeasurementCelebrationSeen } from "@/app/(portal)/portal/(protected)/blueprint/celebration-actions";
 
 type LatestBodyMeasurement = {
   chestCm: number | null;
@@ -29,39 +32,42 @@ const FIELDS: { key: keyof NonNullable<LatestBodyMeasurement>; label: string }[]
 export default function MeasurementsGlance({
   latestBodyMeasurement,
   previousBodyMeasurement,
+  bodyMeasurementId,
+  celebration,
 }: {
   latestBodyMeasurement: LatestBodyMeasurement;
   previousBodyMeasurement?: LatestBodyMeasurement;
+  bodyMeasurementId?: string;
+  celebration?: { changes: MetricChange[]; closingPhrase: string; compareLabel: string; shareImageUrl: string } | null;
 }) {
   const [unit, setUnit] = useState<LengthUnit>("cm");
+  const [showCelebration, setShowCelebration] = useState(!!celebration);
 
   if (!latestBodyMeasurement) return null;
 
-  // Every circumference here — smaller is the goal, always (this is a
-  // body contouring business; treated consistently as "smaller =
-  // improved" for this glance view). Each win carries its real
-  // quantified delta (e.g. "-2.0 cm"), meant to be screenshot-worthy
-  // for the client to post, not just an internal note.
-  type Win = { label: string; deltaText: string };
-  const wins: Win[] = [];
-  const trends = new Map<string, "up" | "down">();
+  function dismissCelebration() {
+    setShowCelebration(false);
+    if (bodyMeasurementId) markMeasurementCelebrationSeen(bodyMeasurementId).catch(() => undefined);
+  }
+
+  // Neutral "Progress Since Last Measurement" — real deltas (any
+  // direction), no color judgment. Matches the same architecture as
+  // Body Composition: static tracking here, celebration lives in the
+  // separate Congratulations overlay below.
+  type Row = { label: string; deltaText: string; arrow: "up" | "down" | "flat" };
+  const rows: Row[] = [];
   for (const { key, label } of FIELDS) {
     const curr = latestBodyMeasurement[key];
     const prev = previousBodyMeasurement?.[key];
-    if (curr == null || prev == null || curr === prev) continue;
-    const wentDown = curr < prev;
-    trends.set(key, wentDown ? "down" : "up");
-    if (wentDown) {
-      const diffCm = Math.abs(curr - prev);
-      const diffDisplay = unit === "cm" ? diffCm : cmToIn(diffCm);
-      wins.push({ label, deltaText: `-${diffDisplay.toFixed(1)} ${unit}` });
+    if (curr == null || prev == null) continue;
+    const diffCm = curr - prev;
+    if (Math.abs(diffCm) < 0.05) {
+      rows.push({ label, deltaText: "→ stable", arrow: "flat" });
+      continue;
     }
-  }
-
-  function trendColor(key: string): string | undefined {
-    const t = trends.get(key);
-    if (!t) return undefined;
-    return t === "down" ? "#4a7a4a" : "#B24A52";
+    const diffDisplay = unit === "cm" ? diffCm : cmToIn(diffCm);
+    const arrow = diffCm > 0 ? "up" : "down";
+    rows.push({ label, deltaText: `${arrow === "up" ? "↑" : "↓"} ${Math.abs(diffDisplay).toFixed(1)} ${unit}`, arrow });
   }
 
   return (
@@ -69,27 +75,40 @@ export default function MeasurementsGlance({
       <div className="bbp-glance-header">
         <UnitToggle value={unit} options={["cm", "in"]} onChange={setUnit} dark />
       </div>
-      {wins.length > 0 && (
-        <div className="bbp-progress-card">
-          <p className="bbp-progress-card-title">🎉 Progress since last measurement</p>
-          <div className="bbp-progress-card-stats">
-            {wins.map((w) => (
-              <span key={w.label} className="bbp-progress-stat">
-                <strong>{w.deltaText}</strong>
-                <span>{w.label}</span>
+
+      <ul className="bbp-glance-list">
+        {FIELDS.map(({ key, label }) => (
+          <li key={key}>
+            <span>{label}</span>
+            <strong>{formatLength(latestBodyMeasurement[key], unit)}</strong>
+          </li>
+        ))}
+      </ul>
+
+      {rows.length > 0 && (
+        <div className="bbp-progress-neutral-card">
+          <p className="bbp-progress-card-title" style={{ fontStyle: "normal" }}>Progress Since Last Measurement</p>
+          <div className="bbp-progress-neutral-stats">
+            {rows.map((r) => (
+              <span key={r.label} className={`bbp-progress-neutral-stat bbp-arrow-${r.arrow}`}>
+                <strong>{r.deltaText}</strong>
+                <span>{r.label.toUpperCase()}</span>
               </span>
             ))}
           </div>
         </div>
       )}
-      <ul className="bbp-glance-list">
-        {FIELDS.map(({ key, label }) => (
-          <li key={key}>
-            <span>{label}</span>
-            <strong style={{ color: trendColor(key) }}>{formatLength(latestBodyMeasurement[key], unit)}</strong>
-          </li>
-        ))}
-      </ul>
+
+      {showCelebration && celebration && (
+        <ProgressCelebrationOverlay
+          category="MEASUREMENTS"
+          changes={celebration.changes}
+          closingPhrase={celebration.closingPhrase}
+          compareLabel={celebration.compareLabel}
+          shareImageUrl={celebration.shareImageUrl}
+          onDismiss={dismissCelebration}
+        />
+      )}
     </>
   );
 }

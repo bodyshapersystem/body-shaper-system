@@ -3,6 +3,9 @@
 import { useState } from "react";
 import UnitToggle from "@/components/UnitToggle";
 import { formatWeight, kgToLb, type WeightUnit } from "@/lib/units";
+import type { MetricChange } from "@/lib/progress-celebration";
+import ProgressCelebrationOverlay from "@/app/(portal)/portal/(protected)/blueprint/ProgressCelebrationOverlay";
+import { markCompositionCelebrationSeen } from "@/app/(portal)/portal/(protected)/blueprint/celebration-actions";
 
 type RenphoFields = {
   weightKg: number | null;
@@ -39,9 +42,25 @@ function computeDelta(curr: number | null, prev: number | null | undefined, deci
  * means depends on the client's actual goals — that's what the
  * "What Changed?" interpretation below is for, not color-coding.
  */
-export default function BodyCompositionGlance({ latestRenpho, previousRenpho }: { latestRenpho: LatestRenpho; previousRenpho?: LatestRenpho }) {
+export default function BodyCompositionGlance({
+  latestRenpho,
+  previousRenpho,
+  measurementId,
+  celebration,
+}: {
+  latestRenpho: LatestRenpho;
+  previousRenpho?: LatestRenpho;
+  measurementId?: string;
+  celebration?: { changes: MetricChange[]; closingPhrase: string; compareLabel: string; shareImageUrl: string } | null;
+}) {
   const [unit, setUnit] = useState<WeightUnit>("lb");
   const [detailsOpen, setDetailsOpen] = useState(false);
+  const [showCelebration, setShowCelebration] = useState(!!celebration);
+
+  function dismissCelebration() {
+    setShowCelebration(false);
+    if (measurementId) markCompositionCelebrationSeen(measurementId).catch(() => undefined);
+  }
 
   if (!latestRenpho) return null;
 
@@ -197,6 +216,17 @@ export default function BodyCompositionGlance({ latestRenpho, previousRenpho }: 
             <strong>{latestRenpho.smi?.toFixed(1) ?? "—"} kg/m²</strong>
           </li>
         </ul>
+      )}
+
+      {showCelebration && celebration && (
+        <ProgressCelebrationOverlay
+          category="BODY COMPOSITION"
+          changes={celebration.changes}
+          closingPhrase={celebration.closingPhrase}
+          compareLabel={celebration.compareLabel}
+          shareImageUrl={celebration.shareImageUrl}
+          onDismiss={dismissCelebration}
+        />
       )}
     </>
   );

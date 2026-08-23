@@ -17,6 +17,7 @@ import { getPhotoSignedUrl } from "./blueprint-actions";
 import { getBusinessTimezone, formatDateInTimezone } from "@/lib/format-datetime";
 import { computeBlueprintScore } from "@/lib/blueprint-score";
 import MidpointDataView from "./MidpointDataView";
+import { getPositiveCompositionChanges, getPositiveMeasurementChanges, getCompositionClosingPhrase, MEASUREMENTS_CLOSING_PHRASE } from "@/lib/progress-celebration";
 
 type ClientWithBlueprint = Prisma.ClientGetPayload<{
   include: {
@@ -267,6 +268,51 @@ export default async function BlueprintReport({
 
   const latestRenpho = assessment.renphoScans[0];
   const latestBodyMeasurement = assessment.bodyMeasurements[0];
+
+  // Congratulations overlay — real, computed positive-progress
+  // detection (never assumes an increase or decrease is automatically
+  // good; weight ↓ is only celebrated when it isn't the client's
+  // explicit weight-gain goal). Only ever shown to the client, and
+  // only once per new scan/measurement (client.lastCelebratedXId
+  // tracks what's already been shown).
+  const previousRenpho = assessment.renphoScans[1];
+  const compositionChanges =
+    mode === "client" && latestRenpho && previousRenpho
+      ? getPositiveCompositionChanges(latestRenpho, previousRenpho, assessment.treatmentInterests ?? "", "lb")
+      : [];
+  const shouldCelebrateComposition =
+    mode === "client" && latestRenpho != null && client.lastCelebratedMeasurementId !== latestRenpho.id && compositionChanges.length > 0;
+  const compositionCelebration = shouldCelebrateComposition
+    ? {
+        changes: compositionChanges,
+        closingPhrase: getCompositionClosingPhrase(compositionChanges),
+        compareLabel: previousRenpho
+          ? `between ${previousRenpho.scanDate.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })} and ${latestRenpho.scanDate.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}`
+          : "since your last scan",
+        shareImageUrl: `/api/blueprint/share-composition?measurementId=${latestRenpho.id}`,
+      }
+    : null;
+
+  const previousBodyMeasurement = assessment.bodyMeasurements[1];
+  const measurementChanges =
+    mode === "client" && latestBodyMeasurement && previousBodyMeasurement
+      ? getPositiveMeasurementChanges(latestBodyMeasurement, previousBodyMeasurement, "cm")
+      : [];
+  const shouldCelebrateMeasurements =
+    mode === "client" &&
+    latestBodyMeasurement != null &&
+    client.lastCelebratedBodyMeasurementId !== latestBodyMeasurement.id &&
+    measurementChanges.length > 0;
+  const measurementsCelebration = shouldCelebrateMeasurements
+    ? {
+        changes: measurementChanges,
+        closingPhrase: MEASUREMENTS_CLOSING_PHRASE,
+        compareLabel: previousBodyMeasurement
+          ? `between ${previousBodyMeasurement.measuredAt.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })} and ${latestBodyMeasurement.measuredAt.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}`
+          : "since your last check-in",
+        shareImageUrl: `/api/blueprint/share-measurements?bodyMeasurementId=${latestBodyMeasurement.id}`,
+      }
+    : null;
   const firstBodyMeasurement = assessment.bodyMeasurements[assessment.bodyMeasurements.length - 1];
   const photos = assessment.photos;
 
@@ -421,7 +467,7 @@ export default async function BlueprintReport({
               <p className="bbp-composition-copy">These numbers tell a story. We're here to rewrite it.</p>
               <span className="bbp-composition-rule" />
               {latestRenpho ? (
-                <BodyCompositionGlance latestRenpho={latestRenpho} previousRenpho={assessment.renphoScans[1]} />
+                <BodyCompositionGlance latestRenpho={latestRenpho} previousRenpho={assessment.renphoScans[1]} measurementId={latestRenpho?.id} celebration={compositionCelebration} />
               ) : (
                 <EmptyState title="no composition data yet." sub="Record a RENPHO scan to populate this section of the Blueprint." />
               )}
@@ -508,7 +554,7 @@ export default async function BlueprintReport({
             <p className="bbp-composition-copy">Your baseline — tracked with precision, session after session.</p>
             <span className="bbp-composition-rule" />
             {latestBodyMeasurement ? (
-              <MeasurementsGlance latestBodyMeasurement={latestBodyMeasurement} previousBodyMeasurement={assessment.bodyMeasurements[1]} />
+              <MeasurementsGlance latestBodyMeasurement={latestBodyMeasurement} previousBodyMeasurement={assessment.bodyMeasurements[1]} bodyMeasurementId={latestBodyMeasurement?.id} celebration={measurementsCelebration} />
             ) : (
               <EmptyState title="no measurements yet." sub="Professional measurements will be recorded during your first Blueprint Session™." />
             )}
