@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { approveMidpointReview, editMidpointReview, declineMidpointReview } from "./midpoint-actions";
+import { approveMidpointReview, editMidpointReview, declineMidpointReview, requestExploreNextPhase } from "./midpoint-actions";
 import { formatWeight } from "@/lib/units";
 
 type MidpointReviewT = {
@@ -25,6 +25,7 @@ type MidpointReviewT = {
   nextPhaseCopy: string | null;
   suggestedAddOn: string | null;
   reviewStatus: string;
+  clientRequestedExploreAt: string | null;
 };
 
 const CATEGORY_HEADLINES: Record<string, string> = {
@@ -114,6 +115,12 @@ export default function MidpointDataView({
       router.refresh();
     });
   }
+  function handleExplore() {
+    startTransition(async () => {
+      await requestExploreNextPhase(review!.id);
+      router.refresh();
+    });
+  }
 
   return (
     <div className="mpd-wrap">
@@ -151,45 +158,67 @@ export default function MidpointDataView({
       )}
 
       {(showNextPhase || mode === "owner") && (
-        <div className="mpd-next-phase-card">
+        <div className="mpd-next-phase-card" style={mode === "client" && review.clientRequestedExploreAt ? { textAlign: "center" } : undefined}>
           <p className="mpd-section-label">YOUR NEXT PHASE</p>
           {mode === "owner" && review.reviewStatus === "PENDING_REVIEW" && (
             <p className="mpd-review-badge">AI SUGGESTION — REVIEW REQUIRED</p>
           )}
-          <p className="mpd-next-phase-headline">{CATEGORY_HEADLINES[review.nextPhaseCategory ?? "CONTINUE"]}</p>
 
-          {editing ? (
+          {mode === "client" && review.clientRequestedExploreAt && review.nextPhaseCategory !== "CONTINUE" ? (
             <>
-              <textarea value={editedCopy} onChange={(e) => setEditedCopy(e.target.value)} className="dtj-editor-textarea" rows={4} />
-              <button type="button" className="dtj-editor-save" onClick={handleSaveEdit} disabled={isPending}>
-                {isPending ? "Saving…" : "Save & Approve"}
-              </button>
+              <p className="mpd-check-icon">✦</p>
+              <p className="mpd-confirmed-headline">You're on the list.</p>
+              <p className="mpd-confirmed-body" style={{ textAlign: "left" }}>
+                We've let your specialist know you'd like to explore this for the second half of your System.
+                <br />
+                <br />
+                Emmy will reach out personally to walk through the options and next steps — nothing has been booked or charged yet.
+              </p>
             </>
           ) : (
-            <p className="mpd-next-phase-body">{review.nextPhaseCopy}</p>
-          )}
+            <>
+              <p className="mpd-next-phase-headline">{CATEGORY_HEADLINES[review.nextPhaseCategory ?? "CONTINUE"]}</p>
 
-          {review.suggestedAddOn && (mode === "owner" || showNextPhase) && (
-            <p className="mpd-suggested-addon">Possible: {review.suggestedAddOn}</p>
-          )}
+              {editing ? (
+                <>
+                  <textarea value={editedCopy} onChange={(e) => setEditedCopy(e.target.value)} className="dtj-editor-textarea" rows={4} />
+                  <button type="button" className="dtj-editor-save" onClick={handleSaveEdit} disabled={isPending}>
+                    {isPending ? "Saving…" : "Save & Approve"}
+                  </button>
+                </>
+              ) : (
+                <p className="mpd-next-phase-body">{review.nextPhaseCopy}</p>
+              )}
 
-          {mode === "owner" && review.reviewStatus === "PENDING_REVIEW" && !editing && (
-            <div className="mpd-review-actions">
-              <button type="button" className="dtj-editor-save" onClick={handleApprove} disabled={isPending}>Approve</button>
-              <button type="button" className="dtj-link-small" onClick={() => setEditing(true)}>Edit</button>
-              <button type="button" className="dtj-link-small" onClick={handleDecline}>Decline</button>
-            </div>
-          )}
+              {review.suggestedAddOn && (mode === "owner" || showNextPhase) && (
+                <p className="mpd-suggested-addon">Possible: {review.suggestedAddOn}</p>
+              )}
 
-          {mode === "owner" && review.reviewStatus === "APPROVED" && (
-            <p className="pay-history-meta">✓ Approved — visible to client.</p>
-          )}
-          {mode === "owner" && review.reviewStatus === "DECLINED" && (
-            <p className="pay-history-meta">Declined — not shown to client.</p>
-          )}
+              {mode === "owner" && review.reviewStatus === "PENDING_REVIEW" && !editing && (
+                <div className="mpd-review-actions">
+                  <button type="button" className="dtj-editor-save" onClick={handleApprove} disabled={isPending}>Approve</button>
+                  <button type="button" className="dtj-link-small" onClick={() => setEditing(true)}>Edit</button>
+                  <button type="button" className="dtj-link-small" onClick={handleDecline}>Decline</button>
+                </div>
+              )}
 
-          {review.nextPhaseCategory === "CONTINUE" && (
-            <button type="button" className="dtj-log-btn" style={{ marginTop: 10 }}>CONTINUE CURRENT SYSTEM →</button>
+              {mode === "owner" && review.reviewStatus === "APPROVED" && (
+                <p className="pay-history-meta">✓ Approved — visible to client.</p>
+              )}
+              {mode === "owner" && review.reviewStatus === "DECLINED" && (
+                <p className="pay-history-meta">Declined — not shown to client.</p>
+              )}
+
+              {review.nextPhaseCategory === "CONTINUE" && mode === "client" && (
+                <button type="button" className="dtj-log-btn" style={{ marginTop: 10 }}>CONTINUE CURRENT SYSTEM →</button>
+              )}
+
+              {mode === "client" && showNextPhase && review.nextPhaseCategory !== "CONTINUE" && (
+                <button type="button" className="mpd-explore-btn" onClick={handleExplore} disabled={isPending}>
+                  {isPending ? "…" : "EXPLORE MY NEXT PHASE →"}
+                </button>
+              )}
+            </>
           )}
         </div>
       )}

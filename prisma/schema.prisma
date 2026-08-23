@@ -725,6 +725,7 @@ model MidpointReview {
   reviewStatus String    @default("NOT_APPLICABLE")
   reviewedById String?
   reviewedAt   DateTime?
+  clientRequestedExploreAt DateTime? // set when the client taps "Explore My Next Phase" — sends a real message to the specialist
 
   dataReadyEmailSent   Boolean @default(false)
   dataMissingEmailSent Boolean @default(false)

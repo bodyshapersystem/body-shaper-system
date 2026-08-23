@@ -484,6 +484,7 @@ export default async function BlueprintReport({
                   nextPhaseCopy: midpointReview.nextPhaseCopy,
                   suggestedAddOn: midpointReview.suggestedAddOn,
                   reviewStatus: midpointReview.reviewStatus,
+                  clientRequestedExploreAt: midpointReview.clientRequestedExploreAt ? midpointReview.clientRequestedExploreAt.toISOString() : null,
                 }
               : null
           }
