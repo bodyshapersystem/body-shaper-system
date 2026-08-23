@@ -86,6 +86,14 @@ export default function BodyCompositionSheet({ clientId }: { clientId: string })
                   Fat-Free Weight (kg)
                   <input name="fatFreeWeightKg" type="number" step="0.1" className="sched-select" />
                 </label>
+                <label className="sched-label">
+                  Waist-Hip Ratio (WHR)
+                  <input name="whr" type="number" step="0.01" className="sched-select" />
+                </label>
+                <label className="sched-label">
+                  SMI (kg/m²)
+                  <input name="smi" type="number" step="0.1" className="sched-select" />
+                </label>
               </div>
               <label className="sched-label">
                 Notes

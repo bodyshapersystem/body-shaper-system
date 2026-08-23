@@ -3078,6 +3078,38 @@
   font-family:var(--sans); font-size:10px; letter-spacing:0.05em; text-transform:uppercase;
   color:rgba(245,238,228,0.65);
 }
+
+/* Neutral progress display — Body Blueprint architecture: an arrow
+   direction is never colored green/red here, since whether up or down
+   is "good" depends entirely on the client's own goals, not a fixed
+   rule. Color lives only on the true clinical "needs attention"
+   thresholds (bbp-glance-attention), which are absolute-value flags,
+   not trend judgments. */
+.bbp-progress-neutral-card{
+  margin-bottom:16px; padding:16px; border-radius:8px;
+  background:rgba(241,235,225,0.06); border:1px solid rgba(241,235,225,0.14);
+}
+.bbp-progress-neutral-stats{ display:flex; flex-wrap:wrap; gap:16px 22px; }
+.bbp-progress-neutral-stat{ display:flex; flex-direction:column; gap:2px; }
+.bbp-progress-neutral-stat strong{ font-family:var(--serif); font-size:20px; color:#F1EBE1; line-height:1; }
+.bbp-progress-neutral-stat span{
+  font-family:var(--sans); font-size:10px; letter-spacing:0.05em; text-transform:uppercase;
+  color:rgba(245,238,228,0.55);
+}
+
+.bbp-what-changed-card{
+  margin-bottom:14px; padding:16px; border-radius:8px;
+  background:rgba(200,161,90,0.08); border:1px solid rgba(200,161,90,0.25);
+}
+.bbp-what-changed-text{
+  font-family:var(--sans); font-size:12.5px; line-height:1.7; color:rgba(245,238,228,0.85);
+  white-space:pre-line; margin:0;
+}
+
+.bbp-details-toggle{
+  background:none; border:none; color:var(--gold); font-family:var(--sans); font-size:12px;
+  cursor:pointer; padding:6px 0; text-decoration:underline;
+}
 .bbp-glance-list li{ display:flex; justify-content:space-between; align-items:baseline; padding:7px 0; border-bottom:1px solid rgba(241,235,225,0.12); }
 .bbp-glance-list li span{ font-family:var(--sans); font-size:11px; letter-spacing:0.04em; text-transform:uppercase; color:rgba(241,235,225,0.55) !important; }
 .bbp-glance-list li strong{ font-family:var(--serif); font-size:15px; color:#F1EBE1 !important; font-weight:500; }

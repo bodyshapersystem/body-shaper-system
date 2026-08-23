@@ -572,6 +572,8 @@ model Measurement {
   bmr                    Int?
   bodyAge                Int?
   fatFreeWeightKg        Float?
+  whr                    Float? // waist-to-hip ratio, from RENPHO
+  smi                    Float? // skeletal muscle index (kg/m²), from RENPHO
   deviceSource     String   @default("RENPHO Health")
   notes            String?
   createdAt        DateTime @default(now())
