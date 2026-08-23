@@ -16,6 +16,7 @@ import MeasurementsGlance from "./MeasurementsGlance";
 import { getPhotoSignedUrl } from "./blueprint-actions";
 import { getBusinessTimezone, formatDateInTimezone } from "@/lib/format-datetime";
 import { computeBlueprintScore } from "@/lib/blueprint-score";
+import MidpointDataView from "./MidpointDataView";
 
 type ClientWithBlueprint = Prisma.ClientGetPayload<{
   include: {
@@ -224,7 +225,7 @@ export default async function BlueprintReport({
   const assessment = client.blueprintAssessments[0];
   if (!assessment) return null;
 
-  const [completedCount, nextAppointment, paidAgg, specialist, completedAppointments, paidPayments, timezone, blueprintScore] = await Promise.all([
+  const [completedCount, nextAppointment, paidAgg, specialist, completedAppointments, paidPayments, timezone, blueprintScore, midpointReview] = await Promise.all([
     // Per direction: an appointment counts as done once its time has
     // passed, without requiring the Owner to manually flip its status
     // to Completed first. Still respects explicit CANCELLED/NO_SHOW
@@ -243,6 +244,7 @@ export default async function BlueprintReport({
     prisma.payment.findMany({ where: { clientId, status: "PAID" }, orderBy: { paidAt: "asc" } }),
     getBusinessTimezone(),
     computeBlueprintScore(clientId),
+    prisma.midpointReview.findFirst({ where: { assessmentId: assessment.id } }),
   ]);
   const nextPendingPayment = await prisma.payment.findFirst({
     where: { clientId, status: { in: ["PENDING", "PARTIAL"] } },
@@ -455,6 +457,41 @@ export default async function BlueprintReport({
             </div>
           </div>
         </div>
+      </div>
+
+      {/* ---------- Midpoint Data™ ---------- */}
+      <div style={{ marginBottom: 40 }}>
+        <MidpointDataView
+          review={
+            midpointReview
+              ? {
+                  id: midpointReview.id,
+                  hasSufficientData: midpointReview.hasSufficientData,
+                  baselineWeightKg: midpointReview.baselineWeightKg,
+                  baselineBodyFatPercent: midpointReview.baselineBodyFatPercent,
+                  baselineMuscleMassKg: midpointReview.baselineMuscleMassKg,
+                  baselineSkeletalMuscleKg: midpointReview.baselineSkeletalMuscleKg,
+                  baselineBodyWaterPercent: midpointReview.baselineBodyWaterPercent,
+                  baselineWaistCm: midpointReview.baselineWaistCm,
+                  midpointWeightKg: midpointReview.midpointWeightKg,
+                  midpointBodyFatPercent: midpointReview.midpointBodyFatPercent,
+                  midpointMuscleMassKg: midpointReview.midpointMuscleMassKg,
+                  midpointSkeletalMuscleKg: midpointReview.midpointSkeletalMuscleKg,
+                  midpointBodyWaterPercent: midpointReview.midpointBodyWaterPercent,
+                  midpointWaistCm: midpointReview.midpointWaistCm,
+                  insightText: midpointReview.insightText,
+                  nextPhaseCategory: midpointReview.nextPhaseCategory,
+                  nextPhaseCopy: midpointReview.nextPhaseCopy,
+                  suggestedAddOn: midpointReview.suggestedAddOn,
+                  reviewStatus: midpointReview.reviewStatus,
+                }
+              : null
+          }
+          totalSessions={totalSessions}
+          completedSessions={realCompletedForBlueprint}
+          systemName={assessment.recommendedSystem ?? "Personalized System™"}
+          mode={mode}
+        />
       </div>
 
       {/* ---------- Section 02 / 03 / 04 ---------- */}
