@@ -9,19 +9,27 @@ export default async function PeptideJourneyPage() {
   const client = await getCurrentPortalClient();
   if (!client) redirect("/portal/login");
 
-  const [protocol, logs] = await Promise.all([
+  const [protocol, logs, activeAssessment] = await Promise.all([
     prisma.peptideProtocol.findFirst({ where: { clientId: client.id, active: true }, orderBy: { updatedAt: "desc" } }),
     prisma.peptideLog.findMany({ where: { clientId: client.id }, orderBy: { administeredAt: "desc" }, take: 30 }),
+    prisma.blueprintAssessment.findFirst({
+      where: { clientId: client.id, status: { in: ["ACTIVE", "VALIDATED", "IN_PROGRESS", "COMPLETED"] } },
+      orderBy: { version: "desc" },
+      select: { recommendedSystem: true },
+    }),
   ]);
 
   return (
     <div className="cat-body portal-page dtj-page-wrap">
       <JourneyView
+        currentSystemName={activeAssessment?.recommendedSystem ?? null}
         protocol={
           protocol
             ? {
                 id: protocol.id,
                 peptideName: protocol.peptideName,
+                goalCategory: protocol.goalCategory,
+                customGoal: protocol.customGoal,
                 dose: protocol.dose,
                 frequency: protocol.frequency,
                 injectionDays: protocol.injectionDays,

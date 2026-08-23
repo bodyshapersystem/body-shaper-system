@@ -15,6 +15,8 @@ export async function getActiveProtocol(clientId: string) {
  */
 export async function saveProtocol(fields: {
   peptideName: string;
+  goalCategory?: string;
+  customGoal?: string;
   dose?: string;
   frequency: string;
   injectionDays: string[];
@@ -33,12 +35,17 @@ export async function saveProtocol(fields: {
   if (!fields.injectionTime) return { error: "Please set an injection time." };
 
   try {
+    const priorActive = await prisma.peptideProtocol.findFirst({ where: { clientId: client.id, active: true } });
+    const isFirstProtocol = !priorActive;
+
     await prisma.peptideProtocol.updateMany({ where: { clientId: client.id, active: true }, data: { active: false } });
 
-    await prisma.peptideProtocol.create({
+    const created = await prisma.peptideProtocol.create({
       data: {
         clientId: client.id,
         peptideName: fields.peptideName.trim(),
+        goalCategory: fields.goalCategory || null,
+        customGoal: fields.customGoal?.trim() || null,
         dose: fields.dose?.trim() || null,
         frequency: fields.frequency,
         injectionDays: fields.injectionDays,
@@ -51,13 +58,13 @@ export async function saveProtocol(fields: {
         refillOrderByDate: fields.refillOrderByDate ? new Date(fields.refillOrderByDate) : null,
       },
     });
+
+    revalidatePath("/portal/daily-trackers/journey");
+    return { success: true, isFirstProtocol, protocolId: created.id };
   } catch (err) {
     console.error("[saveProtocol] failed:", err);
     return { error: err instanceof Error ? err.message : "Something went wrong saving your protocol." };
   }
-
-  revalidatePath("/portal/daily-trackers/journey");
-  return { success: true };
 }
 
 export async function toggleProtocolReminder(protocolId: string, enabled: boolean) {

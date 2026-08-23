@@ -4,10 +4,14 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { saveProtocol, toggleProtocolReminder, logPeptideDose, deletePeptideLog } from "./journey-actions";
 import { computeNextInjection, daysUntilLabel } from "@/lib/peptide-schedule";
+import { GOAL_CATEGORY_OPTIONS } from "@/lib/peptide-goal-copy";
+import PeptideWelcomeScreen from "./PeptideWelcomeScreen";
 
 type Protocol = {
   id: string;
   peptideName: string;
+  goalCategory: string | null;
+  customGoal: string | null;
   dose: string | null;
   frequency: string;
   injectionDays: string[];
@@ -66,14 +70,17 @@ const CHECKIN_ROWS: { key: keyof LogEntry; label: string }[] = [
   { key: "nausea", label: "Nausea / discomfort" },
 ];
 
-export default function JourneyView({ protocol, logs }: { protocol: Protocol; logs: LogEntry[] }) {
+export default function JourneyView({ protocol, logs, currentSystemName }: { protocol: Protocol; logs: LogEntry[]; currentSystemName: string | null }) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [settingUp, setSettingUp] = useState(!protocol);
+  const [showWelcome, setShowWelcome] = useState(false);
   const [error, setError] = useState("");
 
   // Protocol form state
   const [peptideName, setPeptideName] = useState(protocol?.peptideName ?? "");
+  const [goalCategory, setGoalCategory] = useState(protocol?.goalCategory ?? "");
+  const [customGoal, setCustomGoal] = useState(protocol?.customGoal ?? "");
   const [dose, setDose] = useState(protocol?.dose ?? "");
   const [frequency, setFrequency] = useState(protocol?.frequency ?? "Weekly");
   const [injectionDays, setInjectionDays] = useState<string[]>(protocol?.injectionDays ?? []);
@@ -93,6 +100,8 @@ export default function JourneyView({ protocol, logs }: { protocol: Protocol; lo
     startTransition(async () => {
       const result = await saveProtocol({
         peptideName,
+        goalCategory: goalCategory || undefined,
+        customGoal: customGoal || undefined,
         dose,
         frequency,
         injectionDays,
@@ -105,7 +114,11 @@ export default function JourneyView({ protocol, logs }: { protocol: Protocol; lo
         return;
       }
       setSettingUp(false);
-      router.refresh();
+      if (result?.isFirstProtocol) {
+        setShowWelcome(true);
+      } else {
+        router.refresh();
+      }
     });
   }
 
@@ -143,6 +156,18 @@ export default function JourneyView({ protocol, logs }: { protocol: Protocol; lo
     });
   }
 
+  if (showWelcome) {
+    return (
+      <PeptideWelcomeScreen
+        peptideName={peptideName}
+        goalCategory={goalCategory || null}
+        customGoal={customGoal || null}
+        currentSystemName={currentSystemName}
+        onReviewProtocol={() => { setShowWelcome(false); router.refresh(); }}
+      />
+    );
+  }
+
   if (settingUp) {
     return (
       <div className="dtj-today">
@@ -152,6 +177,22 @@ export default function JourneyView({ protocol, logs }: { protocol: Protocol; lo
         <div className="dtj-editor" style={{ marginTop: 16 }}>
           <label className="dtj-field-label">Peptide / medication name</label>
           <input value={peptideName} onChange={(e) => setPeptideName(e.target.value)} placeholder="e.g. Tirzepatide" className="dtj-editor-input" />
+
+          <label className="dtj-field-label">What's your main goal?</label>
+          <select value={goalCategory} onChange={(e) => setGoalCategory(e.target.value)} className="dtj-editor-input">
+            <option value="">Select…</option>
+            {GOAL_CATEGORY_OPTIONS.map((g) => (
+              <option key={g.value} value={g.value}>{g.label}</option>
+            ))}
+          </select>
+          {goalCategory === "GENERAL_CUSTOM" && (
+            <input
+              value={customGoal}
+              onChange={(e) => setCustomGoal(e.target.value)}
+              placeholder="Describe your goal in your own words"
+              className="dtj-editor-input"
+            />
+          )}
 
           <label className="dtj-field-label">Dose</label>
           <input value={dose} onChange={(e) => setDose(e.target.value)} placeholder="e.g. 5.0 mg" className="dtj-editor-input" />

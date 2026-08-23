@@ -668,6 +668,8 @@ model PeptideProtocol {
   clientId          String
   client            Client    @relation(fields: [clientId], references: [id], onDelete: Cascade)
   peptideName       String
+  goalCategory      String? // "WEIGHT_LOSS" | "ENERGY_PERFORMANCE" | "SKIN_REGENERATIVE" | "MUSCLE_COMPOSITION" | "GENERAL_CUSTOM"
+  customGoal        String? // free-text goal, used when goalCategory is GENERAL_CUSTOM (or blank)
   dose              String?
   frequency         String // "Daily" | "Weekly" | "Bi-weekly" | "Custom"
   injectionDays     String[] @default([]) // e.g. ["MON"] for weekly
