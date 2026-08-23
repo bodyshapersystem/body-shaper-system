@@ -47,11 +47,13 @@ export default function BodyCompositionGlance({
   previousRenpho,
   measurementId,
   celebration,
+  persistentShareUrl,
 }: {
   latestRenpho: LatestRenpho;
   previousRenpho?: LatestRenpho;
   measurementId?: string;
   celebration?: { changes: MetricChange[]; closingPhrase: string; compareLabel: string; shareImageUrl: string } | null;
+  persistentShareUrl?: string | null;
 }) {
   const [unit, setUnit] = useState<WeightUnit>("lb");
   const [detailsOpen, setDetailsOpen] = useState(false);
@@ -60,6 +62,26 @@ export default function BodyCompositionGlance({
   function dismissCelebration() {
     setShowCelebration(false);
     if (measurementId) markCompositionCelebrationSeen(measurementId).catch(() => undefined);
+  }
+
+  async function handlePersistentShare(url: string) {
+    try {
+      const res = await fetch(url);
+      const blob = await res.blob();
+      const file = new File([blob], "body-shaper-system-progress.png", { type: "image/png" });
+      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        await navigator.share({ files: [file], title: "My Progress — Body Shaper System" });
+      } else {
+        const objUrl = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = objUrl;
+        a.download = "body-shaper-system-progress.png";
+        a.click();
+        URL.revokeObjectURL(objUrl);
+      }
+    } catch {
+      // Share sheet cancelled or unsupported.
+    }
   }
 
   if (!latestRenpho) return null;
@@ -158,8 +180,15 @@ export default function BodyCompositionGlance({
 
       {progressRows.length > 0 && (
         <div className="bbp-progress-neutral-card">
-          <p className="bbp-progress-card-title" style={{ fontStyle: "normal" }}>Progress Since Last Scan</p>
-          <div className="bbp-progress-neutral-stats">
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", flexWrap: "wrap", gap: 8 }}>
+            <p className="bbp-progress-card-title" style={{ fontStyle: "normal", marginBottom: 0 }}>Progress Since Last Scan</p>
+            {persistentShareUrl && (
+              <button type="button" className="bbp-persistent-share-btn" onClick={() => handlePersistentShare(persistentShareUrl)}>
+                SHARE MY PROGRESS ↗
+              </button>
+            )}
+          </div>
+          <div className="bbp-progress-neutral-stats" style={{ marginTop: 10 }}>
             {progressRows.map((r) => (
               <span key={r.label} className={`bbp-progress-neutral-stat bbp-arrow-${r.delta!.arrow}`}>
                 <strong>{r.delta!.text}</strong>
