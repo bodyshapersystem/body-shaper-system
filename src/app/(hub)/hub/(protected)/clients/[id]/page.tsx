@@ -20,6 +20,7 @@ import { getBusinessTimezone, formatDateInTimezone, formatTimeInTimezone } from 
 import { CATEGORY_ICONS as NOTIFICATION_ICONS } from "@/lib/notifications";
 import BlueprintAssessmentTab from "./BlueprintAssessmentTab";
 import BlueprintReport from "./BlueprintReport";
+import ReminderConfigPanel from "./ReminderConfigPanel";
 import DocumentUploadSheet from "./DocumentUploadSheet";
 import DocumentRowActions from "../../documents/DocumentRowActions";
 
@@ -304,6 +305,17 @@ export default async function ClientDetailPage({
         <>
           <BlueprintReport client={client} clientId={id} />
           <BlueprintAssessmentTab client={client} canManage={hasPermission(user, "blueprints.manage")} />
+          <ReminderConfigPanel
+            clientId={client.id}
+            canManage={hasPermission(user, "blueprints.manage")}
+            hydrationGoalGlasses={client.hydrationGoalGlasses}
+            proteinGoalGrams={client.proteinGoalGrams}
+            movementGoalSteps={client.movementGoalSteps}
+            compressionDays={client.compressionDays}
+            compressionHoursRequired={client.compressionHoursRequired}
+            compressionProtocolStartDate={client.compressionProtocolStartDate ? client.compressionProtocolStartDate.toISOString() : null}
+            compressionProtocolEndDate={client.compressionProtocolEndDate ? client.compressionProtocolEndDate.toISOString() : null}
+          />
         </>
       )}
 

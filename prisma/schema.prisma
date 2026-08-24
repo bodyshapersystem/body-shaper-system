@@ -242,6 +242,20 @@ model Client {
   requiresContentRelease Boolean @default(false)
   lastCelebratedMeasurementId     String? // Measurement.id of the last body-composition scan the client has already seen a Congratulations overlay for
   lastCelebratedBodyMeasurementId String? // BodyMeasurement.id of the last tape-measurement session already celebrated
+
+  // Reminder Center™ — client-facing quiet hours (applies to all
+  // non-essential System Nudges) + Owner-configured protocol goals
+  // that Nudges are computed against. Real config, not hardcoded.
+  quietHoursStart               String?  // "HH:MM" 24h
+  quietHoursEnd                 String?  // "HH:MM" 24h
+  hydrationGoalGlasses          Int      @default(8)
+  proteinGoalGrams              Int?
+  movementGoalSteps             Int      @default(8000)
+  compressionDays               String[] @default([]) // e.g. ["MON","WED","FRI"] — empty means every day
+  compressionHoursRequired      Float?
+  compressionProtocolStartDate  DateTime?
+  compressionProtocolEndDate    DateTime?
+  reminderPreferences           ReminderPreference[]
   address                String? // full street address — distinct from `city` (Service Zone)
   birthday               DateTime?
   importedLastAppointmentAt DateTime? // historical, from legacy import — real appointments use the Appointment table instead
@@ -685,6 +699,22 @@ model TechSupportPurchase {
   createdAt       DateTime  @default(now())
 
   @@map("tech_support_purchases")
+}
+
+model ReminderPreference {
+  id            String   @id @default(cuid())
+  clientId      String
+  client        Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  category      String // HYDRATION | PROTEIN | PEPTIDE | COMPRESSION | MOVEMENT | SLEEP | APPOINTMENTS | WEEKLY_CHECKIN | MEASUREMENTS_PHOTOS
+  enabled       Boolean  @default(true)
+  emailEnabled  Boolean  @default(true)
+  reminderTimes String[] @default([]) // "HH:MM" 24h, one or more check-in times per day
+  relevantDays  String[] @default([]) // e.g. ["MON","WED","FRI"] — empty means every day this category applies
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@unique([clientId, category])
+  @@map("reminder_preferences")
 }
 
 model MidpointReview {
