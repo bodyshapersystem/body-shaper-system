@@ -9,62 +9,58 @@ export const INJECTION_SITES = [
   { key: "RIGHT_ARM", label: "Right Arm" },
 ];
 
-function ArmOutline({ shaded, onSelect }: { shaded: boolean; onSelect: () => void }) {
+function ArmSvg({ on }: { on: boolean }) {
   return (
-    <svg width="42" height="128" viewBox="0 0 42 128" className="isd-limb-svg">
+    <svg viewBox="0 0 60 200" className="isd-limb-svg">
       <path
-        d="M18 4c8 0 12 6 12 14v34c0 8-3 13-3 22v40c0 8-5 12-9 12s-9-4-9-12V74c0-9-3-14-3-22V18C6 10 10 4 18 4z"
-        fill="none" stroke="#8B7362" strokeWidth="1"
+        d="M30,4 C40,4 46,10 46,20 C46,32 43,38 43,48 L43,150 C43,168 40,188 30,192 C20,188 17,168 17,150 L17,48 C17,38 14,32 14,20 C14,10 20,4 30,4 Z"
+        fill="none" stroke="#6B5240" strokeWidth="1.3"
       />
-      <ellipse cx="21" cy="46" rx="9" ry="20" className={`isd-shade ${shaded ? "isd-shade-on" : ""}`} onClick={onSelect} />
+      <ellipse cx="30" cy="55" rx="12" ry="30" className={`isd-shade ${on ? "isd-shade-on" : ""}`} />
     </svg>
   );
 }
 
-function FrontTorso({ leftOn, rightOn, onSelectLeft, onSelectRight }: { leftOn: boolean; rightOn: boolean; onSelectLeft: () => void; onSelectRight: () => void }) {
+function FrontTorsoSvg({ leftOn, rightOn }: { leftOn: boolean; rightOn: boolean }) {
   return (
-    <svg width="150" height="200" viewBox="0 0 150 200" className="isd-torso-svg">
-      <circle cx="75" cy="20" r="14" fill="none" stroke="#8B7362" strokeWidth="1" />
+    <svg viewBox="0 0 190 290" className="isd-torso-svg">
+      <circle cx="95" cy="26" r="18" fill="none" stroke="#6B5240" strokeWidth="1.3" />
       <path
-        d="M42 42c0 10-8 16-8 32v70c0 20 8 34 8 42h66c0-8 8-22 8-42V74c0-16-8-22-8-32-8-8-18-12-33-12s-25 4-33 12z"
-        fill="none" stroke="#8B7362" strokeWidth="1"
+        d="M95,46 C 74,46 66,54 64,64 C 50,68 42,80 40,96 C 38,110 42,120 44,132 C 40,150 38,168 42,188 C 45,208 50,224 56,240 C 58,252 60,262 62,272 L 128,272 C 130,262 132,252 134,240 C 140,224 145,208 148,188 C 152,168 150,150 146,132 C 148,120 152,110 150,96 C 148,80 140,68 126,64 C 124,54 116,46 95,46 Z"
+        fill="none" stroke="#6B5240" strokeWidth="1.3"
       />
-      <line x1="75" y1="34" x2="75" y2="186" stroke="#8B7362" strokeWidth="0.6" opacity="0.5" />
-      <path d="M46 42c-8 6-14 16-14 30" fill="none" stroke="#8B7362" strokeWidth="1" strokeLinecap="round" />
-      <path d="M104 42c8 6 14 16 14 30" fill="none" stroke="#8B7362" strokeWidth="1" strokeLinecap="round" />
-      <ellipse cx="56" cy="110" rx="16" ry="24" transform="rotate(-8 56 110)" className={`isd-shade ${leftOn ? "isd-shade-on" : ""}`} onClick={onSelectLeft} />
-      <ellipse cx="94" cy="110" rx="16" ry="24" transform="rotate(8 94 110)" className={`isd-shade ${rightOn ? "isd-shade-on" : ""}`} onClick={onSelectRight} />
+      <line x1="95" y1="64" x2="95" y2="268" stroke="#6B5240" strokeWidth="0.6" opacity="0.35" />
+      <ellipse cx="70" cy="150" rx="21" ry="34" transform="rotate(-5 70 150)" className={`isd-shade ${leftOn ? "isd-shade-on" : ""}`} />
+      <ellipse cx="120" cy="150" rx="21" ry="34" transform="rotate(5 120 150)" className={`isd-shade ${rightOn ? "isd-shade-on" : ""}`} />
     </svg>
   );
 }
 
-function BackTorso({ leftOn, rightOn, onSelectLeft, onSelectRight }: { leftOn: boolean; rightOn: boolean; onSelectLeft: () => void; onSelectRight: () => void }) {
+function BackTorsoSvg({ leftOn, rightOn }: { leftOn: boolean; rightOn: boolean }) {
   return (
-    <svg width="150" height="200" viewBox="0 0 150 200" className="isd-torso-svg">
-      <circle cx="75" cy="20" r="14" fill="none" stroke="#8B7362" strokeWidth="1" />
+    <svg viewBox="0 0 190 290" className="isd-torso-svg">
+      <circle cx="95" cy="26" r="18" fill="none" stroke="#6B5240" strokeWidth="1.3" />
       <path
-        d="M44 42c0 10-6 16-6 32v52c0 4 8 8 8 16v14c0 12 6 20 6 24h6c0-6-4-14-4-24v-8c0-8 3-12 3-18h16c0 6 3 10 3 18v8c0 10-4 18-4 24h6c0-4 6-12 6-24v-14c0-8 8-12 8-16V74c0-16-6-22-6-32-8-8-18-12-33-12s-25 4-33 12z"
-        fill="none" stroke="#8B7362" strokeWidth="1"
+        d="M95,46 C 74,46 66,54 64,64 C 50,68 42,80 40,96 C 38,110 42,120 44,132 C 40,150 38,168 42,188 C 45,208 50,224 56,240 C 58,252 60,262 62,272 L 128,272 C 130,262 132,252 134,240 C 140,224 145,208 148,188 C 152,168 150,150 146,132 C 148,120 152,110 150,96 C 148,80 140,68 126,64 C 124,54 116,46 95,46 Z"
+        fill="none" stroke="#6B5240" strokeWidth="1.3"
       />
-      <path d="M48 42c-8 6-12 16-12 30" fill="none" stroke="#8B7362" strokeWidth="1" strokeLinecap="round" />
-      <path d="M102 42c8 6 12 16 12 30" fill="none" stroke="#8B7362" strokeWidth="1" strokeLinecap="round" />
-      <ellipse cx="60" cy="128" rx="15" ry="20" className={`isd-shade ${leftOn ? "isd-shade-on" : ""}`} onClick={onSelectLeft} />
-      <ellipse cx="90" cy="128" rx="15" ry="20" className={`isd-shade ${rightOn ? "isd-shade-on" : ""}`} onClick={onSelectRight} />
+      <ellipse cx="72" cy="200" rx="20" ry="26" className={`isd-shade ${leftOn ? "isd-shade-on" : ""}`} />
+      <ellipse cx="118" cy="200" rx="20" ry="26" className={`isd-shade ${rightOn ? "isd-shade-on" : ""}`} />
     </svg>
   );
 }
 
-function SiteRadio({ selected, suggested, label, onSelect }: { selected: boolean; suggested: boolean; label: string; onSelect: () => void }) {
-  return (
-    <button type="button" className="isd-site-col" onClick={onSelect}>
-      <span className={`isd-radio ${selected ? "isd-radio-on" : ""} ${suggested && !selected ? "isd-radio-suggested" : ""}`}>
-        {selected && "✓"}
-      </span>
-      <span className="isd-site-label">{label.toUpperCase()}</span>
-    </button>
-  );
-}
-
+/**
+ * Real, clean anatomical silhouette (front/back torso + separate
+ * arms), matching the approved mockup's simple mannequin-style
+ * illustration. Every region is a real, generously-sized <button> —
+ * not a tiny SVG-shape click target — so it's reliably tappable on a
+ * phone. Left/right halves of each torso are two large overlapping
+ * buttons positioned over the same illustration (so there's only one
+ * torso drawing per view, matching the mockup, not a duplicated one
+ * per side). The shaded ellipse is purely decorative; the button
+ * covering that half is what actually registers the tap.
+ */
 export default function InjectionSiteDiagram({
   selectedSite,
   suggestedSite,
@@ -79,21 +75,36 @@ export default function InjectionSiteDiagram({
     <div className="isd-wrap-v2">
       <div className="isd-row-v2">
         <div className="isd-limb-col">
-          <ArmOutline shaded={is("LEFT_ARM")} onSelect={() => onSelect("LEFT_ARM")} />
+          <button type="button" className="isd-tap-overlay isd-tap-full" onClick={() => onSelect("LEFT_ARM")} aria-label="Left Arm" />
+          <ArmSvg on={is("LEFT_ARM")} />
         </div>
+
         <div className="isd-torso-col">
-          <FrontTorso leftOn={is("LEFT_ABDOMEN")} rightOn={is("RIGHT_ABDOMEN")} onSelectLeft={() => onSelect("LEFT_ABDOMEN")} onSelectRight={() => onSelect("RIGHT_ABDOMEN")} />
+          <button type="button" className="isd-tap-overlay isd-tap-left" onClick={() => onSelect("LEFT_ABDOMEN")} aria-label="Left Abdomen" />
+          <button type="button" className="isd-tap-overlay isd-tap-right" onClick={() => onSelect("RIGHT_ABDOMEN")} aria-label="Right Abdomen" />
+          <FrontTorsoSvg leftOn={is("LEFT_ABDOMEN")} rightOn={is("RIGHT_ABDOMEN")} />
         </div>
+
         <div className="isd-torso-col">
-          <BackTorso leftOn={is("LEFT_GLUTE")} rightOn={is("RIGHT_GLUTE")} onSelectLeft={() => onSelect("LEFT_GLUTE")} onSelectRight={() => onSelect("RIGHT_GLUTE")} />
+          <button type="button" className="isd-tap-overlay isd-tap-left" onClick={() => onSelect("LEFT_GLUTE")} aria-label="Left Glute" />
+          <button type="button" className="isd-tap-overlay isd-tap-right" onClick={() => onSelect("RIGHT_GLUTE")} aria-label="Right Glute" />
+          <BackTorsoSvg leftOn={is("LEFT_GLUTE")} rightOn={is("RIGHT_GLUTE")} />
         </div>
+
         <div className="isd-limb-col">
-          <ArmOutline shaded={is("RIGHT_ARM")} onSelect={() => onSelect("RIGHT_ARM")} />
+          <button type="button" className="isd-tap-overlay isd-tap-full" onClick={() => onSelect("RIGHT_ARM")} aria-label="Right Arm" />
+          <ArmSvg on={is("RIGHT_ARM")} />
         </div>
       </div>
+
       <div className="isd-radio-row">
         {INJECTION_SITES.map((s) => (
-          <SiteRadio key={s.key} selected={is(s.key)} suggested={suggestedSite === s.key} label={s.label} onSelect={() => onSelect(s.key)} />
+          <button key={s.key} type="button" className="isd-site-col" onClick={() => onSelect(s.key)}>
+            <span className={`isd-radio ${is(s.key) ? "isd-radio-on" : ""} ${suggestedSite === s.key && !is(s.key) ? "isd-radio-suggested" : ""}`}>
+              {is(s.key) && "✓"}
+            </span>
+            <span className="isd-site-label">{s.label.toUpperCase()}</span>
+          </button>
         ))}
       </div>
     </div>
