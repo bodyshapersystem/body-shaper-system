@@ -2,7 +2,8 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { saveReminderPreference, saveQuietHours, REMINDER_CATEGORIES } from "./actions";
+import { saveReminderPreference, saveQuietHours } from "./actions";
+import { REMINDER_CATEGORIES } from "@/lib/reminder-categories";
 
 const DAY_CHIPS = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
 
