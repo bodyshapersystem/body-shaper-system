@@ -4305,6 +4305,7 @@
   margin-bottom:14px; border:1px solid rgba(107,82,64,0.1);
 }
 .dtj-vial-svg{ flex-shrink:0; }
+.dtj-vial-info{ flex:1; min-width:0; }
 .dtj-vial-name{ font-family:var(--serif); font-size:17px; color:var(--charcoal); }
 
 .dtj-protocol-rows{ background:#fff; border-radius:16px; padding:6px 16px; margin-bottom:14px; border:1px solid rgba(107,82,64,0.1); }
@@ -4583,3 +4584,41 @@
 .simg-preview{ width:100%; border-radius:10px; display:block; margin-bottom:14px; }
 .simg-actions{ display:flex; gap:10px; }
 .simg-actions .pcel-btn-primary, .simg-actions .pcel-btn-secondary{ margin-bottom:0; flex:1; }
+
+/* ---- Journey — vial circular illustration + card polish ---- */
+.dtj-vial-actions{ display:flex; flex-direction:column; gap:10px; align-items:center; }
+.dtj-icon-action-btn{
+  display:flex; flex-direction:column; align-items:center; gap:3px; background:none; border:none; cursor:pointer;
+  color:var(--mocha); font-family:var(--sans); font-size:10px;
+}
+.dtj-icon-action-btn svg{
+  width:28px; height:28px; border:1px solid rgba(107,82,64,0.25); border-radius:50%; padding:6px; box-sizing:border-box; color:var(--mocha);
+}
+
+.dtj-clock-illustration{ display:flex; justify-content:center; margin-bottom:8px; }
+.dtj-next-injection-divider{ width:44px; height:1px; background:rgba(200,161,90,0.5); margin:6px auto; }
+
+/* ---- Injection Site — 4-column anatomical diagram ---- */
+.isd-header-row{ display:flex; justify-content:space-between; align-items:flex-start; gap:10px; margin-bottom:12px; flex-wrap:wrap; }
+.isd-suggested-pill{
+  display:inline-flex; align-items:center; gap:5px; background:rgba(199,158,147,0.12); border:1px solid rgba(199,158,147,0.3);
+  border-radius:14px; padding:5px 10px; font-family:var(--sans); font-size:10px; color:var(--taupe); white-space:nowrap;
+}
+.isd-suggested-pill strong{ color:var(--rose); font-weight:500; }
+.isd-wrap-v2{ }
+.isd-row-v2{ display:flex; justify-content:space-between; align-items:flex-start; gap:2px; margin-bottom:10px; }
+.isd-limb-col, .isd-torso-col{ display:flex; justify-content:center; flex:1; min-width:0; }
+.isd-limb-svg, .isd-torso-svg{ width:100%; height:auto; max-width:100%; }
+.isd-shade{ fill:rgba(107,82,64,0.06); cursor:pointer; transition:fill .2s ease; }
+.isd-shade-on{ fill:rgba(199,158,147,0.55); }
+.isd-radio-row{ display:flex; justify-content:space-between; gap:2px; }
+.isd-site-col{ display:flex; flex-direction:column; align-items:center; gap:5px; background:none; border:none; cursor:pointer; flex:1; min-width:0; padding:0; }
+.isd-radio{
+  width:18px; height:18px; border-radius:50%; border:1.5px solid rgba(107,82,64,0.3); display:flex; align-items:center;
+  justify-content:center; font-size:10px; color:#fff;
+}
+.isd-radio-on{ background:var(--rose); border-color:var(--rose); }
+.isd-radio-suggested{ border-color:var(--rose); border-style:dashed; }
+.isd-site-label{ font-family:var(--sans); font-size:8px; letter-spacing:0.02em; color:var(--taupe); text-align:center; line-height:1.2; }
+.isd-last-site{ font-family:var(--sans); font-size:11.5px; color:var(--taupe); margin:10px 0 0; }
+.isd-last-site strong{ color:var(--charcoal); font-weight:500; }

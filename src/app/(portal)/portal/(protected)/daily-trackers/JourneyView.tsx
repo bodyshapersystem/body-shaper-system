@@ -7,6 +7,7 @@ import { computeNextInjection, daysUntilLabel } from "@/lib/peptide-schedule";
 import { GOAL_CATEGORY_OPTIONS } from "@/lib/peptide-goal-copy";
 import PeptideWelcomeScreen from "./PeptideWelcomeScreen";
 import InjectionSiteDiagram from "./InjectionSiteDiagram";
+import { PencilIcon } from "@/components/DTJIcons";
 
 function suggestNextSite(lastSite: string | null): string {
   if (!lastSite) return "LEFT_ABDOMEN";
@@ -53,17 +54,41 @@ type LogEntry = {
 
 const DAY_CHIPS = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
 
-function VialIcon() {
+function VialIcon({ peptideName }: { peptideName?: string }) {
+  const label = (peptideName || "PEPTIDE").toUpperCase().slice(0, 10);
   return (
-    <svg width="44" height="58" viewBox="0 0 52 68" fill="none" className="dtj-vial-svg">
-      <rect x="16" y="2" width="20" height="9" rx="2" fill="var(--rose)" />
-      <rect x="16" y="2" width="20" height="3" rx="1.5" fill="var(--mocha)" opacity="0.4" />
-      <rect x="18" y="11" width="16" height="5" fill="#D8CFC2" />
-      <path d="M14 16h24v38a6 6 0 0 1-6 6H20a6 6 0 0 1-6-6V16z" fill="rgba(255,255,255,0.5)" stroke="var(--mocha)" strokeWidth="1.4" />
-      <line x1="18" y1="34" x2="34" y2="34" stroke="var(--mocha)" strokeWidth="1" opacity="0.5" />
-      <line x1="18" y1="39" x2="30" y2="39" stroke="var(--mocha)" strokeWidth="1" opacity="0.5" />
-      <line x1="18" y1="44" x2="32" y2="44" stroke="var(--mocha)" strokeWidth="1" opacity="0.35" />
-      <path d="M15 40h22v13a5 5 0 0 1-5 5H20a5 5 0 0 1-5-5V40z" fill="var(--rose)" opacity="0.25" />
+    <svg width="76" height="76" viewBox="0 0 120 120" className="dtj-vial-svg">
+      <defs>
+        <linearGradient id="vialGlass" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0%" stopColor="#8B5A3C" stopOpacity="0.55" />
+          <stop offset="45%" stopColor="#B87F4E" stopOpacity="0.35" />
+          <stop offset="55%" stopColor="#E8B888" stopOpacity="0.5" />
+          <stop offset="100%" stopColor="#8B5A3C" stopOpacity="0.6" />
+        </linearGradient>
+        <linearGradient id="vialCap" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="#E7B7AE" />
+          <stop offset="100%" stopColor="#C79E93" />
+        </linearGradient>
+        <clipPath id="vialCircle"><circle cx="60" cy="60" r="58" /></clipPath>
+      </defs>
+      <circle cx="60" cy="60" r="58" fill="#FBF7F1" stroke="#EADFCF" strokeWidth="1.5" />
+      <g clipPath="url(#vialCircle)">
+        {/* crimped metal cap */}
+        <path d="M40 14 L80 14 L77 34 L43 34 Z" fill="url(#vialCap)" />
+        <line x1="43" y1="18" x2="77" y2="18" stroke="#fff" strokeOpacity="0.4" strokeWidth="1" />
+        <line x1="42" y1="24" x2="78" y2="24" stroke="#fff" strokeOpacity="0.3" strokeWidth="1" />
+        <line x1="42" y1="29" x2="78" y2="29" stroke="#fff" strokeOpacity="0.3" strokeWidth="1" />
+        {/* rubber stopper */}
+        <rect x="44" y="33" width="32" height="6" fill="#D9CFC2" />
+        {/* glass vial body */}
+        <path d="M38 39 L82 39 L82 96 Q82 104 74 104 L46 104 Q38 104 38 96 Z" fill="url(#vialGlass)" stroke="#7A5236" strokeWidth="1" />
+        <path d="M38 39 L82 39 L82 96 Q82 104 74 104 L46 104 Q38 104 38 96 Z" fill="none" stroke="#fff" strokeOpacity="0.25" strokeWidth="6" />
+        {/* label */}
+        <rect x="41" y="58" width="38" height="34" rx="2" fill="#FBF8F3" stroke="#D8CBB8" strokeWidth="0.75" />
+        <text x="60" y="72" textAnchor="middle" fontFamily="Georgia, serif" fontSize="9.5" fill="#3A322C" fontWeight="600">{label}</text>
+        <line x1="46" y1="77" x2="74" y2="77" stroke="#C79E93" strokeWidth="0.75" />
+        <text x="60" y="87" textAnchor="middle" fontFamily="Arial, sans-serif" fontSize="6.5" fill="#8B7362" letterSpacing="0.5">PEPTIDE</text>
+      </g>
     </svg>
   );
 }
@@ -325,17 +350,23 @@ export default function JourneyView({
         return (
           <div key={p.id} className="dtj-protocol-block">
             <div className="dtj-vial-card">
-              <VialIcon />
+              <VialIcon peptideName={p.peptideName} />
               <div className="dtj-vial-info">
                 <p className="dtj-mini-label">selected peptide</p>
                 <p className="dtj-vial-name">{p.peptideName}</p>
                 <p className="dtj-mini-label" style={{ marginTop: 8 }}>dose</p>
                 <p className="dtj-vial-name">{p.dose || "—"}</p>
-                <span className="isd-protocol-tag">{p.frequency} protocol</span>
+                <span className="isd-protocol-tag">📅 {p.frequency} protocol</span>
               </div>
-              <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                <button type="button" className="dtj-link-small" onClick={() => openEditForm(p)}>Edit</button>
-                <button type="button" className="dtj-link-small" onClick={() => handleStopTracking(p)}>Pause</button>
+              <div className="dtj-vial-actions">
+                <button type="button" className="dtj-icon-action-btn" onClick={() => openEditForm(p)}>
+                  <PencilIcon />
+                  <span>Edit</span>
+                </button>
+                <button type="button" className="dtj-icon-action-btn" onClick={() => handleStopTracking(p)}>
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6"><rect x="6" y="5" width="4" height="14" rx="1" /><rect x="14" y="5" width="4" height="14" rx="1" /></svg>
+                  <span>Pause</span>
+                </button>
               </div>
             </div>
 
@@ -357,22 +388,40 @@ export default function JourneyView({
             </div>
 
             <div className="isd-section">
-              <p className="dtj-field-label">Injection Site</p>
-              <p className="pay-history-meta" style={{ marginBottom: 10 }}>Select where you injected today. This is for site rotation tracking only.</p>
+              <div className="isd-header-row">
+                <p className="dtj-field-label" style={{ margin: 0 }}>Select where you injected today</p>
+                <span className="isd-suggested-pill">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M4 12a8 8 0 0 1 14-5.3M20 12a8 8 0 0 1-14 5.3" strokeLinecap="round" /><path d="M17 4v4h-4M7 20v-4h4" strokeLinecap="round" strokeLinejoin="round" /></svg>
+                  Suggested next side: <strong>{siteDisplayLabel(suggestedSite)}</strong>
+                </span>
+              </div>
               <InjectionSiteDiagram
                 selectedSite={activeSite}
                 suggestedSite={openLogId === p.id ? suggestedSite : null}
                 onSelect={(site) => setSiteForLog(site)}
               />
-              <div className="isd-labels-row">
-                <span>Last site: <strong>{siteDisplayLabel(lastSite)}</strong></span>
-                <span>Next rotation: <strong>{siteDisplayLabel(suggestedSite)}</strong></span>
-              </div>
+              <p className="isd-last-site">Last site: <strong>{siteDisplayLabel(lastSite)}</strong></p>
+              <p className="pay-history-meta" style={{ marginTop: 6 }}>This is for site rotation tracking only.</p>
             </div>
 
             <div className="dtj-next-injection-card">
+              <div className="dtj-clock-illustration">
+                <svg width="60" height="60" viewBox="0 0 60 60">
+                  <circle cx="30" cy="30" r="27" fill="none" stroke="#C8A15A" strokeWidth="1" opacity="0.5" />
+                  {Array.from({ length: 12 }, (_, i) => {
+                    const angle = (i * 30 * Math.PI) / 180;
+                    const x1 = 30 + 23 * Math.sin(angle), y1 = 30 - 23 * Math.cos(angle);
+                    const x2 = 30 + 26 * Math.sin(angle), y2 = 30 - 26 * Math.cos(angle);
+                    return <line key={i} x1={x1} y1={y1} x2={x2} y2={y2} stroke="#C8A15A" strokeWidth="1" opacity="0.6" />;
+                  })}
+                  <line x1="30" y1="30" x2="30" y2="14" stroke="#C79E93" strokeWidth="1.5" strokeLinecap="round" />
+                  <line x1="30" y1="30" x2="41" y2="41" stroke="#C79E93" strokeWidth="1.5" strokeLinecap="round" />
+                  <circle cx="30" cy="30" r="2" fill="#C79E93" />
+                </svg>
+              </div>
               <p className="dtj-mini-label" style={{ color: "rgba(245,238,228,0.7)" }}>next injection</p>
               <p className="dtj-next-injection-date">{nDayLabel}, {nDateLabel} · {timeLabel}</p>
+              <div className="dtj-next-injection-divider" />
               <p className="dtj-next-injection-countdown">{daysUntilLabel(next)}</p>
             </div>
 
