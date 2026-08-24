@@ -4204,10 +4204,11 @@
 .dtj-tab{
   display:flex; flex-direction:column; align-items:center; gap:3px; text-decoration:none;
   color:var(--taupe); font-family:var(--sans); font-size:10.5px; letter-spacing:0.02em;
+  transition:color .25s ease;
 }
-.dtj-tab-icon-wrap{ display:flex; }
+.dtj-tab-icon-wrap{ display:flex; transition:color .25s ease, transform .25s ease; }
 .dtj-tab-active{ color:var(--mocha); }
-.dtj-tab-active .dtj-tab-icon-wrap{ color:var(--rose); }
+.dtj-tab-active .dtj-tab-icon-wrap{ color:var(--rose); transform:translateY(-1px); }
 
 .dtj-greeting{ font-family:var(--serif); font-style:italic; font-size:17px; color:var(--charcoal); margin-bottom:20px; }
 .dtj-heart{ color:var(--rose); font-style:normal; }
@@ -4693,3 +4694,35 @@
 }
 .isd-photo-labels-row{ display:flex; justify-content:space-between; gap:2px; margin-top:8px; }
 .isd-photo-label-item{ flex:1; font-family:var(--sans); font-size:7.5px; letter-spacing:0.01em; color:var(--taupe); text-align:center; line-height:1.2; }
+
+/* ---- Insight Moments — editorial pattern cards ---- */
+.dtj-insight-moment-card{
+  background:linear-gradient(135deg, rgba(200,161,90,0.08), rgba(199,158,147,0.08));
+  border:1px solid rgba(200,161,90,0.25); border-radius:14px; padding:16px 18px; margin-bottom:14px;
+}
+.dtj-insight-moment-headline{ font-family:var(--serif); font-style:italic; font-size:15px; color:var(--mocha); margin:0 0 6px; }
+.dtj-insight-moment-body{ font-family:var(--sans); font-size:12px; line-height:1.6; color:var(--charcoal); margin:0; }
+
+/* ---- Microinteractions ---- */
+@keyframes dtj-ring-fill{ from{ opacity:0; transform:scale(0.85); } to{ opacity:1; transform:scale(1); } }
+.dtj-score-ring-v2{ animation:dtj-ring-fill .7s cubic-bezier(.34,1.2,.64,1) both; }
+
+@keyframes dtj-check-pop{ 0%{ opacity:0; transform:scale(0.4); } 60%{ opacity:1; transform:scale(1.15); } 100%{ transform:scale(1); } }
+.isd-photo-check{ animation:dtj-check-pop .35s cubic-bezier(.34,1.56,.64,1) both; }
+.isd-photo-highlight{ transition:background .25s ease, border-color .25s ease; }
+
+@keyframes dtj-fade-up{ from{ opacity:0; transform:translateY(6px); } to{ opacity:1; transform:translateY(0); } }
+.dtj-timeline-row{ animation:dtj-fade-up .4s ease both; }
+.dtj-timeline-row:nth-child(2){ animation-delay:.04s; }
+.dtj-timeline-row:nth-child(3){ animation-delay:.08s; }
+.dtj-timeline-row:nth-child(4){ animation-delay:.12s; }
+.dtj-timeline-row:nth-child(5){ animation-delay:.16s; }
+.dtj-timeline-row:nth-child(6){ animation-delay:.2s; }
+
+.dtj-streak-progress-fill{ transition:width .6s cubic-bezier(.34,1,.64,1); }
+.dtj-mini-bar-fill{ transition:width .5s cubic-bezier(.34,1,.64,1); }
+.dtj-dot{ transition:background .2s ease, transform .2s ease; }
+.dtj-dot-filled{ animation:dtj-check-pop .3s cubic-bezier(.34,1.56,.64,1) both; }
+
+.dtj-mini-card-v2, .rc-category-card, .techsup-card{ transition:transform .18s ease, box-shadow .18s ease; }
+.dtj-consistency-ring, .dtj-score-ring-v2{ transition:background 1s ease; }

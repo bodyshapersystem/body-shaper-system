@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import type { MonthlySummary, TimelineEvent } from "@/lib/body-response-timeline";
+import type { MonthlySummary, TimelineEvent, InsightMoment } from "@/lib/body-response-timeline";
 import { SyringeIcon, SparkleIcon, DropIcon, SmileIcon, FlameIcon, RulerIcon, CameraIcon } from "@/components/DTJIcons";
 
 function TimelineIcon({ iconKey }: { iconKey: string }) {
@@ -19,7 +19,7 @@ function TimelineIcon({ iconKey }: { iconKey: string }) {
 
 type TimelineItem = TimelineEvent & { dayLabel: string; timeLabel: string };
 
-export default function InsightsView({ summary, timeline }: { summary: MonthlySummary; timeline: TimelineItem[] }) {
+export default function InsightsView({ summary, timeline, insightMoments }: { summary: MonthlySummary; timeline: TimelineItem[]; insightMoments: InsightMoment[] }) {
   const [showAll, setShowAll] = useState(false);
   const visible = showAll ? timeline : timeline.slice(0, 6);
   const monthName = new Date().toLocaleDateString("en-US", { month: "long" }).toLowerCase();
@@ -45,6 +45,13 @@ export default function InsightsView({ summary, timeline }: { summary: MonthlySu
           </div>
         </div>
       </div>
+
+      {insightMoments.map((m, i) => (
+        <div key={i} className="dtj-insight-moment-card">
+          <p className="dtj-insight-moment-headline">{m.headline}</p>
+          <p className="dtj-insight-moment-body">{m.body}</p>
+        </div>
+      ))}
 
       <p className="dtj-field-label">body response timeline™</p>
 

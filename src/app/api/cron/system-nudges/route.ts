@@ -35,13 +35,13 @@ export async function GET(request: NextRequest) {
     try {
       switch (nudge.category) {
         case "HYDRATION":
-          await sendHydrationNudgeEmail({ clientId: nudge.clientId, firstName: nudge.firstName, email: nudge.email, current: nudge.current, goal: nudge.goal });
+          await sendHydrationNudgeEmail({ clientId: nudge.clientId, firstName: nudge.firstName, email: nudge.email, current: nudge.current, goal: nudge.goal, confirmUrl: nudge.confirmUrl });
           break;
         case "PROTEIN":
-          await sendProteinNudgeEmail({ clientId: nudge.clientId, firstName: nudge.firstName, email: nudge.email, current: nudge.current, goal: nudge.goal });
+          await sendProteinNudgeEmail({ clientId: nudge.clientId, firstName: nudge.firstName, email: nudge.email, current: nudge.current, goal: nudge.goal, confirmUrl: nudge.confirmUrl });
           break;
         case "COMPRESSION":
-          await sendCompressionNudgeEmail({ clientId: nudge.clientId, firstName: nudge.firstName, email: nudge.email, currentHours: nudge.currentHours, goalHours: nudge.goalHours });
+          await sendCompressionNudgeEmail({ clientId: nudge.clientId, firstName: nudge.firstName, email: nudge.email, currentHours: nudge.currentHours, goalHours: nudge.goalHours, confirmUrl: nudge.confirmUrl });
           break;
         case "MOVEMENT":
           await sendMovementNudgeEmail({ clientId: nudge.clientId, firstName: nudge.firstName, email: nudge.email, current: nudge.current, goal: nudge.goal });

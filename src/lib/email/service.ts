@@ -497,21 +497,23 @@ export async function sendMidpointDataMissingEmail(params: { clientId: string; f
   return logAndSend({ clientId, template: "MIDPOINT_DATA_MISSING", sender: SENDERS.concierge, recipient: email, subject, html });
 }
 
-export async function sendHydrationNudgeEmail(params: { clientId: string; firstName: string; email: string; current: number; goal: number }) {
-  const { clientId, firstName, email, current, goal } = params;
-  const { subject, html } = buildHydrationNudgeEmail({ firstName, current, goal });
+
+
+export async function sendHydrationNudgeEmail(params: { clientId: string; firstName: string; email: string; current: number; goal: number; confirmUrl: string }) {
+  const { clientId, firstName, email, current, goal, confirmUrl } = params;
+  const { subject, html } = buildHydrationNudgeEmail({ firstName, current, goal, confirmUrl });
   return logAndSend({ clientId, template: "NUDGE_HYDRATION", sender: SENDERS.concierge, recipient: email, subject, html });
 }
 
-export async function sendProteinNudgeEmail(params: { clientId: string; firstName: string; email: string; current: number | null; goal: number | null }) {
-  const { clientId, firstName, email, current, goal } = params;
-  const { subject, html } = buildProteinNudgeEmail({ firstName, current, goal });
+export async function sendProteinNudgeEmail(params: { clientId: string; firstName: string; email: string; current: number | null; goal: number | null; confirmUrl: string }) {
+  const { clientId, firstName, email, current, goal, confirmUrl } = params;
+  const { subject, html } = buildProteinNudgeEmail({ firstName, current, goal, confirmUrl });
   return logAndSend({ clientId, template: "NUDGE_PROTEIN", sender: SENDERS.concierge, recipient: email, subject, html });
 }
 
-export async function sendCompressionNudgeEmail(params: { clientId: string; firstName: string; email: string; currentHours: number; goalHours: number }) {
-  const { clientId, firstName, email, currentHours, goalHours } = params;
-  const { subject, html } = buildCompressionNudgeEmail({ firstName, currentHours, goalHours });
+export async function sendCompressionNudgeEmail(params: { clientId: string; firstName: string; email: string; currentHours: number; goalHours: number; confirmUrl: string }) {
+  const { clientId, firstName, email, currentHours, goalHours, confirmUrl } = params;
+  const { subject, html } = buildCompressionNudgeEmail({ firstName, currentHours, goalHours, confirmUrl });
   return logAndSend({ clientId, template: "NUDGE_COMPRESSION", sender: SENDERS.concierge, recipient: email, subject, html });
 }
 

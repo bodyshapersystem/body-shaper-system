@@ -951,7 +951,7 @@ export function buildMidpointDataMissingEmail(params: { firstName: string; syste
 
 const PORTAL_URL = "https://www.bodyshapersystem.com/portal/daily-trackers";
 
-export function buildHydrationNudgeEmail(p: { firstName: string; current: number; goal: number }): { subject: string; html: string } {
+export function buildHydrationNudgeEmail(p: { firstName: string; current: number; goal: number; confirmUrl: string }): { subject: string; html: string } {
   return {
     subject: "Hydration check ✦",
     html: nudgeEmailShell({
@@ -963,14 +963,14 @@ export function buildHydrationNudgeEmail(p: { firstName: string; current: number
       progressValue: `${p.current} / ${p.goal} glasses`,
       progressBarPercent: (p.current / p.goal) * 100,
       primaryCtaLabel: "YES, I'M ON TRACK ✓",
-      primaryCtaUrl: PORTAL_URL,
+      primaryCtaUrl: p.confirmUrl,
       secondaryCtaLabel: "NOT YET",
       secondaryCtaUrl: PORTAL_URL,
     }),
   };
 }
 
-export function buildProteinNudgeEmail(p: { firstName: string; current: number | null; goal: number | null }): { subject: string; html: string } {
+export function buildProteinNudgeEmail(p: { firstName: string; current: number | null; goal: number | null; confirmUrl: string }): { subject: string; html: string } {
   const tracking = p.goal != null;
   return {
     subject: "Protein check ✦",
@@ -983,14 +983,14 @@ export function buildProteinNudgeEmail(p: { firstName: string; current: number |
       progressValue: tracking ? `${p.current ?? 0}g / ${p.goal}g` : undefined,
       progressBarPercent: tracking ? ((p.current ?? 0) / (p.goal as number)) * 100 : undefined,
       primaryCtaLabel: "YES, I'M ON TRACK ✓",
-      primaryCtaUrl: PORTAL_URL,
+      primaryCtaUrl: p.confirmUrl,
       secondaryCtaLabel: "NOT YET, REMIND ME LATER",
       secondaryCtaUrl: PORTAL_URL,
     }),
   };
 }
 
-export function buildCompressionNudgeEmail(p: { firstName: string; currentHours: number; goalHours: number }): { subject: string; html: string } {
+export function buildCompressionNudgeEmail(p: { firstName: string; currentHours: number; goalHours: number; confirmUrl: string }): { subject: string; html: string } {
   return {
     subject: "Compression check 🤎",
     html: nudgeEmailShell({
@@ -1002,7 +1002,7 @@ export function buildCompressionNudgeEmail(p: { firstName: string; currentHours:
       progressValue: `${p.goalHours} hours`,
       progressBarPercent: (p.currentHours / p.goalHours) * 100,
       primaryCtaLabel: "YES, I'VE WORN IT ✓",
-      primaryCtaUrl: PORTAL_URL,
+      primaryCtaUrl: p.confirmUrl,
       secondaryCtaLabel: "NOT YET",
       secondaryCtaUrl: PORTAL_URL,
     }),

@@ -15,6 +15,8 @@ export type MonthlySummary = {
   progressDelta: number; // vs. previous month's consistency, in points
 };
 
+export type InsightMoment = { headline: string; body: string };
+
 function dayLabel(date: Date, now: Date): string {
   const isToday = date.toDateString() === now.toDateString();
   const yesterday = new Date(now);
@@ -33,6 +35,7 @@ function dayLabel(date: Date, now: Date): string {
 export async function getInsights(clientId: string): Promise<{
   summary: MonthlySummary;
   timeline: (TimelineEvent & { dayLabel: string; timeLabel: string })[];
+  insightMoments: InsightMoment[];
 }> {
   const now = new Date();
   const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
@@ -154,8 +157,46 @@ export async function getInsights(clientId: string): Promise<{
     timeLabel: e.date.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" }),
   }));
 
+  // --- Insight Moments — real, observational, non-medical ---
+  const moments: InsightMoment[] = [];
+
+  const last7Start = new Date(now);
+  last7Start.setDate(last7Start.getDate() - 7);
+  const prev7Start = new Date(now);
+  prev7Start.setDate(prev7Start.getDate() - 14);
+  const last7Trackers = trackers.filter((t) => t.date >= last7Start);
+  const prev7Trackers = trackers.filter((t) => t.date >= prev7Start && t.date < last7Start);
+  const last7Score = avgCompletion(last7Trackers);
+  const prev7Score = avgCompletion(prev7Trackers);
+
+  let measurementsTrendingDown = false;
+  if (bodyMeasurements.length >= 2) {
+    const latest = bodyMeasurements[bodyMeasurements.length - 1];
+    const prior = bodyMeasurements[bodyMeasurements.length - 2];
+    if (latest.waistCm != null && prior.waistCm != null && latest.waistCm < prior.waistCm - 0.3) {
+      measurementsTrendingDown = true;
+    }
+  }
+
+  if (last7Trackers.length >= 3 && prev7Trackers.length >= 3 && last7Score > prev7Score + 5 && measurementsTrendingDown) {
+    moments.push({
+      headline: "a pattern is emerging. ✦",
+      body: "Your consistency increased this week while your measurements continued trending down.",
+    });
+  }
+
+  const latestMeasurement = bodyMeasurements[bodyMeasurements.length - 1];
+  const recentMeasurement = latestMeasurement && now.getTime() - latestMeasurement.measuredAt.getTime() < 7 * 24 * 60 * 60 * 1000;
+  if (recentMeasurement) {
+    moments.push({
+      headline: "your body is giving us signals. ✦",
+      body: "Your latest scan and measurements have been added to your Body Blueprint.",
+    });
+  }
+
   return {
     summary: { consistency, treatmentsCompleted: appointmentsThisMonth, progressDelta },
     timeline,
+    insightMoments: moments.slice(0, 2),
   };
 }

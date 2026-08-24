@@ -7,5 +7,4 @@ export const REMINDER_CATEGORIES = [
   { key: "SLEEP", label: "Sleep" },
   { key: "APPOINTMENTS", label: "Appointments" },
   { key: "WEEKLY_CHECKIN", label: "Weekly Check-In" },
-  { key: "MEASUREMENTS_PHOTOS", label: "Measurements / Progress Photos" },
 ] as const;

@@ -1,4 +1,7 @@
 import { prisma } from "@/lib/prisma";
+import { signNudgeAction } from "@/lib/nudge-action-token";
+
+const CONFIRM_BASE_URL = "https://www.bodyshapersystem.com/nudge-confirm";
 
 function isWithinQuietHours(nowLocal: Date, quietStart: string | null, quietEnd: string | null): boolean {
   if (!quietStart || !quietEnd) return false;
@@ -35,9 +38,9 @@ async function recordSent(clientId: string, category: string, scheduledTime: str
 }
 
 export type NudgeToSend =
-  | { category: "HYDRATION"; clientId: string; email: string; firstName: string; current: number; goal: number; scheduledTime: string }
-  | { category: "PROTEIN"; clientId: string; email: string; firstName: string; current: number | null; goal: number | null; scheduledTime: string }
-  | { category: "COMPRESSION"; clientId: string; email: string; firstName: string; currentHours: number; goalHours: number; scheduledTime: string }
+  | { category: "HYDRATION"; clientId: string; email: string; firstName: string; current: number; goal: number; scheduledTime: string; confirmUrl: string }
+  | { category: "PROTEIN"; clientId: string; email: string; firstName: string; current: number | null; goal: number | null; scheduledTime: string; confirmUrl: string }
+  | { category: "COMPRESSION"; clientId: string; email: string; firstName: string; currentHours: number; goalHours: number; scheduledTime: string; confirmUrl: string }
   | { category: "MOVEMENT"; clientId: string; email: string; firstName: string; current: number; goal: number; scheduledTime: string }
   | { category: "SLEEP"; clientId: string; email: string; firstName: string; scheduledTime: string }
   | { category: "PEPTIDE_UPCOMING"; clientId: string; email: string; firstName: string; peptideName: string; scheduledAt: Date; hoursBefore: number }
@@ -82,7 +85,10 @@ export async function computeDueNudges(): Promise<NudgeToSend[]> {
       if (!goalComplete) {
         for (const t of hydrationPref.reminderTimes) {
           if (isTimeDueThisHour(t, now) && !(await alreadySent(client.id, "HYDRATION", t))) {
-            due.push({ category: "HYDRATION", clientId: client.id, email: client.email, firstName: client.firstName, current, goal: client.hydrationGoalGlasses, scheduledTime: t });
+            due.push({
+              category: "HYDRATION", clientId: client.id, email: client.email, firstName: client.firstName, current, goal: client.hydrationGoalGlasses, scheduledTime: t,
+              confirmUrl: `${CONFIRM_BASE_URL}?token=${signNudgeAction(client.id, "HYDRATION", now)}`,
+            });
             await recordSent(client.id, "HYDRATION", t);
           }
         }
@@ -97,7 +103,10 @@ export async function computeDueNudges(): Promise<NudgeToSend[]> {
       if (!goalComplete) {
         for (const t of proteinPref.reminderTimes) {
           if (isTimeDueThisHour(t, now) && !(await alreadySent(client.id, "PROTEIN", t))) {
-            due.push({ category: "PROTEIN", clientId: client.id, email: client.email, firstName: client.firstName, current, goal, scheduledTime: t });
+            due.push({
+              category: "PROTEIN", clientId: client.id, email: client.email, firstName: client.firstName, current, goal, scheduledTime: t,
+              confirmUrl: `${CONFIRM_BASE_URL}?token=${signNudgeAction(client.id, "PROTEIN", now)}`,
+            });
             await recordSent(client.id, "PROTEIN", t);
           }
         }
@@ -117,7 +126,10 @@ export async function computeDueNudges(): Promise<NudgeToSend[]> {
         if (!goalComplete) {
           for (const t of compressionPref.reminderTimes) {
             if (isTimeDueThisHour(t, now) && !(await alreadySent(client.id, "COMPRESSION", t))) {
-              due.push({ category: "COMPRESSION", clientId: client.id, email: client.email, firstName: client.firstName, currentHours, goalHours: client.compressionHoursRequired, scheduledTime: t });
+              due.push({
+                category: "COMPRESSION", clientId: client.id, email: client.email, firstName: client.firstName, currentHours, goalHours: client.compressionHoursRequired, scheduledTime: t,
+                confirmUrl: `${CONFIRM_BASE_URL}?token=${signNudgeAction(client.id, "COMPRESSION", now)}`,
+              });
               await recordSent(client.id, "COMPRESSION", t);
             }
           }

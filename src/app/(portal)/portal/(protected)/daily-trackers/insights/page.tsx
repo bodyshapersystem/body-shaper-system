@@ -9,11 +9,11 @@ export default async function InsightsPage() {
   const client = await getCurrentPortalClient();
   if (!client) redirect("/portal/login");
 
-  const { summary, timeline } = await getInsights(client.id);
+  const { summary, timeline, insightMoments } = await getInsights(client.id);
 
   return (
     <div className="cat-body portal-page dtj-page-wrap">
-      <InsightsView summary={summary} timeline={timeline} />
+      <InsightsView summary={summary} timeline={timeline} insightMoments={insightMoments} />
     </div>
   );
 }
