@@ -3,6 +3,7 @@
 import { getCurrentPortalClient } from "@/lib/permissions";
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
+import { createNotification } from "@/lib/notifications";
 
 export async function getActiveProtocols(clientId: string) {
   return prisma.peptideProtocol.findMany({ where: { clientId, active: true }, orderBy: { createdAt: "asc" } });
@@ -62,7 +63,21 @@ export async function saveProtocol(fields: {
       return { success: true, isNewPeptide: false, protocolId: fields.protocolId };
     }
 
+    // Real "first ever protocol" check — used to notify the Owner
+    // Hub once, when a client goes from zero peptides to their first
+    // (not every time a peptide is added, and not on edits).
+    const everHadAny = await prisma.peptideProtocol.count({ where: { clientId: client.id } });
     const created = await prisma.peptideProtocol.create({ data: { ...data, clientId: client.id } });
+
+    if (everHadAny === 0) {
+      await createNotification({
+        clientId: client.id,
+        category: "GENERAL",
+        description: `${client.firstName} ${client.lastName} activated Peptide Journey™ — ${created.peptideName}, started ${new Date().toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}`,
+        linkUrl: `/hub/clients/${client.id}?tab=blueprint`,
+      });
+    }
+
     revalidatePath("/portal/daily-trackers/journey");
     return { success: true, isNewPeptide: true, protocolId: created.id };
   } catch (err) {

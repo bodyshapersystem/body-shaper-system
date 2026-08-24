@@ -4726,3 +4726,8 @@
 
 .dtj-mini-card-v2, .rc-category-card, .techsup-card{ transition:transform .18s ease, box-shadow .18s ease; }
 .dtj-consistency-ring, .dtj-score-ring-v2{ transition:background 1s ease; }
+
+/* ---- Peptide Journey Invite Card (Client Tools) ---- */
+.pjic-row{ display:flex; justify-content:space-between; align-items:center; gap:14px; flex-wrap:wrap; }
+.pjic-status-active{ font-family:var(--serif); font-style:italic; font-size:15px; color:var(--mocha); margin:0 0 4px; }
+.pjic-recipient{ font-family:var(--sans); font-size:12.5px; color:var(--charcoal); margin:2px 0 0; }

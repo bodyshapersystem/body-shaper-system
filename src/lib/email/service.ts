@@ -19,6 +19,7 @@ import {
   buildPeptideOverdueNudgeEmail,
   buildAppointmentNudgeEmail,
   buildWeeklyCheckinNudgeEmail,
+  buildPeptideJourneyInviteEmail,
   buildPaymentReminderEmail,
   buildFirstSessionCheckinEmail,
   buildBlueprintReceivedEmail,
@@ -76,7 +77,8 @@ type EmailTemplateName =
   | "NUDGE_PEPTIDE_UPCOMING"
   | "NUDGE_PEPTIDE_OVERDUE"
   | "NUDGE_APPOINTMENT"
-  | "NUDGE_WEEKLY_CHECKIN";
+  | "NUDGE_WEEKLY_CHECKIN"
+  | "PEPTIDE_JOURNEY_INVITE";
 
 async function logAndSend(params: {
   clientId?: string;
@@ -551,5 +553,18 @@ export async function sendWeeklyCheckinNudgeEmail(params: { clientId: string; fi
   const { clientId, firstName, email, outstanding } = params;
   const { subject, html } = buildWeeklyCheckinNudgeEmail({ firstName, outstanding });
   return logAndSend({ clientId, template: "NUDGE_WEEKLY_CHECKIN", sender: SENDERS.concierge, recipient: email, subject, html });
+}
+
+export async function sendPeptideJourneyInviteEmail(params: {
+  clientId: string;
+  firstName: string;
+  email: string;
+  personalNote?: string;
+  ctaLabel: string;
+  ctaUrl: string;
+}) {
+  const { clientId, firstName, email, personalNote, ctaLabel, ctaUrl } = params;
+  const { subject, html } = buildPeptideJourneyInviteEmail({ firstName, personalNote, ctaLabel, ctaUrl });
+  return logAndSend({ clientId, template: "PEPTIDE_JOURNEY_INVITE", sender: SENDERS.concierge, recipient: email, subject, html });
 }
 

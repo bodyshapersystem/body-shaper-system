@@ -3,30 +3,26 @@ import { getCurrentPortalClient } from "@/lib/permissions";
 import { prisma } from "@/lib/prisma";
 import { computeStreak, type TrackerDay } from "@/lib/daily-tracker-scoring";
 import { computeNextInjection } from "@/lib/peptide-schedule";
+import { getBusinessTimezone, getBusinessTodayUtc } from "@/lib/format-datetime";
 import TodayView, { type UpNextItem } from "./TodayView";
 
 export const dynamic = "force-dynamic";
-
-function todayUtc() {
-  const d = new Date();
-  d.setUTCHours(0, 0, 0, 0);
-  return d;
-}
 
 export default async function DailyTrackersPage() {
   const client = await getCurrentPortalClient();
   if (!client) redirect("/portal/login");
 
-  const thirtyDaysAgo = new Date();
-  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-  thirtyDaysAgo.setUTCHours(0, 0, 0, 0);
+  const timezone = await getBusinessTimezone();
+  const today = getBusinessTodayUtc(timezone);
+
+  const thirtyDaysAgo = new Date(today);
+  thirtyDaysAgo.setUTCDate(thirtyDaysAgo.getUTCDate() - 30);
 
   const recentTrackers = await prisma.dailyTracker.findMany({
     where: { clientId: client.id, date: { gte: thirtyDaysAgo } },
     orderBy: { date: "asc" },
   });
 
-  const today = todayUtc();
   const todayIso = today.toISOString();
   const todayTracker = recentTrackers.find((t) => t.date.toISOString() === todayIso) ?? null;
 

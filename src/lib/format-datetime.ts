@@ -40,3 +40,23 @@ export function getTimeBasedGreeting(timezone: string): string {
   if (hour < 18) return "good afternoon";
   return "good evening";
 }
+
+/**
+ * Real "today" boundary fix — Daily Trackers/System Nudges previously
+ * used raw UTC midnight to decide which calendar day a tracker row
+ * belongs to, while the rest of the app (appointments, greetings)
+ * already uses the business's real timezone (Eastern/Miami). Since
+ * Miami is UTC-4/-5, the UTC day rolls over at 7-8pm local time —
+ * meaning after that hour, "today's" tracker row would silently
+ * become tomorrow's from the client's actual perspective, showing an
+ * empty Recovery Score even though she'd logged things hours earlier.
+ * This returns the UTC Date representing midnight of the CURRENT
+ * calendar day as seen in the business's timezone.
+ */
+export function getBusinessTodayUtc(timezone: string): Date {
+  const parts = new Intl.DateTimeFormat("en-CA", { timeZone: timezone, year: "numeric", month: "2-digit", day: "2-digit" }).formatToParts(new Date());
+  const y = parts.find((p) => p.type === "year")!.value;
+  const m = parts.find((p) => p.type === "month")!.value;
+  const d = parts.find((p) => p.type === "day")!.value;
+  return new Date(`${y}-${m}-${d}T00:00:00.000Z`);
+}

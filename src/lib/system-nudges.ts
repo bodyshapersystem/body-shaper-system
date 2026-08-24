@@ -1,13 +1,14 @@
 import { prisma } from "@/lib/prisma";
 import { signNudgeAction } from "@/lib/nudge-action-token";
+import { getBusinessTimezone, getBusinessTodayUtc } from "@/lib/format-datetime";
 
 const CONFIRM_BASE_URL = "https://www.bodyshapersystem.com/nudge-confirm";
 
-function isWithinQuietHours(nowLocal: Date, quietStart: string | null, quietEnd: string | null): boolean {
+function isWithinQuietHours(localHour: number, localMinute: number, quietStart: string | null, quietEnd: string | null): boolean {
   if (!quietStart || !quietEnd) return false;
   const [sh, sm] = quietStart.split(":").map(Number);
   const [eh, em] = quietEnd.split(":").map(Number);
-  const nowMinutes = nowLocal.getHours() * 60 + nowLocal.getMinutes();
+  const nowMinutes = localHour * 60 + localMinute;
   const startMinutes = sh * 60 + sm;
   const endMinutes = eh * 60 + em;
   if (startMinutes === endMinutes) return false;
@@ -15,26 +16,20 @@ function isWithinQuietHours(nowLocal: Date, quietStart: string | null, quietEnd:
   return nowMinutes >= startMinutes || nowMinutes < endMinutes;
 }
 
-function isTimeDueThisHour(reminderTime: string, nowLocal: Date): boolean {
+function isTimeDueThisHour(reminderTime: string, localHour: number): boolean {
   const [h] = reminderTime.split(":").map(Number);
-  return h === nowLocal.getHours();
+  return h === localHour;
 }
 
-function todayUtc(): Date {
-  const d = new Date();
-  d.setUTCHours(0, 0, 0, 0);
-  return d;
-}
-
-async function alreadySent(clientId: string, category: string, scheduledTime: string): Promise<boolean> {
+async function alreadySent(clientId: string, category: string, scheduledDate: Date, scheduledTime: string): Promise<boolean> {
   const existing = await prisma.nudgeLog.findUnique({
-    where: { clientId_category_scheduledDate_scheduledTime: { clientId, category, scheduledDate: todayUtc(), scheduledTime } },
+    where: { clientId_category_scheduledDate_scheduledTime: { clientId, category, scheduledDate, scheduledTime } },
   });
   return !!existing;
 }
 
-async function recordSent(clientId: string, category: string, scheduledTime: string) {
-  await prisma.nudgeLog.create({ data: { clientId, category, scheduledDate: todayUtc(), scheduledTime } });
+async function recordSent(clientId: string, category: string, scheduledDate: Date, scheduledTime: string) {
+  await prisma.nudgeLog.create({ data: { clientId, category, scheduledDate, scheduledTime } });
 }
 
 export type NudgeToSend =
@@ -53,13 +48,20 @@ export type NudgeToSend =
  * category: checks the client's own ReminderPreference (enabled +
  * email + reminder times + relevant days), quiet hours, whether
  * today's goal is already met (suppresses the send entirely), and
- * whether this exact slot was already sent today (NudgeLog).
- * Nothing here is a blanket blast to every client.
+ * whether this exact slot was already sent today (NudgeLog). All
+ * hour/day-of-week matching happens in the business's real timezone
+ * (Eastern/Miami), not the server's UTC runtime clock — otherwise a
+ * reminder time like "09:00" would fire at 9am UTC (an odd hour in
+ * Miami), and the UTC day boundary would roll over hours before
+ * Miami's midnight. Nothing here is a blanket blast to every client.
  */
 export async function computeDueNudges(): Promise<NudgeToSend[]> {
   const now = new Date();
-  const dayCode = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"][now.getDay()];
-  const todayStart = todayUtc();
+  const timezone = await getBusinessTimezone();
+  const todayStart = getBusinessTodayUtc(timezone);
+  const dayCode = new Intl.DateTimeFormat("en-US", { timeZone: timezone, weekday: "short" }).format(now).slice(0, 3).toUpperCase();
+  const localHour = Number(new Intl.DateTimeFormat("en-US", { timeZone: timezone, hour: "numeric", hour12: false }).format(now)) % 24;
+  const localMinute = Number(new Intl.DateTimeFormat("en-US", { timeZone: timezone, minute: "numeric" }).format(now));
 
   const clients = await prisma.client.findMany({
     where: { user: { portalStatus: "ACTIVE" } },
@@ -76,7 +78,7 @@ export async function computeDueNudges(): Promise<NudgeToSend[]> {
   for (const client of clients) {
     const prefByCategory = new Map(client.reminderPreferences.map((p) => [p.category, p]));
     const today = client.dailyTrackers[0];
-    const quietNow = isWithinQuietHours(now, client.quietHoursStart, client.quietHoursEnd);
+    const quietNow = isWithinQuietHours(localHour, localMinute, client.quietHoursStart, client.quietHoursEnd);
 
     const hydrationPref = prefByCategory.get("HYDRATION");
     if (hydrationPref?.enabled && hydrationPref.emailEnabled && !quietNow) {
@@ -84,12 +86,12 @@ export async function computeDueNudges(): Promise<NudgeToSend[]> {
       const goalComplete = current >= client.hydrationGoalGlasses;
       if (!goalComplete) {
         for (const t of hydrationPref.reminderTimes) {
-          if (isTimeDueThisHour(t, now) && !(await alreadySent(client.id, "HYDRATION", t))) {
+          if (isTimeDueThisHour(t, localHour) && !(await alreadySent(client.id, "HYDRATION", todayStart, t))) {
             due.push({
               category: "HYDRATION", clientId: client.id, email: client.email, firstName: client.firstName, current, goal: client.hydrationGoalGlasses, scheduledTime: t,
-              confirmUrl: `${CONFIRM_BASE_URL}?token=${signNudgeAction(client.id, "HYDRATION", now)}`,
+              confirmUrl: `${CONFIRM_BASE_URL}?token=${signNudgeAction(client.id, "HYDRATION", todayStart)}`,
             });
-            await recordSent(client.id, "HYDRATION", t);
+            await recordSent(client.id, "HYDRATION", todayStart, t);
           }
         }
       }
@@ -102,12 +104,12 @@ export async function computeDueNudges(): Promise<NudgeToSend[]> {
       const goalComplete = goal != null && current != null && current >= goal;
       if (!goalComplete) {
         for (const t of proteinPref.reminderTimes) {
-          if (isTimeDueThisHour(t, now) && !(await alreadySent(client.id, "PROTEIN", t))) {
+          if (isTimeDueThisHour(t, localHour) && !(await alreadySent(client.id, "PROTEIN", todayStart, t))) {
             due.push({
               category: "PROTEIN", clientId: client.id, email: client.email, firstName: client.firstName, current, goal, scheduledTime: t,
-              confirmUrl: `${CONFIRM_BASE_URL}?token=${signNudgeAction(client.id, "PROTEIN", now)}`,
+              confirmUrl: `${CONFIRM_BASE_URL}?token=${signNudgeAction(client.id, "PROTEIN", todayStart)}`,
             });
-            await recordSent(client.id, "PROTEIN", t);
+            await recordSent(client.id, "PROTEIN", todayStart, t);
           }
         }
       }
@@ -125,12 +127,12 @@ export async function computeDueNudges(): Promise<NudgeToSend[]> {
         const goalComplete = currentHours >= client.compressionHoursRequired;
         if (!goalComplete) {
           for (const t of compressionPref.reminderTimes) {
-            if (isTimeDueThisHour(t, now) && !(await alreadySent(client.id, "COMPRESSION", t))) {
+            if (isTimeDueThisHour(t, localHour) && !(await alreadySent(client.id, "COMPRESSION", todayStart, t))) {
               due.push({
                 category: "COMPRESSION", clientId: client.id, email: client.email, firstName: client.firstName, currentHours, goalHours: client.compressionHoursRequired, scheduledTime: t,
-                confirmUrl: `${CONFIRM_BASE_URL}?token=${signNudgeAction(client.id, "COMPRESSION", now)}`,
+                confirmUrl: `${CONFIRM_BASE_URL}?token=${signNudgeAction(client.id, "COMPRESSION", todayStart)}`,
               });
-              await recordSent(client.id, "COMPRESSION", t);
+              await recordSent(client.id, "COMPRESSION", todayStart, t);
             }
           }
         }
@@ -143,9 +145,9 @@ export async function computeDueNudges(): Promise<NudgeToSend[]> {
       const goalComplete = current >= client.movementGoalSteps;
       if (!goalComplete) {
         for (const t of movementPref.reminderTimes) {
-          if (isTimeDueThisHour(t, now) && !(await alreadySent(client.id, "MOVEMENT", t))) {
+          if (isTimeDueThisHour(t, localHour) && !(await alreadySent(client.id, "MOVEMENT", todayStart, t))) {
             due.push({ category: "MOVEMENT", clientId: client.id, email: client.email, firstName: client.firstName, current, goal: client.movementGoalSteps, scheduledTime: t });
-            await recordSent(client.id, "MOVEMENT", t);
+            await recordSent(client.id, "MOVEMENT", todayStart, t);
           }
         }
       }
@@ -154,9 +156,9 @@ export async function computeDueNudges(): Promise<NudgeToSend[]> {
     const sleepPref = prefByCategory.get("SLEEP");
     if (sleepPref?.enabled && sleepPref.emailEnabled && !quietNow) {
       for (const t of sleepPref.reminderTimes) {
-        if (isTimeDueThisHour(t, now) && !(await alreadySent(client.id, "SLEEP", t))) {
+        if (isTimeDueThisHour(t, localHour) && !(await alreadySent(client.id, "SLEEP", todayStart, t))) {
           due.push({ category: "SLEEP", clientId: client.id, email: client.email, firstName: client.firstName, scheduledTime: t });
-          await recordSent(client.id, "SLEEP", t);
+          await recordSent(client.id, "SLEEP", todayStart, t);
         }
       }
     }
@@ -178,45 +180,45 @@ export async function computeDueNudges(): Promise<NudgeToSend[]> {
         const slotKey = `${protocol.id}`;
 
         if (hoursUntil > 0 && hoursUntil <= 1 && !quietNow) {
-          if (!(await alreadySent(client.id, "PEPTIDE_UPCOMING", slotKey))) {
+          if (!(await alreadySent(client.id, "PEPTIDE_UPCOMING", todayStart, slotKey))) {
             due.push({ category: "PEPTIDE_UPCOMING", clientId: client.id, email: client.email, firstName: client.firstName, peptideName: protocol.peptideName, scheduledAt: scheduledToday, hoursBefore: 1 });
-            await recordSent(client.id, "PEPTIDE_UPCOMING", slotKey);
+            await recordSent(client.id, "PEPTIDE_UPCOMING", todayStart, slotKey);
           }
         } else if (hoursUntil <= 0 && hoursUntil > -3 && !quietNow) {
-          if (!(await alreadySent(client.id, "PEPTIDE_OVERDUE", slotKey))) {
+          if (!(await alreadySent(client.id, "PEPTIDE_OVERDUE", todayStart, slotKey))) {
             due.push({ category: "PEPTIDE_OVERDUE", clientId: client.id, email: client.email, firstName: client.firstName, peptideName: protocol.peptideName, scheduledAt: scheduledToday });
-            await recordSent(client.id, "PEPTIDE_OVERDUE", slotKey);
+            await recordSent(client.id, "PEPTIDE_OVERDUE", todayStart, slotKey);
           }
         }
       }
     }
 
     const apptPref = prefByCategory.get("APPOINTMENTS");
-    if (apptPref?.enabled && apptPref.emailEnabled && !quietNow && now.getHours() === 9) {
+    if (apptPref?.enabled && apptPref.emailEnabled && !quietNow && localHour === 9) {
       const tomorrowStart = new Date(todayStart);
-      tomorrowStart.setDate(tomorrowStart.getDate() + 1);
+      tomorrowStart.setUTCDate(tomorrowStart.getUTCDate() + 1);
       const tomorrowEnd = new Date(tomorrowStart);
-      tomorrowEnd.setDate(tomorrowEnd.getDate() + 1);
+      tomorrowEnd.setUTCDate(tomorrowEnd.getUTCDate() + 1);
       const appt = await prisma.appointment.findFirst({
         where: { clientId: client.id, startsAt: { gte: tomorrowStart, lt: tomorrowEnd }, status: "SCHEDULED" },
       });
-      if (appt && !(await alreadySent(client.id, "APPOINTMENT", appt.id))) {
+      if (appt && !(await alreadySent(client.id, "APPOINTMENT", todayStart, appt.id))) {
         due.push({ category: "APPOINTMENT", clientId: client.id, email: client.email, firstName: client.firstName, title: appt.title, startsAt: appt.startsAt });
-        await recordSent(client.id, "APPOINTMENT", appt.id);
+        await recordSent(client.id, "APPOINTMENT", todayStart, appt.id);
       }
     }
 
     const weeklyPref = prefByCategory.get("WEEKLY_CHECKIN");
-    if (weeklyPref?.enabled && weeklyPref.emailEnabled && !quietNow && dayCode === "SUN" && now.getHours() === 9) {
+    if (weeklyPref?.enabled && weeklyPref.emailEnabled && !quietNow && dayCode === "SUN" && localHour === 9) {
       const outstanding: string[] = [];
       if ((today?.waterGlasses ?? 0) < client.hydrationGoalGlasses) outstanding.push("Hydration");
       if (client.proteinGoalGrams && (today?.proteinGrams ?? 0) < client.proteinGoalGrams) outstanding.push("Protein");
       if ((today?.steps ?? 0) < client.movementGoalSteps) outstanding.push("Movement");
       if (today?.sleepHours == null) outstanding.push("Sleep");
       if (!today?.moodCheckIn) outstanding.push("Mood");
-      if (outstanding.length > 0 && !(await alreadySent(client.id, "WEEKLY_CHECKIN", ""))) {
+      if (outstanding.length > 0 && !(await alreadySent(client.id, "WEEKLY_CHECKIN", todayStart, ""))) {
         due.push({ category: "WEEKLY_CHECKIN", clientId: client.id, email: client.email, firstName: client.firstName, outstanding });
-        await recordSent(client.id, "WEEKLY_CHECKIN", "");
+        await recordSent(client.id, "WEEKLY_CHECKIN", todayStart, "");
       }
     }
   }

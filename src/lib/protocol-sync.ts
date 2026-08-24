@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { getBusinessTimezone, getBusinessTodayUtc } from "@/lib/format-datetime";
 
 const DAY_ORDER = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
 
@@ -33,12 +34,14 @@ export async function getWeekSync(clientId: string): Promise<{
   const weekStart = startOfWeek(now);
   const weekEnd = new Date(weekStart);
   weekEnd.setDate(weekEnd.getDate() + 7);
+  const timezone = await getBusinessTimezone();
+  const todayStart = getBusinessTodayUtc(timezone);
 
   const [protocols, peptideLogs, appointments, todayTracker] = await Promise.all([
     prisma.peptideProtocol.findMany({ where: { clientId, active: true } }),
     prisma.peptideLog.findMany({ where: { clientId, administeredAt: { gte: weekStart, lt: weekEnd } } }),
     prisma.appointment.findMany({ where: { clientId, startsAt: { gte: weekStart, lt: weekEnd } }, orderBy: { startsAt: "asc" } }),
-    prisma.dailyTracker.findFirst({ where: { clientId, date: { gte: new Date(now.toDateString()) } }, orderBy: { date: "desc" } }),
+    prisma.dailyTracker.findFirst({ where: { clientId, date: todayStart } }),
   ]);
 
   const tasks: WeekTask[] = [];

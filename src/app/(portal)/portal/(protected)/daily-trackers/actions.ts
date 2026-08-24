@@ -4,12 +4,7 @@ import { getCurrentPortalClient } from "@/lib/permissions";
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { createNotification } from "@/lib/notifications";
-
-function todayUtc() {
-  const d = new Date();
-  d.setUTCHours(0, 0, 0, 0);
-  return d;
-}
+import { getBusinessTimezone, getBusinessTodayUtc } from "@/lib/format-datetime";
 
 /**
  * Real, real-time upsert for today's tracker row — every card on the
@@ -33,7 +28,8 @@ export async function updateTodayTracker(fields: Partial<{
   const client = await getCurrentPortalClient();
   if (!client) return { error: "Not signed in." };
 
-  const date = todayUtc();
+  const timezone = await getBusinessTimezone();
+  const date = getBusinessTodayUtc(timezone);
   await prisma.dailyTracker.upsert({
     where: { clientId_date: { clientId: client.id, date } },
     create: { clientId: client.id, date, ...fields },

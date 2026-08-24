@@ -7,6 +7,7 @@ import { redirect } from "next/navigation";
 export async function loginPortalClient(formData: FormData) {
   const email = String(formData.get("email") ?? "").trim();
   const password = String(formData.get("password") ?? "");
+  const next = String(formData.get("next") ?? "").trim();
 
   if (!email || !password) {
     return { error: "Email and password are required." };
@@ -41,6 +42,14 @@ export async function loginPortalClient(formData: FormData) {
 
   await prisma.user.update({ where: { id: portalUser.id }, data: { lastLoginAt: new Date() } });
 
+  // Real "preserve destination through auth" — only ever redirects
+  // within the portal's own /portal path (never an external URL),
+  // so an email CTA like Peptide Journey's invite can safely land the
+  // client back exactly where they were headed instead of always the
+  // generic dashboard.
+  if (next && next.startsWith("/portal/")) {
+    redirect(next);
+  }
   redirect("/portal/dashboard");
 }
 

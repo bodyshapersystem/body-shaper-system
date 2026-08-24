@@ -255,6 +255,8 @@ model Client {
   compressionHoursRequired      Float?
   compressionProtocolStartDate  DateTime?
   compressionProtocolEndDate    DateTime?
+  peptideJourneyInviteSentAt     DateTime?
+  peptideJourneyInviteSentByName String?
   reminderPreferences           ReminderPreference[]
   nudgeLogs                     NudgeLog[]
   address                String? // full street address — distinct from `city` (Service Zone)
@@ -1290,6 +1292,7 @@ enum EmailTemplate {
   NUDGE_PEPTIDE_OVERDUE
   NUDGE_APPOINTMENT
   NUDGE_WEEKLY_CHECKIN
+  PEPTIDE_JOURNEY_INVITE
 }
 
 enum EmailStatus {

@@ -21,6 +21,7 @@ import { CATEGORY_ICONS as NOTIFICATION_ICONS } from "@/lib/notifications";
 import BlueprintAssessmentTab from "./BlueprintAssessmentTab";
 import BlueprintReport from "./BlueprintReport";
 import ReminderConfigPanel from "./ReminderConfigPanel";
+import PeptideJourneyInviteCard from "./PeptideJourneyInviteCard";
 import DocumentUploadSheet from "./DocumentUploadSheet";
 import DocumentRowActions from "../../documents/DocumentRowActions";
 
@@ -79,6 +80,8 @@ export default async function ClientDetailPage({
   });
 
   if (!client) notFound();
+
+  const activePeptideProtocol = await prisma.peptideProtocol.findFirst({ where: { clientId: id, active: true }, orderBy: { createdAt: "asc" } });
 
   const [overview, appointments, payments, clientNotes, specialist, timezone, clientNotifications, collaboration, staff] = await Promise.all([
     getClientOverviewSummary(id),
@@ -315,6 +318,15 @@ export default async function ClientDetailPage({
             compressionHoursRequired={client.compressionHoursRequired}
             compressionProtocolStartDate={client.compressionProtocolStartDate ? client.compressionProtocolStartDate.toISOString() : null}
             compressionProtocolEndDate={client.compressionProtocolEndDate ? client.compressionProtocolEndDate.toISOString() : null}
+          />
+          <PeptideJourneyInviteCard
+            clientId={client.id}
+            clientFirstName={client.firstName}
+            clientEmail={client.email}
+            canManage={hasPermission(user, "blueprints.manage")}
+            inviteSentAt={client.peptideJourneyInviteSentAt ? client.peptideJourneyInviteSentAt.toISOString() : null}
+            inviteSentByName={client.peptideJourneyInviteSentByName}
+            activeProtocol={activePeptideProtocol ? { peptideName: activePeptideProtocol.peptideName, frequency: activePeptideProtocol.frequency } : null}
           />
         </>
       )}

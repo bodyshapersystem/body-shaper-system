@@ -1109,3 +1109,43 @@ export function buildWeeklyCheckinNudgeEmail(p: { firstName: string; outstanding
     }),
   };
 }
+
+export function buildPeptideJourneyInviteEmail(params: { firstName: string; personalNote?: string; ctaLabel: string; ctaUrl: string }): { subject: string; html: string } {
+  const { firstName, personalNote, ctaLabel, ctaUrl } = params;
+  const bodyParagraphs = [
+    `Hi ${firstName},`,
+    "If peptides are part of your current journey, there's something new waiting for you inside your Daily Trackers™.",
+    "Introducing Peptide Journey™ — a new way to keep your peptide protocol organized while connecting it to the bigger picture of your body transformation.",
+    "Inside your portal, you can now keep track of: your peptide + current protocol, your scheduled days and times, your injection history, your injection-site rotation, your upcoming reminders, and the way your routine is evolving alongside your System.",
+    "But this is where it becomes different.",
+    "Your Peptide Journey doesn't live by itself.",
+    "It works alongside your Daily Trackers™ and Body Blueprint™, allowing us to look at your journey more completely — from your habits and consistency to changes in your measurements and body composition over time.",
+    "So instead of simply knowing when you followed your protocol, we can begin to understand what your body was doing throughout the process.",
+    "Your protocol is one signal. Your body is the whole story. ✦",
+    "As your Blueprint continues to collect data, we can follow important changes such as weight, body fat, muscle mass, skeletal muscle, body water, measurements and overall progression — all in the context of the System already created for you.",
+    "You'll also have access to Protocol Sync™, where your peptide schedule, hydration, movement, sleep, compression and other daily goals can live together in one beautifully organized weekly view.",
+    "Already on a peptide journey? Add it to your portal and start tracking today.",
+  ];
+  if (personalNote?.trim()) {
+    bodyParagraphs.splice(1, 0, personalNote.trim());
+  }
+
+  return {
+    subject: "Are you on a Peptide Journey? Your portal just got smarter. ✦",
+    html: emailShell({
+      previewText: "Track your protocol, connect your habits, and understand your body's progress in one place.",
+      headline: "peptide journey",
+      headlineAccent: "™",
+      subheadlineLines: [],
+      bodyParagraphs,
+      ctaLabel,
+      ctaUrl,
+      closingText:
+        "Not using peptides? Nothing changes — your Daily Trackers will continue adapting to the parts of your journey that are relevant to you.\n\nHere with you as your body changes, evolves, and transforms.",
+      signatureName: "Emmy Branger, Founder",
+    }).replace(
+      "</body>",
+      `<p style="text-align:center;font-family:Arial,sans-serif;font-size:10px;color:${COLORS.taupeBar};padding:0 24px 20px;">Peptide Journey™ is designed to help you organize and track an existing protocol. Body Shaper System does not prescribe peptides or provide peptide dosing recommendations.</p></body>`
+    ),
+  };
+}
