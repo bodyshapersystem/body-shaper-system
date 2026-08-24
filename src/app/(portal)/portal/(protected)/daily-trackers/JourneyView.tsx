@@ -400,6 +400,11 @@ export default function JourneyView({
                 suggestedSite={openLogId === p.id ? suggestedSite : null}
                 onSelect={(site) => setSiteForLog(site)}
               />
+              <div className="isd-photo-labels-row">
+                {["LEFT_ARM", "LEFT_ABDOMEN", "RIGHT_ABDOMEN", "LEFT_GLUTE", "RIGHT_GLUTE", "RIGHT_ARM"].map((key) => (
+                  <span key={key} className="isd-photo-label-item">{siteDisplayLabel(key).toUpperCase()}</span>
+                ))}
+              </div>
               <p className="isd-last-site">Last site: <strong>{siteDisplayLabel(lastSite)}</strong></p>
               <p className="pay-history-meta" style={{ marginTop: 6 }}>This is for site rotation tracking only.</p>
             </div>
