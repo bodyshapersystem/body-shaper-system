@@ -4731,3 +4731,9 @@
 .pjic-row{ display:flex; justify-content:space-between; align-items:center; gap:14px; flex-wrap:wrap; }
 .pjic-status-active{ font-family:var(--serif); font-style:italic; font-size:15px; color:var(--mocha); margin:0 0 4px; }
 .pjic-recipient{ font-family:var(--sans); font-size:12.5px; color:var(--charcoal); margin:2px 0 0; }
+
+/* ---- RENPHO auto-upload extraction box ---- */
+.renpho-upload-box{
+  background:rgba(200,161,90,0.08); border:1px solid rgba(200,161,90,0.25); border-radius:10px;
+  padding:14px 16px; margin-bottom:16px;
+}
