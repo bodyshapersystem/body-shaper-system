@@ -6,6 +6,19 @@ import { saveProtocol, toggleProtocolReminder, stopTrackingProtocol, logPeptideD
 import { computeNextInjection, daysUntilLabel } from "@/lib/peptide-schedule";
 import { GOAL_CATEGORY_OPTIONS } from "@/lib/peptide-goal-copy";
 import PeptideWelcomeScreen from "./PeptideWelcomeScreen";
+import InjectionSiteDiagram from "./InjectionSiteDiagram";
+
+function suggestNextSite(lastSite: string | null): string {
+  if (!lastSite) return "LEFT_ABDOMEN";
+  if (lastSite.startsWith("LEFT_")) return lastSite.replace("LEFT_", "RIGHT_");
+  if (lastSite.startsWith("RIGHT_")) return lastSite.replace("RIGHT_", "LEFT_");
+  return "LEFT_ABDOMEN";
+}
+
+function siteDisplayLabel(site: string | null): string {
+  if (!site) return "—";
+  return site.replace("_", " ").toLowerCase().replace(/\b\w/g, (c) => c.toUpperCase());
+}
 
 type ProtocolT = {
   id: string;
@@ -98,6 +111,7 @@ export default function JourneyView({
   const [form, setForm] = useState(emptyForm);
   const [openLogId, setOpenLogId] = useState<string | null>(null);
   const [checkin, setCheckin] = useState<Record<string, number>>({});
+  const [siteForLog, setSiteForLog] = useState<string | null>(null);
 
   function toggleDay(day: string) {
     setForm((f) => ({ ...f, injectionDays: f.injectionDays.includes(day) ? f.injectionDays.filter((d) => d !== day) : [...f.injectionDays, day] }));
@@ -188,12 +202,13 @@ export default function JourneyView({
         peptideName: p.peptideName,
         administeredAt: new Date().toISOString(),
         dosage: p.dose ?? undefined,
-        injectionSite: p.injectionSite ?? undefined,
+        injectionSite: siteForLog ?? p.injectionSite ?? undefined,
         ...checkin,
       });
       if (!result?.error) {
         setOpenLogId(null);
         setCheckin({});
+        setSiteForLog(null);
         router.refresh();
       }
     });
@@ -302,6 +317,10 @@ export default function JourneyView({
         const timeLabel = next.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" });
         const nDayLabel = next.toLocaleDateString("en-US", { weekday: "long" });
         const nDateLabel = next.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+        const peptideLogs = logs.filter((l) => l.peptideName === p.peptideName);
+        const lastSite = peptideLogs.find((l) => l.injectionSite)?.injectionSite ?? null;
+        const suggestedSite = suggestNextSite(lastSite);
+        const activeSite = openLogId === p.id ? (siteForLog ?? suggestedSite) : null;
 
         return (
           <div key={p.id} className="dtj-protocol-block">
@@ -312,10 +331,11 @@ export default function JourneyView({
                 <p className="dtj-vial-name">{p.peptideName}</p>
                 <p className="dtj-mini-label" style={{ marginTop: 8 }}>dose</p>
                 <p className="dtj-vial-name">{p.dose || "—"}</p>
+                <span className="isd-protocol-tag">{p.frequency} protocol</span>
               </div>
               <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
                 <button type="button" className="dtj-link-small" onClick={() => openEditForm(p)}>Edit</button>
-                <button type="button" className="dtj-link-small" onClick={() => handleStopTracking(p)}>Stop</button>
+                <button type="button" className="dtj-link-small" onClick={() => handleStopTracking(p)}>Pause</button>
               </div>
             </div>
 
@@ -336,6 +356,20 @@ export default function JourneyView({
               </div>
             </div>
 
+            <div className="isd-section">
+              <p className="dtj-field-label">Injection Site</p>
+              <p className="pay-history-meta" style={{ marginBottom: 10 }}>Select where you injected today. This is for site rotation tracking only.</p>
+              <InjectionSiteDiagram
+                selectedSite={activeSite}
+                suggestedSite={openLogId === p.id ? suggestedSite : null}
+                onSelect={(site) => setSiteForLog(site)}
+              />
+              <div className="isd-labels-row">
+                <span>Last site: <strong>{siteDisplayLabel(lastSite)}</strong></span>
+                <span>Next rotation: <strong>{siteDisplayLabel(suggestedSite)}</strong></span>
+              </div>
+            </div>
+
             <div className="dtj-next-injection-card">
               <p className="dtj-mini-label" style={{ color: "rgba(245,238,228,0.7)" }}>next injection</p>
               <p className="dtj-next-injection-date">{nDayLabel}, {nDateLabel} · {timeLabel}</p>
@@ -350,7 +384,7 @@ export default function JourneyView({
             )}
 
             {openLogId !== p.id ? (
-              <button type="button" className="dtj-log-btn" onClick={() => { setOpenLogId(p.id); setCheckin({}); }}>
+              <button type="button" className="dtj-log-btn" onClick={() => { setOpenLogId(p.id); setCheckin({}); setSiteForLog(suggestedSite); }}>
                 Log Injection
               </button>
             ) : (

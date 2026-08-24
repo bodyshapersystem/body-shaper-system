@@ -48,6 +48,15 @@ export default function DailyTrackersLayout({ children }: { children: React.Reac
   const pathname = usePathname();
   return (
     <div className="dtj-shell">
+      <header className="dtj-header">
+        <button type="button" className="dtj-header-menu" aria-label="Menu">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+            <path d="M4 7h16M4 12h16M4 17h16" strokeLinecap="round" />
+          </svg>
+        </button>
+        <span className="dtj-header-wordmark">body shaper system.</span>
+        <span style={{ width: 20 }} />
+      </header>
       <div className="dtj-content">{children}</div>
       <nav className="dtj-tabbar">
         {TABS.map((t) => {

@@ -4182,6 +4182,18 @@
 
 /* ================= Daily Trackers™ Journey redesign ================= */
 .dtj-shell{ display:flex; flex-direction:column; min-height:100vh; background:var(--ivory); padding-bottom:78px; }
+.dtj-header{
+  display:flex; align-items:center; justify-content:space-between; padding:16px 18px;
+  background:#1E1A16; color:#F1EBE1; position:relative; overflow:hidden; flex-shrink:0;
+}
+.dtj-header::after{
+  content:""; position:absolute; inset:0; pointer-events:none; opacity:0.35;
+  background:
+    radial-gradient(ellipse at 20% 120%, rgba(200,161,90,0.18), transparent 60%),
+    radial-gradient(ellipse at 80% -20%, rgba(199,158,147,0.15), transparent 55%);
+}
+.dtj-header-menu{ background:none; border:none; color:#F1EBE1; cursor:pointer; padding:0; z-index:1; }
+.dtj-header-wordmark{ font-family:var(--sans); font-size:13px; letter-spacing:0.14em; color:#F1EBE1; z-index:1; }
 .dtj-content{ flex:1; max-width:520px; margin:0 auto; width:100%; padding:24px 18px 8px; }
 
 .dtj-tabbar{
@@ -4538,3 +4550,19 @@
 }
 .rc-category-body{ padding:0 16px 16px; border-top:1px solid rgba(107,82,64,0.08); padding-top:12px; }
 .rc-checkbox-row{ display:flex; align-items:center; gap:8px; font-family:var(--sans); font-size:12.5px; color:var(--charcoal); margin-bottom:12px; }
+
+/* ---- Injection Site Diagram ---- */
+.isd-section{ background:#fff; border:1px solid rgba(107,82,64,0.12); border-radius:14px; padding:16px; margin-bottom:14px; }
+.isd-wrap{ display:flex; justify-content:center; gap:30px; }
+.isd-view{ display:flex; flex-direction:column; align-items:center; }
+.isd-view-label{ font-family:var(--sans); font-size:10px; letter-spacing:0.08em; text-transform:uppercase; color:var(--taupe); margin-bottom:4px; }
+.isd-svg{ width:90px; height:142px; color:var(--mocha); }
+.isd-site{ fill:rgba(107,82,64,0.08); stroke:var(--mocha); stroke-width:1; cursor:pointer; transition:fill .2s ease; }
+.isd-site-suggested{ stroke:var(--rose); stroke-dasharray:2 2; }
+.isd-site-selected{ fill:var(--rose); stroke:var(--rose); }
+.isd-labels-row{ display:flex; justify-content:space-between; margin-top:12px; font-family:var(--sans); font-size:11px; color:var(--taupe); }
+.isd-labels-row strong{ color:var(--charcoal); font-weight:500; }
+.isd-protocol-tag{
+  display:inline-block; margin-top:8px; padding:3px 10px; border-radius:12px; font-family:var(--sans);
+  font-size:10px; letter-spacing:0.03em; text-transform:uppercase; background:rgba(199,158,147,0.15); color:var(--mocha);
+}
