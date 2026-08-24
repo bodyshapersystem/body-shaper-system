@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import type { MetricChange } from "@/lib/progress-celebration";
 
 export default function ProgressCelebrationOverlay({
@@ -10,6 +9,7 @@ export default function ProgressCelebrationOverlay({
   compareLabel,
   shareImageUrl,
   onDismiss,
+  onShareClick,
 }: {
   category: string;
   changes: MetricChange[];
@@ -17,33 +17,8 @@ export default function ProgressCelebrationOverlay({
   compareLabel: string;
   shareImageUrl: string;
   onDismiss: () => void;
+  onShareClick: (url: string) => void;
 }) {
-  const [sharing, setSharing] = useState(false);
-
-  async function handleShare() {
-    setSharing(true);
-    try {
-      const res = await fetch(shareImageUrl);
-      const blob = await res.blob();
-      const file = new File([blob], "body-shaper-system-progress.png", { type: "image/png" });
-
-      if (navigator.canShare && navigator.canShare({ files: [file] })) {
-        await navigator.share({ files: [file], title: "My Progress — Body Shaper System" });
-      } else {
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = "body-shaper-system-progress.png";
-        a.click();
-        URL.revokeObjectURL(url);
-      }
-    } catch {
-      // Share sheet cancelled or unsupported — nothing to do.
-    } finally {
-      setSharing(false);
-    }
-  }
-
   return (
     <div className="pcel-backdrop" onClick={onDismiss}>
       <div className="pcel-card" onClick={(e) => e.stopPropagation()}>
@@ -73,8 +48,8 @@ export default function ProgressCelebrationOverlay({
         <button type="button" className="pcel-btn-primary" onClick={onDismiss}>
           VIEW MY PROGRESS →
         </button>
-        <button type="button" className="pcel-btn-secondary" onClick={handleShare} disabled={sharing}>
-          {sharing ? "Preparing…" : "SHARE MY PROGRESS ↗"}
+        <button type="button" className="pcel-btn-secondary" onClick={() => onShareClick(shareImageUrl)}>
+          SHARE MY PROGRESS ↗
         </button>
       </div>
     </div>

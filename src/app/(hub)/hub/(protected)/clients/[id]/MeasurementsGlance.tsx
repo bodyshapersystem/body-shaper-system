@@ -6,6 +6,7 @@ import { formatLength, cmToIn, type LengthUnit } from "@/lib/units";
 import type { MetricChange } from "@/lib/progress-celebration";
 import ProgressCelebrationOverlay from "@/app/(portal)/portal/(protected)/blueprint/ProgressCelebrationOverlay";
 import { markMeasurementCelebrationSeen } from "@/app/(portal)/portal/(protected)/blueprint/celebration-actions";
+import ShareImageModal from "@/app/(portal)/portal/(protected)/blueprint/ShareImageModal";
 
 type LatestBodyMeasurement = {
   chestCm: number | null;
@@ -44,32 +45,13 @@ export default function MeasurementsGlance({
 }) {
   const [unit, setUnit] = useState<LengthUnit>("cm");
   const [showCelebration, setShowCelebration] = useState(!!celebration);
+  const [shareModalUrl, setShareModalUrl] = useState<string | null>(null);
 
   if (!latestBodyMeasurement) return null;
 
   function dismissCelebration() {
     setShowCelebration(false);
     if (bodyMeasurementId) markMeasurementCelebrationSeen(bodyMeasurementId).catch(() => undefined);
-  }
-
-  async function handlePersistentShare(url: string) {
-    try {
-      const res = await fetch(url);
-      const blob = await res.blob();
-      const file = new File([blob], "body-shaper-system-progress.png", { type: "image/png" });
-      if (navigator.canShare && navigator.canShare({ files: [file] })) {
-        await navigator.share({ files: [file], title: "My Progress — Body Shaper System" });
-      } else {
-        const objUrl = URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = objUrl;
-        a.download = "body-shaper-system-progress.png";
-        a.click();
-        URL.revokeObjectURL(objUrl);
-      }
-    } catch {
-      // Share sheet cancelled or unsupported.
-    }
   }
 
   // Neutral "Progress Since Last Measurement" — real deltas (any
@@ -112,7 +94,7 @@ export default function MeasurementsGlance({
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", flexWrap: "wrap", gap: 8 }}>
             <p className="bbp-progress-card-title" style={{ fontStyle: "normal", marginBottom: 0 }}>Progress Since Last Measurement</p>
             {persistentShareUrl && (
-              <button type="button" className="bbp-persistent-share-btn" onClick={() => handlePersistentShare(persistentShareUrl)}>
+              <button type="button" className="bbp-persistent-share-btn" onClick={() => setShareModalUrl(persistentShareUrl)}>
                 SHARE MY PROGRESS ↗
               </button>
             )}
@@ -136,8 +118,11 @@ export default function MeasurementsGlance({
           compareLabel={celebration.compareLabel}
           shareImageUrl={celebration.shareImageUrl}
           onDismiss={dismissCelebration}
+          onShareClick={(url) => setShareModalUrl(url)}
         />
       )}
+
+      {shareModalUrl && <ShareImageModal imageUrl={shareModalUrl} onClose={() => setShareModalUrl(null)} />}
     </>
   );
 }
