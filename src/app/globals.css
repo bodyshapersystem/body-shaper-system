@@ -4740,3 +4740,80 @@
   background:rgba(200,161,90,0.08); border:1px solid rgba(200,161,90,0.25); border-radius:10px;
   padding:14px 16px; margin-bottom:16px;
 }
+
+/* ---- Progress Photos™ redesign — luxury clinical editorial ---- */
+.pp-wrap{ max-width:720px; margin:0 auto; }
+.pp-header{ text-align:left; margin-bottom:18px; position:relative; }
+.pp-badge{
+  display:inline-block; margin-top:10px; padding:5px 14px; border-radius:14px; font-family:var(--sans);
+  font-size:10px; letter-spacing:0.08em; text-transform:uppercase; color:var(--rose);
+  border:1px solid rgba(199,158,147,0.4); background:rgba(199,158,147,0.06);
+}
+.pp-controls-row{ display:flex; justify-content:flex-end; margin-bottom:8px; }
+.pp-trust-note{
+  font-family:var(--serif); font-style:italic; font-size:12.5px; color:var(--taupe); margin:0 0 24px;
+  text-align:center; border-top:1px solid rgba(200,161,90,0.2); border-bottom:1px solid rgba(200,161,90,0.2);
+  padding:10px 0;
+}
+
+.pp-luxury-card{
+  background:var(--ivory); border:1px solid rgba(200,161,90,0.25); border-radius:18px; padding:22px;
+  box-shadow:0 2px 16px rgba(107,82,64,0.05);
+}
+.pp-section-title{
+  font-family:var(--serif); font-style:italic; font-size:17px; color:var(--mocha); margin:0 0 14px;
+  letter-spacing:0.01em;
+}
+
+.pp-angle-switch{ display:flex; gap:8px; margin-bottom:16px; flex-wrap:wrap; }
+.pp-angle-pill{
+  padding:6px 14px; border-radius:16px; border:1px solid rgba(107,82,64,0.25); background:transparent;
+  color:var(--mocha); font-family:var(--sans); font-size:11px; letter-spacing:0.03em; cursor:pointer;
+}
+.pp-angle-pill-active{ background:var(--rose); color:#fff; border-color:var(--rose); }
+
+.pp-compare-grid{ display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+.pp-photo-col{ display:flex; flex-direction:column; }
+.pp-photo-img{ width:100%; border-radius:12px; display:block; aspect-ratio:3/4; object-fit:cover; background:#f2ece1; }
+.pp-photo-caption{ font-family:var(--sans); font-size:10.5px; letter-spacing:0.03em; color:var(--taupe); margin:8px 0 0; text-align:center; }
+.pp-photo-placeholder{
+  aspect-ratio:3/4; background:rgba(107,82,64,0.05); border-radius:12px; display:flex; align-items:center;
+  justify-content:center; color:var(--taupe); font-family:var(--sans); font-size:11px; border:1px dashed rgba(107,82,64,0.2);
+}
+.pp-photo-footer{ display:flex; justify-content:space-between; align-items:center; margin-top:6px; }
+.pp-photo-label{ font-family:var(--sans); font-size:10.5px; color:var(--taupe); margin:6px 0 0; }
+.pp-download-btn{
+  width:24px; height:24px; border-radius:50%; border:1px solid rgba(107,82,64,0.25); background:#fff;
+  color:var(--mocha); display:flex; align-items:center; justify-content:center; cursor:pointer; padding:0;
+}
+.pp-download-session-btn{
+  width:100%; padding:11px; border-radius:22px; border:1px solid var(--mocha); background:transparent;
+  color:var(--mocha); font-family:var(--sans); font-size:11.5px; letter-spacing:0.05em; cursor:pointer;
+}
+
+.pp-session-header{
+  width:100%; display:flex; justify-content:space-between; align-items:center; background:none; border:none;
+  cursor:pointer; padding:0 0 14px; font-family:var(--sans); font-size:12px; letter-spacing:0.04em; color:var(--mocha);
+}
+.pp-session-chevron{ color:var(--rose); font-size:10px; }
+.pp-session-grid{ display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:14px; }
+
+.pp-session-measurements{ margin-top:16px; padding-top:14px; border-top:1px solid rgba(200,161,90,0.2); }
+.pp-mini-label{ font-family:var(--sans); font-size:10px; letter-spacing:0.06em; text-transform:uppercase; color:var(--taupe); margin:0 0 10px; }
+.pp-measurement-chips{ display:flex; flex-wrap:wrap; gap:8px; }
+.pp-measurement-chip{
+  font-family:var(--sans); font-size:11.5px; color:var(--taupe); background:rgba(200,161,90,0.08);
+  border:1px solid rgba(200,161,90,0.2); border-radius:12px; padding:5px 12px; text-transform:capitalize;
+}
+.pp-measurement-chip strong{ color:var(--charcoal); font-weight:500; }
+
+.pp-final-comparison{
+  background:linear-gradient(135deg, rgba(200,161,90,0.06), rgba(199,158,147,0.06)); border:1px solid rgba(200,161,90,0.3);
+  border-radius:20px; padding:26px 22px; text-align:center;
+}
+.pp-final-sub{ font-family:var(--sans); font-size:11.5px; color:var(--taupe); line-height:1.7; margin:0 0 20px; }
+.pp-callouts-row{ display:flex; justify-content:center; gap:22px; flex-wrap:wrap; }
+.pp-callout{ display:flex; flex-direction:column; align-items:center; min-width:80px; }
+.pp-callout-dot{ width:8px; height:8px; border-radius:50%; background:var(--gold); margin-bottom:8px; }
+.pp-callout-label{ font-family:var(--sans); font-size:10px; letter-spacing:0.04em; text-transform:uppercase; color:var(--taupe); margin:0 0 4px; }
+.pp-callout-value{ font-family:var(--serif); font-size:22px; color:var(--mocha); margin:0; }

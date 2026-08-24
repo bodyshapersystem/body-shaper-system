@@ -3,34 +3,17 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { getBusinessTimezone, formatDateInTimezone } from "@/lib/format-datetime";
 import { getClientPhotoSignedUrl } from "./actions";
+import { getMeasurementCallouts } from "@/lib/progress-photo-callouts";
+import ProgressPhotosView from "./ProgressPhotosView";
 
 export const dynamic = "force-dynamic";
 
-const SLOT_LABELS: Record<string, string> = {
-  FRONT: "Front",
-  LEFT: "Left",
-  RIGHT: "Right",
-  BACK: "Back",
-  DETAIL: "Detail",
-};
-
-const MEASUREMENT_FIELDS: { key: "chestCm" | "waistCm" | "highWaistCm" | "lowerAbdomenCm" | "hipsCm" | "neckCm" | "shoulderCm" | "rightArmCm" | "leftArmCm" | "rightThighCm" | "leftThighCm"; label: string }[] = [
-  { key: "chestCm", label: "Chest" },
-  { key: "waistCm", label: "Waist" },
-  { key: "lowerAbdomenCm", label: "Abdomen" },
-  { key: "hipsCm", label: "Hips" },
-  { key: "rightThighCm", label: "R. Thigh" },
-  { key: "leftThighCm", label: "L. Thigh" },
-  { key: "rightArmCm", label: "R. Arm" },
-  { key: "leftArmCm", label: "L. Arm" },
-  { key: "neckCm", label: "Neck" },
-  { key: "shoulderCm", label: "Shoulder" },
-];
+const MEASUREMENT_KEYS = [
+  "waistCm", "lowerAbdomenCm", "hipsCm", "rightThighCm", "leftThighCm",
+  "rightArmCm", "leftArmCm", "chestCm", "neckCm", "shoulderCm",
+] as const;
 
 function dayKey(date: Date, timezone: string): string {
-  // en-CA gives YYYY-MM-DD directly — used purely as a same-day
-  // comparison key between a photo session's date and a measurement's
-  // date, both in the business's real timezone.
   return new Intl.DateTimeFormat("en-CA", { timeZone: timezone }).format(date);
 }
 
@@ -41,10 +24,6 @@ export default async function ProgressPhotosPage() {
   if (!client) redirect("/portal/login");
 
   const [photos, bodyMeasurements, timezone] = await Promise.all([
-    // Real sessions are groups of 4 photos in upload order — not by
-    // calendar date. A client can shoot two full sessions (8 photos)
-    // in the same sitting/day, and they still need to read as two
-    // separate before/after sessions, never merged into one.
     prisma.photo.findMany({
       where: { clientId: client.id, visibility: "CLIENT_VISIBLE" },
       orderBy: { uploadedAt: "asc" },
@@ -53,14 +32,8 @@ export default async function ProgressPhotosPage() {
     getBusinessTimezone(),
   ]);
 
-  // Grouping: if the Owner has set explicit sessionNumber values (used
-  // to correct cases where automatic chunking merged an old incomplete
-  // session's leftovers with a new session's uploads), group by that.
-  // Otherwise fall back to the original "chunks of 4 in upload order"
-  // behavior, unchanged for every client that's never needed a manual
-  // fix.
   const hasExplicitSessions = photos.length > 0 && photos.every((p) => p.sessionNumber != null);
-  const sessions: (typeof photos)[] = [];
+  const sessionGroups: (typeof photos)[] = [];
   if (hasExplicitSessions) {
     const bySession = new Map<number, typeof photos>();
     for (const p of photos) {
@@ -69,136 +42,59 @@ export default async function ProgressPhotosPage() {
       bySession.get(n)!.push(p);
     }
     for (const n of Array.from(bySession.keys()).sort((a, b) => a - b)) {
-      sessions.push(bySession.get(n)!);
+      sessionGroups.push(bySession.get(n)!);
     }
   } else {
-    // Chunk into sequential groups of 4 — the current in-progress
-    // session (if not yet a full 4) is always the last chunk.
     for (let i = 0; i < photos.length; i += SESSION_SIZE) {
-      sessions.push(photos.slice(i, i + SESSION_SIZE));
+      sessionGroups.push(photos.slice(i, i + SESSION_SIZE));
     }
   }
 
-  const sessionsWithUrls = await Promise.all(
-    sessions.map(async (sessionPhotos, index) => {
+  const sessions = await Promise.all(
+    sessionGroups.map(async (sessionPhotos, index) => {
       const withUrls = await Promise.all(
         sessionPhotos.map(async (photo) => ({
-          photo,
+          photo: { id: photo.id, type: photo.type },
           url: await getClientPhotoSignedUrl(photo.id),
         }))
       );
-      const dateLabel = formatDateInTimezone(sessionPhotos[0].takenAt ?? sessionPhotos[0].uploadedAt, timezone, {
-        year: "numeric",
-        month: "long",
-        day: "numeric",
-      });
-      const sessionDayKey = dayKey(sessionPhotos[0].takenAt ?? sessionPhotos[0].uploadedAt, timezone);
-      const matchedMeasurement = bodyMeasurements.find((m) => dayKey(m.measuredAt, timezone) === sessionDayKey) ?? null;
-      return { sessionNumber: index + 1, dateLabel, photos: withUrls, isComplete: sessionPhotos.length === SESSION_SIZE, matchedMeasurement };
+      const refDate = sessionPhotos[0].takenAt ?? sessionPhotos[0].uploadedAt;
+      const dateLabel = formatDateInTimezone(refDate, timezone, { year: "numeric", month: "long", day: "numeric" });
+      const sessionDayKey = dayKey(refDate, timezone);
+      const matched = bodyMeasurements.find((m) => dayKey(m.measuredAt, timezone) === sessionDayKey) ?? null;
+      const measurements = matched
+        ? Object.fromEntries(MEASUREMENT_KEYS.map((k) => [k, matched[k] as number | null]))
+        : null;
+      return {
+        sessionNumber: index + 1,
+        dateLabel,
+        photos: withUrls,
+        isComplete: sessionPhotos.length === SESSION_SIZE,
+        measurements,
+        rawMeasurement: matched,
+      };
     })
   );
 
-  // Automatic "best" before/after: same angle (Front, preferred) from
-  // the earliest session vs the latest session — never two different
-  // angles compared against each other.
-  const firstSession = sessionsWithUrls[0];
-  const latestSession = sessionsWithUrls[sessionsWithUrls.length - 1];
-  const pickAngle = (session: typeof firstSession) =>
-    session?.photos.find((p) => p.photo.type === "FRONT") ?? session?.photos[0] ?? null;
-  const beforePhoto = firstSession ? pickAngle(firstSession) : null;
-  const afterPhoto = latestSession && latestSession !== firstSession ? pickAngle(latestSession) : null;
+  const firstWithMeasurement = sessions.find((s) => s.rawMeasurement)?.rawMeasurement ?? null;
+  const latestWithMeasurement = [...sessions].reverse().find((s) => s.rawMeasurement)?.rawMeasurement ?? null;
+  const finalCallouts =
+    firstWithMeasurement && latestWithMeasurement && firstWithMeasurement !== latestWithMeasurement
+      ? getMeasurementCallouts(
+          Object.fromEntries(MEASUREMENT_KEYS.map((k) => [k, firstWithMeasurement[k] as number | null])),
+          Object.fromEntries(MEASUREMENT_KEYS.map((k) => [k, latestWithMeasurement[k] as number | null])),
+          3
+        )
+      : [];
 
   return (
     <div className="cat-body portal-page">
-      <div className="portal-page-head">
-        <p className="portal-eyebrow">Visual Proof of Progress</p>
-        <h1>progress photos.</h1>
-        <p className="portal-page-sub">Track your transformation with before &amp; after comparisons.</p>
-      </div>
-
-      {sessionsWithUrls.length === 0 ? (
-        <div className="simple-card">
-          <p className="dash-empty">No progress photos yet — your specialist will capture these during your sessions.</p>
-        </div>
-      ) : (
-        <>
-          {beforePhoto && afterPhoto && (
-            <div className="simple-card" style={{ marginBottom: 20 }}>
-              <h3>Latest Comparison</h3>
-              <div className="pp-compare" style={{ gridTemplateColumns: "1fr 1fr" }}>
-                <div className="pp-photo">
-                  {beforePhoto.url ? (
-                    <img src={beforePhoto.url} alt="Before" style={{ width: "100%", borderRadius: 12, display: "block" }} />
-                  ) : (
-                    <span>Image unavailable</span>
-                  )}
-                  <p className="pay-history-meta" style={{ marginTop: 6 }}>Before — {firstSession.dateLabel}</p>
-                </div>
-                <div className="pp-photo">
-                  {afterPhoto.url ? (
-                    <img src={afterPhoto.url} alt="After" style={{ width: "100%", borderRadius: 12, display: "block" }} />
-                  ) : (
-                    <span>Image unavailable</span>
-                  )}
-                  <p className="pay-history-meta" style={{ marginTop: 6 }}>After — {latestSession.dateLabel}</p>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {sessionsWithUrls.map(({ sessionNumber, dateLabel, photos: sessionPhotos, isComplete, matchedMeasurement }) => (
-            <div className="simple-card" key={sessionNumber} style={{ marginBottom: 20 }}>
-              <h3>
-                Session {sessionNumber} — {dateLabel}
-                {!isComplete ? " (in progress)" : ""}
-              </h3>
-              <div className="pp-compare">
-                {(["FRONT", "LEFT", "RIGHT", "BACK"] as const).map((slotType) => {
-                  const found = sessionPhotos.find(({ photo }) => photo.type === slotType);
-                  return (
-                    <div className="pp-photo" key={slotType}>
-                      {found?.url ? (
-                        <img src={found.url} alt={SLOT_LABELS[slotType]} style={{ width: "100%", borderRadius: 12, display: "block" }} />
-                      ) : (
-                        <div
-                          style={{
-                            aspectRatio: "3/4",
-                            background: "rgba(0,0,0,0.05)",
-                            borderRadius: 12,
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            color: "#a89e8f",
-                            fontSize: 12,
-                          }}
-                        >
-                          Not yet taken
-                        </div>
-                      )}
-                      <p className="pay-history-meta" style={{ marginTop: 6 }}>{SLOT_LABELS[slotType]}</p>
-                    </div>
-                  );
-                })}
-              </div>
-              {matchedMeasurement && (
-                <div style={{ marginTop: 16, paddingTop: 14, borderTop: "1px solid var(--line)" }}>
-                  <p className="pay-history-meta" style={{ marginBottom: 8, textTransform: "uppercase", letterSpacing: "0.06em" }}>
-                    Measurements this session
-                  </p>
-                  <div style={{ display: "flex", flexWrap: "wrap", gap: "10px 24px" }}>
-                    {MEASUREMENT_FIELDS.filter(({ key }) => matchedMeasurement[key] != null).map(({ key, label }) => (
-                      <div key={key} style={{ fontFamily: "var(--sans)", fontSize: 13 }}>
-                        <span style={{ color: "#8a7f74" }}>{label}: </span>
-                        <strong>{(matchedMeasurement[key] as number).toFixed(1)} cm</strong>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-          ))}
-        </>
-      )}
+      <ProgressPhotosView
+        sessions={sessions.map(({ rawMeasurement, ...s }) => s)}
+        firstSessionNumber={sessions.length > 0 ? sessions[0].sessionNumber : null}
+        latestSessionNumber={sessions.length > 0 ? sessions[sessions.length - 1].sessionNumber : null}
+        finalCallouts={finalCallouts}
+      />
     </div>
   );
 }
