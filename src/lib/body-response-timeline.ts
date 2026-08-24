@@ -80,7 +80,7 @@ export async function getInsights(clientId: string): Promise<{
   for (const log of peptideLogs.slice(0, 10)) {
     events.push({
       id: `pep-${log.id}`,
-      icon: "💉",
+      icon: "syringe",
       title: "Peptide injection logged",
       detail: `${log.peptideName}${log.dosage ? ` ${log.dosage}` : ""}`,
       date: log.administeredAt,
@@ -88,7 +88,7 @@ export async function getInsights(clientId: string): Promise<{
   }
 
   for (const appt of completedAppointments.slice(0, 10)) {
-    events.push({ id: `appt-${appt.id}`, icon: "✧", title: `${appt.title} completed`, detail: "Session logged", date: appt.startsAt });
+    events.push({ id: `appt-${appt.id}`, icon: "session", title: `${appt.title} completed`, detail: "Session logged", date: appt.startsAt });
   }
 
   // Daily completion swings — hydration goal met, and meaningful day-over-day score jumps.
@@ -96,10 +96,10 @@ export async function getInsights(clientId: string): Promise<{
     const prev = trackers[i - 1];
     const curr = trackers[i];
     if (curr.waterGlasses >= 8 && prev.waterGlasses < 8) {
-      events.push({ id: `hyd-${curr.id}`, icon: "💧", title: "Hydration up", detail: "8 glasses goal met", date: curr.date });
+      events.push({ id: `hyd-${curr.id}`, icon: "hydration", title: "Hydration up", detail: "8 glasses goal met", date: curr.date });
     }
     if (curr.symptoms.length === 0 && prev.symptoms.length > 0) {
-      events.push({ id: `sym-${curr.id}`, icon: "🙂", title: "Symptoms improved", detail: "Feeling lighter", date: curr.date });
+      events.push({ id: `sym-${curr.id}`, icon: "symptom", title: "Symptoms improved", detail: "Feeling lighter", date: curr.date });
     }
     const prevScore = computeDailyCompletionPercent({
       date: prev.date.toISOString(), waterGlasses: prev.waterGlasses, steps: prev.steps, sleepHours: prev.sleepHours,
@@ -110,7 +110,7 @@ export async function getInsights(clientId: string): Promise<{
       compressionWorn: curr.compressionWorn, moodCheckIn: curr.moodCheckIn, symptoms: curr.symptoms, weightLbs: curr.weightLbs,
     });
     if (currScore - prevScore >= 15) {
-      events.push({ id: `score-${curr.id}`, icon: "★", title: "Recovery score improved", detail: `From ${prevScore}% to ${currScore}%`, date: curr.date });
+      events.push({ id: `score-${curr.id}`, icon: "score", title: "Recovery score improved", detail: `From ${prevScore}% to ${currScore}%`, date: curr.date });
     }
   }
 
@@ -127,7 +127,7 @@ export async function getInsights(clientId: string): Promise<{
         const label = f === "waistCm" ? "Waist" : f === "hipsCm" ? "Hips" : "Chest";
         events.push({
           id: `meas-${curr.id}-${f}`,
-          icon: "📏",
+          icon: "measurement",
           title: `${label} measurement`,
           detail: `${diff > 0 ? "+" : ""}${(diff / 2.54).toFixed(1)} in`,
           date: curr.measuredAt,
@@ -142,7 +142,7 @@ export async function getInsights(clientId: string): Promise<{
   for (const p of photos) {
     if (p.sessionNumber != null && !seenSessions.has(p.sessionNumber)) {
       seenSessions.add(p.sessionNumber);
-      events.push({ id: `photo-${p.sessionNumber}`, icon: "📷", title: "Progress photo added", detail: `Session ${p.sessionNumber}`, date: p.uploadedAt });
+      events.push({ id: `photo-${p.sessionNumber}`, icon: "photo", title: "Progress photo added", detail: `Session ${p.sessionNumber}`, date: p.uploadedAt });
     }
   }
 

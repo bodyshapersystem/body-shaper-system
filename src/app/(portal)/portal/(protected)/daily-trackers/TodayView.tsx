@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import { updateTodayTracker } from "./actions";
 import { computeDailyCompletionPercent, computeRecoveryScore, getCompletedCategories, type TrackerDay } from "@/lib/daily-tracker-scoring";
+import { DropIcon, ShoeIcon, MoonIcon, GarmentIcon, FlameIcon, PencilIcon, SmileIcon, ClockIcon } from "@/components/DTJIcons";
 
 type TodayTracker = {
   waterGlasses: number;
@@ -19,10 +20,12 @@ type TodayTracker = {
   weightLbs: number | null;
 } | null;
 
+export type UpNextItem = { label: string; timeLabel: string };
+
 const MOOD_OPTIONS = [
-  { key: "GREAT", label: "Great", icon: "😊" },
-  { key: "OKAY", label: "Okay", icon: "😐" },
-  { key: "BLOATED", label: "Bloated", icon: "😣" },
+  { key: "GREAT", label: "Great" },
+  { key: "OKAY", label: "Okay" },
+  { key: "BLOATED", label: "Bloated" },
 ];
 
 function greeting() {
@@ -37,11 +40,13 @@ export default function TodayView({
   todayTracker,
   days,
   streak,
+  upNext,
 }: {
   firstName: string;
   todayTracker: TodayTracker;
   days: TrackerDay[];
   streak: number;
+  upNext: UpNextItem[];
 }) {
   const [, startTransition] = useTransition();
   const [water, setWater] = useState(todayTracker?.waterGlasses ?? 0);
@@ -81,6 +86,7 @@ export default function TodayView({
   const completed = getCompletedCategories(todayDay);
   const habitsDoneCount = Object.values(completed).filter(Boolean).length;
   const allDone = habitsDoneCount === 7;
+  const recoveryMessage = recoveryScore >= 70 ? "your body is responding" : "keep it up";
 
   const last7 = days.slice(-7);
   const trendPoints = last7.map((d) => computeDailyCompletionPercent(d));
@@ -101,10 +107,12 @@ export default function TodayView({
           </div>
         </div>
         <div className="dtj-streak-box">
-          <p className="dtj-streak-line">🔥 {streak} day streak</p>
+          <p className="dtj-streak-line"><FlameIcon /> {streak} day streak</p>
           <p className="dtj-streak-line dtj-streak-count">{habitsDoneCount} / 7 completed</p>
+          <p className="dtj-streak-sub">consistency is building</p>
         </div>
       </div>
+      <p className="dtj-recovery-message">{recoveryMessage}</p>
 
       <div className="dtj-score-trend-card">
         <p className="dtj-mini-label">today's score</p>
@@ -124,9 +132,18 @@ export default function TodayView({
         <p className="dtj-mini-sub">{completionPercent >= 70 ? "great progress!" : "keep building momentum."}</p>
       </div>
 
+      {upNext.length > 0 && (
+        <div className="dtj-upnext-card">
+          <p className="dtj-mini-label">up next</p>
+          {upNext.map((item, i) => (
+            <p key={i} className="dtj-upnext-row"><ClockIcon /> {item.label} · {item.timeLabel}</p>
+          ))}
+        </div>
+      )}
+
       <div className="dtj-mini-grid">
         <button type="button" className="dtj-mini-card" onClick={() => setOpenCard(openCard === "hydration" ? null : "hydration")}>
-          <span className="dtj-mini-icon">💧</span>
+          <span className="dtj-mini-icon"><DropIcon /></span>
           <p className="dtj-mini-title">Hydration</p>
           <p className="dtj-mini-value">{water} / 8</p>
           <p className="dtj-mini-sub-small">glasses</p>
@@ -138,7 +155,7 @@ export default function TodayView({
         </button>
 
         <button type="button" className="dtj-mini-card" onClick={() => setOpenCard(openCard === "movement" ? null : "movement")}>
-          <span className="dtj-mini-icon">👟</span>
+          <span className="dtj-mini-icon"><ShoeIcon /></span>
           <p className="dtj-mini-title">Movement</p>
           <p className="dtj-mini-value">{steps ? steps.toLocaleString() : "—"}</p>
           <p className="dtj-mini-sub-small">/ {(todayTracker?.stepsGoal ?? 8000).toLocaleString()} steps</p>
@@ -146,28 +163,28 @@ export default function TodayView({
         </button>
 
         <button type="button" className="dtj-mini-card" onClick={() => setOpenCard(openCard === "sleep" ? null : "sleep")}>
-          <span className="dtj-mini-icon">🌙</span>
+          <span className="dtj-mini-icon"><MoonIcon /></span>
           <p className="dtj-mini-title">Sleep</p>
           <p className="dtj-mini-value">{sleepHours || "—"}h</p>
           <p className="dtj-mini-sub-small">{sleepQuality || "not logged"}</p>
         </button>
 
         <button type="button" className="dtj-mini-card" onClick={() => { const next = compressionWorn !== true; setCompressionWorn(next); save({ compressionWorn: next }); }}>
-          <span className="dtj-mini-icon">🎽</span>
+          <span className="dtj-mini-icon"><GarmentIcon /></span>
           <p className="dtj-mini-title">Compression</p>
           <p className="dtj-mini-value">{compressionWorn === true ? "Yes" : compressionWorn === false ? "No" : "—"}</p>
-          <p className="dtj-mini-sub-small">{compressionWorn === true ? "✓ worn today" : "tap to log"}</p>
+          <p className="dtj-mini-sub-small">{compressionWorn === true ? "worn today" : "tap to log"}</p>
         </button>
 
         <button type="button" className="dtj-mini-card" onClick={() => setOpenCard(openCard === "mood" ? null : "mood")}>
-          <span className="dtj-mini-icon">{MOOD_OPTIONS.find((m) => m.key === mood)?.icon ?? "🤍"}</span>
+          <span className="dtj-mini-icon"><SmileIcon /></span>
           <p className="dtj-mini-title">Mood</p>
           <p className="dtj-mini-value">{MOOD_OPTIONS.find((m) => m.key === mood)?.label ?? "—"}</p>
           <p className="dtj-mini-sub-small">how you're feeling</p>
         </button>
 
         <button type="button" className="dtj-mini-card" onClick={() => { setOpenCard(openCard === "note" ? null : "note"); setNoteDraft(dailyNote ?? ""); }}>
-          <span className="dtj-mini-icon">✎</span>
+          <span className="dtj-mini-icon"><PencilIcon /></span>
           <p className="dtj-mini-title">Notes</p>
           <p className="dtj-mini-value">{dailyNote ? "Added" : "Quick note"}</p>
           <p className="dtj-mini-sub-small">{dailyNote ? "tap to edit" : "add today"}</p>
@@ -235,7 +252,7 @@ export default function TodayView({
                 className={`dtj-pill ${mood === m.key ? "dtj-pill-active" : ""}`}
                 onClick={() => { setMood(m.key); save({ moodCheckIn: m.key }); setOpenCard(null); }}
               >
-                {m.icon} {m.label}
+                {m.label}
               </button>
             ))}
           </div>
@@ -264,7 +281,7 @@ export default function TodayView({
 
       {allDone && <p className="dtj-celebration">today is complete. ✦</p>}
 
-      <p className="dtj-footer-tag">bodyshapersystem.com</p>
+      <p className="dtj-footer-tag">small steps. one system.<br />bodyshapersystem.com</p>
     </div>
   );
 }

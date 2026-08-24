@@ -4215,6 +4215,15 @@
 }
 .dtj-streak-line{ font-family:var(--sans); font-size:12.5px; color:var(--charcoal); margin:0 0 6px; }
 .dtj-streak-count{ margin-bottom:0; color:var(--mocha); font-weight:500; }
+.dtj-streak-sub{ font-family:var(--sans); font-size:10.5px; color:var(--taupe); margin-top:6px; }
+.dtj-recovery-message{ text-align:center; font-family:var(--serif); font-style:italic; font-size:13px; color:var(--taupe); margin:-10px 0 16px; }
+.dtj-streak-line svg{ vertical-align:-2px; color:var(--rose); margin-right:2px; }
+
+.dtj-upnext-card{
+  background:#fff; border:1px solid rgba(107,82,64,0.12); border-radius:14px; padding:14px 16px; margin-bottom:16px;
+}
+.dtj-upnext-row{ display:flex; align-items:center; gap:8px; font-family:var(--sans); font-size:12.5px; color:var(--charcoal); margin:6px 0 0; }
+.dtj-upnext-row svg{ color:var(--rose); flex-shrink:0; }
 
 .dtj-score-trend-card{
   background:#fff; border-radius:16px; padding:16px 18px; margin-bottom:18px; border:1px solid rgba(107,82,64,0.1);
@@ -4232,7 +4241,7 @@
 }
 .dtj-mini-card:active{ transform:scale(0.97); }
 .dtj-mini-card:hover{ box-shadow:0 4px 14px rgba(107,82,64,0.08); }
-.dtj-mini-icon{ font-size:17px; display:block; margin-bottom:4px; }
+.dtj-mini-icon{ font-size:17px; display:block; margin-bottom:4px; color:var(--rose); }
 .dtj-mini-title{ font-size:11px; color:var(--taupe); margin:0 0 2px; }
 .dtj-mini-value{ font-family:var(--serif); font-size:19px; color:var(--charcoal); margin:0 0 1px; line-height:1.1; }
 .dtj-mini-sub-small{ font-size:9.5px; color:var(--taupe); margin:0 0 6px; }
@@ -4371,7 +4380,7 @@
 .dtj-timeline-marker-col{ display:flex; flex-direction:column; align-items:center; }
 .dtj-timeline-icon{
   width:32px; height:32px; border-radius:50%; background:#fff; border:1px solid rgba(107,82,64,0.15);
-  display:flex; align-items:center; justify-content:center; font-size:14px; flex-shrink:0;
+  display:flex; align-items:center; justify-content:center; font-size:14px; flex-shrink:0; color:var(--rose);
 }
 .dtj-timeline-line{ width:1px; flex:1; background:rgba(107,82,64,0.15); min-height:22px; }
 .dtj-timeline-content{ padding-bottom:18px; }

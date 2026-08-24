@@ -330,6 +330,10 @@ export default function JourneyView({
                   <span className="dtj-toggle-dot" />
                 </button>
               </div>
+              <div className="dtj-protocol-row">
+                <span />
+                <a href="/portal/daily-trackers/reminders" className="dtj-link-small">Manage reminders →</a>
+              </div>
             </div>
 
             <div className="dtj-next-injection-card">

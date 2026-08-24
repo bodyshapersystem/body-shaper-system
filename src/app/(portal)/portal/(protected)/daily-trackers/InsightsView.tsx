@@ -2,6 +2,20 @@
 
 import { useState } from "react";
 import type { MonthlySummary, TimelineEvent } from "@/lib/body-response-timeline";
+import { SyringeIcon, SparkleIcon, DropIcon, SmileIcon, FlameIcon, RulerIcon, CameraIcon } from "@/components/DTJIcons";
+
+function TimelineIcon({ iconKey }: { iconKey: string }) {
+  switch (iconKey) {
+    case "syringe": return <SyringeIcon />;
+    case "session": return <SparkleIcon />;
+    case "hydration": return <DropIcon />;
+    case "symptom": return <SmileIcon />;
+    case "score": return <FlameIcon />;
+    case "measurement": return <RulerIcon />;
+    case "photo": return <CameraIcon />;
+    default: return <SparkleIcon />;
+  }
+}
 
 type TimelineItem = TimelineEvent & { dayLabel: string; timeLabel: string };
 
@@ -42,7 +56,7 @@ export default function InsightsView({ summary, timeline }: { summary: MonthlySu
         {visible.map((event, i) => (
           <div key={event.id} className="dtj-timeline-row">
             <div className="dtj-timeline-marker-col">
-              <span className="dtj-timeline-icon">{event.icon}</span>
+              <span className="dtj-timeline-icon"><TimelineIcon iconKey={event.icon} /></span>
               {i < visible.length - 1 && <span className="dtj-timeline-line" />}
             </div>
             <div className="dtj-timeline-content">
