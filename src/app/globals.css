@@ -4622,3 +4622,52 @@
 .isd-site-label{ font-family:var(--sans); font-size:8px; letter-spacing:0.02em; color:var(--taupe); text-align:center; line-height:1.2; }
 .isd-last-site{ font-family:var(--sans); font-size:11.5px; color:var(--taupe); margin:10px 0 0; }
 .isd-last-site strong{ color:var(--charcoal); font-weight:500; }
+
+/* ---- Home — pixel-match pass: thick ring, streak progress bar, botanical branch, centered mini-cards ---- */
+.dtj-score-ring-v2{ width:150px; height:150px; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0; padding:9px; box-sizing:border-box; }
+.dtj-score-ring-inner-v2{
+  width:100%; height:100%; border-radius:50%; background:var(--ivory); display:flex; flex-direction:column;
+  align-items:center; justify-content:center; text-align:center; border:1px solid rgba(200,161,90,0.3);
+}
+.dtj-score-ring-inner-v2 strong{ font-family:var(--serif); font-size:36px; color:var(--charcoal); line-height:1.1; }
+.dtj-ring-label{ font-family:var(--sans); font-size:9px; letter-spacing:0.06em; color:var(--taupe); margin:2px 0; }
+.dtj-ring-message{ font-family:var(--serif); font-style:italic; font-size:12px; color:var(--taupe); margin:2px 0 0; }
+
+.dtj-streak-box-v2{
+  flex:1; background:#fff; border-radius:16px; padding:16px 14px; border:1px solid rgba(107,82,64,0.1);
+  display:flex; flex-direction:column; align-items:center; text-align:center;
+}
+.dtj-streak-icon-circle{
+  width:38px; height:38px; border-radius:50%; background:rgba(199,158,147,0.15); color:var(--rose);
+  display:flex; align-items:center; justify-content:center; margin-bottom:10px;
+}
+.dtj-streak-days{ font-family:var(--serif); font-size:16px; color:var(--charcoal); margin:0 0 8px; }
+.dtj-streak-divider{ width:100%; height:1px; background:rgba(107,82,64,0.1); margin-bottom:8px; }
+.dtj-streak-completed{ font-family:var(--sans); font-size:12px; color:var(--charcoal); margin:0 0 10px; }
+.dtj-streak-progress{ width:100%; height:4px; border-radius:2px; background:rgba(107,82,64,0.1); overflow:hidden; }
+.dtj-streak-progress-fill{ height:100%; background:var(--rose); border-radius:2px; }
+
+.dtj-score-trend-card-v2{
+  position:relative; background:#fff; border-radius:16px; padding:18px 20px; margin-bottom:18px; border:1px solid rgba(107,82,64,0.1);
+  overflow:hidden;
+}
+.dtj-score-trend-card-v2 .dtj-score-trend-num{ display:block; font-family:var(--serif); font-size:36px; color:var(--charcoal); line-height:1.15; }
+.dtj-branch-illustration{ position:absolute; right:14px; bottom:10px; width:76px; height:76px; opacity:0.9; }
+
+.dtj-mini-card-v2{
+  background:#fff; border:1px solid rgba(107,82,64,0.1); border-radius:16px; padding:14px 10px; text-align:center;
+  cursor:pointer; transition:transform .15s ease, box-shadow .15s ease; font-family:var(--sans);
+  display:flex; flex-direction:column; align-items:center;
+}
+.dtj-mini-card-v2:active{ transform:scale(0.97); }
+.dtj-mini-card-v2:hover{ box-shadow:0 4px 14px rgba(107,82,64,0.08); }
+.dtj-mini-icon-circle{
+  width:34px; height:34px; border-radius:50%; background:rgba(199,158,147,0.15); color:var(--rose);
+  display:flex; align-items:center; justify-content:center; margin-bottom:8px;
+}
+.dtj-mini-title-v2{
+  font-size:9.5px; letter-spacing:0.05em; color:var(--taupe); margin:0 0 6px; padding-bottom:5px;
+  border-bottom:1px solid rgba(107,82,64,0.12); width:100%;
+}
+.dtj-mini-value-v2{ font-family:var(--serif); font-size:20px; color:var(--charcoal); margin:0 0 2px; line-height:1.1; }
+.dtj-mini-sub-v2{ font-size:10px; color:var(--taupe); margin:0 0 6px; }
