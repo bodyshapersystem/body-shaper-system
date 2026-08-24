@@ -186,7 +186,7 @@ export async function computeDueNudges(): Promise<NudgeToSend[]> {
       const tomorrowEnd = new Date(tomorrowStart);
       tomorrowEnd.setDate(tomorrowEnd.getDate() + 1);
       const appt = await prisma.appointment.findFirst({
-        where: { clientId: client.id, startsAt: { gte: tomorrowStart, lt: tomorrowEnd }, status: { in: ["SCHEDULED", "CONFIRMED"] } },
+        where: { clientId: client.id, startsAt: { gte: tomorrowStart, lt: tomorrowEnd }, status: "SCHEDULED" },
       });
       if (appt && !(await alreadySent(client.id, "APPOINTMENT", appt.id))) {
         due.push({ category: "APPOINTMENT", clientId: client.id, email: client.email, firstName: client.firstName, title: appt.title, startsAt: appt.startsAt });
