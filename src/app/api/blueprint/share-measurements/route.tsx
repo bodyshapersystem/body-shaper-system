@@ -2,16 +2,21 @@ import { ImageResponse } from "next/og";
 import { getCurrentPortalClient } from "@/lib/permissions";
 import { prisma } from "@/lib/prisma";
 import { getPositiveMeasurementChanges, MEASUREMENTS_CLOSING_PHRASE } from "@/lib/progress-celebration";
-import { readFileSync } from "fs";
-import { join } from "path";
 
 export const dynamic = "force-dynamic";
 
-const serifFont = readFileSync(join(process.cwd(), "public/fonts/CormorantGaramond.ttf"));
-const serifItalicFont = readFileSync(join(process.cwd(), "public/fonts/CormorantGaramond-Italic.ttf"));
-const sansFont = readFileSync(join(process.cwd(), "public/fonts/Jost.ttf"));
+async function loadFont(filename: string): Promise<ArrayBuffer> {
+  const res = await fetch(new URL(`../_fonts/${filename}`, import.meta.url));
+  return res.arrayBuffer();
+}
 
 export async function GET(request: Request) {
+  const [serifFont, serifItalicFont, sansFont] = await Promise.all([
+    loadFont("CormorantGaramond.ttf"),
+    loadFont("CormorantGaramond-Italic.ttf"),
+    loadFont("Jost.ttf"),
+  ]);
+
   const client = await getCurrentPortalClient();
   if (!client) return new Response("Unauthorized", { status: 401 });
 
