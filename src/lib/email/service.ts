@@ -10,6 +10,15 @@ import {
   buildGoogleReviewRequestEmail,
   buildMidpointDataReadyEmail,
   buildMidpointDataMissingEmail,
+  buildHydrationNudgeEmail,
+  buildProteinNudgeEmail,
+  buildCompressionNudgeEmail,
+  buildMovementNudgeEmail,
+  buildSleepNudgeEmail,
+  buildPeptideUpcomingNudgeEmail,
+  buildPeptideOverdueNudgeEmail,
+  buildAppointmentNudgeEmail,
+  buildWeeklyCheckinNudgeEmail,
   buildPaymentReminderEmail,
   buildFirstSessionCheckinEmail,
   buildBlueprintReceivedEmail,
@@ -58,7 +67,16 @@ type EmailTemplateName =
   | "NEW_PROGRESS_PHOTOS"
   | "GOOGLE_REVIEW_REQUEST"
   | "MIDPOINT_DATA_READY"
-  | "MIDPOINT_DATA_MISSING";
+  | "MIDPOINT_DATA_MISSING"
+  | "NUDGE_HYDRATION"
+  | "NUDGE_PROTEIN"
+  | "NUDGE_COMPRESSION"
+  | "NUDGE_MOVEMENT"
+  | "NUDGE_SLEEP"
+  | "NUDGE_PEPTIDE_UPCOMING"
+  | "NUDGE_PEPTIDE_OVERDUE"
+  | "NUDGE_APPOINTMENT"
+  | "NUDGE_WEEKLY_CHECKIN";
 
 async function logAndSend(params: {
   clientId?: string;
@@ -478,3 +496,58 @@ export async function sendMidpointDataMissingEmail(params: { clientId: string; f
   const { subject, html } = buildMidpointDataMissingEmail({ firstName, systemName });
   return logAndSend({ clientId, template: "MIDPOINT_DATA_MISSING", sender: SENDERS.concierge, recipient: email, subject, html });
 }
+
+export async function sendHydrationNudgeEmail(params: { clientId: string; firstName: string; email: string; current: number; goal: number }) {
+  const { clientId, firstName, email, current, goal } = params;
+  const { subject, html } = buildHydrationNudgeEmail({ firstName, current, goal });
+  return logAndSend({ clientId, template: "NUDGE_HYDRATION", sender: SENDERS.concierge, recipient: email, subject, html });
+}
+
+export async function sendProteinNudgeEmail(params: { clientId: string; firstName: string; email: string; current: number | null; goal: number | null }) {
+  const { clientId, firstName, email, current, goal } = params;
+  const { subject, html } = buildProteinNudgeEmail({ firstName, current, goal });
+  return logAndSend({ clientId, template: "NUDGE_PROTEIN", sender: SENDERS.concierge, recipient: email, subject, html });
+}
+
+export async function sendCompressionNudgeEmail(params: { clientId: string; firstName: string; email: string; currentHours: number; goalHours: number }) {
+  const { clientId, firstName, email, currentHours, goalHours } = params;
+  const { subject, html } = buildCompressionNudgeEmail({ firstName, currentHours, goalHours });
+  return logAndSend({ clientId, template: "NUDGE_COMPRESSION", sender: SENDERS.concierge, recipient: email, subject, html });
+}
+
+export async function sendMovementNudgeEmail(params: { clientId: string; firstName: string; email: string; current: number; goal: number }) {
+  const { clientId, firstName, email, current, goal } = params;
+  const { subject, html } = buildMovementNudgeEmail({ firstName, current, goal });
+  return logAndSend({ clientId, template: "NUDGE_MOVEMENT", sender: SENDERS.concierge, recipient: email, subject, html });
+}
+
+export async function sendSleepNudgeEmail(params: { clientId: string; firstName: string; email: string }) {
+  const { clientId, firstName, email } = params;
+  const { subject, html } = buildSleepNudgeEmail({ firstName });
+  return logAndSend({ clientId, template: "NUDGE_SLEEP", sender: SENDERS.concierge, recipient: email, subject, html });
+}
+
+export async function sendPeptideUpcomingNudgeEmail(params: { clientId: string; firstName: string; email: string; peptideName: string; scheduledAt: Date }) {
+  const { clientId, firstName, email, peptideName, scheduledAt } = params;
+  const { subject, html } = buildPeptideUpcomingNudgeEmail({ firstName, peptideName, scheduledAt });
+  return logAndSend({ clientId, template: "NUDGE_PEPTIDE_UPCOMING", sender: SENDERS.concierge, recipient: email, subject, html });
+}
+
+export async function sendPeptideOverdueNudgeEmail(params: { clientId: string; firstName: string; email: string; peptideName: string }) {
+  const { clientId, firstName, email, peptideName } = params;
+  const { subject, html } = buildPeptideOverdueNudgeEmail({ firstName, peptideName });
+  return logAndSend({ clientId, template: "NUDGE_PEPTIDE_OVERDUE", sender: SENDERS.concierge, recipient: email, subject, html });
+}
+
+export async function sendAppointmentNudgeEmail(params: { clientId: string; firstName: string; email: string; title: string; startsAt: Date }) {
+  const { clientId, firstName, email, title, startsAt } = params;
+  const { subject, html } = buildAppointmentNudgeEmail({ firstName, title, startsAt });
+  return logAndSend({ clientId, template: "NUDGE_APPOINTMENT", sender: SENDERS.concierge, recipient: email, subject, html });
+}
+
+export async function sendWeeklyCheckinNudgeEmail(params: { clientId: string; firstName: string; email: string; outstanding: string[] }) {
+  const { clientId, firstName, email, outstanding } = params;
+  const { subject, html } = buildWeeklyCheckinNudgeEmail({ firstName, outstanding });
+  return logAndSend({ clientId, template: "NUDGE_WEEKLY_CHECKIN", sender: SENDERS.concierge, recipient: email, subject, html });
+}
+

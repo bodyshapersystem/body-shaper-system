@@ -52,6 +52,91 @@ function rule(): string {
   return `<table role="presentation" cellpadding="0" cellspacing="0"><tr><td style="width:48px;height:2px;background-color:${COLORS.rose};font-size:0;line-height:0;">&nbsp;</td></tr></table>`;
 }
 
+/**
+ * Dedicated shell for System Nudges™ — matches the approved mockup
+ * precisely: dark mocha header with "for you, [FIRST NAME]", ivory
+ * body, eyebrow category label, serif headline, a progress box when
+ * relevant, primary (dusty rose) + secondary (outline) CTA buttons,
+ * and the champagne-wave footer with "small steps. one system."
+ */
+function nudgeEmailShell(params: {
+  firstName: string;
+  category: string;
+  headline: string;
+  bodyText: string;
+  progressLabel?: string;
+  progressValue?: string;
+  progressBarPercent?: number;
+  primaryCtaLabel: string;
+  primaryCtaUrl: string;
+  secondaryCtaLabel?: string;
+  secondaryCtaUrl?: string;
+  previewText?: string;
+}): string {
+  const { firstName, category, headline, bodyText, progressLabel, progressValue, progressBarPercent, primaryCtaLabel, primaryCtaUrl, secondaryCtaLabel, secondaryCtaUrl, previewText } = params;
+
+  return `<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /></head>
+<body style="margin:0;padding:0;background-color:${COLORS.ivory};font-family:Georgia,'Times New Roman',serif;">
+  ${previewText ? `<div style="display:none;max-height:0;overflow:hidden;font-size:1px;line-height:1px;color:${COLORS.ivory};opacity:0;">${previewText}</div>` : ""}
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:${COLORS.ivory};padding:24px 0;">
+    <tr><td align="center">
+      <table role="presentation" width="480" cellpadding="0" cellspacing="0" style="max-width:480px;width:100%;background-color:#ffffff;border-radius:14px;overflow:hidden;">
+        <tr><td style="background-color:#1E1A16;padding:20px 24px;">
+          <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+            <tr>
+              <td style="font-family:Georgia,serif;font-size:14px;color:#F1EBE1;">body<br/>shaper<br/>system.</td>
+              <td align="right" style="font-family:Arial,sans-serif;font-size:11px;color:#F1EBE1;opacity:0.7;">for you, ${firstName}</td>
+            </tr>
+          </table>
+        </td></tr>
+        <tr><td style="padding:40px 32px;">
+          <table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr><td align="center">
+            <div style="width:52px;height:52px;border-radius:50%;border:1px solid ${COLORS.sand};margin:0 auto 18px;"></div>
+            <p style="font-family:Arial,sans-serif;font-size:10.5px;letter-spacing:2px;text-transform:uppercase;color:${COLORS.rose};margin:0 0 10px;">${category}</p>
+            <h1 style="font-family:Georgia,serif;font-size:26px;color:${COLORS.charcoal};margin:0 0 16px;font-weight:400;">${headline}</h1>
+            <p style="font-family:Arial,sans-serif;font-size:13.5px;line-height:1.7;color:${COLORS.charcoal};margin:0 0 22px;">${bodyText}</p>
+            ${
+              progressLabel
+                ? `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:${COLORS.sandLight};border-radius:10px;margin-bottom:22px;">
+                    <tr><td style="padding:16px;text-align:center;">
+                      <p style="font-family:Arial,sans-serif;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:${COLORS.mocha};margin:0 0 6px;">${progressLabel}</p>
+                      <p style="font-family:Georgia,serif;font-size:24px;color:${COLORS.charcoal};margin:0 0 8px;">${progressValue}</p>
+                      ${
+                        progressBarPercent != null
+                          ? `<table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr><td style="background-color:#E8DCC8;border-radius:4px;height:6px;">
+                              <table role="presentation" cellpadding="0" cellspacing="0"><tr><td style="width:${Math.min(progressBarPercent, 100)}%;background-color:${COLORS.rose};height:6px;border-radius:4px;font-size:0;line-height:0;">&nbsp;</td></tr></table>
+                            </td></tr></table>`
+                          : ""
+                      }
+                    </td></tr>
+                  </table>`
+                : ""
+            }
+            <table role="presentation" cellpadding="0" cellspacing="0" style="margin:0 auto 10px;"><tr><td style="background-color:${COLORS.rose};border-radius:24px;">
+              <a href="${primaryCtaUrl}" style="display:inline-block;padding:13px 28px;font-family:Arial,sans-serif;font-size:12.5px;letter-spacing:0.5px;color:#ffffff;text-decoration:none;">${primaryCtaLabel}</a>
+            </td></tr></table>
+            ${
+              secondaryCtaLabel
+                ? `<table role="presentation" cellpadding="0" cellspacing="0"><tr><td style="border:1px solid ${COLORS.sand};border-radius:24px;">
+                    <a href="${secondaryCtaUrl ?? "#"}" style="display:inline-block;padding:11px 26px;font-family:Arial,sans-serif;font-size:12px;color:${COLORS.mocha};text-decoration:none;">${secondaryCtaLabel}</a>
+                  </td></tr></table>`
+                : ""
+            }
+          </td></tr></table>
+        </td></tr>
+        <tr><td style="padding:18px 24px;border-top:1px solid ${COLORS.sand};text-align:center;">
+          <p style="font-family:Georgia,serif;font-style:italic;font-size:12px;color:${COLORS.mocha};margin:0 0 4px;">small steps. one system.</p>
+          <p style="font-family:Arial,sans-serif;font-size:10.5px;color:${COLORS.taupeBar};margin:0;">bodyshapersystem.com &nbsp;·&nbsp; @bodyshapersystem</p>
+        </td></tr>
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>`;
+}
+
 function button(label: string, url: string): string {
   return `<table role="presentation" cellpadding="0" cellspacing="0" style="margin:22px 0;">
     <tr>
@@ -864,3 +949,163 @@ export function buildMidpointDataMissingEmail(params: { firstName: string; syste
   };
 }
 
+const PORTAL_URL = "https://www.bodyshapersystem.com/portal/daily-trackers";
+
+export function buildHydrationNudgeEmail(p: { firstName: string; current: number; goal: number }): { subject: string; html: string } {
+  return {
+    subject: "Hydration check ✦",
+    html: nudgeEmailShell({
+      firstName: p.firstName,
+      category: "HYDRATION CHECK",
+      headline: "Have you had enough water today?",
+      bodyText: "Hydration is one of the simplest ways to support your body while you move through your System.",
+      progressLabel: "your progress today",
+      progressValue: `${p.current} / ${p.goal} glasses`,
+      progressBarPercent: (p.current / p.goal) * 100,
+      primaryCtaLabel: "YES, I'M ON TRACK ✓",
+      primaryCtaUrl: PORTAL_URL,
+      secondaryCtaLabel: "NOT YET",
+      secondaryCtaUrl: PORTAL_URL,
+    }),
+  };
+}
+
+export function buildProteinNudgeEmail(p: { firstName: string; current: number | null; goal: number | null }): { subject: string; html: string } {
+  const tracking = p.goal != null;
+  return {
+    subject: "Protein check ✦",
+    html: nudgeEmailShell({
+      firstName: p.firstName,
+      category: "PROTEIN CHECK",
+      headline: "Remember your protein today.",
+      bodyText: "Protein supports your body as it recovers, builds and changes.",
+      progressLabel: tracking ? "your progress today" : undefined,
+      progressValue: tracking ? `${p.current ?? 0}g / ${p.goal}g` : undefined,
+      progressBarPercent: tracking ? ((p.current ?? 0) / (p.goal as number)) * 100 : undefined,
+      primaryCtaLabel: "YES, I'M ON TRACK ✓",
+      primaryCtaUrl: PORTAL_URL,
+      secondaryCtaLabel: "NOT YET, REMIND ME LATER",
+      secondaryCtaUrl: PORTAL_URL,
+    }),
+  };
+}
+
+export function buildCompressionNudgeEmail(p: { firstName: string; currentHours: number; goalHours: number }): { subject: string; html: string } {
+  return {
+    subject: "Compression check 🤎",
+    html: nudgeEmailShell({
+      firstName: p.firstName,
+      category: "COMPRESSION CHECK",
+      headline: "Have you worn your garment today?",
+      bodyText: "Your protocol recommends wearing your compression garment for optimal results.",
+      progressLabel: "today's goal",
+      progressValue: `${p.goalHours} hours`,
+      progressBarPercent: (p.currentHours / p.goalHours) * 100,
+      primaryCtaLabel: "YES, I'VE WORN IT ✓",
+      primaryCtaUrl: PORTAL_URL,
+      secondaryCtaLabel: "NOT YET",
+      secondaryCtaUrl: PORTAL_URL,
+    }),
+  };
+}
+
+export function buildMovementNudgeEmail(p: { firstName: string; current: number; goal: number }): { subject: string; html: string } {
+  return {
+    subject: "A little movement goes a long way ✦",
+    html: nudgeEmailShell({
+      firstName: p.firstName,
+      category: "MOVEMENT CHECK",
+      headline: "Have you moved your body today?",
+      bodyText: "Small, consistent movement supports everything else your System is doing.",
+      progressLabel: "today's goal",
+      progressValue: `${p.goal.toLocaleString()} steps`,
+      progressBarPercent: (p.current / p.goal) * 100,
+      primaryCtaLabel: "YES, I'VE MOVED",
+      primaryCtaUrl: PORTAL_URL,
+      secondaryCtaLabel: "NOT YET",
+      secondaryCtaUrl: PORTAL_URL,
+    }),
+  };
+}
+
+export function buildSleepNudgeEmail(p: { firstName: string }): { subject: string; html: string } {
+  return {
+    subject: "Recovery counts too ✦",
+    html: nudgeEmailShell({
+      firstName: p.firstName,
+      category: "SLEEP REMINDER",
+      headline: "Tonight's reminder: recovery counts too.",
+      bodyText: "Give your body the rest it needs to transform. Keep your routine consistent.",
+      primaryCtaLabel: "THANK YOU",
+      primaryCtaUrl: PORTAL_URL,
+      secondaryCtaLabel: "REMIND ME LATER",
+      secondaryCtaUrl: PORTAL_URL,
+    }),
+  };
+}
+
+export function buildPeptideUpcomingNudgeEmail(p: { firstName: string; peptideName: string; scheduledAt: Date }): { subject: string; html: string } {
+  const dateLabel = p.scheduledAt.toLocaleDateString("en-US", { weekday: "long", month: "short", day: "numeric" });
+  const timeLabel = p.scheduledAt.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" });
+  return {
+    subject: "Your peptide check-in is coming up ✦",
+    html: nudgeEmailShell({
+      firstName: p.firstName,
+      category: "PEPTIDE REMINDER",
+      headline: "Your peptide check-in is coming up.",
+      bodyText: `Your scheduled protocol time is approaching. We're here to help you stay consistent with your protocol.`,
+      progressLabel: "your scheduled time",
+      progressValue: `${dateLabel} · ${timeLabel}`,
+      primaryCtaLabel: "I'M READY",
+      primaryCtaUrl: `${PORTAL_URL}/journey`,
+      secondaryCtaLabel: "I'LL DO IT LATER",
+      secondaryCtaUrl: `${PORTAL_URL}/journey`,
+    }),
+  };
+}
+
+export function buildPeptideOverdueNudgeEmail(p: { firstName: string; peptideName: string }): { subject: string; html: string } {
+  return {
+    subject: "Ready when you are ✦",
+    html: nudgeEmailShell({
+      firstName: p.firstName,
+      category: "PEPTIDE REMINDER",
+      headline: "Ready when you are.",
+      bodyText: "Log your injection once completed — we'll take care of the rest.",
+      primaryCtaLabel: "LOG INJECTION →",
+      primaryCtaUrl: `${PORTAL_URL}/journey`,
+    }),
+  };
+}
+
+export function buildAppointmentNudgeEmail(p: { firstName: string; title: string; startsAt: Date }): { subject: string; html: string } {
+  const dateLabel = p.startsAt.toLocaleDateString("en-US", { weekday: "long", month: "short", day: "numeric" });
+  const timeLabel = p.startsAt.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" });
+  return {
+    subject: "Your next session is tomorrow ✦",
+    html: nudgeEmailShell({
+      firstName: p.firstName,
+      category: "APPOINTMENT REMINDER",
+      headline: "Your next Body Shaper System session is tomorrow.",
+      bodyText: `We're looking forward to seeing you.`,
+      progressLabel: p.title,
+      progressValue: `${dateLabel} · ${timeLabel}`,
+      primaryCtaLabel: "VIEW APPOINTMENT →",
+      primaryCtaUrl: "https://www.bodyshapersystem.com/portal/dashboard",
+    }),
+  };
+}
+
+export function buildWeeklyCheckinNudgeEmail(p: { firstName: string; outstanding: string[] }): { subject: string; html: string } {
+  return {
+    subject: "Your weekly check-in ✦",
+    html: nudgeEmailShell({
+      firstName: p.firstName,
+      category: "WEEKLY CHECK-IN",
+      headline: "A few small check-ins help us understand the bigger picture.",
+      bodyText: `Still outstanding this week: ${p.outstanding.join(", ")}.`,
+      primaryCtaLabel: "COMPLETE MY CHECK-IN →",
+      primaryCtaUrl: PORTAL_URL,
+    }),
+  };
+}

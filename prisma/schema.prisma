@@ -256,6 +256,7 @@ model Client {
   compressionProtocolStartDate  DateTime?
   compressionProtocolEndDate    DateTime?
   reminderPreferences           ReminderPreference[]
+  nudgeLogs                     NudgeLog[]
   address                String? // full street address — distinct from `city` (Service Zone)
   birthday               DateTime?
   importedLastAppointmentAt DateTime? // historical, from legacy import — real appointments use the Appointment table instead
@@ -701,6 +702,19 @@ model TechSupportPurchase {
   @@map("tech_support_purchases")
 }
 
+model NudgeLog {
+  id            String   @id @default(cuid())
+  clientId      String
+  client        Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  category      String
+  scheduledDate DateTime // midnight UTC of the calendar day this nudge belongs to
+  scheduledTime String   @default("") // "HH:MM" this specific send corresponds to, or "" for once-daily categories — lets one category send more than once/day without duplicating the same slot
+  sentAt        DateTime @default(now())
+
+  @@unique([clientId, category, scheduledDate, scheduledTime])
+  @@map("nudge_logs")
+}
+
 model ReminderPreference {
   id            String   @id @default(cuid())
   clientId      String
@@ -832,6 +846,7 @@ model DailyTracker {
   compressionHours  Float?
   moodCheckIn       String? // GREAT | OKAY | BLOATED
   moodNote          String?
+  proteinGrams      Float? // grams logged today toward Client.proteinGoalGrams
   symptoms          String[] @default([])
   dailyNote         String?
   weightLbs         Float?
@@ -1266,6 +1281,15 @@ enum EmailTemplate {
   GOOGLE_REVIEW_REQUEST
   MIDPOINT_DATA_READY
   MIDPOINT_DATA_MISSING
+  NUDGE_HYDRATION
+  NUDGE_PROTEIN
+  NUDGE_COMPRESSION
+  NUDGE_MOVEMENT
+  NUDGE_SLEEP
+  NUDGE_PEPTIDE_UPCOMING
+  NUDGE_PEPTIDE_OVERDUE
+  NUDGE_APPOINTMENT
+  NUDGE_WEEKLY_CHECKIN
 }
 
 enum EmailStatus {

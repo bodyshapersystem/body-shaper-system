@@ -11,6 +11,10 @@
     {
       "path": "/api/cron/google-review-requests",
       "schedule": "0 * * * *"
+    },
+    {
+      "path": "/api/cron/system-nudges",
+      "schedule": "0 * * * *"
     }
   ]
 }
