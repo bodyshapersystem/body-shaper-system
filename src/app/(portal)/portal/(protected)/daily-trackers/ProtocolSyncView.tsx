@@ -2,6 +2,7 @@
 
 import type { WeekTask } from "@/lib/protocol-sync";
 import type { AddonType } from "@/lib/tech-support-config";
+import { IconByKey } from "@/components/DTJIcons";
 import TechSupportSection from "./TechSupportSection";
 
 function consistencyTier(score: number): string {
@@ -59,7 +60,7 @@ export default function ProtocolSyncView({
         {tasks.length === 0 && <p className="pay-history-meta">Nothing scheduled this week yet.</p>}
         {tasks.map((t) => (
           <div key={t.id} className="dtj-task-row">
-            <span className="dtj-task-icon">{t.icon}</span>
+            <span className="dtj-task-icon"><IconByKey iconKey={t.icon} /></span>
             <div className="dtj-task-info">
               <p className="dtj-task-label">{t.label}</p>
               <p className="dtj-task-detail">{t.detail}</p>

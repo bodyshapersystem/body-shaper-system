@@ -4366,7 +4366,10 @@
   display:flex; align-items:center; gap:12px; background:#fff; border-radius:14px; padding:12px 14px;
   margin-bottom:8px; border:1px solid rgba(107,82,64,0.1);
 }
-.dtj-task-icon{ font-size:17px; }
+.dtj-task-icon{
+  width:32px; height:32px; border-radius:50%; background:#fff; border:1px solid rgba(107,82,64,0.15);
+  display:flex; align-items:center; justify-content:center; flex-shrink:0; color:var(--rose);
+}
 .dtj-task-info{ flex:1; }
 .dtj-task-label{ font-family:var(--sans); font-size:13px; color:var(--charcoal); margin:0; }
 .dtj-task-detail{ font-family:var(--sans); font-size:11px; color:var(--taupe); margin:1px 0 0; }

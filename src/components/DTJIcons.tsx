@@ -111,3 +111,20 @@ export function SparkleIcon() {
     </svg>
   );
 }
+
+/** Shared key -> line-icon mapping, used by both Insights' timeline and Protocol Sync's task rows. */
+export function IconByKey({ iconKey }: { iconKey: string }) {
+  switch (iconKey) {
+    case "syringe": return <SyringeIcon />;
+    case "session": return <SparkleIcon />;
+    case "hydration": return <DropIcon />;
+    case "movement": return <ShoeIcon />;
+    case "sleep": return <MoonIcon />;
+    case "compression": return <GarmentIcon />;
+    case "symptom": return <SmileIcon />;
+    case "score": return <FlameIcon />;
+    case "measurement": return <RulerIcon />;
+    case "photo": return <CameraIcon />;
+    default: return <SparkleIcon />;
+  }
+}

@@ -470,8 +470,13 @@ export default function JourneyView({
 
       {logs.length > 0 && (
         <div style={{ marginTop: 12 }}>
-          <p className="dtj-field-label">injection history</p>
-          {logs.slice(0, 12).map((log) => (
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
+            <p className="dtj-field-label" style={{ margin: 0 }}>injection history</p>
+            {logs.length > 3 && (
+              <a href="/portal/daily-trackers/journey/history" className="dtj-link-small">View all →</a>
+            )}
+          </div>
+          {logs.slice(0, 3).map((log) => (
             <div key={log.id} className="trk-peptide-entry">
               <div>
                 <strong>{log.peptideName}</strong>

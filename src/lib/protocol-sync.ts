@@ -69,7 +69,7 @@ export async function getWeekSync(clientId: string): Promise<{
         label: `${protocol.peptideName} Injection`,
         detail: `${day.toLocaleDateString("en-US", { weekday: "short" })} · ${scheduledAt.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })}`,
         status,
-        icon: "💉",
+        icon: "syringe",
       });
     }
   }
@@ -82,7 +82,7 @@ export async function getWeekSync(clientId: string): Promise<{
       label: appt.title,
       detail: `${appt.startsAt.toLocaleDateString("en-US", { weekday: "short" })} · ${appt.startsAt.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })}`,
       status,
-      icon: "✧",
+      icon: "session",
     });
   }
 
@@ -93,11 +93,11 @@ export async function getWeekSync(clientId: string): Promise<{
   const sleepHours = todayTracker?.sleepHours ?? null;
   const compressionWorn = todayTracker?.compressionWorn ?? null;
 
-  tasks.push({ id: "hydration", label: "Hydration Goal", detail: "8 Glasses", status: water >= 8 ? "complete" : "pending", icon: "💧" });
-  tasks.push({ id: "movement", label: "Movement Goal", detail: `${stepsGoal.toLocaleString()} Steps`, status: steps >= stepsGoal ? "complete" : "pending", icon: "👟" });
-  tasks.push({ id: "sleep", label: "Sleep Goal", detail: "7+ Hours", status: (sleepHours ?? 0) >= 7 ? "complete" : "pending", icon: "🌙" });
+  tasks.push({ id: "hydration", label: "Hydration Goal", detail: "8 Glasses", status: water >= 8 ? "complete" : "pending", icon: "hydration" });
+  tasks.push({ id: "movement", label: "Movement Goal", detail: `${stepsGoal.toLocaleString()} Steps`, status: steps >= stepsGoal ? "complete" : "pending", icon: "movement" });
+  tasks.push({ id: "sleep", label: "Sleep Goal", detail: "7+ Hours", status: (sleepHours ?? 0) >= 7 ? "complete" : "pending", icon: "sleep" });
   if (compressionWorn !== null) {
-    tasks.push({ id: "compression", label: "Compression Goal", detail: "Worn today", status: compressionWorn ? "complete" : "pending", icon: "🎽" });
+    tasks.push({ id: "compression", label: "Compression Goal", detail: "Worn today", status: compressionWorn ? "complete" : "pending", icon: "compression" });
   }
 
   const completedCount = tasks.filter((t) => t.status === "complete").length;
