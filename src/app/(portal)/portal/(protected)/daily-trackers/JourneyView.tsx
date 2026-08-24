@@ -345,7 +345,7 @@ export default function JourneyView({
         const peptideLogs = logs.filter((l) => l.peptideName === p.peptideName);
         const lastSite = peptideLogs.find((l) => l.injectionSite)?.injectionSite ?? null;
         const suggestedSite = suggestNextSite(lastSite);
-        const activeSite = openLogId === p.id ? (siteForLog ?? suggestedSite) : null;
+        const activeSite = siteForLog ?? suggestedSite;
 
         return (
           <div key={p.id} className="dtj-protocol-block">
@@ -438,7 +438,7 @@ export default function JourneyView({
             )}
 
             {openLogId !== p.id ? (
-              <button type="button" className="dtj-log-btn" onClick={() => { setOpenLogId(p.id); setCheckin({}); setSiteForLog(suggestedSite); }}>
+              <button type="button" className="dtj-log-btn" onClick={() => { setOpenLogId(p.id); setCheckin({}); setSiteForLog((curr) => curr ?? suggestedSite); }}>
                 Log Injection
               </button>
             ) : (
