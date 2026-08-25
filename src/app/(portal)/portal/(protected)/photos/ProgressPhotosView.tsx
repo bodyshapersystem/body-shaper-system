@@ -8,7 +8,6 @@ import type { MeasurementCallout } from "@/lib/progress-photo-callouts";
 import type { MetricChange } from "@/lib/progress-celebration";
 import PhotoDownloadButton from "./PhotoDownloadButton";
 import DownloadSessionButton from "./DownloadSessionButton";
-import PhotoMeasurementCallouts from "./PhotoMeasurementCallouts";
 import ProgressCelebrationOverlay from "@/app/(portal)/portal/(protected)/blueprint/ProgressCelebrationOverlay";
 import ShareImageModal from "@/app/(portal)/portal/(protected)/blueprint/ShareImageModal";
 import { markPhotoCelebrationSeen } from "@/app/(portal)/portal/(protected)/blueprint/celebration-actions";
@@ -211,31 +210,33 @@ export default function ProgressPhotosView({
                 AFTER — Session {latestSession.sessionNumber} · {latestSession.dateLabel}
               </p>
 
-              {showFinalPhotos ? (
+              {showFinalPhotos && (
                 <div className="pp-final-photo-grid">
                   <div className="pp-photo-col">
                     <img src={finalBeforePhoto!.url!} alt="Before" className="pp-photo-img" />
                     <p className="pp-photo-caption">BEFORE</p>
                   </div>
                   <div className="pp-photo-col">
-                    <PhotoMeasurementCallouts photoUrl={finalAfterMatch!.photo.url!} callouts={finalCallouts} unit={unit} />
+                    <img src={finalAfterMatch!.photo.url!} alt="After" className="pp-photo-img" />
                     <p className="pp-photo-caption">AFTER</p>
                   </div>
                 </div>
-              ) : (
-                <div className="pp-callouts-row">
-                  {finalCallouts.map((c) => (
-                    <div key={c.label} className="pp-callout">
-                      <span className="pp-callout-dot" />
-                      <p className="pp-callout-label">{c.label}</p>
-                      <p className="pp-callout-value">
-                        {c.deltaCm > 0 ? "+" : ""}
-                        {formatLength(c.deltaCm, unit)}
-                      </p>
-                    </div>
-                  ))}
-                </div>
               )}
+
+              <div className="pp-callouts-row" style={{ marginTop: showFinalPhotos ? 22 : 0 }}>
+                {finalCallouts.map((c) => (
+                  <div key={c.label} className="pp-callout">
+                    <p className="pp-callout-label">
+                      <span className="pp-callout-dot" />
+                      {c.label}
+                    </p>
+                    <p className="pp-callout-value">
+                      {c.deltaCm > 0 ? "+" : ""}
+                      {formatLength(c.deltaCm, unit)}
+                    </p>
+                  </div>
+                ))}
+              </div>
 
               <div style={{ display: "flex", justifyContent: "center", marginTop: 22 }}>
                 <button
