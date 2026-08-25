@@ -5,6 +5,7 @@ import { getMeasurementCallouts } from "@/lib/progress-photo-callouts";
 import { loadOgFonts } from "@/lib/og-fonts";
 
 export const dynamic = "force-dynamic";
+export const runtime = "nodejs"; // loadOgFonts uses fetch(new URL(..., import.meta.url)), which throws under the Edge runtime
 
 const MEASUREMENT_KEYS = [
   "waistCm", "lowerAbdomenCm", "hipsCm", "rightThighCm", "leftThighCm",

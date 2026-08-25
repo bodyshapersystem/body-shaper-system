@@ -5,6 +5,7 @@ import { getPositiveCompositionChanges, getCompositionClosingPhrase } from "@/li
 import { loadOgFonts } from "@/lib/og-fonts";
 
 export const dynamic = "force-dynamic";
+export const runtime = "nodejs"; // loadOgFonts uses fetch(new URL(..., import.meta.url)), which throws under the Edge runtime
 
 export async function GET(request: Request) {
   const { serif: serifFont, serifItalic: serifItalicFont, sans: sansFont } = await loadOgFonts();
