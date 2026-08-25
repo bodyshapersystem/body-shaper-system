@@ -3,7 +3,7 @@ import { getCurrentPortalClient } from "@/lib/permissions";
 import { prisma } from "@/lib/prisma";
 import { getMeasurementCallouts } from "@/lib/progress-photo-callouts";
 import { loadOgFontsNode } from "@/lib/og-fonts";
-import { sparkleSvg } from "@/lib/og-sparkle";
+import { sparkleStyle } from "@/lib/og-sparkle";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs"; // fetch(file://) is never supported here; fs.readFileSync is the real fix
@@ -36,7 +36,10 @@ export async function GET() {
         </div>
 
         <div style={{ display: "flex", justifyContent: "center", marginBottom: 10 }}>
-          <img src={sparkleSvg(40, "#C8A15A")} width={40} height={40} />
+          <div style={{ ...sparkleStyle(40, "#C8A15A").wrap }}>
+            <div style={{ ...sparkleStyle(40, "#C8A15A").horizontal }} />
+            <div style={{ ...sparkleStyle(40, "#C8A15A").vertical }} />
+          </div>
         </div>
         <div style={{ display: "flex", justifyContent: "center", marginBottom: 10 }}>
           <span style={{ fontFamily: "Cormorant Garamond", fontSize: 66, color: "#2B2622" }}>Congratulations!</span>

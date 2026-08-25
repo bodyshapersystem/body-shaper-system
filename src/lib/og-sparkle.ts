@@ -1,14 +1,39 @@
 /**
- * A drawn SVG sparkle/star glyph for use inside next/og ImageResponse
- * templates. The Unicode ✦/✧ characters aren't present in the
- * Cormorant Garamond or Jost font files bundled for these routes, so
- * Satori (which can only render glyphs the given fonts actually
- * contain) fell back to a "?" placeholder wherever they appeared.
- * An SVG path has no font-glyph dependency at all, so it always
- * renders correctly regardless of font coverage.
+ * A sparkle glyph for next/og ImageResponse templates, drawn with
+ * plain divs (no font glyph, no image/SVG data-URI).
+ *
+ * History: the Unicode ✦/✧ characters aren't in the bundled fonts,
+ * so Satori rendered them as a "?" placeholder. Replacing them with
+ * an SVG data-URI <img> then broke differently — Satori threw
+ * "Cannot read properties of undefined (reading '256')" trying to
+ * parse the SVG, since its image support is built for raster
+ * formats (PNG/JPEG), not full SVG rendering. Two overlapping
+ * rounded bars form a simple sparkle/cross shape using only
+ * absolute-position divs, which Satori always supports natively —
+ * no font, no image parsing, nothing left to fail.
  */
-export function sparkleSvg(size: number, color: string): string {
-  return `data:image/svg+xml;base64,${Buffer.from(
-    `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 24 24" fill="${color}"><path d="M12 2c0 4.5 1.5 8 6 8-4.5 0-6 3.5-6 8 0-4.5-1.5-8-6-8 4.5 0 6-3.5 6-8z"/></svg>`
-  ).toString("base64")}`;
+export function sparkleStyle(size: number, color: string) {
+  const barThickness = size * 0.22;
+  const radius = barThickness / 2;
+  return {
+    wrap: { width: size, height: size, position: "relative" as const },
+    horizontal: {
+      position: "absolute" as const,
+      width: size,
+      height: barThickness,
+      background: color,
+      borderRadius: radius,
+      top: (size - barThickness) / 2,
+      left: 0,
+    },
+    vertical: {
+      position: "absolute" as const,
+      width: barThickness,
+      height: size,
+      background: color,
+      borderRadius: radius,
+      top: 0,
+      left: (size - barThickness) / 2,
+    },
+  };
 }

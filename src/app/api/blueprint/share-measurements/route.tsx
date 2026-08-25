@@ -3,7 +3,7 @@ import { getCurrentPortalClient } from "@/lib/permissions";
 import { prisma } from "@/lib/prisma";
 import { getPositiveMeasurementChanges, MEASUREMENTS_CLOSING_PHRASE } from "@/lib/progress-celebration";
 import { loadOgFontsNode } from "@/lib/og-fonts";
-import { sparkleSvg } from "@/lib/og-sparkle";
+import { sparkleStyle } from "@/lib/og-sparkle";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs"; // fetch(file://) is never supported here; fs.readFileSync is the real fix
@@ -48,12 +48,18 @@ export async function GET(request: Request) {
         </div>
 
         <div style={{ display: "flex", justifyContent: "center", marginBottom: 24 }}>
-          <img src={sparkleSvg(40, "#C79E93")} width={40} height={40} />
+          <div style={{ ...sparkleStyle(40, "#C79E93").wrap }}>
+            <div style={{ ...sparkleStyle(40, "#C79E93").horizontal }} />
+            <div style={{ ...sparkleStyle(40, "#C79E93").vertical }} />
+          </div>
         </div>
 
         <div style={{ display: "flex", justifyContent: "center", marginBottom: 8, alignItems: "center", gap: 12 }}>
           <span style={{ fontFamily: "Cormorant Garamond", fontSize: 60, color: "#F1EBE1" }}>CONGRATULATIONS!</span>
-          <img src={sparkleSvg(32, "#F1EBE1")} width={32} height={32} />
+          <div style={{ ...sparkleStyle(32, "#F1EBE1").wrap }}>
+            <div style={{ ...sparkleStyle(32, "#F1EBE1").horizontal }} />
+            <div style={{ ...sparkleStyle(32, "#F1EBE1").vertical }} />
+          </div>
         </div>
 
         <div style={{ display: "flex", justifyContent: "center", textAlign: "center", marginBottom: 20 }}>
@@ -92,7 +98,10 @@ export async function GET(request: Request) {
         <div style={{ flex: 1 }} />
 
         <div style={{ display: "flex", justifyContent: "center", marginBottom: 20 }}>
-          <img src={sparkleSvg(26, "#C8A15A")} width={26} height={26} />
+          <div style={{ ...sparkleStyle(26, "#C8A15A").wrap }}>
+            <div style={{ ...sparkleStyle(26, "#C8A15A").horizontal }} />
+            <div style={{ ...sparkleStyle(26, "#C8A15A").vertical }} />
+          </div>
         </div>
         <div style={{ display: "flex", flexDirection: "column", alignItems: "center", marginBottom: 50 }}>
           {MEASUREMENTS_CLOSING_PHRASE.split("\n").map((line, i) => (
