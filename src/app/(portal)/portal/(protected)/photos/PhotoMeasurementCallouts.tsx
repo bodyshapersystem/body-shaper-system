@@ -35,7 +35,14 @@ export default function PhotoMeasurementCallouts({
         return (
           <div key={c.label} className="pmc-callout" style={{ top: `${topPercent}%` }}>
             <span className="pmc-dot" style={{ left: `${dotLeftPercent}%` }} />
-            <span className="pmc-line" style={{ left: `${dotLeftPercent}%` }} />
+            <svg
+              className="pmc-line-svg"
+              style={{ left: `${dotLeftPercent}%`, width: `calc(100% - ${dotLeftPercent}% + 118px)` }}
+              viewBox="0 0 118 20"
+              preserveAspectRatio="none"
+            >
+              <path d="M0,10 Q30,2 59,10 T118,10" stroke="#C8A15A" strokeWidth="1" fill="none" opacity="0.75" vectorEffect="non-scaling-stroke" />
+            </svg>
             <div className="pmc-pill">
               <span className="pmc-pill-label">{c.label}</span>
               <span className="pmc-pill-value">
