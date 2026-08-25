@@ -3,7 +3,7 @@ import { getCurrentPortalClient } from "@/lib/permissions";
 import { prisma } from "@/lib/prisma";
 import { getClientPhotoSignedUrl } from "@/app/(portal)/portal/(protected)/photos/actions";
 import { getMeasurementCallouts } from "@/lib/progress-photo-callouts";
-import { loadOgFonts } from "@/lib/og-fonts";
+import { loadOgFontsNode } from "@/lib/og-fonts";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs"; // real fix — embedding remote (Supabase) photo URLs via <img> inside ImageResponse
@@ -17,7 +17,7 @@ const MEASUREMENT_KEYS = [
 ] as const;
 
 export async function GET(request: Request) {
-  const { serif: serifFont, serifItalic: serifItalicFont, sans: sansFont } = await loadOgFonts();
+  const { serif: serifFont, serifItalic: serifItalicFont, sans: sansFont } = loadOgFontsNode();
 
   const client = await getCurrentPortalClient();
   if (!client) return new Response("Unauthorized", { status: 401 });
