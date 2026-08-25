@@ -3,6 +3,7 @@ import { getCurrentPortalClient } from "@/lib/permissions";
 import { prisma } from "@/lib/prisma";
 import { getPositiveMeasurementChanges, MEASUREMENTS_CLOSING_PHRASE } from "@/lib/progress-celebration";
 import { loadOgFontsNode } from "@/lib/og-fonts";
+import { sparkleSvg } from "@/lib/og-sparkle";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs"; // fetch(file://) is never supported here; fs.readFileSync is the real fix
@@ -47,11 +48,12 @@ export async function GET(request: Request) {
         </div>
 
         <div style={{ display: "flex", justifyContent: "center", marginBottom: 24 }}>
-          <span style={{ fontSize: 40, color: "#C79E93" }}>✦</span>
+          <img src={sparkleSvg(40, "#C79E93")} width={40} height={40} />
         </div>
 
-        <div style={{ display: "flex", justifyContent: "center", marginBottom: 8 }}>
-          <span style={{ fontFamily: "Cormorant Garamond", fontSize: 60, color: "#F1EBE1" }}>CONGRATULATIONS! ✧</span>
+        <div style={{ display: "flex", justifyContent: "center", marginBottom: 8, alignItems: "center", gap: 12 }}>
+          <span style={{ fontFamily: "Cormorant Garamond", fontSize: 60, color: "#F1EBE1" }}>CONGRATULATIONS!</span>
+          <img src={sparkleSvg(32, "#F1EBE1")} width={32} height={32} />
         </div>
 
         <div style={{ display: "flex", justifyContent: "center", textAlign: "center", marginBottom: 20 }}>
@@ -90,7 +92,7 @@ export async function GET(request: Request) {
         <div style={{ flex: 1 }} />
 
         <div style={{ display: "flex", justifyContent: "center", marginBottom: 20 }}>
-          <span style={{ fontSize: 26, color: "#C8A15A" }}>✦</span>
+          <img src={sparkleSvg(26, "#C8A15A")} width={26} height={26} />
         </div>
         <div style={{ display: "flex", flexDirection: "column", alignItems: "center", marginBottom: 50 }}>
           {MEASUREMENTS_CLOSING_PHRASE.split("\n").map((line, i) => (
