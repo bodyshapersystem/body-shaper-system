@@ -8,6 +8,7 @@ import type { MeasurementCallout } from "@/lib/progress-photo-callouts";
 import type { MetricChange } from "@/lib/progress-celebration";
 import PhotoDownloadButton from "./PhotoDownloadButton";
 import DownloadSessionButton from "./DownloadSessionButton";
+import PhotoMeasurementCallouts from "./PhotoMeasurementCallouts";
 import ProgressCelebrationOverlay from "@/app/(portal)/portal/(protected)/blueprint/ProgressCelebrationOverlay";
 import ShareImageModal from "@/app/(portal)/portal/(protected)/blueprint/ShareImageModal";
 import { markPhotoCelebrationSeen } from "@/app/(portal)/portal/(protected)/blueprint/celebration-actions";
@@ -83,6 +84,13 @@ export default function ProgressPhotosView({
   const beforePhoto = firstSession ? findAngleWithFallback(firstSession, compareAngle) : null;
   const afterMatch = findLatestValidAngle(compareAngle);
   const showComparison = beforePhoto && afterMatch && afterMatch.session.sessionNumber !== firstSession?.sessionNumber;
+
+  // Final Comparison always uses the Front angle specifically (the
+  // standard view for waist/abdomen/hips/leg visibility), independent
+  // of whatever angle is selected in Latest Comparison above.
+  const finalBeforePhoto = firstSession ? findAngleWithFallback(firstSession, "FRONT") : null;
+  const finalAfterMatch = findLatestValidAngle("FRONT");
+  const showFinalPhotos = finalBeforePhoto && finalAfterMatch && finalAfterMatch.session.sessionNumber !== firstSession?.sessionNumber;
 
   return (
     <div className="pp-wrap">
@@ -202,18 +210,33 @@ export default function ProgressPhotosView({
                 <br />
                 AFTER — Session {latestSession.sessionNumber} · {latestSession.dateLabel}
               </p>
-              <div className="pp-callouts-row">
-                {finalCallouts.map((c) => (
-                  <div key={c.label} className="pp-callout">
-                    <span className="pp-callout-dot" />
-                    <p className="pp-callout-label">{c.label}</p>
-                    <p className="pp-callout-value">
-                      {c.deltaCm > 0 ? "+" : ""}
-                      {formatLength(c.deltaCm, unit)}
-                    </p>
+
+              {showFinalPhotos ? (
+                <div className="pp-final-photo-grid">
+                  <div className="pp-photo-col">
+                    <img src={finalBeforePhoto!.url!} alt="Before" className="pp-photo-img" />
+                    <p className="pp-photo-caption">BEFORE</p>
                   </div>
-                ))}
-              </div>
+                  <div className="pp-photo-col">
+                    <PhotoMeasurementCallouts photoUrl={finalAfterMatch!.photo.url!} callouts={finalCallouts} unit={unit} />
+                    <p className="pp-photo-caption">AFTER</p>
+                  </div>
+                </div>
+              ) : (
+                <div className="pp-callouts-row">
+                  {finalCallouts.map((c) => (
+                    <div key={c.label} className="pp-callout">
+                      <span className="pp-callout-dot" />
+                      <p className="pp-callout-label">{c.label}</p>
+                      <p className="pp-callout-value">
+                        {c.deltaCm > 0 ? "+" : ""}
+                        {formatLength(c.deltaCm, unit)}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              )}
+
               <div style={{ display: "flex", justifyContent: "center", marginTop: 22 }}>
                 <button
                   type="button"

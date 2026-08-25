@@ -4819,3 +4819,22 @@
 .pp-callout-dot{ width:8px; height:8px; border-radius:50%; background:var(--gold); margin-bottom:8px; }
 .pp-callout-label{ font-family:var(--sans); font-size:10px; letter-spacing:0.04em; text-transform:uppercase; color:var(--taupe); margin:0 0 4px; }
 .pp-callout-value{ font-family:var(--serif); font-size:22px; color:var(--mocha); margin:0; }
+
+/* ---- Progress Photos — Final Comparison with real photos + measurement connector lines ---- */
+.pp-final-photo-grid{ display:grid; grid-template-columns:1fr 1.35fr; gap:14px; margin-bottom:6px; align-items:start; }
+
+.pmc-wrap{ position:relative; padding-right:118px; }
+.pmc-photo{ width:100%; border-radius:12px; display:block; aspect-ratio:3/4; object-fit:cover; background:#f2ece1; }
+.pmc-callout{ position:absolute; left:0; right:118px; height:0; }
+.pmc-dot{
+  position:absolute; width:8px; height:8px; border-radius:50%; background:#fff; border:1.5px solid var(--gold);
+  z-index:2; transform:translate(-50%,-50%); top:0;
+}
+.pmc-line{ position:absolute; right:-118px; top:0; height:1px; background:linear-gradient(90deg, rgba(200,161,90,0.75), rgba(200,161,90,0.3)); }
+.pmc-pill{
+  position:absolute; left:100%; top:0; transform:translate(96px,-50%);
+  background:#FBF8F3; border:1px solid rgba(200,161,90,0.35); border-radius:12px; padding:5px 12px;
+  white-space:nowrap; box-shadow:0 2px 8px rgba(107,82,64,0.08);
+}
+.pmc-pill-label{ display:block; font-family:var(--sans); font-size:9.5px; letter-spacing:0.03em; color:var(--taupe); }
+.pmc-pill-value{ display:block; font-family:var(--serif); font-size:15px; color:var(--charcoal); font-weight:600; }
