@@ -242,6 +242,7 @@ model Client {
   requiresContentRelease Boolean @default(false)
   lastCelebratedMeasurementId     String? // Measurement.id of the last body-composition scan the client has already seen a Congratulations overlay for
   lastCelebratedBodyMeasurementId String? // BodyMeasurement.id of the last tape-measurement session already celebrated
+  lastCelebratedPhotoSessionNumber Int? // Progress Photos™ session number already shown a Congratulations overlay
 
   // Reminder Center™ — client-facing quiet hours (applies to all
   // non-essential System Nudges) + Owner-configured protocol goals

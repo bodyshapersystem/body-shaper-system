@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { getBusinessTimezone, formatDateInTimezone } from "@/lib/format-datetime";
 import { getClientPhotoSignedUrl } from "./actions";
 import { getMeasurementCallouts } from "@/lib/progress-photo-callouts";
+import { getPositiveMeasurementChanges } from "@/lib/progress-celebration";
 import ProgressPhotosView from "./ProgressPhotosView";
 
 export const dynamic = "force-dynamic";
@@ -87,13 +88,35 @@ export default async function ProgressPhotosPage() {
         )
       : [];
 
+  // Real Congratulations trigger — only when a NEW session exists
+  // (never already shown) AND there's confirmed positive progress
+  // (real measurement improvement between the two most recent
+  // measured sessions), matching the mandatory "confirmed progress,
+  // not just an upload" rule.
+  const latestSessionNumber = sessions.length > 0 ? sessions[sessions.length - 1].sessionNumber : null;
+  const previousMeasured = bodyMeasurements.length >= 2 ? bodyMeasurements[bodyMeasurements.length - 2] : null;
+  const latestMeasured = bodyMeasurements.length >= 1 ? bodyMeasurements[bodyMeasurements.length - 1] : null;
+  const positiveChanges = previousMeasured && latestMeasured ? getPositiveMeasurementChanges(latestMeasured, previousMeasured, "cm") : [];
+  const shouldCelebrate =
+    latestSessionNumber != null &&
+    client.lastCelebratedPhotoSessionNumber !== latestSessionNumber &&
+    positiveChanges.length > 0;
+
   return (
     <div className="cat-body portal-page">
       <ProgressPhotosView
         sessions={sessions.map(({ rawMeasurement, ...s }) => s)}
         firstSessionNumber={sessions.length > 0 ? sessions[0].sessionNumber : null}
-        latestSessionNumber={sessions.length > 0 ? sessions[sessions.length - 1].sessionNumber : null}
+        latestSessionNumber={latestSessionNumber}
         finalCallouts={finalCallouts}
+        celebration={
+          shouldCelebrate
+            ? {
+                sessionNumber: latestSessionNumber!,
+                changes: positiveChanges,
+              }
+            : null
+        }
       />
     </div>
   );

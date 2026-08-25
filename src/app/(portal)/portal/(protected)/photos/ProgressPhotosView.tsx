@@ -1,11 +1,16 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import UnitToggle from "@/components/UnitToggle";
 import { formatLength, type LengthUnit } from "@/lib/units";
 import type { MeasurementCallout } from "@/lib/progress-photo-callouts";
+import type { MetricChange } from "@/lib/progress-celebration";
 import PhotoDownloadButton from "./PhotoDownloadButton";
 import DownloadSessionButton from "./DownloadSessionButton";
+import ProgressCelebrationOverlay from "@/app/(portal)/portal/(protected)/blueprint/ProgressCelebrationOverlay";
+import ShareImageModal from "@/app/(portal)/portal/(protected)/blueprint/ShareImageModal";
+import { markPhotoCelebrationSeen } from "@/app/(portal)/portal/(protected)/blueprint/celebration-actions";
 
 const SLOT_LABELS: Record<string, string> = { FRONT: "Front", LEFT: "Left", RIGHT: "Right", BACK: "Back" };
 const ANGLES = ["FRONT", "LEFT", "RIGHT", "BACK"] as const;
@@ -24,15 +29,28 @@ export default function ProgressPhotosView({
   firstSessionNumber,
   latestSessionNumber,
   finalCallouts,
+  celebration,
 }: {
   sessions: Session[];
   firstSessionNumber: number | null;
   latestSessionNumber: number | null;
   finalCallouts: MeasurementCallout[];
+  celebration: { sessionNumber: number; changes: MetricChange[] } | null;
 }) {
+  const router = useRouter();
   const [unit, setUnit] = useState<LengthUnit>("cm");
   const [compareAngle, setCompareAngle] = useState<(typeof ANGLES)[number]>("FRONT");
   const [expandedSessions, setExpandedSessions] = useState<Set<number>>(new Set(sessions.map((s) => s.sessionNumber)));
+  const [showCelebration, setShowCelebration] = useState(!!celebration);
+  const [shareModalUrl, setShareModalUrl] = useState<string | null>(null);
+
+  function dismissCelebration() {
+    setShowCelebration(false);
+    if (celebration) {
+      markPhotoCelebrationSeen(celebration.sessionNumber).catch(() => undefined);
+      router.refresh();
+    }
+  }
 
   function toggleSession(n: number) {
     setExpandedSessions((prev) => {
@@ -196,10 +214,32 @@ export default function ProgressPhotosView({
                   </div>
                 ))}
               </div>
+              <div style={{ display: "flex", gap: 10, justifyContent: "center", marginTop: 22 }}>
+                <button type="button" className="pp-angle-pill" onClick={() => setShareModalUrl(`/api/photos/share-before-after?angle=${compareAngle}`)}>
+                  SHARE BEFORE + AFTER ↗
+                </button>
+                <button type="button" className="pp-angle-pill" onClick={() => setShareModalUrl("/api/photos/share-results")}>
+                  SHARE RESULTS ONLY ↗
+                </button>
+              </div>
             </div>
           )}
         </>
       )}
+
+      {showCelebration && celebration && (
+        <ProgressCelebrationOverlay
+          category="PROGRESS PHOTOS"
+          changes={celebration.changes}
+          closingPhrase={"The commitment, care, and teamwork behind your journey are showing.\nYour consistency and the strategy we've built together are reflected in your progress."}
+          compareLabel="since your last check-in"
+          shareImageUrl="/api/photos/share-before-after?angle=FRONT"
+          onDismiss={dismissCelebration}
+          onShareClick={(url) => setShareModalUrl(url)}
+        />
+      )}
+
+      {shareModalUrl && <ShareImageModal imageUrl={shareModalUrl} onClose={() => setShareModalUrl(null)} />}
     </div>
   );
 }

@@ -16,3 +16,10 @@ export async function markMeasurementCelebrationSeen(bodyMeasurementId: string) 
   await prisma.client.update({ where: { id: client.id }, data: { lastCelebratedBodyMeasurementId: bodyMeasurementId } });
   return { success: true };
 }
+
+export async function markPhotoCelebrationSeen(sessionNumber: number) {
+  const client = await getCurrentPortalClient();
+  if (!client) return { error: "Not signed in." };
+  await prisma.client.update({ where: { id: client.id }, data: { lastCelebratedPhotoSessionNumber: sessionNumber } });
+  return { success: true };
+}
