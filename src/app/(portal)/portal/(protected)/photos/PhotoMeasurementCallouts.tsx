@@ -4,13 +4,12 @@ import type { MeasurementCallout } from "@/lib/progress-photo-callouts";
 import { formatLength, type LengthUnit } from "@/lib/units";
 
 /**
- * The real Final Comparison "after" photo with 3 champagne connector
+ * The real Final Comparison "after" photo with 2 champagne connector
  * lines pointing from the actual measured body regions to pill
- * labels showing the real deltas (current − baseline). Which 3
- * measurements appear is entirely driven by real data (top 3 by
- * magnitude, from getMeasurementCallouts) — never hardcoded to
- * waist/abdomen/hips; a legs-and-abdomen case shows exactly that
- * instead, whatever the real numbers say.
+ * labels showing the real deltas (current − baseline). Which 2
+ * measurements appear is entirely driven by real data — Waist +
+ * Abdomen by default, or Hips + the more-changed thigh for a
+ * legs-focused case (getFinalComparisonPair) — never invented.
  */
 export default function PhotoMeasurementCallouts({
   photoUrl,
@@ -21,14 +20,11 @@ export default function PhotoMeasurementCallouts({
   callouts: MeasurementCallout[];
   unit: LengthUnit;
 }) {
-  // Evenly spaced regardless of the label's real anatomical position —
-  // without body-landmark detection, trying to place dots at precise
-  // anatomical heights (e.g. waist vs. hips only ~8% apart) causes the
-  // pill labels (each ~40px tall) to overlap. Values themselves stay
-  // 100% real; only the vertical spacing of the on-photo dots is
-  // simplified for legibility.
+  // Evenly spaced with generous vertical separation — with only 2
+  // measurements now (per direction: show exactly the most relevant
+  // pair), there's plenty of room to keep them clearly apart.
   const count = callouts.length;
-  const topFor = (i: number) => (count === 1 ? 46 : 18 + (i * (64 / Math.max(count - 1, 1))));
+  const topFor = (i: number) => (count === 1 ? 46 : 22 + i * 46);
 
   return (
     <div className="pmc-wrap">

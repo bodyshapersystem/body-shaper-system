@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { getBusinessTimezone, formatDateInTimezone } from "@/lib/format-datetime";
 import { getClientPhotoSignedUrl } from "./actions";
-import { getMeasurementCallouts } from "@/lib/progress-photo-callouts";
+import { getFinalComparisonPair } from "@/lib/progress-photo-callouts";
 import { getPositiveMeasurementChanges } from "@/lib/progress-celebration";
 import ProgressPhotosView from "./ProgressPhotosView";
 
@@ -81,10 +81,9 @@ export default async function ProgressPhotosPage() {
   const latestMeasurement = bodyMeasurements.length > 0 ? bodyMeasurements[bodyMeasurements.length - 1] : null;
   const finalCallouts =
     firstMeasurement && latestMeasurement && firstMeasurement !== latestMeasurement
-      ? getMeasurementCallouts(
+      ? getFinalComparisonPair(
           Object.fromEntries(MEASUREMENT_KEYS.map((k) => [k, firstMeasurement[k] as number | null])),
-          Object.fromEntries(MEASUREMENT_KEYS.map((k) => [k, latestMeasurement[k] as number | null])),
-          3
+          Object.fromEntries(MEASUREMENT_KEYS.map((k) => [k, latestMeasurement[k] as number | null]))
         )
       : [];
 
