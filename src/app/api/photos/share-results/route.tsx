@@ -2,9 +2,10 @@ import { ImageResponse } from "next/og";
 import { getCurrentPortalClient } from "@/lib/permissions";
 import { prisma } from "@/lib/prisma";
 import { getMeasurementCallouts } from "@/lib/progress-photo-callouts";
-import { loadOgFonts } from "@/lib/og-fonts";
+import { loadOgFontsNode } from "@/lib/og-fonts";
 
 export const dynamic = "force-dynamic";
+export const runtime = "nodejs"; // fetch(file://) is never supported here; fs.readFileSync is the real fix
 
 const MEASUREMENT_KEYS = [
   "waistCm", "lowerAbdomenCm", "hipsCm", "rightThighCm", "leftThighCm",
@@ -12,7 +13,7 @@ const MEASUREMENT_KEYS = [
 ] as const;
 
 export async function GET() {
-  const { serif: serifFont, serifItalic: serifItalicFont, sans: sansFont } = await loadOgFonts();
+  const { serif: serifFont, serifItalic: serifItalicFont, sans: sansFont } = loadOgFontsNode();
 
   const client = await getCurrentPortalClient();
   if (!client) return new Response("Unauthorized", { status: 401 });
