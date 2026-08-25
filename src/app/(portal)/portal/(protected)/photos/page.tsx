@@ -77,13 +77,13 @@ export default async function ProgressPhotosPage() {
     })
   );
 
-  const firstWithMeasurement = sessions.find((s) => s.rawMeasurement)?.rawMeasurement ?? null;
-  const latestWithMeasurement = [...sessions].reverse().find((s) => s.rawMeasurement)?.rawMeasurement ?? null;
+  const firstMeasurement = bodyMeasurements.length > 0 ? bodyMeasurements[0] : null;
+  const latestMeasurement = bodyMeasurements.length > 0 ? bodyMeasurements[bodyMeasurements.length - 1] : null;
   const finalCallouts =
-    firstWithMeasurement && latestWithMeasurement && firstWithMeasurement !== latestWithMeasurement
+    firstMeasurement && latestMeasurement && firstMeasurement !== latestMeasurement
       ? getMeasurementCallouts(
-          Object.fromEntries(MEASUREMENT_KEYS.map((k) => [k, firstWithMeasurement[k] as number | null])),
-          Object.fromEntries(MEASUREMENT_KEYS.map((k) => [k, latestWithMeasurement[k] as number | null])),
+          Object.fromEntries(MEASUREMENT_KEYS.map((k) => [k, firstMeasurement[k] as number | null])),
+          Object.fromEntries(MEASUREMENT_KEYS.map((k) => [k, latestMeasurement[k] as number | null])),
           3
         )
       : [];
