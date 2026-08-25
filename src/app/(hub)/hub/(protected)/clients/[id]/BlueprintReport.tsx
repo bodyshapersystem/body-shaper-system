@@ -289,7 +289,6 @@ export default async function BlueprintReport({
         compareLabel: previousRenpho
           ? `between ${previousRenpho.scanDate.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })} and ${latestRenpho.scanDate.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}`
           : "since your last scan",
-        shareImageUrl: `/api/blueprint/share-composition?measurementId=${latestRenpho.id}`,
       }
     : null;
 
@@ -310,7 +309,6 @@ export default async function BlueprintReport({
         compareLabel: previousBodyMeasurement
           ? `between ${previousBodyMeasurement.measuredAt.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })} and ${latestBodyMeasurement.measuredAt.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}`
           : "since your last check-in",
-        shareImageUrl: `/api/blueprint/share-measurements?bodyMeasurementId=${latestBodyMeasurement.id}`,
       }
     : null;
   const firstBodyMeasurement = assessment.bodyMeasurements[assessment.bodyMeasurements.length - 1];
@@ -472,7 +470,17 @@ export default async function BlueprintReport({
                   previousRenpho={assessment.renphoScans[1]}
                   measurementId={latestRenpho?.id}
                   celebration={compositionCelebration}
-                  persistentShareUrl={mode === "client" && compositionChanges.length > 0 && latestRenpho ? `/api/blueprint/share-composition?measurementId=${latestRenpho.id}` : null}
+                  persistentShareData={
+                    mode === "client" && compositionChanges.length > 0 && latestRenpho
+                      ? {
+                          changes: compositionChanges,
+                          closingPhrase: getCompositionClosingPhrase(compositionChanges),
+                          compareLabel: previousRenpho
+                            ? `between ${previousRenpho.scanDate.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })} and ${latestRenpho.scanDate.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}`
+                            : "since your last scan",
+                        }
+                      : null
+                  }
                 />
               ) : (
                 <EmptyState title="no composition data yet." sub="Record a RENPHO scan to populate this section of the Blueprint." />
@@ -565,7 +573,17 @@ export default async function BlueprintReport({
                 previousBodyMeasurement={assessment.bodyMeasurements[1]}
                 bodyMeasurementId={latestBodyMeasurement?.id}
                 celebration={measurementsCelebration}
-                persistentShareUrl={mode === "client" && measurementChanges.length > 0 && latestBodyMeasurement ? `/api/blueprint/share-measurements?bodyMeasurementId=${latestBodyMeasurement.id}` : null}
+                persistentShareData={
+                  mode === "client" && measurementChanges.length > 0 && latestBodyMeasurement
+                    ? {
+                        changes: measurementChanges,
+                        closingPhrase: MEASUREMENTS_CLOSING_PHRASE,
+                        compareLabel: previousBodyMeasurement
+                          ? `between ${previousBodyMeasurement.measuredAt.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })} and ${latestBodyMeasurement.measuredAt.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}`
+                          : "since your last check-in",
+                      }
+                    : null
+                }
               />
             ) : (
               <EmptyState title="no measurements yet." sub="Professional measurements will be recorded during your first Blueprint Session™." />

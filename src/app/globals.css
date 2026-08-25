@@ -4579,12 +4579,14 @@
 }
 .simg-card{
   background:#1E1A16; border:1px solid rgba(200,161,90,0.35); border-radius:16px; padding:16px;
-  max-width:360px; width:100%; position:relative; box-shadow:0 24px 70px rgba(0,0,0,0.55);
+  max-width:420px; width:100%; position:relative; box-shadow:0 24px 70px rgba(0,0,0,0.55);
+  max-height:92vh; overflow-y:auto;
 }
 .simg-close{
   position:absolute; top:10px; right:10px; width:28px; height:28px; border-radius:50%;
   background:rgba(241,235,225,0.1); border:none; color:#F1EBE1; cursor:pointer; font-size:12px; z-index:2;
 }
+.simg-capture-wrap{ margin-bottom:14px; }
 .simg-preview{ width:100%; border-radius:10px; display:block; margin-bottom:14px; }
 .simg-actions{ display:flex; gap:10px; }
 .simg-actions .pcel-btn-primary, .simg-actions .pcel-btn-secondary{ margin-bottom:0; flex:1; }

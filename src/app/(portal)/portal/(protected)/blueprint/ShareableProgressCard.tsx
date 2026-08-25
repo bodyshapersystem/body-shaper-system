@@ -1,25 +1,19 @@
 "use client";
 
+import { forwardRef } from "react";
 import type { MetricChange } from "@/lib/progress-celebration";
 
-export default function ProgressCelebrationOverlay({
-  category,
-  changes,
-  closingPhrase,
-  compareLabel,
-  onDismiss,
-  onShareClick,
-}: {
-  category: string;
-  changes: MetricChange[];
-  closingPhrase: string;
-  compareLabel: string;
-  onDismiss: () => void;
-  onShareClick: () => void;
-}) {
-  return (
-    <div className="pcel-backdrop" onClick={onDismiss}>
-      <div className="pcel-card" onClick={(e) => e.stopPropagation()}>
+/**
+ * The exact same visual card as the Congratulations overlay
+ * (pcel-card styles) — rendered here so it can be captured directly
+ * via html-to-image, guaranteeing the shared image always looks
+ * identical to what's already on screen. No server-side image
+ * generation involved.
+ */
+const ShareableProgressCard = forwardRef<HTMLDivElement, { category: string; changes: MetricChange[]; closingPhrase: string; compareLabel: string }>(
+  function ShareableProgressCard({ category, changes, closingPhrase, compareLabel }, ref) {
+    return (
+      <div ref={ref} className="pcel-card" style={{ position: "static", margin: "0 auto" }}>
         <div className="pcel-sparkle-ring">✦</div>
         <h2 className="pcel-headline">Congratulations! <span className="pcel-sparkle-inline">✧</span></h2>
         <div className="pcel-divider" />
@@ -42,14 +36,12 @@ export default function ProgressCelebrationOverlay({
         <p className="pcel-star">✦</p>
         <p className="pcel-closing">{closingPhrase}</p>
         <p className="pcel-heart">🤍</p>
-
-        <button type="button" className="pcel-btn-primary" onClick={onDismiss}>
-          VIEW MY PROGRESS →
-        </button>
-        <button type="button" className="pcel-btn-secondary" onClick={onShareClick}>
-          SHARE MY PROGRESS ↗
-        </button>
+        <p style={{ fontFamily: "var(--sans)", fontSize: 11, letterSpacing: 1, color: "rgba(241,235,225,0.5)", marginTop: 8 }}>
+          bodyshapersystem.com
+        </p>
       </div>
-    </div>
-  );
-}
+    );
+  }
+);
+
+export default ShareableProgressCard;

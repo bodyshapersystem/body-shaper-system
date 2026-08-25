@@ -35,17 +35,17 @@ export default function MeasurementsGlance({
   previousBodyMeasurement,
   bodyMeasurementId,
   celebration,
-  persistentShareUrl,
+  persistentShareData,
 }: {
   latestBodyMeasurement: LatestBodyMeasurement;
   previousBodyMeasurement?: LatestBodyMeasurement;
   bodyMeasurementId?: string;
-  celebration?: { changes: MetricChange[]; closingPhrase: string; compareLabel: string; shareImageUrl: string } | null;
-  persistentShareUrl?: string | null;
+  celebration?: { changes: MetricChange[]; closingPhrase: string; compareLabel: string } | null;
+  persistentShareData?: { changes: MetricChange[]; closingPhrase: string; compareLabel: string } | null;
 }) {
   const [unit, setUnit] = useState<LengthUnit>("cm");
   const [showCelebration, setShowCelebration] = useState(!!celebration);
-  const [shareModalUrl, setShareModalUrl] = useState<string | null>(null);
+  const [shareModalData, setShareModalData] = useState<{ changes: MetricChange[]; closingPhrase: string; compareLabel: string } | null>(null);
 
   if (!latestBodyMeasurement) return null;
 
@@ -93,8 +93,8 @@ export default function MeasurementsGlance({
         <div className="bbp-progress-neutral-card">
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", flexWrap: "wrap", gap: 8 }}>
             <p className="bbp-progress-card-title" style={{ fontStyle: "normal", marginBottom: 0 }}>Progress Since Last Measurement</p>
-            {persistentShareUrl && (
-              <button type="button" className="bbp-persistent-share-btn" onClick={() => setShareModalUrl(persistentShareUrl)}>
+            {persistentShareData && (
+              <button type="button" className="bbp-persistent-share-btn" onClick={() => setShareModalData(persistentShareData)}>
                 SHARE MY PROGRESS ↗
               </button>
             )}
@@ -116,13 +116,20 @@ export default function MeasurementsGlance({
           changes={celebration.changes}
           closingPhrase={celebration.closingPhrase}
           compareLabel={celebration.compareLabel}
-          shareImageUrl={celebration.shareImageUrl}
           onDismiss={dismissCelebration}
-          onShareClick={(url) => setShareModalUrl(url)}
+          onShareClick={() => setShareModalData(celebration)}
         />
       )}
 
-      {shareModalUrl && <ShareImageModal imageUrl={shareModalUrl} onClose={() => setShareModalUrl(null)} />}
+      {shareModalData && (
+        <ShareImageModal
+          category="MEASUREMENTS"
+          changes={shareModalData.changes}
+          closingPhrase={shareModalData.closingPhrase}
+          compareLabel={shareModalData.compareLabel}
+          onClose={() => setShareModalData(null)}
+        />
+      )}
     </>
   );
 }

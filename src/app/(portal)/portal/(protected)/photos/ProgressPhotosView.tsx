@@ -42,7 +42,7 @@ export default function ProgressPhotosView({
   const [compareAngle, setCompareAngle] = useState<(typeof ANGLES)[number]>("FRONT");
   const [expandedSessions, setExpandedSessions] = useState<Set<number>>(new Set(sessions.map((s) => s.sessionNumber)));
   const [showCelebration, setShowCelebration] = useState(!!celebration);
-  const [shareModalUrl, setShareModalUrl] = useState<string | null>(null);
+  const [shareModalData, setShareModalData] = useState<MetricChange[] | null>(null);
 
   function dismissCelebration() {
     setShowCelebration(false);
@@ -214,12 +214,21 @@ export default function ProgressPhotosView({
                   </div>
                 ))}
               </div>
-              <div style={{ display: "flex", gap: 10, justifyContent: "center", marginTop: 22 }}>
-                <button type="button" className="pp-angle-pill" onClick={() => setShareModalUrl(`/api/photos/share-before-after?angle=${compareAngle}`)}>
-                  SHARE BEFORE + AFTER ↗
-                </button>
-                <button type="button" className="pp-angle-pill" onClick={() => setShareModalUrl("/api/photos/share-results")}>
-                  SHARE RESULTS ONLY ↗
+              <div style={{ display: "flex", justifyContent: "center", marginTop: 22 }}>
+                <button
+                  type="button"
+                  className="pp-angle-pill"
+                  onClick={() =>
+                    setShareModalData(
+                      finalCallouts.map((c) => ({
+                        label: c.label,
+                        deltaText: `${c.deltaCm > 0 ? "+" : ""}${formatLength(c.deltaCm, unit)}`,
+                        direction: c.deltaCm < 0 ? "down" : "up",
+                      }))
+                    )
+                  }
+                >
+                  SHARE RESULTS ↗
                 </button>
               </div>
             </div>
@@ -233,13 +242,20 @@ export default function ProgressPhotosView({
           changes={celebration.changes}
           closingPhrase={"The commitment, care, and teamwork behind your journey are showing.\nYour consistency and the strategy we've built together are reflected in your progress."}
           compareLabel="since your last check-in"
-          shareImageUrl="/api/photos/share-before-after?angle=FRONT"
           onDismiss={dismissCelebration}
-          onShareClick={(url) => setShareModalUrl(url)}
+          onShareClick={() => setShareModalData(celebration.changes)}
         />
       )}
 
-      {shareModalUrl && <ShareImageModal imageUrl={shareModalUrl} onClose={() => setShareModalUrl(null)} />}
+      {shareModalData && (
+        <ShareImageModal
+          category="PROGRESS PHOTOS"
+          changes={shareModalData}
+          closingPhrase={"The commitment, care, and teamwork behind your journey are showing.\nYour consistency and the strategy we've built together are reflected in your progress."}
+          compareLabel="since your last check-in"
+          onClose={() => setShareModalData(null)}
+        />
+      )}
     </div>
   );
 }
