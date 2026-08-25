@@ -6,6 +6,10 @@ import { getMeasurementCallouts } from "@/lib/progress-photo-callouts";
 import { loadOgFonts } from "@/lib/og-fonts";
 
 export const dynamic = "force-dynamic";
+export const runtime = "nodejs"; // real fix — embedding remote (Supabase) photo URLs via <img> inside ImageResponse
+// hit "TypeError: fetch failed / not implemented yet" under Vercel's default Edge runtime for
+// next/og; the text-only share routes (composition/measurements/results) never embed a remote
+// image so they don't need this, but this one does.
 
 const MEASUREMENT_KEYS = [
   "waistCm", "lowerAbdomenCm", "hipsCm", "rightThighCm", "leftThighCm",
