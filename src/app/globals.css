@@ -4841,3 +4841,15 @@
 }
 .pmc-pill-label{ display:block; font-family:var(--sans); font-size:9.5px; letter-spacing:0.03em; color:var(--taupe); }
 .pmc-pill-value{ display:block; font-family:var(--serif); font-size:15px; color:var(--charcoal); font-weight:600; }
+
+/* ---- Fix: dark taupe-marble texture (.bp-tex-taupe) needs light text, not the default dark/gray ---- */
+.bp-tex-taupe .dash-section-title,
+.bp-tex-taupe .sched-label,
+.bp-tex-taupe .pay-history-meta,
+.bp-tex-taupe .pjic-status-active,
+.bp-tex-taupe .pjic-recipient,
+.bp-tex-taupe .dtj-link-small{
+  color:#F5EEE4 !important;
+}
+.bp-tex-taupe .sched-label{ opacity:0.85; }
+.bp-tex-taupe .pay-history-meta{ opacity:0.75; }

@@ -56,6 +56,9 @@ export default function PeptideJourneyInviteCard({
   return (
     <div className="bbp-card bbp-panel bp-tex-taupe" style={{ marginTop: 24 }}>
       <h3 className="dash-section-title">Client Tools</h3>
+      <a href={`/hub/clients/${clientId}/progress-photos`} className="dtj-link-small" style={{ display: "inline-block", marginBottom: 16 }}>
+        VIEW PROGRESS PHOTOS →
+      </a>
 
       {activeProtocol ? (
         <div className="pjic-row">
