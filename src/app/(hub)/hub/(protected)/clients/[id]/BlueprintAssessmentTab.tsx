@@ -39,7 +39,7 @@ const STATUS_LABELS: Record<string, string> = {
   ACTIVE: "Active",
 };
 
-const PHOTO_TYPES = ["FRONT", "LEFT", "RIGHT", "BACK", "DETAIL"] as const;
+const PHOTO_TYPES = ["FRONT", "LEFT", "RIGHT", "BACK"] as const;
 
 export default function BlueprintAssessmentTab({
   client,

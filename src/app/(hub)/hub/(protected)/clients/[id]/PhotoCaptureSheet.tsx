@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { createSignedPhotoUploadUrl, recordProgressPhoto } from "./blueprint-actions";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 
-const PHOTO_TYPES = ["FRONT", "LEFT", "RIGHT", "BACK", "DETAIL"] as const;
+const PHOTO_TYPES = ["FRONT", "LEFT", "RIGHT", "BACK"] as const;
 
 export default function PhotoCaptureSheet({ clientId }: { clientId: string }) {
   const router = useRouter();
@@ -50,7 +50,7 @@ export default function PhotoCaptureSheet({ clientId }: { clientId: string }) {
         const sessionNumberRaw = formData.get("sessionNumber");
         const result = await recordProgressPhoto(clientId, {
           storagePath: signed.path,
-          type: formData.get("type") as "FRONT" | "LEFT" | "RIGHT" | "BACK" | "DETAIL",
+          type: formData.get("type") as "FRONT" | "LEFT" | "RIGHT" | "BACK",
           sessionNumber: sessionNumberRaw ? Number(sessionNumberRaw) : undefined,
         });
 

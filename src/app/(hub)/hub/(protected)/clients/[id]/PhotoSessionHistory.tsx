@@ -9,7 +9,6 @@ const SLOT_LABELS: Record<string, string> = {
   LEFT: "Left",
   RIGHT: "Right",
   BACK: "Back",
-  DETAIL: "Detail",
 };
 
 const SESSION_SIZE = 4;

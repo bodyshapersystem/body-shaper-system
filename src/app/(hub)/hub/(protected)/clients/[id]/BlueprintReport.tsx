@@ -67,7 +67,6 @@ const PHOTO_SLOTS = [
   { type: "LEFT", label: "Left Profile" },
   { type: "RIGHT", label: "Right Profile" },
   { type: "BACK", label: "Back" },
-  { type: "DETAIL", label: "Detail" },
 ] as const;
 
 function money(cents: number) {
