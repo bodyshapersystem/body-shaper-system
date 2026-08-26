@@ -4824,7 +4824,7 @@
 .pp-callout-value{ font-family:var(--serif); font-size:24px; color:var(--mocha); margin:0; white-space:nowrap; }
 
 /* ---- Progress Photos — Final Comparison with real photos + measurement connector lines ---- */
-.pp-final-photo-grid{ display:grid; grid-template-columns:0.85fr 1.5fr; gap:12px; margin-bottom:6px; align-items:start; }
+.pp-final-photo-grid{ display:grid; grid-template-columns:0.55fr 1.8fr; gap:10px; margin-bottom:6px; align-items:start; }
 
 .pmc-wrap{ position:relative; padding-right:118px; }
 .pmc-photo{ width:100%; border-radius:12px; display:block; aspect-ratio:3/4; object-fit:cover; background:#f2ece1; }
