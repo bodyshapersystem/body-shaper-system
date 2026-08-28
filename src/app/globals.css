@@ -4851,5 +4851,15 @@
 .bp-tex-taupe .dtj-link-small{
   color:#F5EEE4 !important;
 }
+.bp-tex-taupe .isd-protocol-tag{
+  color:#F5EEE4 !important; background:rgba(241,235,225,0.12) !important;
+}
 .bp-tex-taupe .sched-label{ opacity:0.85; }
 .bp-tex-taupe .pay-history-meta{ opacity:0.75; }
+
+/* ---- Personalized System — history of past systems + current ---- */
+.bbp-system-history{ margin-bottom:14px; display:flex; flex-direction:column; gap:8px; }
+.bbp-system-history-row{
+  display:flex; justify-content:space-between; align-items:center; padding:8px 12px;
+  background:rgba(245,238,228,0.08); border:1px solid rgba(200,161,90,0.2); border-radius:10px;
+}

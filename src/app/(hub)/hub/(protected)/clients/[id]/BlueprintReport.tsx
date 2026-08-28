@@ -5,6 +5,7 @@ import BodyTypeIllustration from "@/components/BodyTypeIllustration";
 import { TargetMarkIcon } from "./BlueprintIcons";
 import { BODY_TYPE_CONTENT, getBodyTypeRationale } from "@/lib/body-types";
 import EditSystemDetailsSheet from "./EditSystemDetailsSheet";
+import AddNewSystemButton from "./AddNewSystemButton";
 import MarkSystemCompletedButton from "./MarkSystemCompletedButton";
 import SendGoogleReviewButton from "./SendGoogleReviewButton";
 import SystemCompletionEditor from "./SystemCompletionEditor";
@@ -642,9 +643,29 @@ export default async function BlueprintReport({
               />
             )}
           </p>
+
+          {client.blueprintAssessments.length > 1 && (
+            <div className="bbp-system-history">
+              {client.blueprintAssessments
+                .slice(1)
+                .slice()
+                .reverse()
+                .map((past) => (
+                  <div key={past.id} className="bbp-system-history-row">
+                    <span className="pjic-recipient">{past.recommendedSystem ?? "Personalized System™"}</span>
+                    <span className="isd-protocol-tag">
+                      {past.status === "COMPLETED" ? "Completed" : "Ended"}
+                      {past.completedAt ? ` ${past.completedAt.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}` : ""}
+                    </span>
+                  </div>
+                ))}
+            </div>
+          )}
+
           {assessment.recommendedSystem ? (
             <div className="bbp-system-card">
               <div>
+                {client.blueprintAssessments.length > 1 && <p className="pjic-recipient" style={{ marginBottom: 2 }}>Current:</p>}
                 <p className="bbp-system-name">{assessment.recommendedSystem}</p>
                 {assessment.treatmentInterests && <p className="bbp-system-sub">{assessment.treatmentInterests}</p>}
               </div>
@@ -652,6 +673,13 @@ export default async function BlueprintReport({
           ) : (
             <EmptyState title="no system assigned yet." sub="Assign a Personalized System™ once the strategy is set." />
           )}
+
+          {mode === "owner" && (
+            <div style={{ marginTop: 14 }}>
+              <AddNewSystemButton clientId={clientId} />
+            </div>
+          )}
+
           <ul className="bbp-protocol-list">
             <li>
               <span className="bbp-focus-dot" style={{ background: "var(--bbp-gold-dark)" }} /> Frequency:{" "}

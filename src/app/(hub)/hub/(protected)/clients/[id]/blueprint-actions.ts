@@ -753,3 +753,58 @@ export async function recordRenphoScan(clientId: string, assessmentId: string, f
   revalidatePath(`/hub/clients/${clientId}`);
   return { success: true };
 }
+
+/**
+ * Real "Add New System" — creates a genuinely new BlueprintAssessment
+ * version for a client who's purchasing another package after
+ * finishing a prior one. The prior assessment stays exactly as it is
+ * (already marked COMPLETED via markSystemCompleted, or left as-is if
+ * it wasn't) — nothing about it changes. All of a client's real
+ * history (photos, measurements, RENPHO scans) is queried by
+ * clientId, not assessmentId, so nothing gets disconnected by this.
+ */
+export async function addNewSystem(clientId: string, formData: FormData) {
+  const user = await getCurrentHubUser();
+  if (!user || !hasPermission(user, "blueprints.manage")) {
+    return { error: "You don't have permission to do this." };
+  }
+
+  const systemName = (formData.get("systemName") as string)?.trim();
+  if (!systemName) return { error: "System name is required." };
+
+  const sessionCountRaw = formData.get("sessionCount") as string;
+  const sessionCount = sessionCountRaw ? parseInt(sessionCountRaw, 10) : null;
+  const planTotalRaw = formData.get("planTotalDollars") as string;
+  const planTotalCents = planTotalRaw ? Math.round(parseFloat(planTotalRaw) * 100) : null;
+
+  const client = await prisma.client.findUnique({ where: { id: clientId } });
+  if (!client) return { error: "Client not found." };
+
+  const latest = await prisma.blueprintAssessment.findFirst({
+    where: { clientId },
+    orderBy: { version: "desc" },
+  });
+
+  const created = await prisma.blueprintAssessment.create({
+    data: {
+      clientId,
+      version: (latest?.version ?? 0) + 1,
+      status: "IN_PROGRESS",
+      recommendedSystem: systemName,
+      originalRecommendedSystem: systemName,
+      initialSessionCount: sessionCount,
+      validatedSessionCount: sessionCount,
+      planTotalCents,
+    },
+  });
+
+  await createNotification({
+    clientId,
+    category: "GENERAL",
+    description: `${client.firstName} ${client.lastName} started a new system — ${systemName}`,
+    linkUrl: `/hub/clients/${clientId}?tab=blueprint`,
+  });
+
+  revalidatePath(`/hub/clients/${clientId}`);
+  return { success: true, assessmentId: created.id };
+}
