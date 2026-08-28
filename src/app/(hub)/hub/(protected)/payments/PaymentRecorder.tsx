@@ -6,6 +6,7 @@ import {
   createPayment,
   getClientFinancialSummary,
   updatePlanTotal,
+  updateDiscount,
   getFullPaymentDiscount,
   generatePaymentSchedule,
   payInstallment,
@@ -23,6 +24,8 @@ type FinancialSummary = {
   currentSession: number;
   totalSessions: number | null;
   planTotalCents: number | null;
+  discountCents: number | null;
+  netTotalCents: number | null;
   paidCents: number;
   pendingCents: number;
   balanceCents: number | null;
@@ -65,9 +68,11 @@ export default function PaymentRecorder({ clients }: { clients: ClientOption[] }
   const [summary, setSummary] = useState<FinancialSummary | null>(null);
   const [schedule, setSchedule] = useState<ScheduleRow[]>([]);
   const [loadingSummary, setLoadingSummary] = useState(false);
-  const [discountCents, setDiscountCents] = useState<number | null>(null);
+  const [courtesyDiscountCents, setCourtesyDiscountCents] = useState<number | null>(null);
 
   const [planTotalInput, setPlanTotalInput] = useState("");
+  const [discountInput, setDiscountInput] = useState("");
+  const [editingDiscount, setEditingDiscount] = useState(false);
   const [installmentCount, setInstallmentCount] = useState("4");
   const [cadenceDays, setCadenceDays] = useState("14");
 
@@ -92,7 +97,7 @@ export default function PaymentRecorder({ clients }: { clients: ClientOption[] }
       getClientPaymentSchedule(id),
     ]);
     setSummary(s);
-    setDiscountCents(discount);
+    setCourtesyDiscountCents(discount);
     setSchedule(sched as unknown as ScheduleRow[]);
     return s;
   }
@@ -106,6 +111,8 @@ export default function PaymentRecorder({ clients }: { clients: ClientOption[] }
     setReference("");
     setNotes("");
     setRecorded(null);
+    setEditingDiscount(false);
+    setDiscountInput("");
     if (!id) return;
     setLoadingSummary(true);
     startTransition(async () => {
@@ -126,6 +133,22 @@ export default function PaymentRecorder({ clients }: { clients: ClientOption[] }
       }
       await reloadClientData(clientId);
       setPlanTotalInput("");
+    });
+  }
+
+  function handleSaveDiscount() {
+    if (!summary?.assessmentId) return;
+    const formData = new FormData();
+    formData.set("discount", discountInput);
+    startTransition(async () => {
+      const result = await updateDiscount(summary.assessmentId!, formData);
+      if (result?.error) {
+        setError(result.error);
+        return;
+      }
+      await reloadClientData(clientId);
+      setDiscountInput("");
+      setEditingDiscount(false);
     });
   }
 
@@ -315,6 +338,51 @@ export default function PaymentRecorder({ clients }: { clients: ClientOption[] }
                   <strong>{money(summary.planTotalCents)}</strong>
                 </div>
                 <div>
+                  <span>Discount</span>
+                  {editingDiscount ? (
+                    <span className="pay-discount-inline-setup">
+                      <input
+                        type="number"
+                        step="0.01"
+                        min="0"
+                        value={discountInput}
+                        onChange={(e) => setDiscountInput(e.target.value)}
+                        placeholder="$0.00"
+                        className="pay-discount-inline-input"
+                        autoFocus
+                      />
+                      <button type="button" className="pay-plan-save-btn" onClick={handleSaveDiscount}>
+                        Save
+                      </button>
+                    </span>
+                  ) : summary.discountCents ? (
+                    <strong>
+                      -{money(summary.discountCents)}{" "}
+                      <button
+                        type="button"
+                        className="pay-discount-edit-link"
+                        onClick={() => {
+                          setDiscountInput((summary.discountCents! / 100).toString());
+                          setEditingDiscount(true);
+                        }}
+                      >
+                        Edit
+                      </button>
+                    </strong>
+                  ) : (
+                    <button
+                      type="button"
+                      className="pay-discount-edit-link"
+                      onClick={() => {
+                        setDiscountInput("");
+                        setEditingDiscount(true);
+                      }}
+                    >
+                      + Add discount
+                    </button>
+                  )}
+                </div>
+                <div>
                   <span>Paid</span>
                   <strong>{money(summary.paidCents)}</strong>
                 </div>
@@ -325,20 +393,20 @@ export default function PaymentRecorder({ clients }: { clients: ClientOption[] }
               </div>
             )}
 
-            {summary.planTotalCents !== null && (
+            {summary.planTotalCents !== null && summary.netTotalCents !== null && (
               <div className="sched-progress-track">
                 <div
                   className="sched-progress-fill"
-                  style={{ width: `${Math.min((summary.paidCents / summary.planTotalCents) * 100, 100)}%` }}
+                  style={{ width: `${summary.netTotalCents > 0 ? Math.min((summary.paidCents / summary.netTotalCents) * 100, 100) : 100}%` }}
                 />
               </div>
             )}
           </div>
 
-          {discountCents != null && summary.balanceCents != null && summary.balanceCents > 0 && (
+          {courtesyDiscountCents != null && summary.balanceCents != null && summary.balanceCents > 0 && (
             <div className="pay-discount-card">
               <strong>Exclusive Courtesy</strong>
-              <p>Pay the remaining balance in full today and receive a {money(discountCents)} courtesy discount.</p>
+              <p>Pay the remaining balance in full today and receive a {money(courtesyDiscountCents)} courtesy discount.</p>
             </div>
           )}
 

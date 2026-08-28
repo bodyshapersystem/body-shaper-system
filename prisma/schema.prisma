@@ -390,6 +390,7 @@ model BlueprintAssessment {
   recommendedSystem        String?
   originalRecommendedSystem String? // frozen at intake — never overwritten
   planTotalCents            Int?    // the sold package's total price — set by the Owner, never hardcoded; null until entered
+  discountCents             Int?    // a manual discount the Owner applies for this client — subtracted from planTotalCents when computing the real balance owed
 
   initialFrequency      String?
   validatedFrequency     String?

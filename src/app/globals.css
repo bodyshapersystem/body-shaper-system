@@ -4863,3 +4863,14 @@
   display:flex; justify-content:space-between; align-items:center; padding:8px 12px;
   background:rgba(245,238,228,0.08); border:1px solid rgba(200,161,90,0.2); border-radius:10px;
 }
+
+/* ---- Payments — manual per-client discount row ---- */
+.pay-discount-edit-link{
+  background:none; border:none; color:var(--mocha); font-family:var(--sans); font-size:11px;
+  text-decoration:underline; cursor:pointer; padding:0;
+}
+.pay-discount-inline-setup{ display:flex; align-items:center; gap:6px; }
+.pay-discount-inline-input{
+  width:80px; padding:4px 8px; border:1px solid rgba(107,82,64,0.25); border-radius:8px;
+  font-family:var(--sans); font-size:12px;
+}

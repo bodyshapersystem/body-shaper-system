@@ -118,9 +118,11 @@ export async function getClientFinancialSummary(clientId: string) {
   const totalSessions = assessment?.validatedSessionCount ?? null;
   const currentSession = totalSessions !== null ? Math.min(completedSessionCount + 1, totalSessions) : completedSessionCount + 1;
   const planTotalCents = assessment?.planTotalCents ?? null;
+  const discountCents = assessment?.discountCents ?? null;
   const paidCents = paidAgg._sum.amountCents ?? 0;
   const pendingCents = pendingAgg._sum.amountCents ?? 0;
-  const balanceCents = planTotalCents !== null ? Math.max(planTotalCents - paidCents, 0) : null;
+  const netTotalCents = planTotalCents !== null ? Math.max(planTotalCents - (discountCents ?? 0), 0) : null;
+  const balanceCents = netTotalCents !== null ? Math.max(netTotalCents - paidCents, 0) : null;
 
   return {
     assessmentId: assessment?.id ?? null,
@@ -130,6 +132,8 @@ export async function getClientFinancialSummary(clientId: string) {
     currentSession,
     totalSessions,
     planTotalCents,
+    discountCents,
+    netTotalCents,
     paidCents,
     pendingCents,
     balanceCents,
@@ -150,6 +154,35 @@ export async function updatePlanTotal(assessmentId: string, formData: FormData) 
   await prisma.blueprintAssessment.update({
     where: { id: assessmentId },
     data: { planTotalCents: Math.round(amount * 100) },
+  });
+
+  revalidatePath("/hub/payments");
+  return { success: true };
+}
+
+/**
+ * Real, manual per-client discount — a line the Owner can type in
+ * directly, subtracted from the plan total before computing the
+ * balance owed. Separate from the business-wide "Exclusive Courtesy"
+ * pay-in-full incentive (getFullPaymentDiscount) — this one is a real
+ * discount actually applied to what this specific client owes, not
+ * just a suggested offer.
+ */
+export async function updateDiscount(assessmentId: string, formData: FormData) {
+  const user = await getCurrentHubUser();
+  if (!user || !hasPermission(user, "payments.manage")) {
+    return { error: "You don't have permission to set pricing." };
+  }
+
+  const raw = formData.get("discount");
+  const amount = raw !== null && String(raw).trim() !== "" ? Number(raw) : 0;
+  if (!Number.isFinite(amount) || amount < 0) {
+    return { error: "Enter a valid discount amount." };
+  }
+
+  await prisma.blueprintAssessment.update({
+    where: { id: assessmentId },
+    data: { discountCents: amount > 0 ? Math.round(amount * 100) : null },
   });
 
   revalidatePath("/hub/payments");
@@ -240,11 +273,13 @@ export async function generatePaymentSchedule(
   }
 
   // Real fix: installments must be generated from the remaining
-  // BALANCE (Plan Total minus whatever's already been paid — e.g. a
-  // deposit), never the raw Plan Total itself, or the client would be
-  // billed for their deposit a second time.
+  // BALANCE (Plan Total minus any manual discount, minus whatever's
+  // already been paid — e.g. a deposit), never the raw Plan Total
+  // itself, or the client would be billed for their deposit (or a
+  // discount they were actually given) a second time.
   const paidCents = paidAgg._sum.amountCents ?? 0;
-  const balanceCents = Math.max(assessment.planTotalCents - paidCents, 0);
+  const netTotalCents = Math.max(assessment.planTotalCents - (assessment.discountCents ?? 0), 0);
+  const balanceCents = Math.max(netTotalCents - paidCents, 0);
 
   if (balanceCents <= 0) {
     return { error: "This client's balance is already $0 — nothing left to schedule." };
