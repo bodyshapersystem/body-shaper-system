@@ -117,8 +117,8 @@ export default function ClientAppointmentsView({
             ))}
             {past.length > 0 && (
               <>
-                <p className="cap-past-label">Past Sessions</p>
-                {past.slice(0, 8).map((e) => (
+                <p className="cap-past-label">Past Appointments</p>
+                {past.map((e) => (
                   <div key={e.id} className="cap-card cap-card-past">
                     <div className="cap-card-time">{fmtDate(e.startsAt)}</div>
                     <div className="cap-card-title">{e.title}</div>
