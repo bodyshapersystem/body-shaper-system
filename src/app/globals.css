@@ -4874,3 +4874,11 @@
   width:80px; padding:4px 8px; border:1px solid rgba(107,82,64,0.25); border-radius:8px;
   font-family:var(--sans); font-size:12px;
 }
+
+/* ---- Share modal — EN/ES language toggle ---- */
+.simg-lang-toggle{
+  display:flex; align-items:center; gap:6px; justify-content:center; margin-bottom:10px;
+  font-family:var(--sans); font-size:11px; color:rgba(241,235,225,0.4);
+}
+.simg-lang-toggle button{ background:none; border:none; color:rgba(241,235,225,0.5); cursor:pointer; font-family:var(--sans); font-size:11px; padding:2px 4px; }
+.simg-lang-toggle .simg-lang-active{ color:#F1EBE1; font-weight:600; text-decoration:underline; }

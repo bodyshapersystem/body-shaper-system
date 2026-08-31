@@ -28,6 +28,7 @@ export default function ShareImageModal({
   const cardRef = useRef<HTMLDivElement>(null);
   const [busy, setBusy] = useState<"download" | "share" | null>(null);
   const [error, setError] = useState("");
+  const [language, setLanguage] = useState<"en" | "es">("en");
 
   async function capture(): Promise<Blob | null> {
     if (!cardRef.current) return null;
@@ -78,8 +79,13 @@ export default function ShareImageModal({
     <div className="simg-backdrop" onClick={onClose}>
       <div className="simg-card" onClick={(e) => e.stopPropagation()}>
         <button type="button" className="simg-close" onClick={onClose} aria-label="Close">✕</button>
+        <div className="simg-lang-toggle">
+          <button type="button" className={language === "en" ? "simg-lang-active" : ""} onClick={() => setLanguage("en")}>EN</button>
+          <span>|</span>
+          <button type="button" className={language === "es" ? "simg-lang-active" : ""} onClick={() => setLanguage("es")}>ES</button>
+        </div>
         <div className="simg-capture-wrap">
-          <ShareableProgressCard ref={cardRef} category={category} changes={changes} closingPhrase={closingPhrase} compareLabel={compareLabel} />
+          <ShareableProgressCard ref={cardRef} category={category} changes={changes} closingPhrase={closingPhrase} compareLabel={compareLabel} language={language} />
         </div>
         {error && <p className="sched-error" style={{ marginTop: 10 }}>{error}</p>}
         <div className="simg-actions">
