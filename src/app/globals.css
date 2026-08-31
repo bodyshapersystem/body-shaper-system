@@ -4882,3 +4882,13 @@
 }
 .simg-lang-toggle button{ background:none; border:none; color:rgba(241,235,225,0.5); cursor:pointer; font-family:var(--sans); font-size:11px; padding:2px 4px; }
 .simg-lang-toggle .simg-lang-active{ color:#F1EBE1; font-weight:600; text-decoration:underline; }
+
+/* ---- Appointments — client appointment history calendar ---- */
+.mini-cal-day{ position:relative; }
+.mini-cal-day:disabled{ cursor:default; opacity:0.35; }
+.cah-day-marked{ opacity:1 !important; font-weight:600; color:var(--mocha); }
+.cah-day-dot{ position:absolute; bottom:2px; left:50%; transform:translateX(-50%); width:4px; height:4px; border-radius:50%; background:var(--rose); }
+.mini-cal-day-selected .cah-day-dot{ background:#fff; }
+.cah-day-detail{ margin-top:12px; border-top:1px solid rgba(107,82,64,0.12); padding-top:10px; display:flex; flex-direction:column; gap:8px; }
+.cah-appt-row{ background:#fff; border:1px solid rgba(107,82,64,0.1); border-radius:10px; padding:10px 12px; }
+.cah-appt-title{ font-family:var(--sans); font-size:12.5px; font-weight:600; color:var(--charcoal); margin:0 0 2px; }

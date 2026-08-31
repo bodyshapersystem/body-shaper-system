@@ -2,8 +2,9 @@
 
 import { useState, useTransition, useMemo } from "react";
 import { useRouter } from "next/navigation";
-import { createAppointment, getClientSessionContext } from "./actions";
+import { createAppointment, getClientSessionContext, getClientAppointmentHistory } from "./actions";
 import MiniCalendar from "./MiniCalendar";
+import ClientAppointmentHistoryCalendar from "./ClientAppointmentHistoryCalendar";
 
 type ClientOption = { id: string; firstName: string; lastName: string };
 
@@ -78,6 +79,9 @@ export default function AppointmentScheduler({
 
   const [clientId, setClientId] = useState("");
   const [context, setContext] = useState<SessionContext | null>(null);
+  const [appointmentHistory, setAppointmentHistory] = useState<
+    { id: string; title: string; startsAt: string; status: string; technologies: { name: string; minutes: number; bodyArea?: string }[] | null }[]
+  >([]);
   const [loadingContext, setLoadingContext] = useState(false);
   const [systemOverride, setSystemOverride] = useState("");
   const [sessionOverride, setSessionOverride] = useState<number | "">("");
@@ -105,13 +109,15 @@ export default function AppointmentScheduler({
   function handleClientChange(id: string) {
     setClientId(id);
     setContext(null);
+    setAppointmentHistory([]);
     setSystemOverride("");
     setSessionOverride("");
     if (!id) return;
     setLoadingContext(true);
     startTransition(async () => {
-      const ctx = await getClientSessionContext(id);
+      const [ctx, history] = await Promise.all([getClientSessionContext(id), getClientAppointmentHistory(id)]);
       setContext(ctx);
+      setAppointmentHistory(history);
       setLoadingContext(false);
       // Slot was clicked directly on the calendar — date/time are already
       // decided, so skip straight past both "Continue" clicks and show
@@ -296,6 +302,8 @@ export default function AppointmentScheduler({
               <p className="sched-progress-label">{context.progressPercent}% Complete</p>
             </>
           )}
+          <p className="dtj-field-label" style={{ marginTop: 14 }}>appointment history</p>
+          <ClientAppointmentHistoryCalendar appointments={appointmentHistory} />
           <div className="sched-summary-meta">
             <div>
               <span>Specialist</span>

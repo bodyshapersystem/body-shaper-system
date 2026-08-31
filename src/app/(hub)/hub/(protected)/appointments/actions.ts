@@ -238,6 +238,34 @@ export async function getClientSessionContext(clientId: string) {
 }
 
 /**
+ * Real appointment history for a specific client — every past
+ * appointment actually on file (completed or scheduled-and-past),
+ * used to mark days on a real calendar and list what was actually
+ * done, so the specialist can see this client's real visit pattern
+ * while scheduling the next one.
+ */
+export async function getClientAppointmentHistory(clientId: string) {
+  const user = await getCurrentHubUser();
+  if (!user) return [];
+
+  const appointments = await prisma.appointment.findMany({
+    where: {
+      clientId,
+      OR: [{ status: "COMPLETED" }, { status: "SCHEDULED", startsAt: { lt: new Date() } }],
+    },
+    orderBy: { startsAt: "desc" },
+  });
+
+  return appointments.map((a) => ({
+    id: a.id,
+    title: a.title,
+    startsAt: a.startsAt.toISOString(),
+    status: a.status,
+    technologies: a.technologies as { name: string; minutes: number; bodyArea?: string }[] | null,
+  }));
+}
+
+/**
  * Real permanent delete for a test Appointment — separate from
  * cancelAppointment() (which just sets status=CANCELLED, a
  * reversible business action, not deletion). Removes the row
