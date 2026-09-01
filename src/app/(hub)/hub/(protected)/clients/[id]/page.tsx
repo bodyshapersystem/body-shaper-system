@@ -22,6 +22,8 @@ import BlueprintAssessmentTab from "./BlueprintAssessmentTab";
 import BlueprintReport from "./BlueprintReport";
 import ReminderConfigPanel from "./ReminderConfigPanel";
 import PeptideJourneyInviteCard from "./PeptideJourneyInviteCard";
+import SessionHistoryList from "@/components/SessionHistoryList";
+import { getSessionHistoryData } from "@/lib/session-history-data";
 import DocumentUploadSheet from "./DocumentUploadSheet";
 import DocumentRowActions from "../../documents/DocumentRowActions";
 
@@ -82,6 +84,7 @@ export default async function ClientDetailPage({
   if (!client) notFound();
 
   const activePeptideProtocol = await prisma.peptideProtocol.findFirst({ where: { clientId: id, active: true }, orderBy: { createdAt: "asc" } });
+  const sessionHistory = await getSessionHistoryData(id);
 
   const [overview, appointments, payments, clientNotes, specialist, timezone, clientNotifications, collaboration, staff] = await Promise.all([
     getClientOverviewSummary(id),
@@ -328,6 +331,10 @@ export default async function ClientDetailPage({
             inviteSentByName={client.peptideJourneyInviteSentByName}
             activeProtocol={activePeptideProtocol ? { peptideName: activePeptideProtocol.peptideName, frequency: activePeptideProtocol.frequency } : null}
           />
+          <div className="bbp-card bbp-panel bp-tex-cream" style={{ marginTop: 24 }}>
+            <h3 className="dash-section-title">Session History</h3>
+            <SessionHistoryList sessions={sessionHistory} />
+          </div>
         </>
       )}
 

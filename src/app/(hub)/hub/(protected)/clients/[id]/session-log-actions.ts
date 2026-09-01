@@ -3,6 +3,7 @@
 import { prisma } from "@/lib/prisma";
 import { getCurrentHubUser, hasPermission } from "@/lib/permissions";
 import { computeBlueprintAlignment, type Technology } from "@/lib/session-objectives";
+import { getSessionHistoryData } from "@/lib/session-history-data";
 import { revalidatePath } from "next/cache";
 
 function splitGoals(text: string | null | undefined): string[] {
@@ -71,18 +72,7 @@ export async function logSession(clientId: string, formData: FormData) {
  * snapshot, most recent first.
  */
 export async function getSessionHistory(clientId: string) {
-  const appointments = await prisma.appointment.findMany({
-    where: { clientId },
-    orderBy: { startsAt: "desc" },
-  });
-  const sessionsOnly = appointments.filter((a) => a.technologies != null);
-
-  return sessionsOnly.map((a) => ({
-    id: a.id,
-    startsAt: a.startsAt.toISOString(),
-    status: a.status,
-    technologies: a.technologies as { name: string; areas?: string[]; objectives?: string[] }[] | null,
-    blueprintAlignment: a.blueprintAlignment as { matched: string[]; unmatched: string[] } | null,
-    notes: a.notes,
-  }));
+  const user = await getCurrentHubUser();
+  if (!user) return [];
+  return getSessionHistoryData(clientId);
 }

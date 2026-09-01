@@ -3,6 +3,8 @@ import { prisma } from "@/lib/prisma";
 import { getCurrentPortalClient } from "@/lib/permissions";
 import BlueprintReport from "@/app/(hub)/hub/(protected)/clients/[id]/BlueprintReport";
 import AppointmentsPageContent from "@/app/(portal)/portal/(protected)/appointments/AppointmentsPageContent";
+import SessionHistoryList from "@/components/SessionHistoryList";
+import { getSessionHistoryData } from "@/lib/session-history-data";
 import SystemsSessionsTabbedView from "./SystemsSessionsTabbedView";
 
 export const dynamic = "force-dynamic";
@@ -41,6 +43,8 @@ export default async function PortalSystemsSessionsPage() {
 
   if (!client) redirect("/portal/login");
 
+  const sessionHistory = await getSessionHistoryData(portalClient.id);
+
   return (
     <div className="cat-body portal-page bp-client-materials">
       <div className="portal-page-head">
@@ -56,7 +60,15 @@ export default async function PortalSystemsSessionsPage() {
       ) : (
         <SystemsSessionsTabbedView
           systemPanel={<BlueprintReport client={client} clientId={client.id} mode="client" />}
-          sessionsPanel={<AppointmentsPageContent heading={false} />}
+          sessionsPanel={
+            <>
+              <AppointmentsPageContent heading={false} />
+              <div style={{ marginTop: 24 }}>
+                <p className="dtj-field-label">session history</p>
+                <SessionHistoryList sessions={sessionHistory} />
+              </div>
+            </>
+          }
         />
       )}
     </div>
