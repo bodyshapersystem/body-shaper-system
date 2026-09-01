@@ -72,11 +72,12 @@ export async function logSession(clientId: string, formData: FormData) {
  */
 export async function getSessionHistory(clientId: string) {
   const appointments = await prisma.appointment.findMany({
-    where: { clientId, technologies: { not: null } },
+    where: { clientId },
     orderBy: { startsAt: "desc" },
   });
+  const sessionsOnly = appointments.filter((a) => a.technologies != null);
 
-  return appointments.map((a) => ({
+  return sessionsOnly.map((a) => ({
     id: a.id,
     startsAt: a.startsAt.toISOString(),
     status: a.status,
