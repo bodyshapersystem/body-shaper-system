@@ -1153,6 +1153,16 @@ model Appointment {
   createdAt        DateTime          @default(now())
   updatedAt        DateTime          @updatedAt
   createdById      String?
+  // Interactive Session Map™ — frozen at save time, never
+  // recalculated later (a session's map is a historical record, per
+  // direction: "Do not dynamically overwrite old session maps when
+  // the client's current System changes"). blueprintAlignment stores
+  // { matched: string[], unmatched: string[] } computed once against
+  // the client's real Blueprint goals at the moment this session was
+  // logged. Per-technology areas/objectives live inside the existing
+  // `technologies` JSON array (each entry gains real `areas: string[]`
+  // and `objectives: string[]`) rather than a second column.
+  blueprintAlignment Json?
 
   // Long-term architecture: every appointment is the permanent
   // clinical session record. Photos, Renpho scans, professional

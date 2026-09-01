@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { sendPeptideJourneyInvite } from "./peptide-invite-actions";
+import LogSessionSheet from "./LogSessionSheet";
 
 type ActiveProtocol = { peptideName: string; frequency: string } | null;
 
@@ -56,9 +57,12 @@ export default function PeptideJourneyInviteCard({
   return (
     <div className="bbp-card bbp-panel bp-tex-taupe" style={{ marginTop: 24 }}>
       <h3 className="dash-section-title">Client Tools</h3>
-      <a href={`/hub/clients/${clientId}/progress-photos`} className="dtj-link-small" style={{ display: "inline-block", marginBottom: 16 }}>
+      <a href={`/hub/clients/${clientId}/progress-photos`} className="dtj-link-small" style={{ display: "inline-block", marginBottom: 12 }}>
         VIEW PROGRESS PHOTOS →
       </a>
+      <div style={{ marginBottom: 16 }}>
+        <LogSessionSheet clientId={clientId} />
+      </div>
 
       {activeProtocol ? (
         <div className="pjic-row">
