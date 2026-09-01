@@ -470,6 +470,11 @@ model BodyMeasurement {
   notes          String?
   createdAt      DateTime @default(now())
   specialistId   String?
+  // Shared session tracking across the client's real visit history —
+  // same pattern as Photo.sessionNumber, so a Session can exist even
+  // without a photo taken that day. Null = not yet assigned to a
+  // numbered session.
+  sessionNumber  Int?
 
   @@map("body_measurements")
 }
@@ -602,6 +607,11 @@ model Measurement {
   notes            String?
   createdAt        DateTime @default(now())
   createdById      String?
+  // Shared session tracking across the client's real visit history —
+  // same pattern as Photo.sessionNumber, so a Session can exist even
+  // without a photo taken that day. Null = not yet assigned to a
+  // numbered session.
+  sessionNumber    Int?
 
   @@map("measurements")
 }
