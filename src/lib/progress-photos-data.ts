@@ -77,7 +77,14 @@ export async function getProgressPhotosData(
     })
   );
 
-  const firstMeasurement = bodyMeasurements.length > 0 ? bodyMeasurements[0] : null;
+  // Real fix: the chronologically-first BodyMeasurement row can be an
+  // empty placeholder (every field null — e.g. created alongside a
+  // photo session before any tape measurements existed), which would
+  // silently produce zero real callouts forever if used as baseline.
+  // The real baseline is the first row that actually has at least one
+  // real measured value.
+  const hasAnyValue = (m: (typeof bodyMeasurements)[number]) => MEASUREMENT_KEYS.some((k) => m[k] != null);
+  const firstMeasurement = bodyMeasurements.find(hasAnyValue) ?? null;
   const latestMeasurement = bodyMeasurements.length > 0 ? bodyMeasurements[bodyMeasurements.length - 1] : null;
   const finalCallouts =
     firstMeasurement && latestMeasurement && firstMeasurement !== latestMeasurement
