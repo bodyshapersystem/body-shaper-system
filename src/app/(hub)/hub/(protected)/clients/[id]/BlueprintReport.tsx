@@ -378,7 +378,7 @@ export default async function BlueprintReport({
   return (
     <div className="bbp-root">
       {/* ---------- Hero Photo — now shown in both Owner Hub and Client Portal per direction ---------- */}
-      <div className="bbp-hero-photo-wrap bbp-hero-photo-wrap-editorial">
+      <div data-bp-tab="overview" className="bbp-hero-photo-wrap bbp-hero-photo-wrap-editorial">
         <img src="/images/blueprint/hero-blueprint-experience.jpg" alt="Emmy Branger, founder of Body Shaper System" className="bbp-hero-photo-block bbp-hero-photo-block-dark" />
         <div className="bbp-hero-photo-darken" />
         <div className="bbp-hero-wordmark">
@@ -398,7 +398,7 @@ export default async function BlueprintReport({
       </div>
 
       {/* ---------- Executive Summary ---------- */}
-      <div className="bbp-hero">
+      <div data-bp-tab="overview" className="bbp-hero">
         <div className="bbp-hero-welcome bp-tex-cream">
           <div className="bbp-hero-welcome-body">
             <div>
@@ -447,7 +447,7 @@ export default async function BlueprintReport({
       </div>
 
       {/* ---------- Section 01: Body Composition ---------- */}
-      <div style={{ marginTop: 32, marginBottom: 40 }}>
+      <div data-bp-tab="composition" style={{ marginTop: 32, marginBottom: 40 }}>
         <SectionLabel num="01" title="Your Body Composition" right="baseline overview" />
         {mode === "owner" && (
           <div style={{ marginBottom: 12 }}>
@@ -520,7 +520,7 @@ export default async function BlueprintReport({
       </div>
 
       {/* ---------- Midpoint Data™ ---------- */}
-      <div style={{ marginBottom: 40 }}>
+      <div data-bp-tab="composition" style={{ marginBottom: 40 }}>
         <MidpointDataView
           review={
             midpointReview
@@ -558,7 +558,7 @@ export default async function BlueprintReport({
       {/* ---------- Section 02 / 03 / 04 ---------- */}
       <div className="bbp-row-3" style={{ marginBottom: 40 }}>
         {/* 02 — Measurements */}
-        <div className="bbp-card bbp-card-dark bbp-composition-visual bbp-measurements-final">
+        <div data-bp-tab="measurements" className="bbp-card bbp-card-dark bbp-composition-visual bbp-measurements-final">
           <div>
             <p className="bbp-composition-heading">
               your measurements
@@ -593,7 +593,7 @@ export default async function BlueprintReport({
         </div>
 
         {/* 03 — Body Profile (bodyType is the single source of truth) */}
-        <div className="bbp-card bbp-profile-card">
+        <div data-bp-tab="bodytype" className="bbp-card bbp-profile-card">
           <p style={{ fontFamily: "var(--sans)", fontSize: 13, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
             <span>
               <span className="bbp-section-num">03</span> <span className="bbp-section-div">|</span> body type
@@ -624,7 +624,7 @@ export default async function BlueprintReport({
         </div>
 
         {/* 04 — Personalized System (real fields: recommendedSystem, treatmentInterests, goals, frequency) */}
-        <div className="bbp-card bbp-panel bp-tex-taupe">
+        <div data-bp-tab="system" className="bbp-card bbp-panel bp-tex-taupe">
           <p className="bbp-panel-title" style={{ marginBottom: 14, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
             <span>
               <span className="bbp-section-num">04</span> <span className="bbp-section-div">|</span> personalized system™
@@ -701,7 +701,7 @@ export default async function BlueprintReport({
       {/* ---------- Section 05 / 06 ---------- */}
       <div className="bbp-row-2" style={{ marginBottom: 40 }}>
         {/* 05 — System Architecture (real fields: treatmentInterests, complementarySessions, homeCareGuidance) */}
-        <div className="bbp-card bbp-panel bp-tex-cream">
+        <div data-bp-tab="system" className="bbp-card bbp-panel bp-tex-cream">
           <p className="bbp-panel-title" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
             <span>
               <span className="bbp-section-num">05</span> <span className="bbp-section-div">|</span> your system architecture™
@@ -763,7 +763,7 @@ export default async function BlueprintReport({
         </div>
 
         {/* 06 — Why This System Was Selected (real specialist validation notes) */}
-        <div className="bbp-card bbp-panel bp-tex-glass">
+        <div data-bp-tab="system" className="bbp-card bbp-panel bp-tex-glass">
           <p className="bbp-panel-title">
             <span className="bbp-section-num">06</span> <span className="bbp-section-div">|</span> why this system was selected
           </p>
@@ -781,7 +781,7 @@ export default async function BlueprintReport({
       </div>
 
       {/* ---------- Photo Gallery (real PhotoType slots + genuine before/after) ---------- */}
-      <div style={{ marginBottom: 40 }}>
+      <div data-bp-tab="photos" style={{ marginBottom: 40 }}>
         <SectionLabel num="08" title="Photo Gallery" right="consistent · clear · comparable" />
         <div className="bbp-photo-grid">
           {photoTiles.map(({ type, label, url }) => (
@@ -823,7 +823,7 @@ export default async function BlueprintReport({
       </div>
 
       {/* ---------- Quote / Next Milestone (Progress Preview archived per direction — see comment below) ---------- */}
-      <div className="bbp-bottom-row bbp-bottom-row-archived" style={{ marginBottom: 40 }}>
+      <div data-bp-tab="overview" className="bbp-bottom-row bbp-bottom-row-archived" style={{ marginBottom: 40 }}>
         {/* Progress Preview (section 09) archived, not deleted:
         <div className="bbp-card-dark" style={{ padding: 22 }}>
           <p style={{ fontFamily: "var(--sans)", fontSize: 13, marginBottom: 10 }}>
@@ -889,7 +889,7 @@ export default async function BlueprintReport({
       </div>
 
       {/* ---------- Transformation Journey ---------- */}
-      <div style={{ marginBottom: 40 }}>
+      <div data-bp-tab="overview" style={{ marginBottom: 40 }}>
         <SectionLabel num="11" title="Transformation Journey" />
         {journey.length === 0 ? (
           <EmptyState title="no journey events yet." sub="Milestones will appear here as the Blueprint progresses." />
@@ -911,7 +911,7 @@ export default async function BlueprintReport({
       </div>
 
       {/* ---------- Quick Actions ---------- */}
-      <div style={{ marginBottom: 40 }}>
+      <div data-bp-tab="overview" style={{ marginBottom: 40 }}>
         <SectionLabel num="12" title="Quick Actions" />
         <div className="bbp-actions-grid">
           {(mode === "owner"

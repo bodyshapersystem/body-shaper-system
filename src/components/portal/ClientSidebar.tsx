@@ -11,6 +11,7 @@ type NavItem = { href: string; label: string; icon: string; children?: NavChild[
 const NAV: NavItem[] = [
   { href: "/portal/dashboard", label: "Dashboard", icon: "grid" },
   { href: "/portal/blueprint", label: "My Body Blueprint™", icon: "brain" },
+  { href: "/portal/systems-sessions", label: "Systems & Sessions™", icon: "star" },
   { href: "/portal/appointments", label: "Appointments", icon: "calendar" },
   { href: "/portal/daily-trackers", label: "Daily Trackers", icon: "drop" },
   {

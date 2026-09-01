@@ -4897,3 +4897,35 @@
 .cah-day-detail{ margin-top:12px; border-top:1px solid rgba(107,82,64,0.12); padding-top:10px; display:flex; flex-direction:column; gap:8px; }
 .cah-appt-row{ background:#fff; border:1px solid rgba(107,82,64,0.1); border-radius:10px; padding:10px 12px; }
 .cah-appt-title{ font-family:var(--sans); font-size:12.5px; font-weight:600; color:var(--charcoal); margin:0 0 2px; }
+
+/* ---- Client Portal — Blueprint / Systems & Sessions tabbed views ----
+   Same BlueprintReport markup, filtered by CSS attribute selectors
+   per active tab. Owner Hub renders BlueprintReport directly (no
+   .bp-tabbed-view wrapper), so this never affects the admin view. */
+.bp-tabbed-view [data-bp-tab]{ display:none; }
+.bp-tabbed-view-blueprint[data-active-tab="overview"] [data-bp-tab="overview"],
+.bp-tabbed-view-blueprint[data-active-tab="composition"] [data-bp-tab="composition"],
+.bp-tabbed-view-blueprint[data-active-tab="measurements"] [data-bp-tab="measurements"],
+.bp-tabbed-view-blueprint[data-active-tab="bodytype"] [data-bp-tab="bodytype"],
+.bp-tabbed-view-blueprint[data-active-tab="photos"] [data-bp-tab="photos"]{
+  display:block;
+}
+.bp-tabbed-view-systems[data-active-tab="system"] [data-bp-tab="system"]{ display:block; }
+
+/* Row containers (bbp-row-3/bbp-row-2) still use flex from their own
+   base styles; when only 1 of their children is visible per tab, flex
+   naturally collapses to that single child's width — override to full
+   width so a lone visible card isn't left narrow inside its old row. */
+.bp-tabbed-view .bbp-row-3 [data-bp-tab],
+.bp-tabbed-view .bbp-row-2 [data-bp-tab]{ flex:1 1 100%; }
+
+.bp-tab-nav{
+  position:sticky; bottom:0; left:0; right:0; z-index:20; display:flex; justify-content:space-around;
+  background:rgba(30,26,22,0.96); backdrop-filter:blur(8px); padding:10px 6px calc(10px + env(safe-area-inset-bottom));
+  border-top:1px solid rgba(200,161,90,0.25); margin-top:24px;
+}
+.bp-tab-nav-btn{
+  background:none; border:none; color:rgba(241,235,225,0.55); font-family:var(--sans); font-size:10.5px;
+  letter-spacing:0.02em; padding:6px 8px; cursor:pointer; border-radius:10px; text-align:center; flex:1;
+}
+.bp-tab-nav-btn-active{ color:#F1EBE1; background:rgba(200,161,90,0.15); font-weight:600; }
