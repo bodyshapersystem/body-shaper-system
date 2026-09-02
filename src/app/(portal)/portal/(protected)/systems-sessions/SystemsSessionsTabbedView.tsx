@@ -14,7 +14,7 @@ export default function SystemsSessionsTabbedView({ systemPanel, sessionsPanel }
   const [activeTab, setActiveTab] = useState<"system" | "sessions">("system");
 
   return (
-    <div>
+    <div style={{ paddingBottom: "calc(92px + env(safe-area-inset-bottom))" }}>
       {activeTab === "system" ? (
         <div className="bp-tabbed-view bp-tabbed-view-systems" data-active-tab="system">
           {systemPanel}
@@ -25,9 +25,15 @@ export default function SystemsSessionsTabbedView({ systemPanel, sessionsPanel }
 
       <div className="bp-tab-nav">
         <button type="button" className={`bp-tab-nav-btn${activeTab === "system" ? " bp-tab-nav-btn-active" : ""}`} onClick={() => setActiveTab("system")}>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round">
+            <path d="M12 2l2.5 6.5L21 11l-6.5 2.5L12 20l-2.5-6.5L3 11l6.5-2.5z" />
+          </svg>
           System
         </button>
         <button type="button" className={`bp-tab-nav-btn${activeTab === "sessions" ? " bp-tab-nav-btn-active" : ""}`} onClick={() => setActiveTab("sessions")}>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round">
+            <rect x="4" y="5" width="16" height="16" rx="2" /><path d="M4 10h16M8 3v4M16 3v4" />
+          </svg>
           Sessions
         </button>
       </div>
