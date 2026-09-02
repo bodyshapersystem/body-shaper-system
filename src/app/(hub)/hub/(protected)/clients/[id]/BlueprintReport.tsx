@@ -6,6 +6,7 @@ import { TargetMarkIcon } from "./BlueprintIcons";
 import { BODY_TYPE_CONTENT, getBodyTypeRationale } from "@/lib/body-types";
 import EditSystemDetailsSheet from "./EditSystemDetailsSheet";
 import AddNewSystemButton from "./AddNewSystemButton";
+import CompressionGarmentCard from "./CompressionGarmentCard";
 import MarkSystemCompletedButton from "./MarkSystemCompletedButton";
 import SendGoogleReviewButton from "./SendGoogleReviewButton";
 import SystemCompletionEditor from "./SystemCompletionEditor";
@@ -788,6 +789,32 @@ export default async function BlueprintReport({
               <p className="bbp-arch-col-label">complementary / home care</p>
               <p className="bbp-arch-item">{assessment.complementarySessions ?? "Not set"}</p>
               {assessment.homeCareGuidance && <p className="bbp-arch-item">{assessment.homeCareGuidance}</p>}
+              {mode === "owner" ? (
+                <div style={{ marginTop: 12 }}>
+                  <CompressionGarmentCard
+                    assessmentId={assessment.id}
+                    recommended={assessment.compressionGarmentRecommended}
+                    hoursPerDay={assessment.compressionGarmentHoursPerDay}
+                    duration={assessment.compressionGarmentDuration}
+                    durationUnit={assessment.compressionGarmentDurationUnit}
+                    note={assessment.compressionGarmentNote}
+                  />
+                </div>
+              ) : (
+                assessment.compressionGarmentRecommended && (
+                  <div className="cg-card" style={{ marginTop: 12 }}>
+                    <p className="cah-appt-title" style={{ margin: 0 }}>Compression Garment</p>
+                    <p className="pjic-status-active" style={{ margin: "4px 0 0" }}>Recommended ✓</p>
+                    <p className="pay-history-meta" style={{ marginTop: 2 }}>
+                      {assessment.compressionGarmentHoursPerDay ? `${assessment.compressionGarmentHoursPerDay} hours per day` : ""}
+                      {assessment.compressionGarmentDuration ? ` · ${assessment.compressionGarmentDuration} ${assessment.compressionGarmentDurationUnit}` : ""}
+                    </p>
+                    {assessment.compressionGarmentNote && (
+                      <p className="pay-history-meta" style={{ marginTop: 4, fontStyle: "italic" }}>&quot;{assessment.compressionGarmentNote}&quot;</p>
+                    )}
+                  </div>
+                )
+              )}
             </div>
             <div>
               <p className="bbp-arch-col-label">optimization notes</p>

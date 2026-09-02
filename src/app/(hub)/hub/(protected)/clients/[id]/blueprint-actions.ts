@@ -808,3 +808,38 @@ export async function addNewSystem(clientId: string, formData: FormData) {
   revalidatePath(`/hub/clients/${clientId}`);
   return { success: true, assessmentId: created.id };
 }
+
+/**
+ * Real, per-client Compression Garment recommendation — the default
+ * Home Care item under System Architecture. Nothing here is
+ * hardcoded: the specialist sets recommended/not per client, and
+ * hours/duration/unit/note are freely editable fields, not fixed
+ * defaults baked into the UI.
+ */
+export async function updateCompressionGarment(assessmentId: string, formData: FormData) {
+  const user = await getCurrentHubUser();
+  if (!user || !hasPermission(user, "blueprints.manage")) {
+    return { error: "You don't have permission to do this." };
+  }
+
+  const recommended = formData.get("recommended") === "true";
+  const hoursRaw = formData.get("hoursPerDay") as string;
+  const durationRaw = formData.get("duration") as string;
+  const durationUnit = (formData.get("durationUnit") as string) || null;
+  const note = (formData.get("note") as string) || null;
+
+  const updated = await prisma.blueprintAssessment.update({
+    where: { id: assessmentId },
+    data: {
+      compressionGarmentRecommended: recommended,
+      compressionGarmentHoursPerDay: recommended && hoursRaw ? parseInt(hoursRaw, 10) : null,
+      compressionGarmentDuration: recommended && durationRaw ? parseInt(durationRaw, 10) : null,
+      compressionGarmentDurationUnit: recommended ? durationUnit : null,
+      compressionGarmentNote: recommended ? note : null,
+    },
+    select: { clientId: true },
+  });
+
+  revalidatePath(`/hub/clients/${updated.clientId}`);
+  return { success: true };
+}

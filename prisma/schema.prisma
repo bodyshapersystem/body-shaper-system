@@ -405,6 +405,14 @@ model BlueprintAssessment {
   priorCompletedSessions Int     @default(0)
   complementarySessions  String?
   homeCareGuidance       String?
+  // Compression Garment — the default Home Care recommendation,
+  // per-client and fully editable (never hardcoded). recommended
+  // gates whether the hours/duration fields apply.
+  compressionGarmentRecommended    Boolean @default(false)
+  compressionGarmentHoursPerDay    Int?
+  compressionGarmentDuration       Int?
+  compressionGarmentDurationUnit   String? // "days" | "weeks"
+  compressionGarmentNote           String?
   optimizationNotes      String?
 
   validationNotes String?

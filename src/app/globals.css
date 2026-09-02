@@ -4935,3 +4935,8 @@
 .bp-tab-nav-btn-active{ color:#5C1A1F; font-weight:600; }
 .bp-tab-nav-btn::after{ content:""; width:3px; height:3px; border-radius:50%; background:transparent; margin-top:1px; }
 .bp-tab-nav-btn-active::after{ background:var(--gold); }
+
+/* ---- Compression Garment (default Home Care recommendation) ---- */
+.cg-card{
+  background:#fff; border:1px solid rgba(107,82,64,0.12); border-radius:12px; padding:12px 14px;
+}
