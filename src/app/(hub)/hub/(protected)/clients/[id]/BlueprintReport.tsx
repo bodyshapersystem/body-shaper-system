@@ -7,6 +7,7 @@ import { BODY_TYPE_CONTENT, getBodyTypeRationale } from "@/lib/body-types";
 import EditSystemDetailsSheet from "./EditSystemDetailsSheet";
 import AddNewSystemButton from "./AddNewSystemButton";
 import CompressionGarmentCard from "./CompressionGarmentCard";
+import PersonalizedSystemCard from "@/components/PersonalizedSystemCard";
 import MarkSystemCompletedButton from "./MarkSystemCompletedButton";
 import SendGoogleReviewButton from "./SendGoogleReviewButton";
 import SystemCompletionEditor from "./SystemCompletionEditor";
@@ -698,13 +699,17 @@ export default async function BlueprintReport({
           )}
 
           {assessment.recommendedSystem ? (
-            <div className="bbp-system-card">
-              <div>
-                {client.blueprintAssessments.length > 1 && <p className="pjic-recipient" style={{ marginBottom: 2 }}>Current:</p>}
-                <p className="bbp-system-name">{assessment.recommendedSystem}</p>
-                {assessment.treatmentInterests && <p className="bbp-system-sub">{assessment.treatmentInterests}</p>}
-              </div>
-            </div>
+            <>
+              {client.blueprintAssessments.length > 1 && <p className="pjic-recipient" style={{ marginBottom: 8 }}>Current:</p>}
+              <PersonalizedSystemCard
+                systemName={assessment.recommendedSystem}
+                frequency={assessment.validatedFrequency ?? assessment.initialFrequency}
+                sessionsCompleted={realCompletedForBlueprint}
+                totalSessions={totalSessions}
+                currentPhase={null}
+                progressPercent={completionPercent}
+              />
+            </>
           ) : (
             <EmptyState title="no system assigned yet." sub="Assign a Personalized System™ once the strategy is set." />
           )}
