@@ -226,7 +226,7 @@ export default async function BlueprintReport({
   const assessment = client.blueprintAssessments[0];
   if (!assessment) return null;
 
-  const [completedCount, nextAppointment, paidAgg, specialist, completedAppointments, paidPayments, timezone, blueprintScore, midpointReview] = await Promise.all([
+  const [completedCount, nextAppointment, paidAgg, specialist, completedAppointments, paidPayments, timezone, blueprintScore, midpointReview, latestSessionCandidates] = await Promise.all([
     // Per direction: an appointment counts as done once its time has
     // passed, without requiring the Owner to manually flip its status
     // to Completed first. Still respects explicit CANCELLED/NO_SHOW
@@ -246,7 +246,9 @@ export default async function BlueprintReport({
     getBusinessTimezone(),
     computeBlueprintScore(clientId),
     prisma.midpointReview.findFirst({ where: { assessmentId: assessment.id } }),
+    prisma.appointment.findMany({ where: { clientId }, orderBy: { startsAt: "desc" }, take: 10 }),
   ]);
+  const latestSession = latestSessionCandidates.find((a) => a.technologies != null) ?? null;
   const nextPendingPayment = await prisma.payment.findFirst({
     where: { clientId, status: { in: ["PENDING", "PARTIAL"] } },
     orderBy: { dueDate: "asc" },
@@ -268,6 +270,27 @@ export default async function BlueprintReport({
 
   const latestRenpho = assessment.renphoScans[0];
   const latestBodyMeasurement = assessment.bodyMeasurements[0];
+
+  // Two real, independent "Last Updated" dates — computed from actual
+  // record timestamps already loaded above, never a manually-bumped
+  // field that could be forgotten. Blueprint's date only ever reflects
+  // real body data (measurements/RENPHO/photos); Systems & Sessions'
+  // date only ever reflects real system/session activity
+  // (assessment.updatedAt bumps only via updateSystemDetails/
+  // markSystemCompleted — which never touch BodyMeasurement/
+  // Measurement/Photo rows — plus real logged sessions). Neither ever
+  // borrows the other's signal.
+  const blueprintLastUpdated = [
+    latestBodyMeasurement?.createdAt,
+    latestRenpho?.createdAt,
+    assessment.photos[0]?.uploadedAt,
+  ]
+    .filter((d): d is Date => !!d)
+    .sort((a, b) => b.getTime() - a.getTime())[0] ?? null;
+
+  const systemsSessionsLastUpdated = [assessment.updatedAt, latestSessionCandidates[0]?.startsAt]
+    .filter((d): d is Date => !!d)
+    .sort((a, b) => b.getTime() - a.getTime())[0] ?? null;
 
   // Congratulations overlay — real, computed positive-progress
   // detection (never assumes an increase or decrease is automatically
@@ -406,6 +429,11 @@ export default async function BlueprintReport({
                 {assessment.recommendedSystem && <span className="bbp-badge">{assessment.recommendedSystem}</span>}
                 <span className="bbp-badge">{STATUS_LABELS[assessment.status] ?? assessment.status}</span>
               </div>
+              {blueprintLastUpdated && (
+                <p className="pjic-recipient" style={{ marginTop: 6, letterSpacing: "0.04em", textTransform: "uppercase", fontSize: 10.5 }}>
+                  Last Updated: {formatDateInTimezone(blueprintLastUpdated, timezone)}
+                </p>
+              )}
               <p className="bbp-hero-sub">Client since {formatDateInTimezone(client.createdAt, timezone)}</p>
               <p className="bbp-hero-message">
                 {assessment.status === "COMPLETED"
@@ -643,6 +671,12 @@ export default async function BlueprintReport({
               />
             )}
           </p>
+
+          {systemsSessionsLastUpdated && (
+            <p className="pjic-recipient" style={{ marginBottom: 14, letterSpacing: "0.04em", textTransform: "uppercase", fontSize: 10.5 }}>
+              Last Updated: {formatDateInTimezone(systemsSessionsLastUpdated, timezone)}
+            </p>
+          )}
 
           {client.blueprintAssessments.length > 1 && (
             <div className="bbp-system-history">
