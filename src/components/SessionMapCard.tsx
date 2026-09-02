@@ -171,44 +171,40 @@ export default function SessionMapCard({
 }
 
 const FRONT_ZONES = [
-  { name: "Abdomen", path: "M50,148 C60,140 100,140 110,148 C113,158 111,170 104,178 C88,170 72,170 56,178 C49,170 47,158 50,148 Z" },
-  { name: "Lower Abdomen", path: "M56,178 C72,170 88,170 104,178 C102,188 96,197 80,199 C64,197 58,188 56,178 Z" },
-  { name: "Left Flank / Lateral", path: "M50,148 C46,155 46,164 50,172 L56,178 C52,170 51,159 54,150 Z" },
-  { name: "Right Flank / Lateral", path: "M110,148 C114,155 114,164 110,172 L104,178 C108,170 109,159 106,150 Z" },
+  { name: "Abdomen", path: "M62,148 Q80,140 98,148 Q100,160 92,172 Q80,178 68,172 Q60,160 62,148 Z" },
+  { name: "Lower Abdomen", path: "M68,172 Q80,178 92,172 Q90,186 80,190 Q70,186 68,172 Z" },
+  { name: "Left Flank / Lateral", path: "M62,148 Q58,158 62,168 L68,172 Q64,162 65,150 Z" },
+  { name: "Right Flank / Lateral", path: "M98,148 Q102,158 98,168 L92,172 Q96,162 95,150 Z" },
 ];
 const BACK_ZONES = [
-  { name: "Lower Back", path: "M52,152 C64,144 96,144 108,152 C111,161 109,170 103,177 C88,170 72,170 57,177 C51,170 49,161 52,152 Z" },
+  { name: "Lower Back", path: "M64,150 Q80,142 96,150 Q98,160 92,168 Q80,174 68,168 Q62,160 64,150 Z" },
   { name: "Posterior Left Arm", path: "M46,92 C43,102 42,115 43,127 L50,126 C49,114 50,102 53,92 Z" },
   { name: "Posterior Right Arm", path: "M114,92 C117,102 118,115 117,127 L110,126 C111,114 110,102 107,92 Z" },
-  { name: "Left Glute", path: "M58,182 C65,178 78,177 80,182 L79,205 C70,208 62,204 58,196 Z" },
-  { name: "Right Glute", path: "M102,182 C95,178 82,177 80,182 L81,205 C90,208 98,204 102,196 Z" },
+  { name: "Left Glute", path: "M64,200 Q72,196 80,200 L79,220 Q70,223 63,215 Z" },
+  { name: "Right Glute", path: "M96,200 Q88,196 80,200 L81,220 Q90,223 97,215 Z" },
 ];
-const BODY_PATH =
-  "M 68,50 C 60,52 54,56 52,64 C 48,74 46,87 47,102 C 48,117 50,130 54,142 " +
-  "C 51,152 49,164 50,177 C 48,192 47,207 49,222 L 52,342 C 52,357 53,370 55,380 " +
-  "L 62,380 C 61,367 60,354 60,342 L 62,227 C 65,217 68,207 71,200 " +
-  "C 73,203 76,205 80,205 C 84,205 87,203 89,200 C 92,207 95,217 98,227 " +
-  "L 100,342 C 100,354 99,367 98,380 L 105,380 C 107,370 108,357 108,342 " +
-  "L 111,222 C 113,207 112,192 110,177 C 111,164 109,152 106,142 " +
-  "C 110,130 112,117 113,102 C 114,87 112,74 108,64 C 106,56 100,52 92,50 " +
-  "C 90,56 86,59 80,59 C 74,59 70,56 68,50 Z";
-const LEFT_ARM_PATH = "M52,64 C48,74 45,87 44,102 C43,117 44,130 46,140 L51,139 C49,129 48,117 49,103 C50,89 52,77 56,67 Z";
-const RIGHT_ARM_PATH = "M108,64 C112,74 115,87 116,102 C117,117 116,130 114,140 L109,139 C111,129 112,117 111,103 C110,89 108,77 104,67 Z";
 
 function MiniFigure({ side, zones, selectedAreas }: { side: "front" | "back"; zones: typeof FRONT_ZONES; selectedAreas: string[] }) {
   return (
     <div>
-      <svg width="60" viewBox="0 0 160 390">
-        <ellipse cx="80" cy="8" rx="6" ry="5" fill="none" stroke="#B9A38F" strokeWidth="1.2" />
-        <ellipse cx="80" cy="26" rx="12" ry="15" fill="none" stroke="#B9A38F" strokeWidth="1.2" />
-        <path d="M69,17 C61,24 58,38 61,52" fill="none" stroke="#B9A38F" strokeWidth="1.2" />
-        <path d="M91,17 C99,24 102,38 99,52" fill="none" stroke="#B9A38F" strokeWidth="1.2" />
-        <path d="M74,39 L74,48 M86,39 L86,48" fill="none" stroke="#B9A38F" strokeWidth="1.2" />
-        <path d={BODY_PATH} fill="none" stroke="#B9A38F" strokeWidth="1.2" strokeLinejoin="round" />
-        <path d={LEFT_ARM_PATH} fill="none" stroke="#B9A38F" strokeWidth="1.1" strokeLinejoin="round" />
-        <path d={RIGHT_ARM_PATH} fill="none" stroke="#B9A38F" strokeWidth="1.1" strokeLinejoin="round" />
-        <path d="M50,380 Q52,386 60,386 L62,380 Z" fill="none" stroke="#B9A38F" strokeWidth="1.1" />
-        <path d="M110,380 Q108,386 100,386 L98,380 Z" fill="none" stroke="#B9A38F" strokeWidth="1.1" />
+      <svg width="60" viewBox="0 0 160 400">
+        <circle cx="80" cy="9" r="5" fill="none" stroke="#B9A38F" strokeWidth="1.3" />
+        <circle cx="80" cy="27" r="13" fill="none" stroke="#B9A38F" strokeWidth="1.3" />
+        <path d="M69,18 Q62,20 62,30" fill="none" stroke="#B9A38F" strokeWidth="1.3" />
+        <path d="M91,18 Q98,20 98,30" fill="none" stroke="#B9A38F" strokeWidth="1.3" />
+        <line x1="75" y1="40" x2="75" y2="50" stroke="#B9A38F" strokeWidth="1.3" />
+        <line x1="85" y1="40" x2="85" y2="50" stroke="#B9A38F" strokeWidth="1.3" />
+        <polyline points="75,50 58,58 62,90 66,130 63,150 66,170" fill="none" stroke="#B9A38F" strokeWidth="1.3" strokeLinejoin="round" />
+        <polyline points="85,50 102,58 98,90 94,130 97,150 94,170" fill="none" stroke="#B9A38F" strokeWidth="1.3" strokeLinejoin="round" />
+        <path d="M66,170 Q80,178 94,170" fill="none" stroke="#B9A38F" strokeWidth="1.3" />
+        <polyline points="58,58 50,90 47,125 49,155" fill="none" stroke="#B9A38F" strokeWidth="1.2" strokeLinejoin="round" />
+        <polyline points="102,58 110,90 113,125 111,155" fill="none" stroke="#B9A38F" strokeWidth="1.2" strokeLinejoin="round" />
+        <polyline points="66,172 63,220 62,280 60,340 60,380" fill="none" stroke="#B9A38F" strokeWidth="1.2" strokeLinejoin="round" />
+        <polyline points="74,172 74,220 73,280 72,340 71,380" fill="none" stroke="#B9A38F" strokeWidth="1.2" strokeLinejoin="round" />
+        <polyline points="86,172 86,220 87,280 88,340 89,380" fill="none" stroke="#B9A38F" strokeWidth="1.2" strokeLinejoin="round" />
+        <polyline points="94,172 97,220 98,280 100,340 100,380" fill="none" stroke="#B9A38F" strokeWidth="1.2" strokeLinejoin="round" />
+        <path d="M60,380 L71,380 L71,386 L64,386 Z" fill="none" stroke="#B9A38F" strokeWidth="1.1" />
+        <path d="M100,380 L89,380 L89,386 L96,386 Z" fill="none" stroke="#B9A38F" strokeWidth="1.1" />
         {zones.map((z) => {
           const isSelected = selectedAreas.includes(z.name);
           return (
