@@ -53,10 +53,15 @@ export default function SessionMapCard({
         <div className="smc-header-block">
           <svg className="smc-header-bg-svg" viewBox="0 0 340 150" preserveAspectRatio="none">
             <defs>
-              <linearGradient id="smc-wine" x1="0%" y1="0%" x2="100%" y2="70%">
-                <stop offset="0%" stopColor="#3A0F13" />
-                <stop offset="100%" stopColor="#4C161B" />
-              </linearGradient>
+              <filter id="smc-wine-shift" x="-20%" y="-20%" width="140%" height="140%">
+                <feColorMatrix
+                  type="matrix"
+                  values="0.55 0 0 0 0.05
+                          0 0.10 0 0 0
+                          0 0 0.18 0 0.02
+                          0 0 0 1 0"
+                />
+              </filter>
               <filter id="smc-glow">
                 <feGaussianBlur stdDeviation="2" result="b" />
                 <feMerge>
@@ -64,18 +69,15 @@ export default function SessionMapCard({
                   <feMergeNode in="SourceGraphic" />
                 </feMerge>
               </filter>
+              <pattern id="smc-wine-tex" patternUnits="userSpaceOnUse" width="340" height="150">
+                <image href="/images/textures/taupe-marble-gold-waves.png" width="340" height="150" preserveAspectRatio="xMidYMid slice" filter="url(#smc-wine-shift)" />
+              </pattern>
+              <pattern id="smc-stone-tex" patternUnits="userSpaceOnUse" width="340" height="150">
+                <image href="/images/textures/taupe-marble-gold-waves.png" x="-500" y="-140" width="900" height="430" preserveAspectRatio="xMidYMid slice" />
+              </pattern>
             </defs>
-            <rect width="340" height="150" fill="#D9CFC0" />
-            <path d="M0,0 L231,0 Q252,40 238,75 Q222,110 245,150 L0,150 Z" fill="url(#smc-wine)" />
-            <g stroke="#6B2A2E" strokeWidth="1" fill="none" opacity="0.3">
-              <path d="M10,140 Q100,90 180,20" />
-              <path d="M5,110 Q80,70 150,10" />
-              <path d="M15,145 Q110,100 195,40" />
-              <path d="M0,80 Q60,50 120,5" />
-            </g>
-            <g stroke="#C7BBA9" strokeWidth="1" fill="none" opacity="0.3">
-              <path d="M250,10 Q280,75 260,140" />
-            </g>
+            <rect width="340" height="150" fill="url(#smc-stone-tex)" />
+            <path d="M0,0 L231,0 Q252,40 238,75 Q222,110 245,150 L0,150 Z" fill="url(#smc-wine-tex)" />
             <path
               d="M231,0 Q252,40 238,75 Q222,110 245,150"
               fill="none"
@@ -170,65 +172,38 @@ export default function SessionMapCard({
   );
 }
 
-const FRONT_ZONES = [
-  { name: "Abdomen", path: "M62,148 Q80,140 98,148 Q100,160 92,172 Q80,178 68,172 Q60,160 62,148 Z" },
-  { name: "Lower Abdomen", path: "M68,172 Q80,178 92,172 Q90,186 80,190 Q70,186 68,172 Z" },
-  { name: "Left Flank / Lateral", path: "M62,148 Q58,158 62,168 L68,172 Q64,162 65,150 Z" },
-  { name: "Right Flank / Lateral", path: "M98,148 Q102,158 98,168 L92,172 Q96,162 95,150 Z" },
-];
-const BACK_ZONES = [
-  { name: "Lower Back", path: "M64,150 Q80,142 96,150 Q98,160 92,168 Q80,174 68,168 Q62,160 64,150 Z" },
-  { name: "Posterior Left Arm", path: "M46,92 C43,102 42,115 43,127 L50,126 C49,114 50,102 53,92 Z" },
-  { name: "Posterior Right Arm", path: "M114,92 C117,102 118,115 117,127 L110,126 C111,114 110,102 107,92 Z" },
-  { name: "Left Glute", path: "M64,200 Q72,196 80,200 L79,220 Q70,223 63,215 Z" },
-  { name: "Right Glute", path: "M96,200 Q88,196 80,200 L81,220 Q90,223 97,215 Z" },
+const IMAGE_REGIONS: { name: string; left: number; top: number; width: number; height: number }[] = [
+  { name: "Posterior Left Arm", left: 4.5, top: 24, width: 7, height: 34 },
+  { name: "Abdomen", left: 18.5, top: 28, width: 10.5, height: 52 },
+  { name: "Abdomen", left: 29, top: 28, width: 11, height: 52 },
+  { name: "Lower Back", left: 58, top: 34, width: 16, height: 20 },
+  { name: "Left Glute", left: 56.5, top: 56, width: 9, height: 34 },
+  { name: "Right Glute", left: 65.5, top: 56, width: 9, height: 34 },
+  { name: "Posterior Right Arm", left: 87.5, top: 24, width: 7, height: 34 },
 ];
 
-function MiniFigure({ side, zones, selectedAreas }: { side: "front" | "back"; zones: typeof FRONT_ZONES; selectedAreas: string[] }) {
-  return (
-    <div>
-      <svg width="60" viewBox="0 0 160 400">
-        <circle cx="80" cy="9" r="5" fill="none" stroke="#B9A38F" strokeWidth="1.3" />
-        <circle cx="80" cy="27" r="13" fill="none" stroke="#B9A38F" strokeWidth="1.3" />
-        <path d="M69,18 Q62,20 62,30" fill="none" stroke="#B9A38F" strokeWidth="1.3" />
-        <path d="M91,18 Q98,20 98,30" fill="none" stroke="#B9A38F" strokeWidth="1.3" />
-        <line x1="75" y1="40" x2="75" y2="50" stroke="#B9A38F" strokeWidth="1.3" />
-        <line x1="85" y1="40" x2="85" y2="50" stroke="#B9A38F" strokeWidth="1.3" />
-        <polyline points="75,50 58,58 62,90 66,130 63,150 66,170" fill="none" stroke="#B9A38F" strokeWidth="1.3" strokeLinejoin="round" />
-        <polyline points="85,50 102,58 98,90 94,130 97,150 94,170" fill="none" stroke="#B9A38F" strokeWidth="1.3" strokeLinejoin="round" />
-        <path d="M66,170 Q80,178 94,170" fill="none" stroke="#B9A38F" strokeWidth="1.3" />
-        <polyline points="58,58 50,90 47,125 49,155" fill="none" stroke="#B9A38F" strokeWidth="1.2" strokeLinejoin="round" />
-        <polyline points="102,58 110,90 113,125 111,155" fill="none" stroke="#B9A38F" strokeWidth="1.2" strokeLinejoin="round" />
-        <polyline points="66,172 63,220 62,280 60,340 60,380" fill="none" stroke="#B9A38F" strokeWidth="1.2" strokeLinejoin="round" />
-        <polyline points="74,172 74,220 73,280 72,340 71,380" fill="none" stroke="#B9A38F" strokeWidth="1.2" strokeLinejoin="round" />
-        <polyline points="86,172 86,220 87,280 88,340 89,380" fill="none" stroke="#B9A38F" strokeWidth="1.2" strokeLinejoin="round" />
-        <polyline points="94,172 97,220 98,280 100,340 100,380" fill="none" stroke="#B9A38F" strokeWidth="1.2" strokeLinejoin="round" />
-        <path d="M60,380 L71,380 L71,386 L64,386 Z" fill="none" stroke="#B9A38F" strokeWidth="1.1" />
-        <path d="M100,380 L89,380 L89,386 L96,386 Z" fill="none" stroke="#B9A38F" strokeWidth="1.1" />
-        {zones.map((z) => {
-          const isSelected = selectedAreas.includes(z.name);
-          return (
-            <path
-              key={z.name}
-              d={z.path}
-              fill={isSelected ? "rgba(199,158,147,0.8)" : "none"}
-              stroke={isSelected ? "none" : "rgba(185,163,143,0.4)"}
-              strokeWidth="1"
-              strokeDasharray={isSelected ? undefined : "2,2"}
-            />
-          );
-        })}
-      </svg>
-      <p className="smc-fig-label">{side === "front" ? "FRONT" : "BACK"}</p>
-    </div>
-  );
-}
-
+/**
+ * Real, read-only display of the exact same base illustration used
+ * by SessionBodyMap (the interactive picker) and Daily Trackers'
+ * Peptide Journey™ diagram — highlights whichever real areas this
+ * session actually treated, no click handlers since this is a
+ * historical record, not an editor.
+ */
 function SessionMapFigures({ selectedAreas }: { selectedAreas: string[] }) {
   return (
-    <div className="smc-tm-right">
-      <MiniFigure side="front" zones={FRONT_ZONES} selectedAreas={selectedAreas} />
-      <MiniFigure side="back" zones={BACK_ZONES} selectedAreas={selectedAreas} />
+    <div className="isd-photo-wrap" style={{ maxWidth: 220 }}>
+      <img src="/images/injection-site-base.png" alt="Body diagram showing this session's treated areas" className="isd-photo-img" />
+      {IMAGE_REGIONS.map((r, i) => {
+        const selected = selectedAreas.includes(r.name);
+        if (!selected) return null;
+        return (
+          <span
+            key={`${r.name}-${i}`}
+            className="isd-photo-highlight isd-photo-highlight-selected"
+            style={{ position: "absolute", left: `${r.left}%`, top: `${r.top}%`, width: `${r.width}%`, height: `${r.height}%` }}
+          />
+        );
+      })}
     </div>
   );
 }

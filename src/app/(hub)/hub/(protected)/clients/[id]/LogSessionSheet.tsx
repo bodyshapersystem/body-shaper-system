@@ -4,7 +4,7 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { TECHNOLOGIES, ABDOMEN_PRESET, LEGS_PRESETS, generateObjectives, type Technology } from "@/lib/session-objectives";
 import { logSession } from "./session-log-actions";
-import InteractiveBodyMap from "@/components/InteractiveBodyMap";
+import SessionBodyMap from "@/components/SessionBodyMap";
 
 const ALL_ABDOMEN_AREAS = [...ABDOMEN_PRESET.front, ...ABDOMEN_PRESET.back];
 
@@ -107,7 +107,7 @@ export default function LogSessionSheet({ clientId }: { clientId: string }) {
                   <button type="button" className="dtj-link-small" onClick={() => applyPreset(LEGS_PRESETS.posteriorOnly)}>Legs — Posterior Only</button>
                   <button type="button" className="dtj-link-small" onClick={() => applyPreset(LEGS_PRESETS.frontAndBack)}>Legs — Front + Back</button>
                 </div>
-                <InteractiveBodyMap selectedAreas={selectedAreas} onToggleArea={toggleArea} />
+                <SessionBodyMap selectedAreas={selectedAreas} onToggleArea={toggleArea} />
 
                 <p className="dtj-field-label" style={{ marginTop: 14, display: "flex", justifyContent: "space-between" }}>
                   <span>Selected Areas ({areas.length})</span>

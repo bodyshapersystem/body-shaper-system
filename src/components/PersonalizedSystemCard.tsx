@@ -34,10 +34,15 @@ export default function PersonalizedSystemCard({
       <div className="psc-card">
         <svg className="psc-bg-svg" viewBox="0 0 320 430" preserveAspectRatio="none">
           <defs>
-            <linearGradient id="psc-wine" x1="0%" y1="0%" x2="100%" y2="60%">
-              <stop offset="0%" stopColor="#3A0F13" />
-              <stop offset="100%" stopColor="#4C161B" />
-            </linearGradient>
+            <filter id="psc-wine-shift" x="-20%" y="-20%" width="140%" height="140%">
+              <feColorMatrix
+                type="matrix"
+                values="0.55 0 0 0 0.05
+                        0 0.10 0 0 0
+                        0 0 0.18 0 0.02
+                        0 0 0 1 0"
+              />
+            </filter>
             <filter id="psc-glow">
               <feGaussianBlur stdDeviation="2.2" result="b" />
               <feMerge>
@@ -45,21 +50,15 @@ export default function PersonalizedSystemCard({
                 <feMergeNode in="SourceGraphic" />
               </feMerge>
             </filter>
+            <pattern id="psc-wine-tex" patternUnits="userSpaceOnUse" width="320" height="430">
+              <image href="/images/textures/taupe-marble-gold-waves.png" width="320" height="430" preserveAspectRatio="xMidYMid slice" filter="url(#psc-wine-shift)" />
+            </pattern>
+            <pattern id="psc-stone-tex" patternUnits="userSpaceOnUse" width="320" height="430">
+              <image href="/images/textures/taupe-marble-gold-waves.png" x="-180" width="500" height="430" preserveAspectRatio="xMidYMid slice" />
+            </pattern>
           </defs>
-          <rect width="320" height="430" fill="#D9CFC0" />
-          <path d="M0,0 L250,0 Q210,110 218,215 Q210,320 230,430 L0,430 Z" fill="url(#psc-wine)" />
-          <g stroke="#6B2A2E" strokeWidth="1" fill="none" opacity="0.28">
-            <path d="M10,410 Q90,320 170,170 Q200,120 220,72" />
-            <path d="M5,360 Q80,280 150,145 Q185,95 210,48" />
-            <path d="M15,430 Q100,340 180,205 Q205,155 225,108" />
-            <path d="M0,310 Q70,240 130,120 Q165,72 195,12" />
-            <path d="M20,385 Q95,295 165,180 Q195,130 218,90" />
-            <path d="M0,240 Q60,190 110,95 Q145,48 175,12" />
-          </g>
-          <g stroke="#C7BBA9" strokeWidth="1" fill="none" opacity="0.35">
-            <path d="M235,20 Q270,150 250,270 Q240,340 265,410" />
-            <path d="M255,10 Q290,140 270,260 Q260,330 285,420" />
-          </g>
+          <rect width="320" height="430" fill="url(#psc-stone-tex)" />
+          <path d="M0,0 L250,0 Q210,110 218,215 Q210,320 230,430 L0,430 Z" fill="url(#psc-wine-tex)" />
           <path
             d="M250,0 Q210,110 218,215 Q210,320 230,430"
             fill="none"

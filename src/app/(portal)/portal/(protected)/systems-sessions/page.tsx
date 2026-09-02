@@ -2,7 +2,6 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { getCurrentPortalClient } from "@/lib/permissions";
 import BlueprintReport from "@/app/(hub)/hub/(protected)/clients/[id]/BlueprintReport";
-import AppointmentsPageContent from "@/app/(portal)/portal/(protected)/appointments/AppointmentsPageContent";
 import SessionHistoryList from "@/components/SessionHistoryList";
 import SessionMapCard from "@/components/SessionMapCard";
 import { getSessionHistoryData } from "@/lib/session-history-data";
@@ -79,7 +78,6 @@ export default async function PortalSystemsSessionsPage() {
                   </div>
                 );
               })()}
-              <AppointmentsPageContent heading={false} />
               <div style={{ marginTop: 24 }}>
                 <p className="dtj-field-label">session history</p>
                 <SessionHistoryList sessions={sessionHistory} clientName={`${client.firstName} ${client.lastName}`} />
