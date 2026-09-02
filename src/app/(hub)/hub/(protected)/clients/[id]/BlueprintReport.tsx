@@ -957,11 +957,8 @@ export default async function BlueprintReport({
               ]
             : [
                 { href: "/portal/appointments", icon: "calendar" as const, title: "Appointments", desc: "View your schedule" },
-                { href: "/portal/documents", icon: "doc" as const, title: "Documents", desc: "Your forms & records" },
                 { href: "/portal/photos", icon: "camera" as const, title: "Progress Photos", desc: "See your transformation" },
                 { href: "/portal/rewards", icon: "star" as const, title: "Rewards", desc: "Your points & perks" },
-                { href: "/portal/messages", icon: "mail" as const, title: "Message Specialist", desc: "Ask a question" },
-                { href: "/portal/profile", icon: "person" as const, title: "Profile", desc: "Your account details" },
               ]
           ).map((action, i) => (
             <Link

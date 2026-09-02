@@ -333,7 +333,7 @@ export default async function ClientDetailPage({
           />
           <div className="bbp-card bbp-panel bp-tex-cream" style={{ marginTop: 24 }}>
             <h3 className="dash-section-title">Session History</h3>
-            <SessionHistoryList sessions={sessionHistory} />
+            <SessionHistoryList sessions={sessionHistory} clientName={`${client.firstName} ${client.lastName}`} />
           </div>
         </>
       )}

@@ -65,7 +65,7 @@ export default async function PortalSystemsSessionsPage() {
               <AppointmentsPageContent heading={false} />
               <div style={{ marginTop: 24 }}>
                 <p className="dtj-field-label">session history</p>
-                <SessionHistoryList sessions={sessionHistory} />
+                <SessionHistoryList sessions={sessionHistory} clientName={`${client.firstName} ${client.lastName}`} />
               </div>
             </>
           }
