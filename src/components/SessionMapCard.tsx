@@ -204,8 +204,10 @@ function MiniFigure({ side, zones, selectedAreas }: { side: "front" | "back"; zo
   return (
     <div>
       <svg width="60" viewBox="0 0 160 380">
-        <ellipse cx="80" cy="24" rx="12" ry="15" fill="none" stroke="#B9A38F" strokeWidth="1.4" />
-        <path d="M74,37 L74,46 M86,37 L86,46" fill="none" stroke="#B9A38F" strokeWidth="1.4" />
+        <ellipse cx="80" cy="20" rx="12" ry="15" fill="none" stroke="#B9A38F" strokeWidth="1.4" />
+        <path d="M69,14 C60,22 57,38 60,52" fill="none" stroke="#B9A38F" strokeWidth="1.4" />
+        <path d="M91,14 C100,22 103,38 100,52" fill="none" stroke="#B9A38F" strokeWidth="1.4" />
+        <path d="M74,33 L74,42 M86,33 L86,42" fill="none" stroke="#B9A38F" strokeWidth="1.4" />
         <path d={BODY_PATH} fill="none" stroke="#B9A38F" strokeWidth="1.4" strokeLinejoin="round" />
         <path d={LEFT_ARM_PATH} fill="none" stroke="#B9A38F" strokeWidth="1.3" strokeLinejoin="round" />
         <path d={RIGHT_ARM_PATH} fill="none" stroke="#B9A38F" strokeWidth="1.3" strokeLinejoin="round" />

@@ -61,8 +61,10 @@ const RIGHT_ARM_PATH = "M108,62 C112,72 115,85 116,100 C117,115 116,128 114,138 
 function FigureOutline() {
   return (
     <>
-      <ellipse cx="80" cy="24" rx="12" ry="15" fill="none" stroke={STROKE} strokeWidth="1.2" />
-      <path d="M74,37 L74,46 M86,37 L86,46" fill="none" stroke={STROKE} strokeWidth="1.2" />
+      <ellipse cx="80" cy="20" rx="12" ry="15" fill="none" stroke={STROKE} strokeWidth="1.2" />
+      <path d="M69,14 C60,22 57,38 60,52" fill="none" stroke={STROKE} strokeWidth="1.2" />
+      <path d="M91,14 C100,22 103,38 100,52" fill="none" stroke={STROKE} strokeWidth="1.2" />
+      <path d="M74,33 L74,42 M86,33 L86,42" fill="none" stroke={STROKE} strokeWidth="1.2" />
       <path d={BODY_PATH} fill="none" stroke={STROKE} strokeWidth="1.2" strokeLinejoin="round" />
       <path d={LEFT_ARM_PATH} fill="none" stroke={STROKE} strokeWidth="1.1" strokeLinejoin="round" />
       <path d={RIGHT_ARM_PATH} fill="none" stroke={STROKE} strokeWidth="1.1" strokeLinejoin="round" />
