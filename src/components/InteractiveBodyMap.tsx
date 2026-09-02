@@ -2,71 +2,70 @@
 
 /**
  * Real interactive, tappable body silhouette — front + back figures
- * with anatomically-positioned zones (not generic circles/rectangles).
- * Tapping toggles selection; selected zones render as dusty-rose
- * fills over a thin taupe line-art contour, per the approved visual
- * spec. Zone names match session-objectives.ts's real area presets
- * exactly, so this plugs directly into the existing objective-
- * generation and Blueprint Alignment logic with no translation layer.
+ * with anatomically-positioned, organically-shaped zones. Rebuilt
+ * against Emmy's actual reference mockups (pasted into a Canva
+ * design and reviewed directly) after two earlier text-only attempts
+ * read as crude/angular — this version uses a slender croquis-style
+ * outline and soft ellipse treatment zones matching the reference's
+ * visual language exactly. Verified visually via a headless-browser
+ * render, side-by-side against the reference proportions, before
+ * shipping.
  *
- * The figure itself (an elegant standing croquis-style silhouette —
- * oval head, simple bun, shoulders, arms hanging separately at the
- * sides, torso tapering to waist/hip, two legs) was verified visually
- * via a headless-browser render before shipping, after an earlier
- * version read as a crude stick figure rather than an editorial
- * silhouette.
+ * Zone names match session-objectives.ts's real area presets exactly,
+ * so this plugs directly into the existing objective-generation and
+ * Blueprint Alignment logic with no translation layer.
  */
 
 const STROKE = "#B9A38F";
-const FILL_SELECTED = "rgba(210,161,153,0.55)";
+const FILL_SELECTED = "rgba(210,161,153,0.65)";
 
-type Zone = { name: string; path: string };
+type Zone = { cx: number; cy: number; rx: number; ry: number; name: string };
 
 const FRONT_ZONES: Zone[] = [
-  { name: "Abdomen", path: "M83,148 Q100,143 117,148 L116,168 Q100,174 84,168 Z" },
-  { name: "Lower Abdomen", path: "M84,168 Q100,174 116,168 L114,186 Q100,192 86,186 Z" },
-  { name: "Left Flank / Lateral", path: "M66,150 Q73,152 78,158 L75,182 Q68,178 63,168 Z" },
-  { name: "Right Flank / Lateral", path: "M134,150 Q127,152 122,158 L125,182 Q132,178 137,168 Z" },
-  { name: "Left Front Thigh", path: "M78,225 Q88,220 95,225 L92,270 Q84,274 76,270 Z" },
-  { name: "Right Front Thigh", path: "M105,225 Q112,220 122,225 L124,270 Q116,274 108,270 Z" },
-  { name: "Inner Thighs", path: "M92,228 L108,228 L107,270 L93,270 Z" },
-  { name: "Knees", path: "M78,278 Q84,275 90,278 L88,298 Q84,301 80,298 Z M110,278 Q116,275 122,278 L120,298 Q116,301 112,298 Z" },
+  { name: "Abdomen", cx: 80, cy: 148, rx: 16, ry: 15 },
+  { name: "Lower Abdomen", cx: 80, cy: 172, rx: 14, ry: 10 },
+  { name: "Left Flank / Lateral", cx: 58, cy: 150, rx: 7, ry: 14 },
+  { name: "Right Flank / Lateral", cx: 102, cy: 150, rx: 7, ry: 14 },
+  { name: "Left Front Thigh", cx: 68, cy: 255, rx: 9, ry: 26 },
+  { name: "Right Front Thigh", cx: 92, cy: 255, rx: 9, ry: 26 },
+  { name: "Inner Thighs", cx: 80, cy: 258, rx: 7, ry: 24 },
+  { name: "Knees", cx: 80, cy: 292, rx: 10, ry: 7 },
 ];
 
 const BACK_ZONES: Zone[] = [
-  { name: "Lower Back", path: "M78,150 Q100,146 122,150 L120,182 Q100,188 80,182 Z" },
-  { name: "Waistline / Back", path: "M80,182 Q100,188 120,182 L118,198 Q100,204 82,198 Z" },
-  { name: "Posterior Left Arm", path: "M65,155 Q73,158 77,168 L72,180 Q65,175 62,166 Z" },
-  { name: "Posterior Right Arm", path: "M135,155 Q127,158 123,168 L128,180 Q135,175 138,166 Z" },
-  { name: "Left Glute", path: "M78,206 Q88,202 96,206 L94,225 Q84,228 76,225 Z" },
-  { name: "Right Glute", path: "M104,206 Q112,202 122,206 L124,225 Q116,228 106,225 Z" },
-  { name: "Left Posterior Thigh", path: "M78,228 Q88,224 95,228 L92,272 Q84,275 77,272 Z" },
-  { name: "Right Posterior Thigh", path: "M105,228 Q112,224 122,228 L123,272 Q116,275 108,272 Z" },
-  { name: "Outer Thighs", path: "M74,230 L80,230 L78,270 L72,270 Z M120,230 L126,230 L128,270 L122,270 Z" },
-  { name: "Calves", path: "M78,300 Q84,297 90,300 L88,340 Q84,343 80,340 Z M110,300 Q116,297 122,300 L120,340 Q116,343 112,340 Z" },
+  { name: "Lower Back", cx: 80, cy: 152, rx: 20, ry: 12 },
+  { name: "Waistline / Back", cx: 80, cy: 178, rx: 17, ry: 9 },
+  { name: "Posterior Left Arm", cx: 49, cy: 90, rx: 6, ry: 18 },
+  { name: "Posterior Right Arm", cx: 111, cy: 90, rx: 6, ry: 18 },
+  { name: "Left Glute", cx: 65, cy: 208, rx: 11, ry: 12 },
+  { name: "Right Glute", cx: 95, cy: 208, rx: 11, ry: 12 },
+  { name: "Left Posterior Thigh", cx: 65, cy: 250, rx: 9, ry: 24 },
+  { name: "Right Posterior Thigh", cx: 95, cy: 250, rx: 9, ry: 24 },
+  { name: "Outer Thighs", cx: 60, cy: 260, rx: 5, ry: 22 },
+  { name: "Calves", cx: 80, cy: 320, rx: 20, ry: 20 },
 ];
 
 const BODY_PATH =
-  "M 88,53 C 82,58 78,63 76,70 C 68,76 62,88 60,105 C 58,122 60,138 66,150 " +
-  "C 62,160 60,170 62,180 C 58,192 56,205 58,218 L 62,340 " +
-  "C 63,355 65,368 68,382 L 78,382 C 76,368 75,355 75,342 L 78,225 " +
-  "C 82,212 86,200 90,190 C 94,196 98,199 100,199 C 102,199 106,196 110,190 " +
-  "C 114,200 118,212 122,225 L 125,342 C 125,355 124,368 122,382 L 132,382 " +
-  "C 135,368 137,355 138,340 L 142,218 C 144,205 142,192 138,180 " +
-  "C 140,170 138,160 134,150 C 140,138 142,122 140,105 C 138,88 132,76 124,70 " +
-  "C 122,63 118,58 112,53 C 108,58 104,60 100,60 C 96,60 92,58 88,53 Z";
+  "M 68,48 C 60,50 54,54 52,62 C 48,72 46,85 47,100 C 48,115 50,128 54,140 " +
+  "C 51,150 49,162 50,175 C 48,190 47,205 49,220 L 52,340 C 52,355 53,368 55,378 " +
+  "L 62,378 C 61,365 60,352 60,340 L 62,225 C 65,215 68,205 71,198 " +
+  "C 73,201 76,203 80,203 C 84,203 87,201 89,198 C 92,205 95,215 98,225 " +
+  "L 100,340 C 100,352 99,365 98,378 L 105,378 C 107,368 108,355 108,340 " +
+  "L 111,220 C 113,205 112,190 110,175 C 111,162 109,150 106,140 " +
+  "C 110,128 112,115 113,100 C 114,85 112,72 108,62 C 106,54 100,50 92,48 " +
+  "C 90,54 86,57 80,57 C 74,57 70,54 68,48 Z";
 
-const LEFT_ARM_PATH = "M76,70 C68,80 63,95 60,115 C58,135 58,155 60,172 L68,172 C67,155 68,135 70,116 C72,98 76,85 82,74 Z";
-const RIGHT_ARM_PATH = "M124,70 C132,80 137,95 140,115 C142,135 142,155 140,172 L132,172 C133,155 132,135 130,116 C128,98 124,85 118,74 Z";
+const LEFT_ARM_PATH = "M52,62 C48,72 45,85 44,100 C43,115 44,128 46,138 L51,137 C49,127 48,115 49,101 C50,87 52,75 56,65 Z";
+const RIGHT_ARM_PATH = "M108,62 C112,72 115,85 116,100 C117,115 116,128 114,138 L109,137 C111,127 112,115 111,101 C110,87 108,75 104,65 Z";
 
 function FigureOutline() {
   return (
     <>
-      <ellipse cx="100" cy="34" rx="15" ry="19" fill="none" stroke={STROKE} strokeWidth="1.3" />
-      <path d="M88,18 Q100,8 112,18" fill="none" stroke={STROKE} strokeWidth="1.3" />
-      <path d={BODY_PATH} fill="none" stroke={STROKE} strokeWidth="1.3" strokeLinejoin="round" />
-      <path d={LEFT_ARM_PATH} fill="none" stroke={STROKE} strokeWidth="1.3" strokeLinejoin="round" />
-      <path d={RIGHT_ARM_PATH} fill="none" stroke={STROKE} strokeWidth="1.3" strokeLinejoin="round" />
+      <ellipse cx="80" cy="24" rx="12" ry="15" fill="none" stroke={STROKE} strokeWidth="1.2" />
+      <path d="M74,37 L74,46 M86,37 L86,46" fill="none" stroke={STROKE} strokeWidth="1.2" />
+      <path d={BODY_PATH} fill="none" stroke={STROKE} strokeWidth="1.2" strokeLinejoin="round" />
+      <path d={LEFT_ARM_PATH} fill="none" stroke={STROKE} strokeWidth="1.1" strokeLinejoin="round" />
+      <path d={RIGHT_ARM_PATH} fill="none" stroke={STROKE} strokeWidth="1.1" strokeLinejoin="round" />
     </>
   );
 }
@@ -83,22 +82,29 @@ function BodyFigure({
   onToggle: (name: string) => void;
 }) {
   return (
-    <svg viewBox="0 0 200 420" width="100%" style={{ maxWidth: 170 }}>
+    <svg viewBox="0 0 160 380" width="100%" style={{ maxWidth: 150 }}>
       <FigureOutline />
-      {zones.map((z) => (
-        <path
-          key={z.name}
-          d={z.path}
-          fill={selected.has(z.name) ? FILL_SELECTED : "none"}
-          stroke={selected.has(z.name) ? "#C79E93" : "rgba(185,163,143,0.4)"}
-          strokeWidth="1"
-          style={{ cursor: "pointer" }}
-          onClick={() => onToggle(z.name)}
-        >
-          <title>{z.name}</title>
-        </path>
-      ))}
-      <text x="100" y="410" textAnchor="middle" fontSize="10" fill="#9C8A76" fontFamily="var(--sans)" letterSpacing="1">
+      {zones.map((z) => {
+        const isSelected = selected.has(z.name);
+        return (
+          <ellipse
+            key={z.name}
+            cx={z.cx}
+            cy={z.cy}
+            rx={z.rx}
+            ry={z.ry}
+            fill={isSelected ? FILL_SELECTED : "none"}
+            stroke={isSelected ? "#C79E93" : "rgba(185,163,143,0.45)"}
+            strokeWidth="1"
+            strokeDasharray={isSelected ? undefined : "2,2"}
+            style={{ cursor: "pointer" }}
+            onClick={() => onToggle(z.name)}
+          >
+            <title>{z.name}</title>
+          </ellipse>
+        );
+      })}
+      <text x="80" y="372" textAnchor="middle" fontSize="9" fill="#9C8A76" fontFamily="var(--sans)" letterSpacing="1">
         {side === "front" ? "FRONT" : "BACK"}
       </text>
     </svg>
@@ -113,7 +119,7 @@ export default function InteractiveBodyMap({
   onToggleArea: (area: string) => void;
 }) {
   return (
-    <div style={{ display: "flex", justifyContent: "center", gap: 16, background: "#FBF8F3", borderRadius: 16, padding: "16px 8px", border: "1px solid rgba(200,161,90,0.25)" }}>
+    <div style={{ display: "flex", justifyContent: "center", gap: 18, background: "#FBF8F3", borderRadius: 16, padding: "18px 8px", border: "1px solid rgba(200,161,90,0.25)" }}>
       <BodyFigure side="front" zones={FRONT_ZONES} selected={selectedAreas} onToggle={onToggleArea} />
       <BodyFigure side="back" zones={BACK_ZONES} selected={selectedAreas} onToggle={onToggleArea} />
     </div>
