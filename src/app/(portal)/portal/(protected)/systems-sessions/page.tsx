@@ -4,6 +4,7 @@ import { getCurrentPortalClient } from "@/lib/permissions";
 import BlueprintReport from "@/app/(hub)/hub/(protected)/clients/[id]/BlueprintReport";
 import AppointmentsPageContent from "@/app/(portal)/portal/(protected)/appointments/AppointmentsPageContent";
 import SessionHistoryList from "@/components/SessionHistoryList";
+import SessionMapCard from "@/components/SessionMapCard";
 import { getSessionHistoryData } from "@/lib/session-history-data";
 import SystemsSessionsTabbedView from "./SystemsSessionsTabbedView";
 
@@ -62,6 +63,22 @@ export default async function PortalSystemsSessionsPage() {
           systemPanel={<BlueprintReport client={client} clientId={client.id} mode="client" />}
           sessionsPanel={
             <>
+              {sessionHistory.length > 0 && (() => {
+                const latest = sessionHistory[0];
+                const tech = latest.technologies?.[0];
+                return (
+                  <div style={{ marginBottom: 28 }}>
+                    <SessionMapCard
+                      sessionLabel={`session ${sessionHistory.length}`}
+                      dateLabel={new Date(latest.startsAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
+                      status={latest.status === "COMPLETED" ? "Completed" : "Scheduled"}
+                      technology={tech?.name ?? "—"}
+                      areas={tech?.areas ?? []}
+                      objectives={tech?.objectives ?? []}
+                    />
+                  </div>
+                );
+              })()}
               <AppointmentsPageContent heading={false} />
               <div style={{ marginTop: 24 }}>
                 <p className="dtj-field-label">session history</p>

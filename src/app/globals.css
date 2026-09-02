@@ -4964,3 +4964,48 @@
 .psc-progress-track{ width:60%; height:8px; background:rgba(0,0,0,0.35); border-radius:4px; overflow:hidden; display:inline-block; vertical-align:middle; }
 .psc-progress-fill{ display:block; height:100%; background:linear-gradient(90deg,#C9A25E,#E8C77E); }
 .psc-progress-pct{ font-family:var(--sans); font-size:12px; color:#F5EDE3; margin-left:8px; }
+
+/* ---- Session Map™ — composite card (title band + wine/stone header + treatment map) ---- */
+.smc-composite{ max-width:340px; margin:0 auto; filter: drop-shadow(0 14px 26px rgba(43,26,18,0.18)); }
+.smc-back-card{ position:relative; border-radius:28px; overflow:hidden; }
+.smc-title-band{ background:#F7F2EA; padding:22px 24px 18px; }
+.smc-title{ font-family:var(--serif); font-size:24px; color:#221812; margin:0; font-weight:400; text-transform:lowercase; }
+.smc-sup{ font-size:12px; vertical-align:super; }
+.smc-subtitle{ font-family:var(--sans); font-size:12px; color:#7A6B5C; margin:6px 0 0; line-height:1.4; }
+.smc-gold-rule-sm{ width:38px; height:2px; background:#C9A25E; margin-top:12px; }
+.smc-header-block{ position:relative; height:150px; }
+.smc-header-bg-svg{ position:absolute; inset:0; width:100%; height:100%; }
+.smc-header-content{ position:relative; z-index:2; padding:16px 20px; color:#F5EDE3; height:100%; box-sizing:border-box; }
+.smc-next-label{ font-family:var(--sans); font-size:10px; letter-spacing:1.5px; color:#C9A25E; text-transform:uppercase; margin:0; }
+.smc-session-num{ font-family:var(--serif); font-size:24px; color:#F5EDE3; margin:2px 0 8px; text-transform:lowercase; }
+.smc-gold-rule-xs{ width:26px; height:2px; background:#C9A25E; margin-bottom:10px; }
+.smc-info-row{ display:flex; align-items:center; gap:8px; margin-bottom:6px; }
+.smc-info-icon{ width:22px; height:22px; border-radius:50%; border:1px solid #C9A25E; align-items:center; justify-content:center; flex-shrink:0; }
+.smc-info-row .smc-info-icon{ display:flex; }
+.smc-info-text{ font-family:var(--sans); font-size:12px; color:#F5EDE3; }
+.smc-tech-col{ position:absolute; right:20px; top:16px; text-align:left; }
+.smc-tech-label{ font-family:var(--sans); font-size:10px; letter-spacing:1.5px; color:#C9A25E; text-transform:uppercase; margin:0 0 6px; }
+.smc-tech-name{ font-family:var(--serif); font-size:13px; color:#F5EDE3; margin:4px 0 0; text-transform:lowercase; }
+.smc-tech-sub{ font-family:var(--serif); font-style:italic; font-size:10px; color:#C9BEB2; margin:1px 0 0; }
+.smc-front-card{ background:#FBF8F3; border-radius:24px 24px 28px 28px; margin-top:-16px; position:relative; z-index:3; padding:20px 20px 18px; box-shadow:0 -6px 14px rgba(43,26,18,0.06); }
+.smc-tm-label{ font-family:var(--sans); font-size:10.5px; letter-spacing:1.5px; color:#C9A25E; text-transform:uppercase; margin:0; }
+.smc-tm-title{ font-family:var(--serif); font-size:14px; color:#221812; margin:4px 0 10px; line-height:1.3; }
+.smc-tm-cols{ display:flex; gap:14px; }
+.smc-tm-left{ flex:0 0 105px; }
+.smc-legend-row{ display:flex; align-items:center; gap:6px; font-family:var(--sans); font-size:10.5px; color:#4A3F35; margin-bottom:8px; }
+.smc-legend-dot{ width:8px; height:8px; border-radius:50%; background:#D2A199; }
+.smc-tm-hr{ border:none; border-top:1px solid rgba(150,120,90,0.25); margin:8px 0; }
+.smc-protocol-label{ font-family:var(--sans); font-size:10px; letter-spacing:1px; color:#C9A25E; text-transform:uppercase; margin:0 0 8px; }
+.smc-check-row{ display:flex; align-items:center; gap:7px; font-family:var(--sans); font-size:11px; color:#221812; margin-bottom:7px; }
+.smc-check-circle{ width:15px; height:15px; border-radius:50%; background:#D2A199; color:#fff; align-items:center; justify-content:center; font-size:9px; flex-shrink:0; }
+.smc-check-row .smc-check-circle{ display:flex; }
+.smc-check-circle.smc-optional{ background:none; border:1px solid #D2A199; color:#D2A199; }
+.smc-tm-right{ flex:1; display:flex; justify-content:center; gap:10px; padding-top:4px; }
+.smc-fig-label{ font-family:var(--sans); font-size:9px; letter-spacing:1px; color:#9C8A76; text-align:center; margin:4px 0 0; }
+.smc-objectives-bar{ display:flex; align-items:center; justify-content:space-between; margin-top:14px; padding-top:12px; border-top:1px solid rgba(150,120,90,0.2); gap:10px; }
+.smc-obj-items{ display:flex; gap:12px; flex-wrap:wrap; }
+.smc-obj-text{ font-family:var(--sans); font-size:9px; color:#221812; line-height:1.2; text-align:center; max-width:60px; }
+.smc-view-btn{
+  background:#D2A199; color:#5C1A1E; font-family:var(--sans); font-size:10.5px; font-weight:700; text-transform:uppercase;
+  border:none; border-radius:20px; padding:10px 16px; white-space:nowrap; cursor:pointer; text-decoration:none; flex-shrink:0;
+}
