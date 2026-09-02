@@ -8,59 +8,65 @@
  * spec. Zone names match session-objectives.ts's real area presets
  * exactly, so this plugs directly into the existing objective-
  * generation and Blueprint Alignment logic with no translation layer.
+ *
+ * The figure itself (an elegant standing croquis-style silhouette —
+ * oval head, simple bun, shoulders, arms hanging separately at the
+ * sides, torso tapering to waist/hip, two legs) was verified visually
+ * via a headless-browser render before shipping, after an earlier
+ * version read as a crude stick figure rather than an editorial
+ * silhouette.
  */
 
 const STROKE = "#B9A38F";
 const FILL_SELECTED = "rgba(210,161,153,0.55)";
-const FILL_OPTIONAL_HINT = "none";
 
-type Zone = { name: string; path: string; dashed?: boolean };
+type Zone = { name: string; path: string };
 
-// Front figure zones (viewBox 0 0 200 340)
 const FRONT_ZONES: Zone[] = [
-  { name: "Abdomen", path: "M82,148 Q100,142 118,148 L119,172 Q100,180 81,172 Z" },
-  { name: "Lower Abdomen", path: "M81,172 Q100,180 119,172 L120,195 Q100,206 80,195 Z" },
-  { name: "Left Flank / Lateral", path: "M64,148 Q74,150 78,160 L76,195 Q66,192 62,178 Z" },
-  { name: "Right Flank / Lateral", path: "M136,148 Q126,150 122,160 L124,195 Q134,192 138,178 Z" },
-  { name: "Left Front Thigh", path: "M76,215 Q88,212 96,215 L94,255 Q84,258 74,255 Z" },
-  { name: "Right Front Thigh", path: "M104,215 Q112,212 124,215 L126,255 Q116,258 106,255 Z" },
-  { name: "Inner Thighs", path: "M92,218 L108,218 L106,258 L94,258 Z" },
-  { name: "Outer Thighs", path: "M72,218 L80,218 L78,258 L70,258 Z M120,218 L128,218 L130,258 L122,258 Z" },
-  { name: "Knees", path: "M78,262 Q84,260 90,262 L89,275 Q84,278 79,275 Z M110,262 Q116,260 122,262 L121,275 Q116,278 111,275 Z" },
+  { name: "Abdomen", path: "M83,148 Q100,143 117,148 L116,168 Q100,174 84,168 Z" },
+  { name: "Lower Abdomen", path: "M84,168 Q100,174 116,168 L114,186 Q100,192 86,186 Z" },
+  { name: "Left Flank / Lateral", path: "M66,150 Q73,152 78,158 L75,182 Q68,178 63,168 Z" },
+  { name: "Right Flank / Lateral", path: "M134,150 Q127,152 122,158 L125,182 Q132,178 137,168 Z" },
+  { name: "Left Front Thigh", path: "M78,225 Q88,220 95,225 L92,270 Q84,274 76,270 Z" },
+  { name: "Right Front Thigh", path: "M105,225 Q112,220 122,225 L124,270 Q116,274 108,270 Z" },
+  { name: "Inner Thighs", path: "M92,228 L108,228 L107,270 L93,270 Z" },
+  { name: "Knees", path: "M78,278 Q84,275 90,278 L88,298 Q84,301 80,298 Z M110,278 Q116,275 122,278 L120,298 Q116,301 112,298 Z" },
 ];
 
-// Back figure zones (viewBox 0 0 200 340)
 const BACK_ZONES: Zone[] = [
-  { name: "Lower Back", path: "M74,148 Q100,158 126,148 L124,182 Q100,192 76,182 Z" },
-  { name: "Waistline / Back", path: "M76,182 Q100,192 124,182 L122,200 Q100,208 78,200 Z" },
-  { name: "Posterior Left Arm", path: "M50,130 Q58,150 56,175 L46,173 Q44,148 42,128 Z" },
-  { name: "Posterior Right Arm", path: "M150,130 Q142,150 144,175 L154,173 Q156,148 158,128 Z" },
-  { name: "Left Glute", path: "M74,202 Q88,198 98,202 L96,224 Q84,228 72,222 Z" },
-  { name: "Right Glute", path: "M102,202 Q112,198 126,202 L128,222 Q116,228 104,224 Z" },
-  { name: "Left Posterior Thigh", path: "M76,228 Q88,225 96,228 L94,258 Q84,262 74,258 Z" },
-  { name: "Right Posterior Thigh", path: "M104,228 Q112,225 124,228 L126,258 Q116,262 106,258 Z" },
-  { name: "Calves", path: "M78,282 Q84,279 90,282 L88,320 Q84,323 80,320 Z M110,282 Q116,279 122,282 L120,320 Q116,323 112,320 Z" },
+  { name: "Lower Back", path: "M78,150 Q100,146 122,150 L120,182 Q100,188 80,182 Z" },
+  { name: "Waistline / Back", path: "M80,182 Q100,188 120,182 L118,198 Q100,204 82,198 Z" },
+  { name: "Posterior Left Arm", path: "M65,155 Q73,158 77,168 L72,180 Q65,175 62,166 Z" },
+  { name: "Posterior Right Arm", path: "M135,155 Q127,158 123,168 L128,180 Q135,175 138,166 Z" },
+  { name: "Left Glute", path: "M78,206 Q88,202 96,206 L94,225 Q84,228 76,225 Z" },
+  { name: "Right Glute", path: "M104,206 Q112,202 122,206 L124,225 Q116,228 106,225 Z" },
+  { name: "Left Posterior Thigh", path: "M78,228 Q88,224 95,228 L92,272 Q84,275 77,272 Z" },
+  { name: "Right Posterior Thigh", path: "M105,228 Q112,224 122,228 L123,272 Q116,275 108,272 Z" },
+  { name: "Outer Thighs", path: "M74,230 L80,230 L78,270 L72,270 Z M120,230 L126,230 L128,270 L122,270 Z" },
+  { name: "Calves", path: "M78,300 Q84,297 90,300 L88,340 Q84,343 80,340 Z M110,300 Q116,297 122,300 L120,340 Q116,343 112,340 Z" },
 ];
+
+const BODY_PATH =
+  "M 88,53 C 82,58 78,63 76,70 C 68,76 62,88 60,105 C 58,122 60,138 66,150 " +
+  "C 62,160 60,170 62,180 C 58,192 56,205 58,218 L 62,340 " +
+  "C 63,355 65,368 68,382 L 78,382 C 76,368 75,355 75,342 L 78,225 " +
+  "C 82,212 86,200 90,190 C 94,196 98,199 100,199 C 102,199 106,196 110,190 " +
+  "C 114,200 118,212 122,225 L 125,342 C 125,355 124,368 122,382 L 132,382 " +
+  "C 135,368 137,355 138,340 L 142,218 C 144,205 142,192 138,180 " +
+  "C 140,170 138,160 134,150 C 140,138 142,122 140,105 C 138,88 132,76 124,70 " +
+  "C 122,63 118,58 112,53 C 108,58 104,60 100,60 C 96,60 92,58 88,53 Z";
+
+const LEFT_ARM_PATH = "M76,70 C68,80 63,95 60,115 C58,135 58,155 60,172 L68,172 C67,155 68,135 70,116 C72,98 76,85 82,74 Z";
+const RIGHT_ARM_PATH = "M124,70 C132,80 137,95 140,115 C142,135 142,155 140,172 L132,172 C133,155 132,135 130,116 C128,98 124,85 118,74 Z";
 
 function FigureOutline() {
   return (
     <>
-      <ellipse cx="100" cy="35" rx="18" ry="22" fill="none" stroke={STROKE} strokeWidth="1.2" />
-      <path d="M88,20 Q100,12 112,20" fill="none" stroke={STROKE} strokeWidth="1.2" />
-      <path
-        d="M100,57 L100,70
-           M70,80 Q60,90 55,130 L45,175
-           M130,80 Q140,90 145,130 L155,175
-           M70,80 Q100,68 130,80
-           L138,205 Q135,215 128,222
-           L124,272 L128,330
-           M62,205 Q65,215 72,222
-           L76,272 L72,330"
-        fill="none"
-        stroke={STROKE}
-        strokeWidth="1.2"
-        strokeLinecap="round"
-      />
+      <ellipse cx="100" cy="34" rx="15" ry="19" fill="none" stroke={STROKE} strokeWidth="1.3" />
+      <path d="M88,18 Q100,8 112,18" fill="none" stroke={STROKE} strokeWidth="1.3" />
+      <path d={BODY_PATH} fill="none" stroke={STROKE} strokeWidth="1.3" strokeLinejoin="round" />
+      <path d={LEFT_ARM_PATH} fill="none" stroke={STROKE} strokeWidth="1.3" strokeLinejoin="round" />
+      <path d={RIGHT_ARM_PATH} fill="none" stroke={STROKE} strokeWidth="1.3" strokeLinejoin="round" />
     </>
   );
 }
@@ -77,23 +83,22 @@ function BodyFigure({
   onToggle: (name: string) => void;
 }) {
   return (
-    <svg viewBox="0 0 200 340" width="100%" style={{ maxWidth: 170 }}>
+    <svg viewBox="0 0 200 420" width="100%" style={{ maxWidth: 170 }}>
       <FigureOutline />
       {zones.map((z) => (
         <path
           key={z.name}
           d={z.path}
-          fill={selected.has(z.name) ? FILL_SELECTED : FILL_OPTIONAL_HINT}
+          fill={selected.has(z.name) ? FILL_SELECTED : "none"}
           stroke={selected.has(z.name) ? "#C79E93" : "rgba(185,163,143,0.4)"}
           strokeWidth="1"
-          strokeDasharray={z.dashed && !selected.has(z.name) ? "3,3" : undefined}
           style={{ cursor: "pointer" }}
           onClick={() => onToggle(z.name)}
         >
           <title>{z.name}</title>
         </path>
       ))}
-      <text x="100" y="336" textAnchor="middle" fontSize="9" fill="#9C8A76" fontFamily="var(--sans)" letterSpacing="1">
+      <text x="100" y="410" textAnchor="middle" fontSize="10" fill="#9C8A76" fontFamily="var(--sans)" letterSpacing="1">
         {side === "front" ? "FRONT" : "BACK"}
       </text>
     </svg>
