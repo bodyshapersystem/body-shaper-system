@@ -95,11 +95,11 @@ function BodyFigure({
             cy={z.cy}
             rx={z.rx}
             ry={z.ry}
-            fill={isSelected ? FILL_SELECTED : "none"}
+            fill={isSelected ? FILL_SELECTED : "rgba(0,0,0,0.001)"}
             stroke={isSelected ? "#C79E93" : "rgba(185,163,143,0.45)"}
             strokeWidth="1"
             strokeDasharray={isSelected ? undefined : "2,2"}
-            style={{ cursor: "pointer" }}
+            style={{ cursor: "pointer", touchAction: "manipulation" }}
             onClick={() => onToggle(z.name)}
           >
             <title>{z.name}</title>
