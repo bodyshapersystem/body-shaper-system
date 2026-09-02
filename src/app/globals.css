@@ -3547,7 +3547,7 @@
 .cap-next-card-marble .cap-prep-link{ color:#FFFFFF; font-weight:600; }
 .cap-next-card-marble .cap-gcal-btn{ color:#FFFFFF; font-weight:600; border-color:rgba(255,255,255,0.5); }
 .cap-next-card-marble .cap-info-bar{ background:rgba(255,255,255,0.15); color:#FFFFFF; font-weight:600; }
-.cap-next-card-marble .module-empty{ border-color:rgba(255,255,255,0.3); }
+.cap-next-card-marble .module-empty{ border-color:rgba(255,255,255,0.3); color:#FFFFFF; font-weight:700; }
 .cap-next-card-marble .module-empty div{ color:#FFFFFF; font-weight:600; }
 .cap-next-eyebrow{ font-family:var(--sans); font-size:10.5px; letter-spacing:.1em; text-transform:uppercase; color:#C9A876; margin:0 0 6px; }
 .cap-next-title{ font-family:var(--serif); font-size:20px; color:#2B2622; margin:0 0 16px; }
