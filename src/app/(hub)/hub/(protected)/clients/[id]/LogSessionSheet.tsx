@@ -4,9 +4,9 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { TECHNOLOGIES, ABDOMEN_PRESET, LEGS_PRESETS, generateObjectives, type Technology } from "@/lib/session-objectives";
 import { logSession } from "./session-log-actions";
+import InteractiveBodyMap from "@/components/InteractiveBodyMap";
 
-const ALL_ABDOMEN_AREAS = [...ABDOMEN_PRESET.front, ...ABDOMEN_PRESET.back, ...ABDOMEN_PRESET.optional];
-const ALL_LEG_AREAS = [...LEGS_PRESETS.frontAndBack, ...LEGS_PRESETS.optional];
+const ALL_ABDOMEN_AREAS = [...ABDOMEN_PRESET.front, ...ABDOMEN_PRESET.back];
 
 export default function LogSessionSheet({ clientId }: { clientId: string }) {
   const router = useRouter();
@@ -103,17 +103,29 @@ export default function LogSessionSheet({ clientId }: { clientId: string }) {
 
                 <p className="dtj-field-label">Step 2 — Treated Areas</p>
                 <div style={{ display: "flex", gap: 8, marginBottom: 10, flexWrap: "wrap" }}>
-                  <button type="button" className="dtj-link-small" onClick={() => applyPreset(ALL_ABDOMEN_AREAS.slice(0, 6))}>Abdomen Protocol preset</button>
+                  <button type="button" className="dtj-link-small" onClick={() => applyPreset(ALL_ABDOMEN_AREAS)}>Abdomen Protocol preset</button>
                   <button type="button" className="dtj-link-small" onClick={() => applyPreset(LEGS_PRESETS.posteriorOnly)}>Legs — Posterior Only</button>
                   <button type="button" className="dtj-link-small" onClick={() => applyPreset(LEGS_PRESETS.frontAndBack)}>Legs — Front + Back</button>
                 </div>
-                <div className="rc-checkbox-row" style={{ flexDirection: "column", alignItems: "flex-start", gap: 6, marginBottom: 16 }}>
-                  {[...ALL_ABDOMEN_AREAS, ...ALL_LEG_AREAS].map((area) => (
-                    <label key={area} className="rc-checkbox-row" style={{ marginBottom: 0 }}>
-                      <input type="checkbox" checked={selectedAreas.has(area)} onChange={() => toggleArea(area)} />
-                      {area}
-                    </label>
-                  ))}
+                <InteractiveBodyMap selectedAreas={selectedAreas} onToggleArea={toggleArea} />
+
+                <p className="dtj-field-label" style={{ marginTop: 14, display: "flex", justifyContent: "space-between" }}>
+                  <span>Selected Areas ({areas.length})</span>
+                  {areas.length > 0 && (
+                    <button type="button" className="dtj-link-small" onClick={() => setSelectedAreas(new Set())}>Clear All</button>
+                  )}
+                </p>
+                <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 16 }}>
+                  {areas.length === 0 ? (
+                    <p className="pay-history-meta">Tap the body map above to select treated areas.</p>
+                  ) : (
+                    areas.map((a) => (
+                      <span key={a} className="pmc-pill" style={{ position: "static", transform: "none", display: "flex", alignItems: "center", gap: 6 }}>
+                        {a}
+                        <button type="button" onClick={() => toggleArea(a)} style={{ background: "none", border: "none", cursor: "pointer", color: "var(--mocha)", padding: 0, fontSize: 11 }}>✕</button>
+                      </span>
+                    ))
+                  )}
                 </div>
 
                 <p className="dtj-field-label">Step 3 — Objective (auto-generated)</p>
