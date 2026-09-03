@@ -124,26 +124,22 @@ export default function SessionMapCard({
           <br />
           in this session.
         </p>
-        <div className="smc-tm-cols">
-          <div className="smc-tm-left">
-            <div className="smc-legend-row">
-              <span className="smc-legend-dot" /> treatment areas
-            </div>
-            <hr className="smc-tm-hr" />
-            <p className="smc-protocol-label">Areas Treated</p>
-            {areas.map((a) => (
-              <div className="smc-check-row" key={a}>
-                <span className="smc-check-circle">✓</span> {a}
-              </div>
-            ))}
-            {optionalAreas?.map((a) => (
-              <div className="smc-check-row" key={a}>
-                <span className="smc-check-circle smc-optional">+</span> {a}
-              </div>
-            ))}
-          </div>
-          <SessionMapFigures selectedAreas={areas} />
+        <div className="smc-legend-row">
+          <span className="smc-legend-dot" /> treatment areas
         </div>
+        <SessionMapFigures selectedAreas={areas} />
+        <hr className="smc-tm-hr" />
+        <p className="smc-protocol-label">Areas Treated</p>
+        {areas.map((a) => (
+          <div className="smc-check-row" key={a}>
+            <span className="smc-check-circle">✓</span> {a}
+          </div>
+        ))}
+        {optionalAreas?.map((a) => (
+          <div className="smc-check-row" key={a}>
+            <span className="smc-check-circle smc-optional">+</span> {a}
+          </div>
+        ))}
         <div className="smc-objectives-bar">
           <div className="smc-obj-items">
             {objectives.slice(0, 3).map((o) => (
@@ -182,7 +178,7 @@ const IMAGE_REGIONS: { name: string; left: number; top: number; width: number; h
  */
 function SessionMapFigures({ selectedAreas }: { selectedAreas: string[] }) {
   return (
-    <div className="isd-photo-wrap" style={{ maxWidth: 220 }}>
+    <div className="isd-photo-wrap" style={{ maxWidth: "100%", marginBottom: 14 }}>
       <img src="/images/injection-site-base.png" alt="Body diagram showing this session's treated areas" className="isd-photo-img" />
       {IMAGE_REGIONS.map((r, i) => {
         const selected = selectedAreas.includes(r.name);
