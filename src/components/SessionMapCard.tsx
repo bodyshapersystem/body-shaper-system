@@ -53,15 +53,6 @@ export default function SessionMapCard({
         <div className="smc-header-block">
           <svg className="smc-header-bg-svg" viewBox="0 0 340 150" preserveAspectRatio="none">
             <defs>
-              <filter id="smc-wine-shift" x="-20%" y="-20%" width="140%" height="140%">
-                <feColorMatrix
-                  type="matrix"
-                  values="0.55 0 0 0 0.05
-                          0 0.10 0 0 0
-                          0 0 0.18 0 0.02
-                          0 0 0 1 0"
-                />
-              </filter>
               <filter id="smc-glow">
                 <feGaussianBlur stdDeviation="2" result="b" />
                 <feMerge>
@@ -70,7 +61,7 @@ export default function SessionMapCard({
                 </feMerge>
               </filter>
               <pattern id="smc-wine-tex" patternUnits="userSpaceOnUse" width="340" height="150">
-                <image href="/images/textures/taupe-marble-gold-waves.png" width="340" height="150" preserveAspectRatio="xMidYMid slice" filter="url(#smc-wine-shift)" />
+                <image href="/images/rewards/burgundy-marble-2.jpg" x="-60" y="-140" width="460" height="430" preserveAspectRatio="xMidYMid slice" />
               </pattern>
               <pattern id="smc-stone-tex" patternUnits="userSpaceOnUse" width="340" height="150">
                 <image href="/images/textures/taupe-marble-gold-waves.png" x="-500" y="-140" width="900" height="430" preserveAspectRatio="xMidYMid slice" />
@@ -83,7 +74,7 @@ export default function SessionMapCard({
               fill="none"
               stroke="#E8C77E"
               strokeWidth="1.6"
-              opacity="0.85"
+              opacity="0.9"
               filter="url(#smc-glow)"
             />
             <g stroke="#C9A25E" strokeWidth="1" fill="none" opacity="0.75">

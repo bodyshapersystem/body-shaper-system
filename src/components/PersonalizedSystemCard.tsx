@@ -34,15 +34,6 @@ export default function PersonalizedSystemCard({
       <div className="psc-card">
         <svg className="psc-bg-svg" viewBox="0 0 320 430" preserveAspectRatio="none">
           <defs>
-            <filter id="psc-wine-shift" x="-20%" y="-20%" width="140%" height="140%">
-              <feColorMatrix
-                type="matrix"
-                values="0.55 0 0 0 0.05
-                        0 0.10 0 0 0
-                        0 0 0.18 0 0.02
-                        0 0 0 1 0"
-              />
-            </filter>
             <filter id="psc-glow">
               <feGaussianBlur stdDeviation="2.2" result="b" />
               <feMerge>
@@ -51,7 +42,7 @@ export default function PersonalizedSystemCard({
               </feMerge>
             </filter>
             <pattern id="psc-wine-tex" patternUnits="userSpaceOnUse" width="320" height="430">
-              <image href="/images/textures/taupe-marble-gold-waves.png" width="320" height="430" preserveAspectRatio="xMidYMid slice" filter="url(#psc-wine-shift)" />
+              <image href="/images/rewards/burgundy-marble-2.jpg" width="320" height="430" preserveAspectRatio="xMidYMid slice" />
             </pattern>
             <pattern id="psc-stone-tex" patternUnits="userSpaceOnUse" width="320" height="430">
               <image href="/images/textures/taupe-marble-gold-waves.png" x="-180" width="500" height="430" preserveAspectRatio="xMidYMid slice" />
@@ -64,7 +55,7 @@ export default function PersonalizedSystemCard({
             fill="none"
             stroke="#E8C77E"
             strokeWidth="1.8"
-            opacity="0.85"
+            opacity="0.9"
             filter="url(#psc-glow)"
           />
           <g stroke="#C9A25E" strokeWidth="1" fill="none" opacity="0.8">
