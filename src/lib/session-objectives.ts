@@ -22,7 +22,7 @@ export const LEGS_PRESETS = {
     "Left Glute", "Right Glute", "Left Posterior Thigh", "Right Posterior Thigh",
     "Left Front Thigh", "Right Front Thigh",
   ],
-  optional: ["Inner Thighs", "Outer Thighs", "Knees", "Calves"],
+  optional: ["Inner Thighs", "Outer Thighs", "Knees", "Right Calf", "Left Calf"],
 };
 
 type ObjectiveRule = { technology: Technology; match: (area: string) => boolean; objectives: string[] };

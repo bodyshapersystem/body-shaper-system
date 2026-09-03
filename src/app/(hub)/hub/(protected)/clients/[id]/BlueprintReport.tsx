@@ -654,7 +654,7 @@ export default async function BlueprintReport({
         </div>
 
         {/* 04 — Personalized System (real fields: recommendedSystem, treatmentInterests, goals, frequency) */}
-        <div data-bp-tab="system" className="bbp-card bbp-panel bp-tex-taupe">
+        <div data-bp-tab="system" className="bbp-panel">
           <p className="bbp-panel-title" style={{ marginBottom: 14, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
             <span>
               <span className="bbp-section-num">04</span> <span className="bbp-section-div">|</span> personalized system™

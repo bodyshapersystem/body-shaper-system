@@ -4987,7 +4987,7 @@
 .smc-tech-label{ font-family:var(--sans); font-size:10px; letter-spacing:1.5px; color:#C9A25E; text-transform:uppercase; margin:0 0 6px; }
 .smc-tech-name{ font-family:var(--serif); font-size:13px; color:#F5EDE3; margin:4px 0 0; text-transform:lowercase; }
 .smc-tech-sub{ font-family:var(--serif); font-style:italic; font-size:10px; color:#C9BEB2; margin:1px 0 0; }
-.smc-front-card{ background:#FBF8F3; border-radius:24px 24px 28px 28px; margin-top:-16px; position:relative; z-index:3; padding:20px 20px 18px; box-shadow:0 -6px 14px rgba(43,26,18,0.06); }
+.smc-front-card{ background:#FBF8F3; border-radius:24px; margin-top:6px; padding:20px 20px 18px; box-shadow:0 4px 14px rgba(43,26,18,0.06); }
 .smc-tm-label{ font-family:var(--sans); font-size:10.5px; letter-spacing:1.5px; color:#C9A25E; text-transform:uppercase; margin:0; }
 .smc-tm-title{ font-family:var(--serif); font-size:14px; color:#221812; margin:4px 0 10px; line-height:1.3; }
 .smc-tm-cols{ display:flex; flex-direction:column; gap:16px; }
@@ -5028,3 +5028,7 @@
   background:none; border:none; color:var(--mocha); font-size:15px; cursor:pointer; padding:6px; flex-shrink:0;
 }
 .shl-row-detail{ padding:0 4px 14px 40px; }
+
+/* ---- Session body map — real legs illustration, cropped to hips-to-feet ---- */
+.sbm-legs-wrap{ position:relative; width:100%; aspect-ratio:2.13; overflow:hidden; border-radius:10px; }
+.sbm-legs-img{ position:absolute; width:100%; top:-142%; left:0; }

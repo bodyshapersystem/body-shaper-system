@@ -1,26 +1,25 @@
 "use client";
 
 /**
- * Real, tappable Session body map — reuses the exact same real
- * illustration asset already used by Daily Trackers' Peptide
- * Journey™ injection-site picker (/images/injection-site-base.png),
- * per direction, instead of a hand-drawn SVG figure (several
- * hand-drawn attempts kept reading as crude/wrong). Region
+ * Real, tappable Session body map — reuses two real illustration
+ * assets already in the codebase, per direction, instead of a
+ * hand-drawn SVG figure (several hand-drawn attempts kept reading as
+ * crude/wrong). Torso + arms use Daily Trackers' Peptide Journey™
+ * injection-site picker (/images/injection-site-base.png) — region
  * coordinates for Left/Right Arm and Left/Right Glute are the exact
  * same measured percentages already used by InjectionSiteDiagram;
- * Lower Back is a new region measured directly against this same
- * image and verified visually before shipping. The two abdomen
- * halves visible in the image both toggle the single real "Abdomen"
- * area, since the image doesn't visually distinguish separate
- * lateral/flank zones.
+ * Lower Back is a new region measured against this same image. The
+ * two abdomen halves visible in the image both toggle the single
+ * real "Abdomen" area, since the image doesn't visually distinguish
+ * separate lateral/flank zones.
  *
- * Leg areas (thighs, knees, calves) aren't part of this torso+arms
- * illustration, so they're offered as plain selectable chips below
- * the image rather than invented shapes on a figure that doesn't
- * show legs.
+ * Legs use the real front-view illustration from Blueprint's
+ * Measurements diagram (/images/blueprint/measurements-diagram.jpeg),
+ * cropped via CSS to its lower half (hips-to-feet) and measured for
+ * real thigh/calf tap regions — verified visually before shipping.
  */
 
-const IMAGE_REGIONS: { name: string; left: number; top: number; width: number; height: number }[] = [
+const TORSO_REGIONS: { name: string; left: number; top: number; width: number; height: number }[] = [
   { name: "Posterior Left Arm", left: 4.5, top: 24, width: 7, height: 34 },
   { name: "Abdomen", left: 18.5, top: 28, width: 10.5, height: 52 },
   { name: "Abdomen", left: 29, top: 28, width: 11, height: 52 },
@@ -30,7 +29,12 @@ const IMAGE_REGIONS: { name: string; left: number; top: number; width: number; h
   { name: "Posterior Right Arm", left: 87.5, top: 24, width: 7, height: 34 },
 ];
 
-const CHIP_AREAS = ["Left Front Thigh", "Right Front Thigh", "Left Posterior Thigh", "Right Posterior Thigh", "Inner Thighs", "Outer Thighs", "Knees", "Calves"];
+const LEG_REGIONS: { name: string; left: number; top: number; width: number; height: number }[] = [
+  { name: "Right Front Thigh", left: 30, top: 15, width: 16, height: 38 },
+  { name: "Left Front Thigh", left: 54, top: 15, width: 16, height: 38 },
+  { name: "Right Calf", left: 32, top: 58, width: 13, height: 35 },
+  { name: "Left Calf", left: 55, top: 58, width: 13, height: 35 },
+];
 
 export default function SessionBodyMap({
   selectedAreas,
@@ -41,9 +45,10 @@ export default function SessionBodyMap({
 }) {
   return (
     <div>
+      <p className="dtj-field-label">Torso &amp; Arms</p>
       <div className="isd-photo-wrap">
-        <img src="/images/injection-site-base.png" alt="Body diagram for treatment area selection" className="isd-photo-img" />
-        {IMAGE_REGIONS.map((r, i) => {
+        <img src="/images/injection-site-base.png" alt="Body diagram for torso and arm treatment areas" className="isd-photo-img" />
+        {TORSO_REGIONS.map((r, i) => {
           const selected = selectedAreas.has(r.name);
           return (
             <button
@@ -60,18 +65,23 @@ export default function SessionBodyMap({
           );
         })}
       </div>
-      <p className="dtj-field-label" style={{ marginTop: 14 }}>Legs (not shown above)</p>
-      <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
-        {CHIP_AREAS.map((area) => {
-          const selected = selectedAreas.has(area);
+
+      <p className="dtj-field-label" style={{ marginTop: 16 }}>Legs</p>
+      <div className="sbm-legs-wrap">
+        <img src="/images/blueprint/measurements-diagram.jpeg" alt="Body diagram for leg treatment areas" className="sbm-legs-img" />
+        {LEG_REGIONS.map((r) => {
+          const selected = selectedAreas.has(r.name);
           return (
             <button
-              key={area}
+              key={r.name}
               type="button"
-              className={`pp-angle-pill ${selected ? "pp-angle-pill-active" : ""}`}
-              onClick={() => onToggleArea(area)}
+              className="isd-photo-region"
+              style={{ left: `${r.left}%`, top: `${r.top}%`, width: `${r.width}%`, height: `${r.height}%` }}
+              onClick={() => onToggleArea(r.name)}
+              aria-label={r.name}
             >
-              {area}
+              <span className={`isd-photo-highlight ${selected ? "isd-photo-highlight-selected" : ""}`} />
+              {selected && <span className="isd-photo-check">✓</span>}
             </button>
           );
         })}
