@@ -23,9 +23,18 @@ type SessionRecord = {
  * portal's Systems & Sessions "Sessions" tab, so both show the exact
  * same real records with no duplication.
  */
-export default function SessionHistoryList({ sessions, clientName }: { sessions: SessionRecord[]; clientName: string }) {
+export default function SessionHistoryList({
+  sessions,
+  clientName,
+  totalCount,
+}: {
+  sessions: SessionRecord[];
+  clientName: string;
+  totalCount?: number;
+}) {
   const [downloadTarget, setDownloadTarget] = useState<number | null>(null);
   const [expanded, setExpanded] = useState<number | null>(null);
+  const count = totalCount ?? sessions.length;
 
   if (sessions.length === 0) {
     return <p className="pay-history-meta" style={{ marginTop: 10 }}>No sessions logged yet.</p>;
@@ -35,7 +44,7 @@ export default function SessionHistoryList({ sessions, clientName }: { sessions:
     <div style={{ display: "flex", flexDirection: "column", gap: 2, marginTop: 12 }}>
       {sessions.map((s, i) => {
         const tech = s.technologies?.[0];
-        const sessionNumber = sessions.length - i;
+        const sessionNumber = count - i;
         const dateLabel = new Date(s.startsAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
         const isOpen = expanded === i;
         return (

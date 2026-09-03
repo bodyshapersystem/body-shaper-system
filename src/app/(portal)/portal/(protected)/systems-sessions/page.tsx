@@ -80,7 +80,11 @@ export default async function PortalSystemsSessionsPage() {
               })()}
               <div style={{ marginTop: 24 }}>
                 <p className="dtj-field-label">session history</p>
-                <SessionHistoryList sessions={sessionHistory} clientName={`${client.firstName} ${client.lastName}`} />
+                <SessionHistoryList
+                  sessions={sessionHistory.slice(1)}
+                  totalCount={sessionHistory.length}
+                  clientName={`${client.firstName} ${client.lastName}`}
+                />
               </div>
             </>
           }

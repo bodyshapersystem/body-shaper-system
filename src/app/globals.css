@@ -3182,7 +3182,7 @@
 .bbp-protocol-list li{ font-family:var(--sans); font-size:12.5px; display:flex; align-items:center; gap:8px; }
 
 /* ---------- system architecture / why selected ---------- */
-.bbp-arch-grid{ display:grid; grid-template-columns:1fr 1fr 1fr; gap:22px; margin-top:14px; }
+.bbp-arch-grid{ display:grid; grid-template-columns:1fr 1fr; gap:22px; margin-top:14px; }
 .bbp-arch-col-label{ font-family:var(--sans); font-size:10px; letter-spacing:0.08em; text-transform:uppercase; color:var(--bbp-gold-dark); margin-bottom:8px; }
 .bbp-arch-item{ font-family:var(--sans); font-size:12.5px; padding:4px 0; }
 .bbp-quote{ font-family:var(--serif); font-style:italic; font-size:18px; line-height:1.5; color:var(--charcoal); margin-top:8px; }

@@ -783,8 +783,6 @@ export default async function BlueprintReport({
                 : <p className="bbp-arch-item">Not set</p>}
             </div>
             <div>
-              <p className="bbp-arch-col-label">complementary / home care</p>
-              <p className="bbp-arch-item">{assessment.complementarySessions ?? "Not set"}</p>
               {assessment.homeCareGuidance && <p className="bbp-arch-item">{assessment.homeCareGuidance}</p>}
               {mode === "owner" ? (
                 <div style={{ marginTop: 12 }}>
@@ -812,10 +810,6 @@ export default async function BlueprintReport({
                   </div>
                 )
               )}
-            </div>
-            <div>
-              <p className="bbp-arch-col-label">optimization notes</p>
-              <p className="bbp-arch-item">{assessment.optimizationNotes ?? "Not set yet"}</p>
             </div>
           </div>
         </div>
