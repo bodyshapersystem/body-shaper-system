@@ -68,9 +68,9 @@ export default function SessionMapCard({
               </pattern>
             </defs>
             <rect width="340" height="150" fill="url(#smc-stone-tex)" />
-            <path d="M0,0 L231,0 Q252,40 238,75 Q222,110 245,150 L0,150 Z" fill="url(#smc-wine-tex)" />
+            <path d="M0,0 L235,0 C210,25 205,45 220,65 C238,88 248,105 240,130 C236,140 232,145 235,150 L0,150 Z" fill="url(#smc-wine-tex)" />
             <path
-              d="M231,0 Q252,40 238,75 Q222,110 245,150"
+              d="M235,0 C210,25 205,45 220,65 C238,88 248,105 240,130 C236,140 232,145 235,150"
               fill="none"
               stroke="#E8C77E"
               strokeWidth="1.6"

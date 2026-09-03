@@ -49,9 +49,9 @@ export default function PersonalizedSystemCard({
             </pattern>
           </defs>
           <rect width="320" height="430" fill="url(#psc-stone-tex)" />
-          <path d="M0,0 L250,0 Q210,110 218,215 Q210,320 230,430 L0,430 Z" fill="url(#psc-wine-tex)" />
+          <path d="M0,0 L218,0 C195,45 178,75 182,110 C186,150 220,175 246,220 C262,255 250,300 232,340 C220,368 210,400 218,430 L0,430 Z" fill="url(#psc-wine-tex)" />
           <path
-            d="M250,0 Q210,110 218,215 Q210,320 230,430"
+            d="M218,0 C195,45 178,75 182,110 C186,150 220,175 246,220 C262,255 250,300 232,340 C220,368 210,400 218,430"
             fill="none"
             stroke="#E8C77E"
             strokeWidth="1.8"
