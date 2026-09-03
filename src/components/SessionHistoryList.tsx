@@ -16,53 +16,74 @@ type SessionRecord = {
  * Real Session History — every logged session (technology, real
  * treated areas, real auto-generated objectives, real Blueprint
  * Alignment™ snapshot frozen at the time it was saved), each with a
- * real downloadable summary. Shared between the Hub's client detail
- * view and the client portal's Systems & Sessions "Sessions" tab, so
- * both show the exact same real records with no duplication.
+ * real downloadable summary. Styled to match the "Completed Sessions"
+ * list from the approved reference (numbered circle, technology +
+ * area, download action) instead of a plain mechanical text block.
+ * Shared between the Hub's client detail view and the client
+ * portal's Systems & Sessions "Sessions" tab, so both show the exact
+ * same real records with no duplication.
  */
 export default function SessionHistoryList({ sessions, clientName }: { sessions: SessionRecord[]; clientName: string }) {
   const [downloadTarget, setDownloadTarget] = useState<number | null>(null);
+  const [expanded, setExpanded] = useState<number | null>(null);
 
   if (sessions.length === 0) {
     return <p className="pay-history-meta" style={{ marginTop: 10 }}>No sessions logged yet.</p>;
   }
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 12, marginTop: 12 }}>
+    <div style={{ display: "flex", flexDirection: "column", gap: 2, marginTop: 12 }}>
       {sessions.map((s, i) => {
         const tech = s.technologies?.[0];
         const sessionNumber = sessions.length - i;
         const dateLabel = new Date(s.startsAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+        const isOpen = expanded === i;
         return (
-          <div key={s.id} className="cah-appt-row">
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
-              <p className="cah-appt-title">SESSION {String(sessionNumber).padStart(2, "0")}</p>
-              <span className="isd-protocol-tag" style={{ marginTop: 0 }}>{s.status.toLowerCase()}</span>
-            </div>
-            <p className="pay-history-meta">{dateLabel}{tech ? ` · ${tech.name}` : ""}</p>
-            {tech?.areas && tech.areas.length > 0 && (
-              <p className="pay-history-meta" style={{ marginTop: 4 }}>
-                <strong>Areas Treated:</strong> {tech.areas.join(" · ")}
-              </p>
-            )}
-            {tech?.objectives && tech.objectives.length > 0 && (
-              <p className="pay-history-meta" style={{ marginTop: 4 }}>
-                <strong>Objective:</strong> {tech.objectives.join(" · ")}
-              </p>
-            )}
-            {s.blueprintAlignment && s.blueprintAlignment.matched.length > 0 && (
-              <p className="pay-history-meta" style={{ marginTop: 4, color: "var(--mocha)" }}>
-                ✓ Blueprint Alignment™ — {s.blueprintAlignment.matched.length} goal{s.blueprintAlignment.matched.length === 1 ? "" : "s"} matched: {s.blueprintAlignment.matched.join(", ")}
-              </p>
-            )}
-            {s.notes && (
-              <p className="pay-history-meta" style={{ marginTop: 4, fontStyle: "italic" }}>
-                &quot;{s.notes}&quot;
-              </p>
-            )}
-            <button type="button" className="dtj-link-small" style={{ marginTop: 8 }} onClick={() => setDownloadTarget(i)}>
-              DOWNLOAD SUMMARY →
+          <div key={s.id} className="shl-row">
+            <button type="button" className="shl-row-main" onClick={() => setExpanded(isOpen ? null : i)}>
+              <span className="shl-num-circle">{sessionNumber}</span>
+              <span className="shl-row-text">
+                <span className="shl-tech-name">{tech?.name ?? "Session"}</span>
+                {tech?.areas && tech.areas.length > 0 && <span className="shl-tech-area">{tech.areas[0].toLowerCase()}</span>}
+              </span>
+              <span className="shl-row-date">{dateLabel}</span>
+              <button
+                type="button"
+                className="shl-download-btn"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setDownloadTarget(i);
+                }}
+                aria-label="Download session summary"
+              >
+                ⬇
+              </button>
             </button>
+
+            {isOpen && (
+              <div className="shl-row-detail">
+                {tech?.areas && tech.areas.length > 0 && (
+                  <p className="pay-history-meta">
+                    <strong>Areas Treated:</strong> {tech.areas.join(" · ")}
+                  </p>
+                )}
+                {tech?.objectives && tech.objectives.length > 0 && (
+                  <p className="pay-history-meta" style={{ marginTop: 4 }}>
+                    <strong>Objective:</strong> {tech.objectives.join(" · ")}
+                  </p>
+                )}
+                {s.blueprintAlignment && s.blueprintAlignment.matched.length > 0 && (
+                  <p className="pay-history-meta" style={{ marginTop: 4, color: "var(--mocha)" }}>
+                    ✓ Blueprint Alignment™ — {s.blueprintAlignment.matched.length} goal{s.blueprintAlignment.matched.length === 1 ? "" : "s"} matched: {s.blueprintAlignment.matched.join(", ")}
+                  </p>
+                )}
+                {s.notes && (
+                  <p className="pay-history-meta" style={{ marginTop: 4, fontStyle: "italic" }}>
+                    &quot;{s.notes}&quot;
+                  </p>
+                )}
+              </div>
+            )}
 
             {downloadTarget === i && (
               <SessionSummaryModal

@@ -66,7 +66,7 @@ export default async function PortalSystemsSessionsPage() {
                 const latest = sessionHistory[0];
                 const tech = latest.technologies?.[0];
                 return (
-                  <div style={{ marginBottom: 28 }}>
+                  <div style={{ marginBottom: 48 }}>
                     <SessionMapCard
                       sessionLabel={`session ${sessionHistory.length}`}
                       dateLabel={new Date(latest.startsAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}

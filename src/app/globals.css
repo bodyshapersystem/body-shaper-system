@@ -5009,3 +5009,22 @@
   background:#D2A199; color:#5C1A1E; font-family:var(--sans); font-size:10.5px; font-weight:700; text-transform:uppercase;
   border:none; border-radius:20px; padding:10px 16px; white-space:nowrap; cursor:pointer; text-decoration:none; flex-shrink:0;
 }
+
+/* ---- Session History — "Completed Sessions" premium list row ---- */
+.shl-row{ border-bottom:1px solid rgba(150,120,90,0.15); }
+.shl-row-main{
+  width:100%; background:none; border:none; display:flex; align-items:center; gap:10px;
+  padding:12px 4px; cursor:pointer; text-align:left;
+}
+.shl-num-circle{
+  width:26px; height:26px; border-radius:50%; background:var(--gold); color:#fff; flex-shrink:0;
+  display:flex; align-items:center; justify-content:center; font-family:var(--sans); font-size:12px; font-weight:600;
+}
+.shl-row-text{ flex:1; min-width:0; display:flex; flex-direction:column; }
+.shl-tech-name{ font-family:var(--serif); font-size:14px; color:var(--charcoal); text-transform:lowercase; }
+.shl-tech-area{ font-family:var(--serif); font-style:italic; font-size:11.5px; color:var(--taupe); text-transform:lowercase; }
+.shl-row-date{ font-family:var(--sans); font-size:11px; color:var(--taupe); flex-shrink:0; }
+.shl-download-btn{
+  background:none; border:none; color:var(--mocha); font-size:15px; cursor:pointer; padding:6px; flex-shrink:0;
+}
+.shl-row-detail{ padding:0 4px 14px 40px; }
