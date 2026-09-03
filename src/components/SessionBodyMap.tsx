@@ -30,10 +30,10 @@ const TORSO_REGIONS: { name: string; left: number; top: number; width: number; h
 ];
 
 const LEG_REGIONS: { name: string; left: number; top: number; width: number; height: number }[] = [
-  { name: "Right Front Thigh", left: 30, top: 15, width: 16, height: 38 },
-  { name: "Left Front Thigh", left: 54, top: 15, width: 16, height: 38 },
-  { name: "Right Calf", left: 32, top: 58, width: 13, height: 35 },
-  { name: "Left Calf", left: 55, top: 58, width: 13, height: 35 },
+  { name: "Right Front Thigh", left: 20, top: 14, width: 22, height: 36 },
+  { name: "Left Front Thigh", left: 56, top: 14, width: 22, height: 36 },
+  { name: "Right Calf", left: 22, top: 56, width: 18, height: 34 },
+  { name: "Left Calf", left: 58, top: 56, width: 18, height: 34 },
 ];
 
 export default function SessionBodyMap({
