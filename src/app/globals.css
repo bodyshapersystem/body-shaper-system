@@ -4947,9 +4947,9 @@
 
 /* ---- Personalized System™ — wine/stone composite card ---- */
 .psc-wrap{ filter: drop-shadow(0 12px 24px rgba(43,26,18,0.22)); width:100%; }
-.psc-card{ position:relative; width:100%; aspect-ratio:420/260; border-radius:25px; overflow:hidden; }
+.psc-card{ position:relative; width:100%; border-radius:25px; overflow:hidden; }
 .psc-bg-svg{ position:absolute; inset:0; width:100%; height:100%; }
-.psc-content{ position:relative; z-index:2; padding:18px 22px; color:#F5EDE3; height:100%; box-sizing:border-box; display:flex; flex-direction:column; }
+.psc-content{ position:relative; z-index:2; padding:20px 24px; color:#F5EDE3; box-sizing:border-box; display:flex; flex-direction:column; min-height:220px; }
 .psc-top-row{ display:flex; align-items:center; justify-content:space-between; }
 .psc-brand{ display:flex; align-items:center; gap:8px; }
 .psc-brand-text{ font-family:var(--serif); font-size:10px; line-height:1.2; color:#C9A25E; text-transform:lowercase; }

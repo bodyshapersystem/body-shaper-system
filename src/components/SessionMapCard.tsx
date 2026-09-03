@@ -202,22 +202,20 @@ function SessionMapFigures({ selectedAreas }: { selectedAreas: string[] }) {
           );
         })}
       </div>
-      {LEG_REGIONS.some((r) => selectedAreas.includes(r.name)) && (
-        <div className="sbm-legs-wrap" style={{ marginTop: 10 }}>
-          <img src="/images/blueprint/measurements-diagram.jpeg" alt="Body diagram showing this session's treated leg areas" className="sbm-legs-img" />
-          {LEG_REGIONS.map((r) => {
-            const selected = selectedAreas.includes(r.name);
-            if (!selected) return null;
-            return (
-              <span
-                key={r.name}
-                className="isd-photo-highlight isd-photo-highlight-selected"
-                style={{ position: "absolute", left: `${r.left}%`, top: `${r.top}%`, width: `${r.width}%`, height: `${r.height}%` }}
-              />
-            );
-          })}
-        </div>
-      )}
+      <div className="sbm-legs-wrap" style={{ marginTop: 10 }}>
+        <img src="/images/blueprint/measurements-diagram.jpeg" alt="Body diagram showing this session's treated leg areas" className="sbm-legs-img" />
+        {LEG_REGIONS.map((r) => {
+          const selected = selectedAreas.includes(r.name);
+          if (!selected) return null;
+          return (
+            <span
+              key={r.name}
+              className="isd-photo-highlight isd-photo-highlight-selected"
+              style={{ position: "absolute", left: `${r.left}%`, top: `${r.top}%`, width: `${r.width}%`, height: `${r.height}%` }}
+            />
+          );
+        })}
+      </div>
     </div>
   );
 }
