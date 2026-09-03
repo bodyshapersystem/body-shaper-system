@@ -159,7 +159,7 @@ export default function SessionMapCard({
   );
 }
 
-const IMAGE_REGIONS: { name: string; left: number; top: number; width: number; height: number }[] = [
+const TORSO_REGIONS: { name: string; left: number; top: number; width: number; height: number }[] = [
   { name: "Posterior Left Arm", left: 4.5, top: 24, width: 7, height: 34 },
   { name: "Abdomen", left: 18.5, top: 28, width: 10.5, height: 52 },
   { name: "Abdomen", left: 29, top: 28, width: 11, height: 52 },
@@ -169,28 +169,55 @@ const IMAGE_REGIONS: { name: string; left: number; top: number; width: number; h
   { name: "Posterior Right Arm", left: 87.5, top: 24, width: 7, height: 34 },
 ];
 
+const LEG_REGIONS: { name: string; left: number; top: number; width: number; height: number }[] = [
+  { name: "Right Front Thigh", left: 30, top: 15, width: 16, height: 38 },
+  { name: "Left Front Thigh", left: 54, top: 15, width: 16, height: 38 },
+  { name: "Right Calf", left: 32, top: 58, width: 13, height: 35 },
+  { name: "Left Calf", left: 55, top: 58, width: 13, height: 35 },
+];
+
 /**
- * Real, read-only display of the exact same base illustration used
- * by SessionBodyMap (the interactive picker) and Daily Trackers'
- * Peptide Journey™ diagram — highlights whichever real areas this
+ * Real, read-only display of the exact same two real illustrations
+ * used by SessionBodyMap (the interactive picker) — torso+arms from
+ * Daily Trackers' Peptide Journey™ diagram, legs from Blueprint's
+ * Measurements diagram — highlights whichever real areas this
  * session actually treated, no click handlers since this is a
- * historical record, not an editor.
+ * historical record, not an editor. Shows the full real body (torso,
+ * arms, AND legs), not just the torso portion.
  */
 function SessionMapFigures({ selectedAreas }: { selectedAreas: string[] }) {
   return (
-    <div className="isd-photo-wrap" style={{ maxWidth: "100%", marginBottom: 14 }}>
-      <img src="/images/injection-site-base.png" alt="Body diagram showing this session's treated areas" className="isd-photo-img" />
-      {IMAGE_REGIONS.map((r, i) => {
-        const selected = selectedAreas.includes(r.name);
-        if (!selected) return null;
-        return (
-          <span
-            key={`${r.name}-${i}`}
-            className="isd-photo-highlight isd-photo-highlight-selected"
-            style={{ position: "absolute", left: `${r.left}%`, top: `${r.top}%`, width: `${r.width}%`, height: `${r.height}%` }}
-          />
-        );
-      })}
+    <div style={{ marginBottom: 14 }}>
+      <div className="isd-photo-wrap">
+        <img src="/images/injection-site-base.png" alt="Body diagram showing this session's treated torso and arm areas" className="isd-photo-img" />
+        {TORSO_REGIONS.map((r, i) => {
+          const selected = selectedAreas.includes(r.name);
+          if (!selected) return null;
+          return (
+            <span
+              key={`${r.name}-${i}`}
+              className="isd-photo-highlight isd-photo-highlight-selected"
+              style={{ position: "absolute", left: `${r.left}%`, top: `${r.top}%`, width: `${r.width}%`, height: `${r.height}%` }}
+            />
+          );
+        })}
+      </div>
+      {LEG_REGIONS.some((r) => selectedAreas.includes(r.name)) && (
+        <div className="sbm-legs-wrap" style={{ marginTop: 10 }}>
+          <img src="/images/blueprint/measurements-diagram.jpeg" alt="Body diagram showing this session's treated leg areas" className="sbm-legs-img" />
+          {LEG_REGIONS.map((r) => {
+            const selected = selectedAreas.includes(r.name);
+            if (!selected) return null;
+            return (
+              <span
+                key={r.name}
+                className="isd-photo-highlight isd-photo-highlight-selected"
+                style={{ position: "absolute", left: `${r.left}%`, top: `${r.top}%`, width: `${r.width}%`, height: `${r.height}%` }}
+              />
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }

@@ -4938,11 +4938,15 @@
 
 /* ---- Compression Garment (default Home Care recommendation) ---- */
 .cg-card{
-  background:#fff; border:1px solid rgba(107,82,64,0.12); border-radius:12px; padding:12px 14px;
+  background-image:url(/images/textures/taupe-marble-gold-waves.png); background-size:cover; background-position:center;
+  border:1px solid rgba(200,161,90,0.3); border-radius:12px; padding:12px 14px;
 }
+.cg-card .cah-appt-title,
+.cg-card .pjic-status-active,
+.cg-card .pay-history-meta{ color:#FFFFFF !important; text-shadow:0 1px 4px rgba(0,0,0,0.45); }
 
 /* ---- Personalized System™ — wine/stone composite card ---- */
-.psc-wrap{ filter: drop-shadow(0 12px 24px rgba(43,26,18,0.22)); max-width:320px; margin:0 auto; }
+.psc-wrap{ filter: drop-shadow(0 12px 24px rgba(43,26,18,0.22)); width:100%; }
 .psc-card{ position:relative; width:100%; aspect-ratio:320/430; border-radius:25px; overflow:hidden; }
 .psc-bg-svg{ position:absolute; inset:0; width:100%; height:100%; }
 .psc-content{ position:relative; z-index:2; padding:20px 18px; color:#F5EDE3; height:100%; box-sizing:border-box; }
@@ -4966,7 +4970,7 @@
 .psc-progress-pct{ font-family:var(--sans); font-size:12px; color:#F5EDE3; margin-left:8px; }
 
 /* ---- Session Map™ — composite card (title band + wine/stone header + treatment map) ---- */
-.smc-composite{ max-width:340px; margin:0 auto; filter: drop-shadow(0 14px 26px rgba(43,26,18,0.18)); }
+.smc-composite{ width:100%; filter: drop-shadow(0 14px 26px rgba(43,26,18,0.18)); }
 .smc-back-card{ position:relative; border-radius:28px; overflow:hidden; }
 .smc-title-band{ background:#F7F2EA; padding:22px 24px 18px; }
 .smc-title{ font-family:var(--serif); font-size:24px; color:#221812; margin:0; font-weight:400; text-transform:lowercase; }
