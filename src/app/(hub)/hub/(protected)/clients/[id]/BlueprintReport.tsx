@@ -720,21 +720,13 @@ export default async function BlueprintReport({
             </div>
           )}
 
-          <ul className="bbp-protocol-list">
-            <li>
-              <span className="bbp-focus-dot" style={{ background: "var(--bbp-gold-dark)" }} /> Frequency:{" "}
-              {assessment.validatedFrequency ?? assessment.initialFrequency ?? "Not set"}
-            </li>
-            <li>
-              <span className="bbp-focus-dot" style={{ background: "var(--bbp-gold-dark)" }} /> Sessions:{" "}
-              {assessment.validatedSessionCount ?? assessment.initialSessionCount ?? "Not set"}
-            </li>
-            {assessment.goals && (
+          {assessment.goals && (
+            <ul className="bbp-protocol-list">
               <li>
                 <span className="bbp-focus-dot" style={{ background: "var(--bbp-gold-dark)" }} /> Goals: {assessment.goals}
               </li>
-            )}
-          </ul>
+            </ul>
+          )}
         </div>
       </div>
 
