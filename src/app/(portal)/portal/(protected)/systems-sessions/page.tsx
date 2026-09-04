@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { getCurrentPortalClient } from "@/lib/permissions";
 import BlueprintReport from "@/app/(hub)/hub/(protected)/clients/[id]/BlueprintReport";
 import SessionHistoryList from "@/components/SessionHistoryList";
-import SessionMapCard from "@/components/SessionMapCard";
+import SessionAreaMapCard from "@/components/SessionAreaMapCard";
 import { getSessionHistoryData } from "@/lib/session-history-data";
 import SystemsSessionsTabbedView from "./SystemsSessionsTabbedView";
 
@@ -67,13 +67,12 @@ export default async function PortalSystemsSessionsPage() {
                 const tech = latest.technologies?.[0];
                 return (
                   <div style={{ marginBottom: 48 }}>
-                    <SessionMapCard
-                      sessionLabel={`session ${sessionHistory.length}`}
-                      dateLabel={new Date(latest.startsAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
-                      status={latest.status === "COMPLETED" ? "Completed" : "Scheduled"}
-                      technology={tech?.name ?? "—"}
+                    <SessionAreaMapCard
+                      technology={tech?.name ?? "Other"}
                       areas={tech?.areas ?? []}
                       objectives={tech?.objectives ?? []}
+                      notes={latest.notes}
+                      dateLabel={new Date(latest.startsAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
                     />
                   </div>
                 );

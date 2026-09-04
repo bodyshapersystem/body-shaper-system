@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { TECHNOLOGIES, getPresets, isZoneAvailable, generateObjectives, type Technology } from "@/lib/session-objectives";
+import { TECHNOLOGIES, getPresets, isZoneAvailable, generateObjectives, groupSelectedAreas, type Technology } from "@/lib/session-objectives";
 import { logSession } from "./session-log-actions";
 import SessionBodyMap from "@/components/SessionBodyMap";
 
@@ -19,6 +19,15 @@ export default function LogSessionSheet({ clientId }: { clientId: string }) {
   const areas = Array.from(selectedAreas);
   const objectives = generateObjectives(technology, areas);
   const presets = getPresets(technology);
+  const areaPills = groupSelectedAreas(areas);
+
+  function removeGroup(zones: string[]) {
+    setSelectedAreas((prev) => {
+      const next = new Set(prev);
+      zones.forEach((z) => next.delete(z));
+      return next;
+    });
+  }
 
   function toggleArea(area: string) {
     if (!isZoneAvailable(technology, area)) return;
@@ -129,19 +138,19 @@ export default function LogSessionSheet({ clientId }: { clientId: string }) {
                 <SessionBodyMap selectedAreas={selectedAreas} onToggleArea={toggleArea} technology={technology} />
 
                 <p className="dtj-field-label" style={{ marginTop: 14, display: "flex", justifyContent: "space-between" }}>
-                  <span>Selected Areas ({areas.length})</span>
+                  <span>selected areas</span>
                   {areas.length > 0 && (
                     <button type="button" className="dtj-link-small" onClick={() => setSelectedAreas(new Set())}>Clear All</button>
                   )}
                 </p>
                 <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 16 }}>
-                  {areas.length === 0 ? (
+                  {areaPills.length === 0 ? (
                     <p className="pay-history-meta">Tap the body map above to select treated areas.</p>
                   ) : (
-                    areas.map((a) => (
-                      <span key={a} className="pmc-pill" style={{ position: "static", transform: "none", display: "flex", alignItems: "center", gap: 6 }}>
-                        {a}
-                        <button type="button" onClick={() => toggleArea(a)} style={{ background: "none", border: "none", cursor: "pointer", color: "var(--mocha)", padding: 0, fontSize: 11 }}>✕</button>
+                    areaPills.map(({ label, zones }) => (
+                      <span key={label} className="sam-area-pill">
+                        {label.toLowerCase()}
+                        <button type="button" onClick={() => removeGroup(zones)} className="sam-area-pill-x">✕</button>
                       </span>
                     ))
                   )}

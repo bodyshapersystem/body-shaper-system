@@ -150,6 +150,55 @@ export function generateObjectives(technology: Technology, areas: string[]): str
   return sentences;
 }
 
+// ---------- Display grouping (Left/Right → one pill, per Emmy's approved mockups) ----------
+
+/**
+ * Real display-label grouping for the "selected areas" pill row.
+ * Emmy's approved reference screens (7 real app-screen renders,
+ * reviewed directly) consistently collapse every Left/Right pair
+ * into a single pill — "laterals", "front thighs", "back arms" —
+ * never showing "Left X" / "Right X" as two separate pills. Only
+ * fully-selected pairs collapse; a manually one-sided selection
+ * (rare, but possible via direct zone tap) still shows its own
+ * real zone name rather than a misleading merged label.
+ */
+const AREA_GROUP_DEFS: { label: string; zones: string[] }[] = [
+  { label: "Upper Abdomen", zones: ["Upper Left Abdomen", "Upper Right Abdomen"] },
+  { label: "Lower Abdomen", zones: ["Lower Left Abdomen", "Lower Right Abdomen"] },
+  { label: "Laterals", zones: LATERALS },
+  { label: "Front Arms", zones: FRONT_ARMS },
+  { label: "Back Arms", zones: POSTERIOR_ARMS },
+  { label: "Front Thighs", zones: FRONT_THIGHS },
+  { label: "Front Calves", zones: FRONT_CALVES },
+  { label: "Upper Back", zones: ["Upper Left Back", "Upper Right Back"] },
+  { label: "Lower Back", zones: ["Lower Left Back", "Lower Right Back"] },
+  { label: "Glutes", zones: GLUTES },
+  { label: "Posterior Thighs", zones: POSTERIOR_THIGHS },
+  { label: "Posterior Calves", zones: POSTERIOR_CALVES },
+];
+
+/**
+ * Groups real selected zone names into their display pills. Each
+ * returned entry carries the underlying zone names it represents,
+ * so a pill's "×" can deselect every zone it stands for at once —
+ * not just the group label, which isn't a real zone by itself.
+ */
+export function groupSelectedAreas(areas: string[]): { label: string; zones: string[] }[] {
+  const set = new Set(areas);
+  const consumed = new Set<string>();
+  const result: { label: string; zones: string[] }[] = [];
+  for (const g of AREA_GROUP_DEFS) {
+    if (g.zones.every((z) => set.has(z))) {
+      result.push({ label: g.label, zones: g.zones });
+      g.zones.forEach((z) => consumed.add(z));
+    }
+  }
+  for (const a of areas) {
+    if (!consumed.has(a)) result.push({ label: a, zones: [a] });
+  }
+  return result;
+}
+
 /**
  * Blueprint Alignment™ — real, direct keyword matching between this
  * session's real objectives/areas and the client's actual Blueprint
