@@ -32,6 +32,7 @@ export const dynamic = "force-dynamic";
 const TABS = [
   "overview",
   "blueprint",
+  "systems",
   "measurements",
   "documents",
   "messages",
@@ -105,7 +106,8 @@ export default async function ClientDetailPage({
   const initials = `${client.firstName[0] ?? ""}${client.lastName[0] ?? ""}`.toUpperCase();
   const TAB_LABELS: Record<Tab, string> = {
     overview: "Overview",
-    blueprint: "Plan & Progress",
+    blueprint: "Body Blueprint™",
+    systems: "Systems & Sessions™",
     measurements: "Measurements",
     documents: "Documents",
     messages: "Messages",
@@ -308,8 +310,16 @@ export default async function ClientDetailPage({
       )}
 
       {tab === "blueprint" && (
-        <>
+        <div className="bp-tabbed-view bp-tabbed-view-hub-blueprint">
           <BlueprintReport client={client} clientId={id} />
+        </div>
+      )}
+
+      {tab === "systems" && (
+        <>
+          <div className="bp-tabbed-view bp-tabbed-view-systems" data-active-tab="system">
+            <BlueprintReport client={client} clientId={id} />
+          </div>
           <BlueprintAssessmentTab client={client} canManage={hasPermission(user, "blueprints.manage")} />
           <ReminderConfigPanel
             clientId={client.id}

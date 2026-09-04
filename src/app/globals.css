@@ -4903,6 +4903,7 @@
    per active tab. Owner Hub renders BlueprintReport directly (no
    .bp-tabbed-view wrapper), so this never affects the admin view. */
 .bp-tabbed-view [data-bp-tab]{ display:none; }
+.bp-tabbed-view-hub-blueprint [data-bp-tab]:not([data-bp-tab="system"]){ display:block; }
 .bp-tabbed-view-blueprint[data-active-tab="overview"] [data-bp-tab="overview"],
 .bp-tabbed-view-blueprint[data-active-tab="composition"] [data-bp-tab="composition"],
 .bp-tabbed-view-blueprint[data-active-tab="measurements"] [data-bp-tab="measurements"],
