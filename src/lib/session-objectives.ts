@@ -11,9 +11,9 @@ export type Technology = "Exilis" | "EMS" | "Endospheres" | "Other";
 export const TECHNOLOGIES: Technology[] = ["Exilis", "EMS", "Endospheres", "Other"];
 
 export const ABDOMEN_PRESET = {
-  front: ["Abdomen", "Lower Abdomen", "Left Flank / Lateral", "Right Flank / Lateral"],
-  back: ["Lower Back", "Waistline / Back"],
-  optional: ["Posterior Left Arm", "Posterior Right Arm"],
+  front: ["Upper Abdomen", "Lower Abdomen", "Laterals"],
+  back: ["Upper Back", "Lower Back"],
+  optional: ["Back Arms"],
 };
 
 export const LEGS_PRESETS = {
@@ -32,7 +32,7 @@ const RULES: ObjectiveRule[] = [
   { technology: "EMS", match: (a) => /glute/i.test(a), objectives: ["Glute activation", "Muscle stimulation", "Firmness", "Definition", "Lift support"] },
   { technology: "EMS", match: (a) => /thigh/i.test(a), objectives: ["Muscle activation", "Lower-body tone", "Definition"] },
   { technology: "Exilis", match: (a) => /abdomen|flank|lateral|back|waistline/i.test(a), objectives: ["Contour refinement", "Skin firmness", "Waist definition", "Localized fat reduction support", "Measurement reduction support"] },
-  { technology: "Exilis", match: (a) => /posterior.*arm/i.test(a), objectives: ["Skin firmness", "Arm contour refinement", "Localized volume reduction support"] },
+  { technology: "Exilis", match: (a) => /posterior.*arm|back arms?/i.test(a), objectives: ["Skin firmness", "Arm contour refinement", "Localized volume reduction support"] },
   { technology: "Exilis", match: (a) => /glute/i.test(a), objectives: ["Firmness", "Contour refinement", "Skin-quality support"] },
   { technology: "Exilis", match: (a) => /thigh|calf|calves|knee/i.test(a), objectives: ["Contour refinement", "Skin firmness", "Localized fat reduction support"] },
   { technology: "Endospheres", match: (a) => /thigh|calf|calves|knee/i.test(a), objectives: ["Cellulite appearance improvement", "Tissue smoothing", "Circulation support", "Lymphatic support", "Tissue mobilization"] },

@@ -71,7 +71,8 @@ export default function LogSessionSheet({ clientId }: { clientId: string }) {
         <div className="bp-sheet-overlay" onClick={closeAndReset}>
           <div className="bp-sheet" onClick={(e) => e.stopPropagation()}>
             <div className="bp-sheet-handle" />
-            <h3 className="bp-sheet-title">Log Session</h3>
+            <p className="sbm-brand">body shaper system™</p>
+            <h3 className="bp-sheet-title" style={{ textAlign: "center" }}>session area map</h3>
 
             {result ? (
               <>
@@ -92,8 +93,7 @@ export default function LogSessionSheet({ clientId }: { clientId: string }) {
               </>
             ) : (
               <>
-                <p className="dtj-field-label">Step 1 — Technology</p>
-                <div className="pp-angle-switch" style={{ marginBottom: 16 }}>
+                <div className="pp-angle-switch" style={{ marginBottom: 20 }}>
                   {TECHNOLOGIES.map((t) => (
                     <button key={t} type="button" className={`pp-angle-pill ${technology === t ? "pp-angle-pill-active" : ""}`} onClick={() => setTechnology(t)}>
                       {t}
@@ -101,7 +101,6 @@ export default function LogSessionSheet({ clientId }: { clientId: string }) {
                   ))}
                 </div>
 
-                <p className="dtj-field-label">Step 2 — Treated Areas</p>
                 <div style={{ display: "flex", gap: 8, marginBottom: 10, flexWrap: "wrap" }}>
                   <button type="button" className="dtj-link-small" onClick={() => applyPreset(ALL_ABDOMEN_AREAS)}>Abdomen Protocol preset</button>
                   <button type="button" className="dtj-link-small" onClick={() => applyPreset(LEGS_PRESETS.posteriorOnly)}>Legs — Posterior Only</button>
@@ -128,14 +127,14 @@ export default function LogSessionSheet({ clientId }: { clientId: string }) {
                   )}
                 </div>
 
-                <p className="dtj-field-label">Step 3 — Objective (auto-generated)</p>
+                <p className="dtj-field-label">Auto-Generated Objective</p>
                 {objectives.length > 0 ? (
-                  <p className="pay-history-meta" style={{ marginBottom: 16 }}>{objectives.join(" · ")}</p>
+                  <p className="pay-history-meta" style={{ marginBottom: 16, fontStyle: "italic" }}>{objectives.join(", ").toLowerCase()}.</p>
                 ) : (
                   <p className="pay-history-meta" style={{ marginBottom: 16 }}>Select areas to generate objectives.</p>
                 )}
 
-                <p className="dtj-field-label">Step 5 — Specialist Notes</p>
+                <p className="dtj-field-label">Notes (optional)</p>
                 <textarea value={notes} onChange={(e) => setNotes(e.target.value)} rows={2} className="sched-textarea" style={{ marginBottom: 16 }} />
 
                 {error && <p className="sched-error">{error}</p>}

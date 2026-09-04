@@ -160,13 +160,13 @@ export default function SessionMapCard({
 }
 
 const TORSO_REGIONS: { name: string; left: number; top: number; width: number; height: number }[] = [
-  { name: "Posterior Left Arm", left: 4.5, top: 24, width: 7, height: 34 },
-  { name: "Abdomen", left: 18.5, top: 28, width: 10.5, height: 52 },
-  { name: "Abdomen", left: 29, top: 28, width: 11, height: 52 },
+  { name: "Back Arms", left: 4.5, top: 24, width: 7, height: 34 },
+  { name: "Upper Abdomen", left: 18.5, top: 28, width: 10.5, height: 52 },
+  { name: "Upper Abdomen", left: 29, top: 28, width: 11, height: 52 },
   { name: "Lower Back", left: 58, top: 34, width: 16, height: 20 },
   { name: "Left Glute", left: 56.5, top: 56, width: 9, height: 34 },
   { name: "Right Glute", left: 65.5, top: 56, width: 9, height: 34 },
-  { name: "Posterior Right Arm", left: 87.5, top: 24, width: 7, height: 34 },
+  { name: "Back Arms", left: 87.5, top: 24, width: 7, height: 34 },
 ];
 
 const LEG_REGIONS: { name: string; left: number; top: number; width: number; height: number }[] = [

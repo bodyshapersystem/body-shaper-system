@@ -5040,3 +5040,8 @@
 /* ---- Session body map — real legs illustration, cropped to hips-to-feet ---- */
 .sbm-legs-wrap{ position:relative; width:100%; aspect-ratio:1.15; overflow:hidden; border-radius:10px; }
 .sbm-legs-img{ position:absolute; width:156.25%; top:-111%; left:-28.1%; }
+
+/* ---- Session Area Map — interactive body silhouette ---- */
+.sbm-brand{ text-align:center; font-family:var(--serif); font-size:11px; color:var(--gold); letter-spacing:1px; margin:0 0 2px; }
+.sbm-figs-row{ display:flex; justify-content:center; gap:20px; background:#FBF8F3; border-radius:16px; padding:16px 8px; border:1px solid rgba(200,161,90,0.25); }
+.sbm-fig-label{ font-family:var(--serif); font-style:italic; font-size:12px; color:var(--taupe); margin:0 0 6px; }
