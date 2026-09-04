@@ -1,51 +1,60 @@
 "use client";
 
 /**
- * Real interactive, tappable "Session Area Map" body silhouette —
- * front + back, full body, with connected (not isolated-circle)
- * treatment zones, matching Emmy's approved reference exactly
- * (reviewed directly via Canva: elegant croquis figure with hair
- * pulled into a bun, merged abdomen/back regions, area names
- * matching the reference's own chip labels). Rebuilt after several
- * earlier attempts read as crude — this version reuses the proven
- * simple-line construction (straight polylines + gentle single-arc
- * joints, no compound bezier curves) that finally read as a clean,
- * normal human silhouette, verified visually multiple times before
- * shipping.
+ * Real interactive, tappable "Session Area Map" body silhouette,
+ * built from the detailed written specification (no reference image
+ * available for this pass). Front + back, full body, 4-quadrant
+ * abdomen and back (real independently-selectable quadrants, not a
+ * single merged block), separate front/posterior arms, laterals,
+ * thighs, and calves.
  *
- * Zone names match session-objectives.ts's real area presets, so
- * this plugs directly into the existing objective-generation and
- * Blueprint Alignment logic with no translation layer.
+ * Technology-aware: zones not supported by the current technology
+ * (per session-objectives.ts's isZoneAvailable — e.g. calves are
+ * never available for Exilis/EMS, front arms never for Exilis, most
+ * zones except abdomen/glutes/legs never for EMS) render as
+ * disabled — a faint hatched pattern, not clickable — instead of
+ * silently allowing an unsupported selection.
  */
+
+import { isZoneAvailable, type Technology } from "@/lib/session-objectives";
 
 const STROKE = "#B9A38F";
 const FILL_SELECTED = "rgba(199,158,147,0.8)";
 
 type Zone = { name: string; path: string };
+export type { Zone };
 
-const FRONT_ZONES: Zone[] = [
-  { name: "Upper Abdomen", path: "M62,148 Q80,140 98,148 Q100,160 92,172 Q80,178 68,172 Q60,160 62,148 Z" },
-  { name: "Lower Abdomen", path: "M68,172 Q80,178 92,172 Q90,186 80,190 Q70,186 68,172 Z" },
-  { name: "Laterals", path: "M62,148 Q58,158 62,168 L68,172 Q64,162 65,150 Z M98,148 Q102,158 98,168 L92,172 Q96,162 95,150 Z" },
+export const FRONT_ZONES: Zone[] = [
+  { name: "Upper Left Abdomen", path: "M62,148 Q71,142 80,148 L80,172 Q74,172 68,172 Q60,160 62,148 Z" },
+  { name: "Upper Right Abdomen", path: "M80,148 Q89,142 98,148 Q100,160 92,172 Q86,172 80,172 Z" },
+  { name: "Lower Left Abdomen", path: "M68,172 L80,172 L80,190 Q70,186 68,172 Z" },
+  { name: "Lower Right Abdomen", path: "M80,172 L92,172 Q90,186 80,190 L80,172 Z" },
+  { name: "Left Lateral", path: "M62,148 Q58,158 62,168 L68,172 Q64,162 65,150 Z" },
+  { name: "Right Lateral", path: "M98,148 Q102,158 98,168 L92,172 Q96,162 95,150 Z" },
+  { name: "Left Front Arm", path: "M58,58 C52,72 48,90 47,110 L52,155 L58,153 C56,133 55,113 57,95 C59,80 61,68 64,60 Z" },
+  { name: "Right Front Arm", path: "M102,58 C108,72 112,90 113,110 L108,155 L102,153 C104,133 105,113 103,95 C101,80 99,68 96,60 Z" },
   { name: "Left Front Thigh", path: "M63,222 Q69,219 74,223 L73,270 Q68,273 64,270 Z" },
   { name: "Right Front Thigh", path: "M86,223 Q91,219 97,222 L96,270 Q92,273 87,270 Z" },
-  { name: "Inner Thighs", path: "M74,224 L86,224 L85,269 L75,269 Z" },
-  { name: "Knees", path: "M64,278 Q69,275 74,278 L73,294 Q69,297 65,294 Z M86,278 Q91,275 96,278 L95,294 Q91,297 87,294 Z" },
+  { name: "Left Front Calf", path: "M64,300 Q69,297 74,300 L72,340 Q68,343 65,340 Z" },
+  { name: "Right Front Calf", path: "M86,300 Q91,297 96,300 L94,340 Q90,343 88,340 Z" },
 ];
 
-const BACK_ZONES: Zone[] = [
-  { name: "Upper Back", path: "M64,150 Q80,142 96,150 Q97,158 94,164 Q80,158 66,164 Q63,158 64,150 Z" },
-  { name: "Lower Back", path: "M66,164 Q80,158 94,164 Q96,172 92,178 Q80,183 68,178 Q64,172 66,164 Z" },
-  { name: "Back Arms", path: "M46,92 C43,102 42,115 43,127 L50,126 C49,114 50,102 53,92 Z M114,92 C117,102 118,115 117,127 L110,126 C111,114 110,102 107,92 Z" },
+export const BACK_ZONES: Zone[] = [
+  { name: "Upper Left Back", path: "M64,150 Q72,145 80,150 L80,164 Q73,161 66,164 Q63,158 64,150 Z" },
+  { name: "Upper Right Back", path: "M80,150 Q88,145 96,150 Q97,158 94,164 Q87,161 80,164 Z" },
+  { name: "Lower Left Back", path: "M66,164 L80,164 L80,178 Q73,181 68,178 Q64,172 66,164 Z" },
+  { name: "Lower Right Back", path: "M80,164 L94,164 Q96,172 92,178 Q87,181 80,178 Z" },
+  { name: "Left Posterior Arm", path: "M46,92 C43,102 42,115 43,127 L50,126 C49,114 50,102 53,92 Z" },
+  { name: "Right Posterior Arm", path: "M114,92 C117,102 118,115 117,127 L110,126 C111,114 110,102 107,92 Z" },
   { name: "Left Glute", path: "M64,200 Q72,196 80,200 L79,220 Q70,223 63,215 Z" },
   { name: "Right Glute", path: "M96,200 Q88,196 80,200 L81,220 Q90,223 97,215 Z" },
   { name: "Left Posterior Thigh", path: "M63,222 Q69,219 74,223 L73,270 Q68,273 64,270 Z" },
   { name: "Right Posterior Thigh", path: "M86,223 Q91,219 97,222 L96,270 Q92,273 87,270 Z" },
-  { name: "Outer Thighs", path: "M58,224 L64,224 L62,268 L56,268 Z M96,224 L102,224 L104,268 L98,268 Z" },
-  { name: "Calves", path: "M64,300 Q69,297 74,300 L72,340 Q68,343 65,340 Z M86,300 Q91,297 96,300 L94,340 Q90,343 88,340 Z" },
+  { name: "Left Posterior Calf", path: "M64,300 Q69,297 74,300 L72,340 Q68,343 65,340 Z" },
+  { name: "Right Posterior Calf", path: "M86,300 Q91,297 96,300 L94,340 Q90,343 88,340 Z" },
 ];
 
-function FigureOutline() {
+export function FigureOutline() {
   return (
     <>
       <circle cx="80" cy="9" r="5" fill="none" stroke={STROKE} strokeWidth="1.3" />
@@ -74,11 +83,13 @@ function BodyFigure({
   zones,
   selected,
   onToggle,
+  technology,
 }: {
   side: "front" | "back";
   zones: Zone[];
   selected: Set<string>;
   onToggle: (name: string) => void;
+  technology: Technology;
 }) {
   return (
     <div style={{ textAlign: "center" }}>
@@ -87,6 +98,22 @@ function BodyFigure({
         <FigureOutline />
         {zones.map((z) => {
           const isSelected = selected.has(z.name);
+          const available = isZoneAvailable(technology, z.name);
+          if (!available) {
+            return (
+              <path
+                key={z.name}
+                d={z.path}
+                fill="rgba(150,140,130,0.06)"
+                stroke="rgba(150,140,130,0.35)"
+                strokeWidth="0.75"
+                strokeDasharray="1.5,1.5"
+                style={{ cursor: "not-allowed" }}
+              >
+                <title>{z.name} — not available for this technology</title>
+              </path>
+            );
+          }
           return (
             <path
               key={z.name}
@@ -110,14 +137,16 @@ function BodyFigure({
 export default function SessionBodyMap({
   selectedAreas,
   onToggleArea,
+  technology,
 }: {
   selectedAreas: Set<string>;
   onToggleArea: (area: string) => void;
+  technology: Technology;
 }) {
   return (
     <div className="sbm-figs-row">
-      <BodyFigure side="front" zones={FRONT_ZONES} selected={selectedAreas} onToggle={onToggleArea} />
-      <BodyFigure side="back" zones={BACK_ZONES} selected={selectedAreas} onToggle={onToggleArea} />
+      <BodyFigure side="front" zones={FRONT_ZONES} selected={selectedAreas} onToggle={onToggleArea} technology={technology} />
+      <BodyFigure side="back" zones={BACK_ZONES} selected={selectedAreas} onToggle={onToggleArea} technology={technology} />
     </div>
   );
 }

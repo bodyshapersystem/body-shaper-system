@@ -1,3 +1,5 @@
+import { FRONT_ZONES, BACK_ZONES, FigureOutline } from "@/components/SessionBodyMap";
+
 /**
  * Real "Session Map™" composite card — two stacked cards (ivory
  * title band + wine/stone header block, overlapped by a "Treatment
@@ -159,63 +161,31 @@ export default function SessionMapCard({
   );
 }
 
-const TORSO_REGIONS: { name: string; left: number; top: number; width: number; height: number }[] = [
-  { name: "Back Arms", left: 4.5, top: 24, width: 7, height: 34 },
-  { name: "Upper Abdomen", left: 18.5, top: 28, width: 10.5, height: 52 },
-  { name: "Upper Abdomen", left: 29, top: 28, width: 11, height: 52 },
-  { name: "Lower Back", left: 58, top: 34, width: 16, height: 20 },
-  { name: "Left Glute", left: 56.5, top: 56, width: 9, height: 34 },
-  { name: "Right Glute", left: 65.5, top: 56, width: 9, height: 34 },
-  { name: "Back Arms", left: 87.5, top: 24, width: 7, height: 34 },
-];
-
-const LEG_REGIONS: { name: string; left: number; top: number; width: number; height: number }[] = [
-  { name: "Right Front Thigh", left: 20, top: 14, width: 22, height: 36 },
-  { name: "Left Front Thigh", left: 56, top: 14, width: 22, height: 36 },
-  { name: "Right Calf", left: 22, top: 56, width: 18, height: 34 },
-  { name: "Left Calf", left: 58, top: 56, width: 18, height: 34 },
-];
-
 /**
- * Real, read-only display of the exact same two real illustrations
- * used by SessionBodyMap (the interactive picker) — torso+arms from
- * Daily Trackers' Peptide Journey™ diagram, legs from Blueprint's
- * Measurements diagram — highlights whichever real areas this
- * session actually treated, no click handlers since this is a
- * historical record, not an editor. Shows the full real body (torso,
- * arms, AND legs), not just the torso portion.
+ * Real, read-only display of the exact same hand-drawn silhouette
+ * used by SessionBodyMap (the interactive picker) -- imported
+ * directly (FRONT_ZONES/BACK_ZONES/FigureOutline) so the read-only
+ * historical view can never drift out of sync with the interactive
+ * one. Highlights whichever real areas this session actually
+ * treated; no click handlers since this is a historical record, not
+ * an editor.
  */
 function SessionMapFigures({ selectedAreas }: { selectedAreas: string[] }) {
   return (
-    <div style={{ marginBottom: 14 }}>
-      <div className="isd-photo-wrap">
-        <img src="/images/injection-site-base.png" alt="Body diagram showing this session's treated torso and arm areas" className="isd-photo-img" />
-        {TORSO_REGIONS.map((r, i) => {
-          const selected = selectedAreas.includes(r.name);
-          if (!selected) return null;
-          return (
-            <span
-              key={`${r.name}-${i}`}
-              className="isd-photo-highlight isd-photo-highlight-selected"
-              style={{ position: "absolute", left: `${r.left}%`, top: `${r.top}%`, width: `${r.width}%`, height: `${r.height}%` }}
-            />
-          );
-        })}
-      </div>
-      <div className="sbm-legs-wrap" style={{ marginTop: 10 }}>
-        <img src="/images/blueprint/measurements-diagram.jpeg" alt="Body diagram showing this session's treated leg areas" className="sbm-legs-img" />
-        {LEG_REGIONS.map((r) => {
-          const selected = selectedAreas.includes(r.name);
-          if (!selected) return null;
-          return (
-            <span
-              key={r.name}
-              className="isd-photo-highlight isd-photo-highlight-selected"
-              style={{ position: "absolute", left: `${r.left}%`, top: `${r.top}%`, width: `${r.width}%`, height: `${r.height}%` }}
-            />
-          );
-        })}
-      </div>
+    <div className="sbm-figs-row" style={{ marginBottom: 14 }}>
+      {([["front", FRONT_ZONES], ["back", BACK_ZONES]] as const).map(([side, zones]) => (
+        <div key={side} style={{ textAlign: "center" }}>
+          <p className="sbm-fig-label">{side}</p>
+          <svg viewBox="0 0 160 400" width="100%" style={{ maxWidth: 130 }}>
+            <FigureOutline />
+            {zones.map((z) => {
+              const selected = selectedAreas.includes(z.name);
+              if (!selected) return null;
+              return <path key={z.name} d={z.path} fill="rgba(199,158,147,0.8)" stroke="none" />;
+            })}
+          </svg>
+        </div>
+      ))}
     </div>
   );
 }

@@ -2,11 +2,9 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { TECHNOLOGIES, ABDOMEN_PRESET, LEGS_PRESETS, generateObjectives, type Technology } from "@/lib/session-objectives";
+import { TECHNOLOGIES, getPresets, isZoneAvailable, generateObjectives, type Technology } from "@/lib/session-objectives";
 import { logSession } from "./session-log-actions";
 import SessionBodyMap from "@/components/SessionBodyMap";
-
-const ALL_ABDOMEN_AREAS = [...ABDOMEN_PRESET.front, ...ABDOMEN_PRESET.back];
 
 export default function LogSessionSheet({ clientId }: { clientId: string }) {
   const router = useRouter();
@@ -20,8 +18,10 @@ export default function LogSessionSheet({ clientId }: { clientId: string }) {
 
   const areas = Array.from(selectedAreas);
   const objectives = generateObjectives(technology, areas);
+  const presets = getPresets(technology);
 
   function toggleArea(area: string) {
+    if (!isZoneAvailable(technology, area)) return;
     setSelectedAreas((prev) => {
       const next = new Set(prev);
       if (next.has(area)) next.delete(area);
@@ -31,7 +31,23 @@ export default function LogSessionSheet({ clientId }: { clientId: string }) {
   }
 
   function applyPreset(preset: string[]) {
-    setSelectedAreas(new Set(preset));
+    setSelectedAreas((prev) => {
+      const next = new Set(prev);
+      preset.forEach((a) => next.add(a));
+      return next;
+    });
+  }
+
+  /**
+   * Real technology switch — since each technology supports a
+   * different real set of zones (per session-objectives.ts's
+   * isZoneAvailable), switching technology drops any currently
+   * selected area that the new technology doesn't actually support,
+   * rather than silently keeping an invalid selection.
+   */
+  function handleTechnologyChange(t: Technology) {
+    setTechnology(t);
+    setSelectedAreas((prev) => new Set(Array.from(prev).filter((a) => isZoneAvailable(t, a))));
   }
 
   function handleSubmit() {
@@ -93,20 +109,24 @@ export default function LogSessionSheet({ clientId }: { clientId: string }) {
               </>
             ) : (
               <>
-                <div className="pp-angle-switch" style={{ marginBottom: 20 }}>
+                <div className="pp-angle-switch" style={{ marginBottom: 16 }}>
                   {TECHNOLOGIES.map((t) => (
-                    <button key={t} type="button" className={`pp-angle-pill ${technology === t ? "pp-angle-pill-active" : ""}`} onClick={() => setTechnology(t)}>
-                      {t}
+                    <button key={t} type="button" className={`pp-angle-pill ${technology === t ? "pp-angle-pill-active" : ""}`} onClick={() => handleTechnologyChange(t)}>
+                      {t.toLowerCase()}
                     </button>
                   ))}
                 </div>
 
-                <div style={{ display: "flex", gap: 8, marginBottom: 10, flexWrap: "wrap" }}>
-                  <button type="button" className="dtj-link-small" onClick={() => applyPreset(ALL_ABDOMEN_AREAS)}>Abdomen Protocol preset</button>
-                  <button type="button" className="dtj-link-small" onClick={() => applyPreset(LEGS_PRESETS.posteriorOnly)}>Legs — Posterior Only</button>
-                  <button type="button" className="dtj-link-small" onClick={() => applyPreset(LEGS_PRESETS.frontAndBack)}>Legs — Front + Back</button>
-                </div>
-                <SessionBodyMap selectedAreas={selectedAreas} onToggleArea={toggleArea} />
+                {presets.length > 0 && (
+                  <div style={{ display: "flex", gap: 8, marginBottom: 10, flexWrap: "wrap" }}>
+                    {presets.map((p) => (
+                      <button key={p.label} type="button" className="dtj-link-small" onClick={() => applyPreset(p.areas)}>
+                        {p.label}
+                      </button>
+                    ))}
+                  </div>
+                )}
+                <SessionBodyMap selectedAreas={selectedAreas} onToggleArea={toggleArea} technology={technology} />
 
                 <p className="dtj-field-label" style={{ marginTop: 14, display: "flex", justifyContent: "space-between" }}>
                   <span>Selected Areas ({areas.length})</span>
@@ -129,12 +149,14 @@ export default function LogSessionSheet({ clientId }: { clientId: string }) {
 
                 <p className="dtj-field-label">Auto-Generated Objective</p>
                 {objectives.length > 0 ? (
-                  <p className="pay-history-meta" style={{ marginBottom: 16, fontStyle: "italic" }}>{objectives.join(", ").toLowerCase()}.</p>
+                  objectives.map((sentence) => (
+                    <p key={sentence} className="pay-history-meta" style={{ marginBottom: 8, fontStyle: "italic" }}>{sentence}</p>
+                  ))
                 ) : (
                   <p className="pay-history-meta" style={{ marginBottom: 16 }}>Select areas to generate objectives.</p>
                 )}
 
-                <p className="dtj-field-label">Notes (optional)</p>
+                <p className="dtj-field-label" style={{ marginTop: 8 }}>Notes (optional)</p>
                 <textarea value={notes} onChange={(e) => setNotes(e.target.value)} rows={2} className="sched-textarea" style={{ marginBottom: 16 }} />
 
                 {error && <p className="sched-error">{error}</p>}
