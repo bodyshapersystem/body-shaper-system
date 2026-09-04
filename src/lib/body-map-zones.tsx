@@ -57,6 +57,12 @@ export function FigureOutline() {
       <path d="M70,12 Q80,4 90,12" fill="none" stroke={STROKE} strokeWidth="1.2" />
       <path d="M69,15 Q64,22 65,32" fill="none" stroke={STROKE} strokeWidth="1.2" />
       <path d="M91,15 Q96,22 95,32" fill="none" stroke={STROKE} strokeWidth="1.2" />
+      <path d="M73,18 Q75,17 77,18" fill="none" stroke={STROKE} strokeWidth="0.9" strokeLinecap="round" />
+      <path d="M83,18 Q85,17 87,18" fill="none" stroke={STROKE} strokeWidth="0.9" strokeLinecap="round" />
+      <path d="M73,21 Q75,22.5 77,21" fill="none" stroke={STROKE} strokeWidth="0.9" strokeLinecap="round" />
+      <path d="M83,21 Q85,22.5 87,21" fill="none" stroke={STROKE} strokeWidth="0.9" strokeLinecap="round" />
+      <path d="M80,22 L79,27 Q79,28.5 80.5,28" fill="none" stroke={STROKE} strokeWidth="0.8" strokeLinecap="round" />
+      <path d="M77,31 Q80,32.5 83,31" fill="none" stroke={STROKE} strokeWidth="0.9" strokeLinecap="round" />
       <path d="M74,32 Q74,38 72,42 M86,32 Q86,38 88,42" fill="none" stroke={STROKE} strokeWidth="1.2" />
       <path
         d="M72,42 Q60,45 55,53 Q51,62 54,72 Q58,84 56,96 Q52,110 55,124
