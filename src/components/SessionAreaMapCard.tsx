@@ -20,12 +20,14 @@ export default function SessionAreaMapCard({
   objectives,
   notes,
   dateLabel,
+  blueprintAlignment,
 }: {
   technology: string;
   areas: string[];
   objectives: string[];
   notes?: string | null;
   dateLabel?: string;
+  blueprintAlignment?: { matched: string[]; unmatched: string[] } | null;
 }) {
   const areaPills = groupSelectedAreas(areas);
   const selected = new Set(areas);
@@ -93,6 +95,23 @@ export default function SessionAreaMapCard({
         ))
       ) : (
         <p className="pay-history-meta" style={{ marginBottom: 8 }}>No objective recorded for this session.</p>
+      )}
+
+      {blueprintAlignment && blueprintAlignment.matched.length > 0 && (
+        <>
+          <p className="dtj-field-label" style={{ marginTop: 8 }}>Blueprint Alignment™</p>
+          <p className="pjic-status-active" style={{ marginBottom: 6 }}>
+            Aligned with {blueprintAlignment.matched.length} current goal{blueprintAlignment.matched.length === 1 ? "" : "s"} ✓
+          </p>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 6 }}>
+            {blueprintAlignment.matched.map((g) => (
+              <span key={g} className="sam-area-pill">{g.toLowerCase()}</span>
+            ))}
+          </div>
+          <p className="pay-history-meta" style={{ marginBottom: 8 }}>
+            This session supports priorities identified in your Body Blueprint™.
+          </p>
+        </>
       )}
 
       {notes && (

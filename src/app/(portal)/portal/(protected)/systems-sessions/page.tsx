@@ -72,6 +72,7 @@ export default async function PortalSystemsSessionsPage() {
                       areas={tech?.areas ?? []}
                       objectives={tech?.objectives ?? []}
                       notes={latest.notes}
+                      blueprintAlignment={latest.blueprintAlignment}
                       dateLabel={new Date(latest.startsAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
                     />
                   </div>

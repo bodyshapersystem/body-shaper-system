@@ -123,9 +123,9 @@ const OBJECTIVE_SENTENCES: Record<Technology, Partial<Record<"abdomen" | "glutes
   },
   Endospheres: {
     legs: "smooth the appearance of cellulite, support circulation, and refine the legs.",
-    abdomen: "support lymphatic drainage and improve tissue texture.",
+    abdomen: "support tissue decongestion, lymphatic support, and fluid-retention support.",
     glutes: "smooth the appearance of cellulite and support circulation.",
-    back: "support circulation and improve tissue texture.",
+    back: "support tissue decongestion, lymphatic support, and fluid-retention support.",
     arms: "smooth the appearance of cellulite and support circulation.",
   },
   Other: {},
