@@ -1,4 +1,4 @@
-import { FRONT_ZONES, BACK_ZONES, FigureOutline } from "@/components/SessionBodyMap";
+import { FRONT_ZONES, BACK_ZONES, FigureOutline } from "@/lib/body-map-zones";
 
 /**
  * Real "Session Map™" composite card — two stacked cards (ivory
