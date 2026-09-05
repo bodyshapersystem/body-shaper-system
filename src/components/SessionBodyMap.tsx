@@ -8,10 +8,18 @@
  * top to carry the clickable/shaded zone shapes. The image itself is
  * never redrawn or modified — only the invisible zone overlay is code.
  *
+ * Unselected zones are FULLY invisible (no border, no dash, no hatch)
+ * — a prior version drew a dashed outline over every zone as a
+ * discoverability hint, which visually reconstructed the exact
+ * dashed zone-template grid Emmy explicitly did not want to see
+ * (confirmed directly from her screenshot: the dashed rectangles
+ * lined up exactly with the zone paths, meaning they were this
+ * overlay's own unselected-state styling, not anything left over in
+ * the base image). A zone only becomes visible at all once selected.
+ *
  * Technology-aware: zones not supported by the current technology
- * (per session-objectives.ts's isZoneAvailable) render as disabled —
- * a faint hatched pattern, not clickable — instead of silently
- * allowing an unsupported selection.
+ * (per session-objectives.ts's isZoneAvailable) are also invisible
+ * and non-interactive — no hatch pattern either, for the same reason.
  */
 
 import { isZoneAvailable, type Technology } from "@/lib/session-objectives";
@@ -47,10 +55,8 @@ function BodyFigure({
                 <path
                   key={z.name}
                   d={z.path}
-                  fill="rgba(150,140,130,0.06)"
-                  stroke="rgba(150,140,130,0.35)"
-                  strokeWidth="1.5"
-                  strokeDasharray="3,3"
+                  fill="rgba(0,0,0,0.001)"
+                  stroke="none"
                   style={{ cursor: "not-allowed" }}
                 >
                   <title>{z.name} — not available for this technology</title>
@@ -62,9 +68,7 @@ function BodyFigure({
                 key={z.name}
                 d={z.path}
                 fill={isSelected ? FILL_SELECTED : "rgba(0,0,0,0.001)"}
-                stroke={isSelected ? "none" : "rgba(185,163,143,0.4)"}
-                strokeWidth="1.5"
-                strokeDasharray={isSelected ? undefined : "4,4"}
+                stroke="none"
                 style={{ cursor: "pointer", touchAction: "manipulation" }}
                 onClick={() => onToggle(z.name)}
               >

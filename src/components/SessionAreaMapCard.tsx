@@ -66,9 +66,7 @@ export default function SessionAreaMapCard({
                       key={z.name}
                       d={z.path}
                       fill={isSelected ? FILL_SELECTED : "rgba(0,0,0,0.001)"}
-                      stroke={isSelected ? "none" : "rgba(185,163,143,0.3)"}
-                      strokeWidth="1.5"
-                      strokeDasharray={isSelected ? undefined : "4,4"}
+                      stroke="none"
                     />
                   );
                 })}
