@@ -1,15 +1,13 @@
-import { FRONT_ZONES, BACK_ZONES, FrontFigureOutline, BackFigureOutline, FILL_SELECTED } from "@/lib/body-map-zones";
+import { FRONT_ZONES, BACK_ZONES, FRONT_IMAGE, BACK_IMAGE, IMAGE_VIEWBOX, IMAGE_WIDTH, IMAGE_HEIGHT, FILL_SELECTED } from "@/lib/body-map-zones";
 import { TECHNOLOGIES, groupSelectedAreas } from "@/lib/session-objectives";
 
 /**
- * Real, read-only "Session Area Map™" — the exact page Emmy approved
- * (7 real app-screen renders, reviewed directly), now surfaced in the
- * Client Portal for a completed session. Deliberately server-safe (no
- * "use client"): imports the same FRONT_ZONES/BACK_ZONES/FigureOutline
- * used by the interactive Hub picker (SessionBodyMap) so the client's
- * historical view can never visually drift from what the specialist
- * actually selected — one shared source of figure data, two renderers
- * (one interactive, one not).
+ * Real, read-only "Session Area Map™" for the Client Portal. The base
+ * artwork is Emmy's own reference image (an <img>, not redrawn SVG —
+ * see body-map-zones.tsx for provenance), with a transparent zone
+ * overlay on top showing which areas were treated. Deliberately
+ * server-safe (no "use client"): plain <img> + <svg> need no
+ * interactivity here, so this renders fine from a Server Component.
  *
  * No click handlers and no "save session" bar here — this is a frozen
  * historical record, not an editor.
@@ -54,25 +52,28 @@ export default function SessionAreaMapCard({
       </div>
 
       <div className="sbm-figs-row">
-        {([["front", FRONT_ZONES], ["back", BACK_ZONES]] as const).map(([side, zones]) => (
+        {([["front", FRONT_ZONES, FRONT_IMAGE], ["back", BACK_ZONES, BACK_IMAGE]] as const).map(([side, zones, image]) => (
           <div key={side} style={{ textAlign: "center" }}>
             <p className="sbm-fig-label">{side}</p>
-            <svg viewBox="0 0 160 400" width="100%" style={{ maxWidth: 150 }}>
-              {side === "front" ? <FrontFigureOutline /> : <BackFigureOutline />}
-              {zones.map((z) => {
-                const isSelected = selected.has(z.name);
-                return (
-                  <path
-                    key={z.name}
-                    d={z.path}
-                    fill={isSelected ? FILL_SELECTED : "rgba(0,0,0,0.001)"}
-                    stroke={isSelected ? "none" : "rgba(185,163,143,0.3)"}
-                    strokeWidth="1"
-                    strokeDasharray={isSelected ? undefined : "2,2"}
-                  />
-                );
-              })}
-            </svg>
+            <div style={{ position: "relative", width: "100%", maxWidth: 150, margin: "0 auto" }}>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={image} alt={`${side} body map`} width={IMAGE_WIDTH} height={IMAGE_HEIGHT} style={{ width: "100%", height: "auto", display: "block" }} />
+              <svg viewBox={IMAGE_VIEWBOX} style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%" }}>
+                {zones.map((z) => {
+                  const isSelected = selected.has(z.name);
+                  return (
+                    <path
+                      key={z.name}
+                      d={z.path}
+                      fill={isSelected ? FILL_SELECTED : "rgba(0,0,0,0.001)"}
+                      stroke={isSelected ? "none" : "rgba(185,163,143,0.3)"}
+                      strokeWidth="1.5"
+                      strokeDasharray={isSelected ? undefined : "4,4"}
+                    />
+                  );
+                })}
+              </svg>
+            </div>
           </div>
         ))}
       </div>
