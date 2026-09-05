@@ -5035,7 +5035,7 @@
 .shl-download-btn{
   background:none; border:none; color:var(--mocha); font-size:15px; cursor:pointer; padding:6px; flex-shrink:0;
 }
-.shl-row-detail{ padding:0 4px 14px 40px; }
+.shl-row-detail{ padding:0 4px 14px 4px; }
 
 /* ---- Session body map — real legs illustration, cropped to hips-to-feet ---- */
 .sbm-legs-wrap{ position:relative; width:100%; aspect-ratio:1.15; overflow:hidden; border-radius:10px; }

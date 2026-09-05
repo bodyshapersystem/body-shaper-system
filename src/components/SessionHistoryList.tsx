@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import SessionSummaryModal from "./SessionSummaryModal";
+import SessionAreaMapCard from "./SessionAreaMapCard";
 
 type SessionRecord = {
   id: string;
@@ -18,7 +19,11 @@ type SessionRecord = {
  * Alignment™ snapshot frozen at the time it was saved), each with a
  * real downloadable summary. Styled to match the "Completed Sessions"
  * list from the approved reference (numbered circle, technology +
- * area, download action) instead of a plain mechanical text block.
+ * area, download action). Expanding a row shows the actual Session
+ * Area Map — the real shaded front/back silhouette via
+ * SessionAreaMapCard, not a plain text list of area names (a prior
+ * version showed "Areas Treated: X · Y · Z" as text only, which is
+ * why expanding a session never visually showed anything shaded).
  * Shared between the Hub's client detail view and the client
  * portal's Systems & Sessions "Sessions" tab, so both show the exact
  * same real records with no duplication.
@@ -71,25 +76,17 @@ export default function SessionHistoryList({
 
             {isOpen && (
               <div className="shl-row-detail">
-                {tech?.areas && tech.areas.length > 0 && (
-                  <p className="pay-history-meta">
-                    <strong>Areas Treated:</strong> {tech.areas.join(" · ")}
-                  </p>
-                )}
-                {tech?.objectives && tech.objectives.length > 0 && (
-                  <p className="pay-history-meta" style={{ marginTop: 4 }}>
-                    <strong>Objective:</strong> {tech.objectives.join(" · ")}
-                  </p>
-                )}
-                {s.blueprintAlignment && s.blueprintAlignment.matched.length > 0 && (
-                  <p className="pay-history-meta" style={{ marginTop: 4, color: "var(--mocha)" }}>
-                    ✓ Blueprint Alignment™ — {s.blueprintAlignment.matched.length} goal{s.blueprintAlignment.matched.length === 1 ? "" : "s"} matched: {s.blueprintAlignment.matched.join(", ")}
-                  </p>
-                )}
-                {s.notes && (
-                  <p className="pay-history-meta" style={{ marginTop: 4, fontStyle: "italic" }}>
-                    &quot;{s.notes}&quot;
-                  </p>
+                {tech?.areas && tech.areas.length > 0 ? (
+                  <SessionAreaMapCard
+                    technology={tech.name}
+                    areas={tech.areas}
+                    objectives={tech.objectives ?? []}
+                    notes={s.notes}
+                    dateLabel={dateLabel}
+                    blueprintAlignment={s.blueprintAlignment}
+                  />
+                ) : (
+                  <p className="pay-history-meta">No treated areas recorded for this session.</p>
                 )}
               </div>
             )}
