@@ -94,6 +94,23 @@ export function getPresets(technology: Technology): Preset[] {
 }
 
 /**
+ * Real default preset per technology — applied automatically when
+ * that technology is selected (initial load or switching tabs), per
+ * Emmy's explicit direction: Exilis defaults to its Abdomen Protocol,
+ * EMS defaults to plain Abdomen, Endospheres defaults to Full Body.
+ * The specialist can still deselect or pick a different preset
+ * manually afterward — this only sets the starting point.
+ */
+export function getDefaultPreset(technology: Technology): string[] {
+  if (technology === "Exilis") return [...FRONT_ABDOMEN_QUADRANTS, ...LATERALS, ...BACK_QUADRANTS];
+  if (technology === "EMS") return [...FRONT_ABDOMEN_QUADRANTS];
+  if (technology === "Endospheres") {
+    return [...FRONT_ABDOMEN_QUADRANTS, ...LATERALS, ...FRONT_ARMS, ...FRONT_THIGHS, ...FRONT_CALVES, ...BACK_QUADRANTS, ...POSTERIOR_ARMS, ...GLUTES, ...POSTERIOR_THIGHS, ...POSTERIOR_CALVES];
+  }
+  return []; // Other: no defined protocol, per spec
+}
+
+/**
  * Real, curated objective sentences — approved wording only, per
  * spec section 10. Category is inferred from which real areas are
  * selected; if a session mixes categories, sentences for every

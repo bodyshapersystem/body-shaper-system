@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { TECHNOLOGIES, getPresets, isZoneAvailable, generateObjectives, groupSelectedAreas, type Technology } from "@/lib/session-objectives";
+import { TECHNOLOGIES, getPresets, getDefaultPreset, isZoneAvailable, generateObjectives, groupSelectedAreas, type Technology } from "@/lib/session-objectives";
 import { logSession } from "./session-log-actions";
 import SessionBodyMap from "@/components/SessionBodyMap";
 
@@ -10,7 +10,7 @@ export default function LogSessionSheet({ clientId }: { clientId: string }) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [technology, setTechnology] = useState<Technology>("Exilis");
-  const [selectedAreas, setSelectedAreas] = useState<Set<string>>(new Set());
+  const [selectedAreas, setSelectedAreas] = useState<Set<string>>(() => new Set(getDefaultPreset("Exilis")));
   const [notes, setNotes] = useState("");
   const [error, setError] = useState("");
   const [isPending, startTransition] = useTransition();
@@ -48,15 +48,16 @@ export default function LogSessionSheet({ clientId }: { clientId: string }) {
   }
 
   /**
-   * Real technology switch — since each technology supports a
-   * different real set of zones (per session-objectives.ts's
-   * isZoneAvailable), switching technology drops any currently
-   * selected area that the new technology doesn't actually support,
-   * rather than silently keeping an invalid selection.
+   * Real technology switch — applies that technology's default
+   * preset (per Emmy's direction: Exilis → Abdomen Protocol, EMS →
+   * Abdomen, Endospheres → Full Body), replacing whatever was
+   * selected before rather than just filtering it, since a technology
+   * switch is a deliberate restart of the area selection, not a
+   * continuation. The specialist can still adjust manually afterward.
    */
   function handleTechnologyChange(t: Technology) {
     setTechnology(t);
-    setSelectedAreas((prev) => new Set(Array.from(prev).filter((a) => isZoneAvailable(t, a))));
+    setSelectedAreas(new Set(getDefaultPreset(t)));
   }
 
   function handleSubmit() {
@@ -80,7 +81,7 @@ export default function LogSessionSheet({ clientId }: { clientId: string }) {
   function closeAndReset() {
     setOpen(false);
     setTechnology("Exilis");
-    setSelectedAreas(new Set());
+    setSelectedAreas(new Set(getDefaultPreset("Exilis")));
     setNotes("");
     setResult(null);
     setError("");
@@ -127,9 +128,9 @@ export default function LogSessionSheet({ clientId }: { clientId: string }) {
                 </div>
 
                 {presets.length > 0 && (
-                  <div style={{ display: "flex", gap: 8, marginBottom: 10, flexWrap: "wrap" }}>
+                  <div style={{ display: "flex", gap: 8, marginBottom: 14, flexWrap: "wrap" }}>
                     {presets.map((p) => (
-                      <button key={p.label} type="button" className="dtj-link-small" onClick={() => applyPreset(p.areas)}>
+                      <button key={p.label} type="button" className="sam-preset-pill" onClick={() => applyPreset(p.areas)}>
                         {p.label}
                       </button>
                     ))}

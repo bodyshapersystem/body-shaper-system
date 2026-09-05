@@ -66,10 +66,10 @@ export const FRONT_ZONES: Zone[] = [
     name: "Right Front Arm",
     path: "M251,160 Q281,220 296,290 Q311,360 314,420 Q326,460 314,485 Q301,495 291,478 Q288,455 291,430 Q281,360 266,300 Q251,240 231,180 Z",
   },
-  { name: "Left Front Thigh", path: "M108,430 L162,430 L156,600 L114,600 Z" },
-  { name: "Right Front Thigh", path: "M228,430 L174,430 L180,600 L222,600 Z" },
-  { name: "Left Front Calf", path: "M114,610 L156,610 L148,780 L122,780 Z" },
-  { name: "Right Front Calf", path: "M222,610 L180,610 L188,780 L214,780 Z" },
+  { name: "Left Front Thigh", path: "M79,440 L100,550 L111,600 L108,650 L158,650 L160,600 L161,550 L151,440 Z" },
+  { name: "Right Front Thigh", path: "M258,440 L238,550 L227,600 L229,650 L180,650 L177,600 L177,550 L186,440 Z" },
+  { name: "Left Front Calf", path: "M108,650 L114,700 L127,750 L129,778 L159,778 L156,750 L159,700 L158,650 Z" },
+  { name: "Right Front Calf", path: "M229,650 L224,700 L211,750 L208,778 L179,778 L182,750 L178,700 L180,650 Z" },
 ];
 
 export const BACK_ZONES: Zone[] = [
@@ -87,8 +87,8 @@ export const BACK_ZONES: Zone[] = [
   },
   { name: "Left Glute", path: "M140,355 Q135,410 155,450 Q175,465 198,462 L198,355 Z" },
   { name: "Right Glute", path: "M260,355 Q265,410 245,450 Q225,465 202,462 L202,355 Z" },
-  { name: "Left Posterior Thigh", path: "M108,462 L162,462 L156,600 L114,600 Z" },
-  { name: "Right Posterior Thigh", path: "M228,462 L174,462 L180,600 L222,600 Z" },
-  { name: "Left Posterior Calf", path: "M114,610 L156,610 L148,780 L122,780 Z" },
-  { name: "Right Posterior Calf", path: "M222,610 L180,610 L188,780 L214,780 Z" },
+  { name: "Left Posterior Thigh", path: "M113,462 L132,550 L143,600 L141,650 L190,650 L193,600 L193,550 L196,462 Z" },
+  { name: "Right Posterior Thigh", path: "M288,462 L270,550 L260,600 L262,650 L212,650 L210,600 L210,550 L212,462 Z" },
+  { name: "Left Posterior Calf", path: "M141,650 L146,700 L159,750 L162,778 L191,778 L188,750 L191,700 L190,650 Z" },
+  { name: "Right Posterior Calf", path: "M262,650 L257,700 L243,750 L240,778 L211,778 L214,750 L211,700 L212,650 Z" },
 ];

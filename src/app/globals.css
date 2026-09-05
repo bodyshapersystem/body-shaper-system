@@ -5066,3 +5066,13 @@
 .sam-tech-pill-static.sam-tech-pill-active{
   background:var(--rose); color:#fff; border-color:var(--rose); opacity:1;
 }
+
+/* ---- Session Area Map — quick-preset chips (Hub, Log Session) ---- */
+.sam-preset-pill{
+  font-family:var(--sans); font-size:12px; text-transform:lowercase;
+  border:1px solid rgba(200,161,90,0.4); border-radius:16px; padding:6px 14px;
+  color:var(--mocha); background:#FBF8F3; cursor:pointer;
+  transition:background 0.15s ease, border-color 0.15s ease;
+}
+.sam-preset-pill:hover{ background:rgba(199,158,147,0.14); border-color:rgba(199,158,147,0.6); }
+
