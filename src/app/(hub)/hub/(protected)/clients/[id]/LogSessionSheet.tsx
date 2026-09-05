@@ -19,7 +19,7 @@ export default function LogSessionSheet({ clientId }: { clientId: string }) {
   const areas = Array.from(selectedAreas);
   const objectives = generateObjectives(technology, areas);
   const presets = getPresets(technology);
-  const areaPills = groupSelectedAreas(areas);
+  const areaPills = groupSelectedAreas(areas, technology);
 
   function removeGroup(zones: string[]) {
     setSelectedAreas((prev) => {

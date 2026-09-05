@@ -154,15 +154,23 @@ export function generateObjectives(technology: Technology, areas: string[]): str
 
 /**
  * Real display-label grouping for the "selected areas" pill row.
- * Emmy's approved reference screens (7 real app-screen renders,
- * reviewed directly) consistently collapse every Left/Right pair
- * into a single pill — "laterals", "front thighs", "back arms" —
- * never showing "Left X" / "Right X" as two separate pills. Only
+ * Emmy's approved reference screens consistently collapse every
+ * Left/Right pair into a single pill — "laterals", "front thighs",
+ * "back arms" — never showing "Left X" / "Right X" separately. Only
  * fully-selected pairs collapse; a manually one-sided selection
- * (rare, but possible via direct zone tap) still shows its own
- * real zone name rather than a misleading merged label.
+ * still shows its own real zone name rather than a misleading merge.
+ *
+ * Abdomen and leg granularity is technology-dependent, confirmed by
+ * comparing multiple reference screens directly: EMS's "Abdomen"
+ * preset and Exilis's "Abdomen Protocol" both display as separate
+ * "upper abdomen" / "lower abdomen" pills (never a single merged
+ * "abdomen"), but Endospheres' "Full Body" preset displays a single
+ * "abdomen" pill and single "front legs"/"back legs" pills instead of
+ * the finer quadrant/thigh-calf split. Matches the spec's own framing
+ * of Endospheres as working at a coarser whole-region level versus
+ * Exilis/EMS's precise quadrant-level protocols.
  */
-const AREA_GROUP_DEFS: { label: string; zones: string[] }[] = [
+const FINE_GROUP_DEFS: { label: string; zones: string[] }[] = [
   { label: "Upper Abdomen", zones: ["Upper Left Abdomen", "Upper Right Abdomen"] },
   { label: "Lower Abdomen", zones: ["Lower Left Abdomen", "Lower Right Abdomen"] },
   { label: "Laterals", zones: LATERALS },
@@ -177,18 +185,28 @@ const AREA_GROUP_DEFS: { label: string; zones: string[] }[] = [
   { label: "Posterior Calves", zones: POSTERIOR_CALVES },
 ];
 
+// Endospheres/Other use these coarser groups first, falling back to
+// the fine defs above for anything they don't fully cover.
+const COARSE_GROUP_DEFS: { label: string; zones: string[] }[] = [
+  { label: "Abdomen", zones: [...FRONT_ABDOMEN_QUADRANTS] },
+  { label: "Front Legs", zones: [...FRONT_THIGHS, ...FRONT_CALVES] },
+  { label: "Back Legs", zones: [...POSTERIOR_THIGHS, ...POSTERIOR_CALVES] },
+  ...FINE_GROUP_DEFS,
+];
+
 /**
  * Groups real selected zone names into their display pills. Each
  * returned entry carries the underlying zone names it represents,
  * so a pill's "×" can deselect every zone it stands for at once —
  * not just the group label, which isn't a real zone by itself.
  */
-export function groupSelectedAreas(areas: string[]): { label: string; zones: string[] }[] {
+export function groupSelectedAreas(areas: string[], technology?: string): { label: string; zones: string[] }[] {
+  const defs = technology === "Endospheres" || technology === "Other" ? COARSE_GROUP_DEFS : FINE_GROUP_DEFS;
   const set = new Set(areas);
   const consumed = new Set<string>();
   const result: { label: string; zones: string[] }[] = [];
-  for (const g of AREA_GROUP_DEFS) {
-    if (g.zones.every((z) => set.has(z))) {
+  for (const g of defs) {
+    if (g.zones.every((z) => set.has(z) && !consumed.has(z))) {
       result.push({ label: g.label, zones: g.zones });
       g.zones.forEach((z) => consumed.add(z));
     }

@@ -27,7 +27,7 @@ export default function SessionAreaMapCard({
   dateLabel?: string;
   blueprintAlignment?: { matched: string[]; unmatched: string[] } | null;
 }) {
-  const areaPills = groupSelectedAreas(areas);
+  const areaPills = groupSelectedAreas(areas, technology);
   const selected = new Set(areas);
 
   return (
