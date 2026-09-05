@@ -1,4 +1,4 @@
-import { FRONT_ZONES, BACK_ZONES, FigureOutline, FILL_SELECTED } from "@/lib/body-map-zones";
+import { FRONT_ZONES, BACK_ZONES, FrontFigureOutline, BackFigureOutline, FILL_SELECTED } from "@/lib/body-map-zones";
 import { TECHNOLOGIES, groupSelectedAreas } from "@/lib/session-objectives";
 
 /**
@@ -58,7 +58,7 @@ export default function SessionAreaMapCard({
           <div key={side} style={{ textAlign: "center" }}>
             <p className="sbm-fig-label">{side}</p>
             <svg viewBox="0 0 160 400" width="100%" style={{ maxWidth: 150 }}>
-              <FigureOutline />
+              {side === "front" ? <FrontFigureOutline /> : <BackFigureOutline />}
               {zones.map((z) => {
                 const isSelected = selected.has(z.name);
                 return (

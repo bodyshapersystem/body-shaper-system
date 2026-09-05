@@ -21,7 +21,7 @@
  */
 
 import { isZoneAvailable, type Technology } from "@/lib/session-objectives";
-import { FRONT_ZONES, BACK_ZONES, FigureOutline, FILL_SELECTED, type Zone } from "@/lib/body-map-zones";
+import { FRONT_ZONES, BACK_ZONES, FrontFigureOutline, BackFigureOutline, FILL_SELECTED, type Zone } from "@/lib/body-map-zones";
 
 function BodyFigure({
   side,
@@ -40,7 +40,7 @@ function BodyFigure({
     <div style={{ textAlign: "center" }}>
       <p className="sbm-fig-label">{side === "front" ? "front" : "back"}</p>
       <svg viewBox="0 0 160 400" width="100%" style={{ maxWidth: 150 }}>
-        <FigureOutline />
+        {side === "front" ? <FrontFigureOutline /> : <BackFigureOutline />}
         {zones.map((z) => {
           const isSelected = selected.has(z.name);
           const available = isZoneAvailable(technology, z.name);
