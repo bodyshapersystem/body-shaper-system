@@ -488,6 +488,14 @@ export default async function ClientDetailPage({
 
       {tab === "appointments" && (
         <div style={{ maxWidth: 640 }}>
+          {(() => {
+            const cancelledCount = appointments.filter((a) => a.status === "CANCELLED").length;
+            return cancelledCount > 0 ? (
+              <p className="pay-history-meta" style={{ marginBottom: 14 }}>
+                <strong>{cancelledCount}</strong> cancellation{cancelledCount === 1 ? "" : "s"} on record
+              </p>
+            ) : null;
+          })()}
           {appointments.length === 0 ? (
             <p className="dash-empty">No appointments scheduled yet.</p>
           ) : (

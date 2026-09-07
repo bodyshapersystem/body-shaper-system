@@ -117,7 +117,16 @@ export default function ClientAppointmentsView({
             ))}
             {past.length > 0 && (
               <>
-                <p className="cap-past-label">Past Appointments</p>
+                <p className="cap-past-label">
+                  Past Appointments
+                  {past.filter((e) => e.status === "CANCELLED").length > 0 && (
+                    <span style={{ fontWeight: 400 }}>
+                      {" "}
+                      · {past.filter((e) => e.status === "CANCELLED").length} cancellation
+                      {past.filter((e) => e.status === "CANCELLED").length === 1 ? "" : "s"}
+                    </span>
+                  )}
+                </p>
                 {past.map((e) => (
                   <div key={e.id} className="cap-card cap-card-past">
                     <div className="cap-card-time">{fmtDate(e.startsAt)}</div>

@@ -5,6 +5,7 @@ import { getCurrentHubUser, hasPermission } from "@/lib/permissions";
 import { revalidatePath } from "next/cache";
 import { sendAppointmentConfirmationEmail, sendSystemCompletedEmail, sendMidpointDataReadyEmail, sendMidpointDataMissingEmail } from "@/lib/email/service";
 import { createNotification } from "@/lib/notifications";
+import { getNextSessionNumber } from "@/lib/session-number";
 import { getBusinessTimezone, formatDateInTimezone, formatTimeInTimezone } from "@/lib/format-datetime";
 import { isMidpointEligible, getOrCreateMidpointReview } from "@/lib/midpoint";
 
@@ -222,7 +223,8 @@ export async function getClientSessionContext(clientId: string) {
 
   const assessment = client.blueprintAssessments[0];
   const totalSessions = assessment?.validatedSessionCount ?? null;
-  const currentSession = totalSessions !== null ? Math.min(completedCount + 1, totalSessions) : completedCount + 1;
+  const smartNextSession = await getNextSessionNumber(clientId);
+  const currentSession = totalSessions !== null ? Math.min(smartNextSession, totalSessions) : smartNextSession;
   const progressPercent = totalSessions !== null && totalSessions > 0 ? Math.round((completedCount / totalSessions) * 100) : null;
 
   return {
