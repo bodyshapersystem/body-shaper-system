@@ -103,6 +103,57 @@ export async function createAppointment(formData: FormData) {
   return { success: true };
 }
 
+/**
+ * Real reschedule action — replaces the previous behavior of
+ * silently overwriting the appointment's startsAt in place, which
+ * left zero trace that a reschedule ever happened (confirmed: this
+ * is exactly why a client's real cancellation/reschedule count could
+ * never be recovered after the fact). Now: the original appointment
+ * is marked CANCELLED (keeping its real original date/time as the
+ * permanent record of "this was rescheduled away from"), and a new
+ * appointment is created at the new time with the same real
+ * title/technologies/location/notes — so a "N cancellations on
+ * record" count going forward actually reflects reschedules too, not
+ * just outright cancellations.
+ */
+export async function rescheduleAppointment(appointmentId: string, newStartsAt: string) {
+  const user = await getCurrentHubUser();
+  if (!user || !hasPermission(user, "appointments.manage")) {
+    return { error: "You don't have permission to edit appointments." };
+  }
+
+  const original = await prisma.appointment.findUnique({ where: { id: appointmentId } });
+  if (!original) return { error: "Appointment not found." };
+
+  const durationMs = original.endsAt ? original.endsAt.getTime() - original.startsAt.getTime() : null;
+  const newStart = new Date(newStartsAt);
+  const newEnd = durationMs !== null ? new Date(newStart.getTime() + durationMs) : null;
+
+  const [, created] = await prisma.$transaction([
+    prisma.appointment.update({
+      where: { id: appointmentId },
+      data: { status: "CANCELLED", notes: original.notes ? `${original.notes}\n[Rescheduled to ${newStart.toISOString()}]` : `[Rescheduled to ${newStart.toISOString()}]` },
+    }),
+    prisma.appointment.create({
+      data: {
+        clientId: original.clientId,
+        title: original.title,
+        startsAt: newStart,
+        endsAt: newEnd,
+        status: "SCHEDULED",
+        locationType: original.locationType,
+        technologies: original.technologies ?? undefined,
+        estimatedMinutes: original.estimatedMinutes,
+        createdById: user.id,
+      },
+    }),
+  ]);
+
+  revalidatePath(`/hub/clients/${original.clientId}`);
+  revalidatePath("/hub/appointments");
+  return { success: true, newAppointmentId: created.id };
+}
+
 export async function updateAppointment(
   appointmentId: string,
   data: { startsAt?: string; endsAt?: string; status?: "SCHEDULED" | "COMPLETED" | "CANCELLED" | "NO_SHOW"; notes?: string; locationType?: "HOME" | "STUDIO" }

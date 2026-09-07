@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { updateAppointment, cancelAppointment, deleteAppointmentPermanently } from "./actions";
+import { updateAppointment, cancelAppointment, deleteAppointmentPermanently, rescheduleAppointment } from "./actions";
 import { CATEGORY_LABELS } from "@/lib/appointment-categories";
 import type { CalendarEvent } from "./WeekCalendar";
 
@@ -57,7 +57,7 @@ export default function AppointmentDetailPanel({
   function handleReschedule() {
     if (!newStart) return;
     startTransition(async () => {
-      await updateAppointment(event.id, { startsAt: new Date(newStart).toISOString() });
+      await rescheduleAppointment(event.id, new Date(newStart).toISOString());
       router.refresh();
       onClose();
     });
