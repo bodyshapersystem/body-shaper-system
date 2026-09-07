@@ -17,7 +17,7 @@ export async function GET() {
       select: { amountCents: true, status: true, createdAt: true },
     });
 
-    const totalPaidCents = payments.filter((p) => p.status === "PAID" || p.status === "COMPLETED").reduce((sum, p) => sum + p.amountCents, 0);
+    const totalPaidCents = payments.filter((p) => p.status === "PAID" || p.status === "PARTIAL").reduce((sum, p) => sum + p.amountCents, 0);
 
     const appointments = await prisma.appointment.findMany({
       where: { clientId: CLIENT_ID },
