@@ -22,7 +22,7 @@ export async function GET() {
     const appointments = await prisma.appointment.findMany({
       where: { clientId },
       orderBy: { startsAt: "asc" },
-      select: { id: true, title: true, startsAt: true, status: true, technologies: true, sessionNumber: true, createdAt: true },
+      select: { id: true, title: true, startsAt: true, status: true, technologies: true, createdAt: true },
     });
 
     const photos = await prisma.photo.findMany({
