@@ -1171,6 +1171,17 @@ model Appointment {
   // `technologies` JSON array (each entry gains real `areas: string[]`
   // and `objectives: string[]`) rather than a second column.
   blueprintAlignment Json?
+  // Real cancellation/reschedule policy tracking. Per direction: the
+  // client's FIRST cancellation (ever) is always forgiven — doesn't
+  // consume a purchased session. Every cancellation after that is
+  // forfeited (sessionForfeited=true): the client loses that session
+  // outright. Reschedules follow the same idea but counted per
+  // session chain — rescheduleCount carries forward through each
+  // reschedule of the same logical session; on the 3rd attempt
+  // (rescheduleCount already at 2), the session is forfeited instead
+  // of rescheduled again.
+  rescheduleCount    Int      @default(0)
+  sessionForfeited   Boolean  @default(false)
 
   // Long-term architecture: every appointment is the permanent
   // clinical session record. Photos, Renpho scans, professional
@@ -1230,6 +1241,11 @@ model Payment {
   appointmentId     String?
   appointment       Appointment?        @relation(fields: [appointmentId], references: [id], onDelete: SetNull)
   amountCents       Int
+  // Real, separate tip amount — never folded into amountCents, so a
+  // client's real payment-toward-balance stays accurate even when
+  // they add a tip via Stripe Checkout's adjustable-quantity tip
+  // line item.
+  tipCents          Int?
   method            PaymentMethod       @default(CARD)
   status            PaymentRecordStatus @default(PENDING)
   paymentType       PaymentType?
