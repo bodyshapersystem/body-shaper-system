@@ -151,18 +151,21 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Client not found." }, { status: 400 });
     }
     const description = meta.description || "Custom Payment";
+    const invoiceAmountCents = meta.invoiceAmountCents ? parseInt(meta.invoiceAmountCents, 10) : session.amount_total ?? 0;
+    const tipCents = Math.max(0, (session.amount_total ?? 0) - invoiceAmountCents);
 
     await prisma.payment.create({
       data: {
         clientId,
-        amountCents: session.amount_total ?? 0,
+        amountCents: invoiceAmountCents,
+        tipCents: tipCents > 0 ? tipCents : null,
         method: "CARD",
         status: "PAID",
         paymentType: "CUSTOM_AMOUNT",
         origin: "CLIENT_PAYMENT",
         reference: session.id,
         paidAt: new Date(),
-        notes: `${description} — paid online via custom payment link.`,
+        notes: tipCents > 0 ? `${description} — paid online via custom payment link (includes $${(tipCents / 100).toFixed(2)} tip).` : `${description} — paid online via custom payment link.`,
         createdById: systemUserId,
       },
     });

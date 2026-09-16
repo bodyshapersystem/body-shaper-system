@@ -5,6 +5,7 @@ import { getCurrentHubUser, hasPermission } from "@/lib/permissions";
 import { revalidatePath } from "next/cache";
 import { sendAppointmentConfirmationEmail, sendSystemCompletedEmail, sendMidpointDataReadyEmail, sendMidpointDataMissingEmail } from "@/lib/email/service";
 import { createNotification } from "@/lib/notifications";
+import { getNextSessionNumber } from "@/lib/session-number";
 import { getBusinessTimezone, formatDateInTimezone, formatTimeInTimezone } from "@/lib/format-datetime";
 import { isMidpointEligible, getOrCreateMidpointReview } from "@/lib/midpoint";
 
@@ -102,9 +103,75 @@ export async function createAppointment(formData: FormData) {
   return { success: true };
 }
 
+/**
+ * Real reschedule action — replaces the previous behavior of
+ * silently overwriting the appointment's startsAt in place, which
+ * left zero trace that a reschedule ever happened (confirmed: this
+ * is exactly why a client's real cancellation/reschedule count could
+ * never be recovered after the fact). Now: the original appointment
+ * is marked CANCELLED (keeping its real original date/time as the
+ * permanent record of "this was rescheduled away from"), and a new
+ * appointment is created at the new time with the same real
+ * title/technologies/location/notes — so a "N cancellations on
+ * record" count going forward actually reflects reschedules too, not
+ * just outright cancellations.
+ */
+export async function rescheduleAppointment(appointmentId: string, newStartsAt: string) {
+  const user = await getCurrentHubUser();
+  if (!user || !hasPermission(user, "appointments.manage")) {
+    return { error: "You don't have permission to edit appointments." };
+  }
+
+  const original = await prisma.appointment.findUnique({ where: { id: appointmentId } });
+  if (!original) return { error: "Appointment not found." };
+
+  // Real reschedule-limit policy: this same session chain may be
+  // rescheduled twice for free. On the 3rd attempt (rescheduleCount
+  // already at 2), the session is forfeited instead of moved again —
+  // the client loses it, no new appointment is created.
+  if (original.rescheduleCount >= 2) {
+    await prisma.appointment.update({
+      where: { id: appointmentId },
+      data: { status: "CANCELLED", sessionForfeited: true, notes: original.notes ? `${original.notes}\n[Forfeited — 3rd reschedule attempt]` : "[Forfeited — 3rd reschedule attempt]" },
+    });
+    revalidatePath(`/hub/clients/${original.clientId}`);
+    revalidatePath("/hub/appointments");
+    return { success: true, forfeited: true };
+  }
+
+  const durationMs = original.endsAt ? original.endsAt.getTime() - original.startsAt.getTime() : null;
+  const newStart = new Date(newStartsAt);
+  const newEnd = durationMs !== null ? new Date(newStart.getTime() + durationMs) : null;
+
+  const [, created] = await prisma.$transaction([
+    prisma.appointment.update({
+      where: { id: appointmentId },
+      data: { status: "CANCELLED", notes: original.notes ? `${original.notes}\n[Rescheduled to ${newStart.toISOString()}]` : `[Rescheduled to ${newStart.toISOString()}]` },
+    }),
+    prisma.appointment.create({
+      data: {
+        clientId: original.clientId,
+        title: original.title,
+        startsAt: newStart,
+        endsAt: newEnd,
+        status: "SCHEDULED",
+        locationType: original.locationType,
+        technologies: original.technologies ?? undefined,
+        estimatedMinutes: original.estimatedMinutes,
+        rescheduleCount: original.rescheduleCount + 1,
+        createdById: user.id,
+      },
+    }),
+  ]);
+
+  revalidatePath(`/hub/clients/${original.clientId}`);
+  revalidatePath("/hub/appointments");
+  return { success: true, newAppointmentId: created.id };
+}
+
 export async function updateAppointment(
   appointmentId: string,
-  data: { startsAt?: string; endsAt?: string; status?: "SCHEDULED" | "COMPLETED" | "CANCELLED" | "NO_SHOW"; notes?: string; locationType?: "HOME" | "STUDIO" }
+  data: { startsAt?: string; endsAt?: string; status?: "SCHEDULED" | "COMPLETED" | "CANCELLED" | "NO_SHOW"; notes?: string; locationType?: "HOME" | "STUDIO"; sessionForfeited?: boolean }
 ) {
   const user = await getCurrentHubUser();
   if (!user || !hasPermission(user, "appointments.manage")) {
@@ -119,6 +186,7 @@ export async function updateAppointment(
       status: data.status,
       notes: data.notes,
       locationType: data.locationType,
+      sessionForfeited: data.sessionForfeited,
     },
   });
 
@@ -184,8 +252,25 @@ export async function updateAppointment(
   return { success: true };
 }
 
+/**
+ * Real cancellation policy: the client's first-ever cancellation is
+ * always forgiven (sessionForfeited stays false — doesn't consume a
+ * purchased session). Every cancellation after that is forfeited:
+ * the client loses that session. Counts every real CANCELLED
+ * appointment this client has ever had (excluding the one being
+ * cancelled right now, obviously, since it doesn't exist yet as
+ * CANCELLED) to decide which one this is.
+ */
 export async function cancelAppointment(appointmentId: string) {
-  return updateAppointment(appointmentId, { status: "CANCELLED" });
+  const appointment = await prisma.appointment.findUnique({ where: { id: appointmentId }, select: { clientId: true } });
+  if (!appointment) return { error: "Appointment not found." };
+
+  const priorCancellations = await prisma.appointment.count({
+    where: { clientId: appointment.clientId, status: "CANCELLED" },
+  });
+  const sessionForfeited = priorCancellations >= 1;
+
+  return updateAppointment(appointmentId, { status: "CANCELLED", sessionForfeited });
 }
 
 /**
@@ -222,7 +307,8 @@ export async function getClientSessionContext(clientId: string) {
 
   const assessment = client.blueprintAssessments[0];
   const totalSessions = assessment?.validatedSessionCount ?? null;
-  const currentSession = totalSessions !== null ? Math.min(completedCount + 1, totalSessions) : completedCount + 1;
+  const smartNextSession = await getNextSessionNumber(clientId);
+  const currentSession = totalSessions !== null ? Math.min(smartNextSession, totalSessions) : smartNextSession;
   const progressPercent = totalSessions !== null && totalSessions > 0 ? Math.round((completedCount / totalSessions) * 100) : null;
 
   return {

@@ -62,6 +62,23 @@ export async function createPaymentLink(formData: FormData) {
         },
         quantity: 1,
       },
+      // Real, optional tip — a $1-per-unit line item with an
+      // adjustable quantity, so the client can raise it (0-200) right
+      // in Stripe's own checkout UI to set their tip amount in
+      // whole dollars. Starts at 0 (no tip) unless they choose to
+      // increase it.
+      {
+        price_data: {
+          currency: "usd",
+          unit_amount: 100,
+          product_data: {
+            name: "Tip (optional)",
+            description: "Add a tip for your specialist — adjust the quantity to set your tip amount in dollars.",
+          },
+        },
+        quantity: 0,
+        adjustable_quantity: { enabled: true, minimum: 0, maximum: 200 },
+      },
     ],
     metadata: {
       flowType: "custom_payment_link",
@@ -70,6 +87,7 @@ export async function createPaymentLink(formData: FormData) {
       lastName: client.lastName,
       email: client.email,
       description,
+      invoiceAmountCents: String(amountCents),
       createdByUserId: user.id,
     },
     // Real bug fix: this used to point to /hub/clients/[id], a

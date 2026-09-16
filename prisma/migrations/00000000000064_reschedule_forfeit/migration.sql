@@ -1,0 +1,2 @@
+ALTER TABLE "appointments" ADD COLUMN IF NOT EXISTS "rescheduleCount" INTEGER NOT NULL DEFAULT 0;
+ALTER TABLE "appointments" ADD COLUMN IF NOT EXISTS "sessionForfeited" BOOLEAN NOT NULL DEFAULT false;
