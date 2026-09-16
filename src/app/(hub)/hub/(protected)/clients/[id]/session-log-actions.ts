@@ -73,6 +73,6 @@ export async function logSession(clientId: string, formData: FormData) {
  */
 export async function getSessionHistory(clientId: string) {
   const user = await getCurrentHubUser();
-  if (!user) return [];
+  if (!user) return { sessions: [], cancellationCount: 0 };
   return getSessionHistoryData(clientId);
 }

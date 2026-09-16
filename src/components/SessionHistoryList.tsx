@@ -32,21 +32,38 @@ export default function SessionHistoryList({
   sessions,
   clientName,
   totalCount,
+  cancellationCount,
 }: {
   sessions: SessionRecord[];
   clientName: string;
   totalCount?: number;
+  /** Specialist-facing only (Hub) — how many of this client's appointments were cancelled. Never passed from the Portal: not something to surface to the client themselves. */
+  cancellationCount?: number;
 }) {
   const [downloadTarget, setDownloadTarget] = useState<number | null>(null);
   const [expanded, setExpanded] = useState<number | null>(null);
   const count = totalCount ?? sessions.length;
 
   if (sessions.length === 0) {
-    return <p className="pay-history-meta" style={{ marginTop: 10 }}>No sessions logged yet.</p>;
+    return (
+      <>
+        <p className="pay-history-meta" style={{ marginTop: 10 }}>No sessions logged yet.</p>
+        {!!cancellationCount && cancellationCount > 2 && (
+          <p className="pay-history-meta" style={{ marginTop: 4, color: "var(--mocha)" }}>
+            ⚠ {cancellationCount} cancelled appointments on record.
+          </p>
+        )}
+      </>
+    );
   }
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 2, marginTop: 12 }}>
+      {!!cancellationCount && cancellationCount > 2 && (
+        <p className="pay-history-meta" style={{ marginBottom: 6, color: "var(--mocha)" }}>
+          ⚠ {cancellationCount} cancelled appointments on record.
+        </p>
+      )}
       {sessions.map((s, i) => {
         const tech = s.technologies?.[0];
         const sessionNumber = count - i;

@@ -43,7 +43,7 @@ export default async function PortalSystemsSessionsPage() {
 
   if (!client) redirect("/portal/login");
 
-  const sessionHistory = await getSessionHistoryData(portalClient.id);
+  const { sessions: sessionHistory } = await getSessionHistoryData(portalClient.id);
 
   return (
     <div className="cat-body portal-page bp-client-materials">

@@ -85,7 +85,7 @@ export default async function ClientDetailPage({
   if (!client) notFound();
 
   const activePeptideProtocol = await prisma.peptideProtocol.findFirst({ where: { clientId: id, active: true }, orderBy: { createdAt: "asc" } });
-  const sessionHistory = await getSessionHistoryData(id);
+  const { sessions: sessionHistory, cancellationCount } = await getSessionHistoryData(id);
 
   const [overview, appointments, payments, clientNotes, specialist, timezone, clientNotifications, collaboration, staff] = await Promise.all([
     getClientOverviewSummary(id),
@@ -343,7 +343,7 @@ export default async function ClientDetailPage({
           />
           <div className="bbp-card bbp-panel bp-tex-cream" style={{ marginTop: 24 }}>
             <h3 className="dash-section-title">Session History</h3>
-            <SessionHistoryList sessions={sessionHistory} clientName={`${client.firstName} ${client.lastName}`} />
+            <SessionHistoryList sessions={sessionHistory} clientName={`${client.firstName} ${client.lastName}`} cancellationCount={cancellationCount} />
           </div>
         </>
       )}
