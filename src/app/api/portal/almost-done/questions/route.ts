@@ -9,7 +9,8 @@ export async function GET(){
  const resp=await fetch("https://api.jotform.com/user/forms?limit=500",{headers:{APIKEY:key},cache:"no-store"});
  if(!resp.ok)return NextResponse.json({error:"Source request failed"},{status:502});
  const data=await resp.json() as {content?:{id:string;title?:string;url?:string}[]};
- const target=(data.content||[]).find(x=>(x.url||"").includes("waiver---release-form"));
+ const candidates=(data.content||[]).filter(x=>(x.url||"").includes("waiver---release-form")||/almost ready|almost done|waiver.*release/i.test(x.title||""));
+ const target=candidates.length===1?candidates[0]:candidates.find(x=>(x.url||"").includes("waiver---release-form"));
  if(!target)return NextResponse.json({error:"Original waiver not found"},{status:404});
  const qresp=await fetch("https://api.jotform.com/form/"+target.id+"/questions",{headers:{APIKEY:key},cache:"no-store"});
  if(!qresp.ok)return NextResponse.json({error:"Original questions unavailable"},{status:502});
