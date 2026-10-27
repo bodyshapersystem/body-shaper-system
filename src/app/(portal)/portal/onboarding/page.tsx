@@ -26,7 +26,7 @@ export default async function PortalOnboardingPage() {
         firstName={client.firstName}
         initialStep={status.currentStep as 1 | 2 | 3}
         agreementUrl={agreementUrl}
-        consentUrl={`${WAIVER_FORM_BASE_URL}?email=${encodeURIComponent(client.email)}`}
+        consentUrl="/portal/onboarding/almost-done"
         totalSteps={status.needsRelease ? 3 : 2}
       />
     </div>
