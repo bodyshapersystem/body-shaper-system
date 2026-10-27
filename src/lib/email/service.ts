@@ -568,3 +568,17 @@ export async function sendPeptideJourneyInviteEmail(params: {
   return logAndSend({ clientId, template: "PEPTIDE_JOURNEY_INVITE", sender: SENDERS.concierge, recipient: email, subject, html });
 }
 
+
+/** Owner alerts are sent through the same logged mail pipeline as all client automations. */
+export async function sendBlueprintOwnerAlerts(params: {
+ leadId:string; firstName:string; lastName:string; email:string; phone:string; city:string;
+}) {
+ const { leadId,firstName,lastName,email,phone,city }=params;
+ const esc=(v:string)=>v.replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]!));
+ const link=`https://www.bodyshapersystem.com/hub/leads/${encodeURIComponent(leadId)}`;
+ const html=`<h2>New Body Blueprint™ lead</h2><p><b>Name:</b> ${esc(firstName+" "+lastName)}</p><p><b>Email:</b> ${esc(email)}</p><p><b>Phone:</b> ${esc(phone)}</p><p><b>Area:</b> ${esc(city)}</p><p><a href="${link}">Review the complete submission in Owner Hub</a></p>`;
+ return Promise.all([
+  "beautyboxmia@gmail.com",
+  "bodyshapersystem@gmail.com"
+ ].map(recipient=>logAndSend({leadId,template:"BLUEPRINT_RECEIVED",sender:SENDERS.owner,recipient,subject:`New Body Blueprint™ lead: ${firstName} ${lastName}`,html})));
+}
