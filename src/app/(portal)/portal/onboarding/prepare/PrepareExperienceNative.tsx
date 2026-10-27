@@ -27,7 +27,7 @@ export default function PrepareExperienceNative({firstName}:{firstName:string}){
  }}
  function advance(){
   setError("");
-  for(const q of current){if(!visible(q)||q.required!=="Yes")continue;const v=values[q.id];if(!v||(Array.isArray(v)?v.length===0:!v.trim())){setError("Please complete all required questions.");return;}}
+  for(const q of current){if(!visible(q)||q.required!=="Yes")continue;const v=values[q.id];if(!v||(Array.isArray(v)?v.length===0:!v.trim())){setError("Please complete all required questions.");return;}if(q.id==="107"&&(!Array.isArray(v)||v.length!==(q.options?.split("|").length||0))){setError("Please read and acknowledge every required statement.");return;}}
   if(page<5){setPage(p=>p+1);window.scrollTo({top:0,behavior:"smooth"});}else submit();
  }
  async function submit(){if(!signature.trim()||!agree){setError("Please type your legal name and agree to sign electronically.");return;}setSending(true);setError("");
