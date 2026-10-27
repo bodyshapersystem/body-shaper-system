@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { INSTAGRAM_URL, JOTFORM_BLUEPRINT_URL, WHATSAPP_URL } from "@/lib/nav";
+import { INSTAGRAM_URL, WHATSAPP_URL } from "@/lib/nav";
 import { buildMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = buildMetadata({
@@ -253,7 +253,7 @@ export default function HomePage() {
           Ready to discover what your body truly needs?
         </h2>
         <div className="actions reveal">
-          <a href={JOTFORM_BLUEPRINT_URL} className="btn btn-primary">
+          <a href="/body-blueprint#native-blueprint" className="btn btn-primary">
             Build My Blueprint™
           </a>
           <a href={WHATSAPP_URL} className="btn btn-dark-outline">
