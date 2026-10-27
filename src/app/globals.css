@@ -5239,3 +5239,51 @@
   .bp-hero-wrap .page-hero .photo img,
   .sys-hero-wrap .page-hero .photo img{object-fit:contain;}
 }
+
+
+/* DESKTOP COMPOSITION FIX — keep the entire hero artwork visible below
+   the fixed header and give editorial copy a proportional desktop width. */
+@media (min-width:901px){
+  .home-hero-photo{
+    padding-top:76px;
+    height:100vh;height:100dvh;
+    min-height:680px;
+    box-sizing:border-box;
+  }
+  .home-hero-photo-inner{
+    height:100%;
+    width:auto;
+    max-width:100%;
+    aspect-ratio:1023 / 1537;
+    flex:0 0 auto;
+  }
+  .home-hero-photo-inner img{
+    object-fit:contain!important;
+    object-position:center center;
+    width:100%;height:100%;
+  }
+  .home-whatis-wrap>.what-is{
+    max-width:1180px;
+    width:100%;
+    padding:clamp(88px,10vw,145px) clamp(40px,6vw,96px);
+    margin:0 auto;
+  }
+  .home-whatis-wrap .what-is h2{
+    max-width:980px;
+    font-size:clamp(42px,4vw,67px);
+    line-height:1.08;
+    margin:26px auto 38px;
+    text-wrap:balance;
+  }
+  .home-whatis-wrap .what-is p{
+    max-width:810px;
+    font-size:clamp(16px,1.25vw,19px);
+    line-height:1.7;
+  }
+  .home-whatis-wrap .what-is .thesis{
+    max-width:850px;font-size:clamp(24px,2.25vw,34px);line-height:1.35;
+  }
+  .home-whatis-wrap .what-is .video-frame.portrait{
+    max-width:400px;margin-top:74px;
+  }
+}
