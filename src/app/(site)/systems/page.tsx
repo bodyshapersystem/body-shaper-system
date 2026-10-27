@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { buildMetadata } from "@/lib/seo";
 import { JOTFORM_BLUEPRINT_URL, WHATSAPP_URL } from "@/lib/nav";
 import DesktopPanoramaHero from "@/components/DesktopPanoramaHero";
@@ -173,13 +174,14 @@ export default function SystemsPage() {
       <div className="best-for-label">Best For</div>
       <ul>
         <li>Post-GLP-1 body contouring</li>
-        <li>Muscle preservation</li>
-        <li>Skin tightening after weight loss</li>
+        <li>Muscle-focused aesthetic support</li>
+        <li>Skin firmness goals after weight loss</li>
       </ul>
       <div className="sessions">8–20 Sessions</div>
       <div className="price-label">Investment Starts At</div>
       <div className="price">$1,700</div>
       <SystemDepositButton systemName="GLP-1 Reshape™" priceCents={170000} priceLabel="$1,700" />
+      <p style={{marginTop:16}}><Link href="/after-weight-loss" style={{textDecoration:"underline",textUnderlineOffset:4}}>GLP-1 & post-weight-loss guide →</Link></p>
     </div>
 
     <div className="system-card">
