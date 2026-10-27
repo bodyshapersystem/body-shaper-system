@@ -5516,3 +5516,82 @@
   .home-hero-right-panel p{font-size:12px;}
   .home-hero-right-cta{font-size:9px;letter-spacing:.04em;}
 }
+
+
+/* Body Blueprint™ editorial section: desktop-only redesign.
+   Mobile's existing centered flow is intentionally untouched. */
+@media(min-width:901px){
+ .bp-whatis-wrap{
+   background:linear-gradient(135deg,#f8f3ec 0%,#f1e8dd 55%,#eae0d5 100%);
+ }
+ .bp-whatis-wrap .what-is{
+   position:relative;
+   z-index:1;
+   box-sizing:border-box;
+   display:grid;
+   grid-template-columns:minmax(0,1.16fr) minmax(0,.84fr);
+   grid-template-rows:auto auto auto auto;
+   column-gap:clamp(50px,7.5vw,150px);
+   align-items:start;
+   max-width:1380px;
+   padding:clamp(95px,10vh,150px) clamp(45px,6vw,110px);
+   margin:0 auto;
+   text-align:left;
+ }
+ .bp-whatis-wrap .what-is .eyebrow{
+   grid-column:1;grid-row:1;
+   text-align:left;
+   display:block;
+   margin:0 0 24px;
+   letter-spacing:.23em;
+ }
+ .bp-whatis-wrap .what-is h2{
+   grid-column:1;grid-row:2 / span 3;
+   width:100%;
+   max-width:710px;
+   margin:0;
+   font-family:var(--serif);
+   font-size:clamp(47px,4.8vw,82px);
+   font-weight:400;
+   line-height:1.08;
+   letter-spacing:-.035em;
+   text-wrap:balance;
+ }
+ .bp-whatis-wrap .what-is > p:not(.thesis){
+   grid-column:2;grid-row:2;
+   width:100%;max-width:540px;
+   margin:7px 0 30px;
+   font-size:clamp(17px,1.22vw,20px);
+   line-height:1.8;
+   text-align:left;
+ }
+ .bp-whatis-wrap .what-is .thesis{
+   grid-column:2;grid-row:3;
+   width:100%;max-width:520px;
+   margin:0 0 35px;
+   font-size:clamp(23px,2.1vw,34px);
+   line-height:1.4;
+   font-style:italic;
+   text-align:left;
+ }
+ .bp-whatis-wrap .what-is .bp-pullquote{
+   grid-column:2;grid-row:4;
+   width:100%;max-width:540px;
+   box-sizing:border-box;
+   margin:0;
+   padding:28px 0 0;
+   border-top:1px solid rgba(107,82,64,.3);
+   border-bottom:0;
+   text-align:left;
+ }
+ .bp-whatis-wrap .bp-pullquote::before{left:0;transform:none;}
+ .bp-whatis-wrap .bp-pullquote p{
+   max-width:520px;
+   margin:0;
+   font-size:clamp(22px,1.9vw,29px);
+   line-height:1.4;
+ }
+ .bp-whatis-wrap .bp-pullquote span{margin-top:22px;}
+ .bp-whatis-wrap .bp-deco-ring{left:-125px;top:16%;opacity:.13;}
+ .bp-whatis-wrap .bp-deco-cross{right:-40px;bottom:4%;opacity:.13;}
+}
