@@ -41,7 +41,7 @@ export function getRequiredDocsForClient(requiresContentRelease: boolean): Requi
  * skips straight past it.
  */
 export const CLIENT_COMPLETABLE_FORM_URLS: Partial<Record<DocumentCategory, string>> = {
-  POLICIES_APPOINTMENTS: "https://form.jotform.com/261860243106046",
-  CONSENT_TREATMENT: "https://form.jotform.com/beautyboxmia/waiver---release-form",
+  POLICIES_APPOINTMENTS: "/portal/onboarding/prepare",
+  CONSENT_TREATMENT: "/portal/onboarding/almost-done",
   PHOTOGRAPHY_AUTHORIZATION: "https://form.jotform.com/262001828942051",
 };
