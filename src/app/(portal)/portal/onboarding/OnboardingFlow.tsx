@@ -90,8 +90,8 @@ export default function OnboardingFlow({
   }
 
   const stepTitles: Record<1 | 2 | 3, { title: string; sub: string }> = {
-    1: { title: "Complete your Client Agreement.", sub: "Review and sign your Client Agreement & Policies — this opens in a new tab." },
-    2: { title: "Complete your Medical Consent.", sub: "Review and sign your Medical Consent — this opens in a new tab." },
+    1: { title: "Complete your Client Agreement.", sub: "Complete your pre-treatment evaluation securely inside Body Shaper System™." },
+    2: { title: "Complete your Medical Consent.", sub: "Complete your final Medical Consent before accessing your Client Portal." },
     3: { title: "Content Release Agreement", sub: "This document is being finalized by our team — we'll notify you the moment it's ready to sign." },
   };
   const current = stepTitles[step];
@@ -122,9 +122,9 @@ export default function OnboardingFlow({
           <a
             href={step === 1 ? agreementUrl : consentUrl}
             className="onb-cta"
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={() => setClickedContinue(true)}
+            target={(step === 1 ? agreementUrl : consentUrl).startsWith("/") ? "_self" : "_blank"}
+            rel={step === 1 && agreementUrl.startsWith("/") ? undefined : "noopener noreferrer"}
+            onClick={() => {if (!((step === 1 ? agreementUrl : consentUrl).startsWith("/"))) setClickedContinue(true);}}
           >
             Continue
           </a>
