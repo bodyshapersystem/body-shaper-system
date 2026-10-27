@@ -10,6 +10,6 @@
  .hero-composed-cta{position:absolute;z-index:5;display:block;background:transparent}
  .hero-composed-cta:focus-visible{outline:3px solid #825e4d;outline-offset:3px}
  .hero-composed-blueprint-link{left:72%;top:49%;width:25%;height:14%}
- .hero-composed-systems-link{left:29%;top:47%;width:16%;height:17%}
+ .hero-composed-systems-link{left:29%;top:67%;width:16%;height:12%}
  .hero-composed-whatsapp-link{left:0;bottom:3%;width:21%;height:15%}
 }
