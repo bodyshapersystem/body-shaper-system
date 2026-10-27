@@ -18,7 +18,7 @@ export default async function PortalOnboardingPage() {
   const status = await getOnboardingStatus(client.id);
   if (status.isComplete) redirect("/portal/dashboard");
 
-  const agreementUrl = client.clientType === "AMBASSADOR" ? AMBASSADOR_AGREEMENT_FORM_URL : AGREEMENT_FORM_URL;
+  const agreementUrl = client.clientType === "AMBASSADOR" ? AMBASSADOR_AGREEMENT_FORM_URL : "/portal/onboarding/prepare";
 
   return (
     <div className="onb-shell">
