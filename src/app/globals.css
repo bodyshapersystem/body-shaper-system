@@ -5326,3 +5326,77 @@
     background:transparent;
   }
 }
+
+
+/* Desktop-only hero continuations: retain the full original images at their
+   native aspect ratio; repeat contour lines on matching side backgrounds. */
+@media (min-width:901px){
+  .home-hero-photo::before,.home-hero-photo::after{
+    opacity:1!important;
+    background-image:
+      repeating-radial-gradient(ellipse 110% 55% at 95% 56%,
+        transparent 0px,transparent 30px,
+        rgba(107,82,64,.19) 31px,rgba(107,82,64,.19) 32px,
+        transparent 33px,transparent 62px)!important;
+    background-size:100% 100%!important;
+  }
+  .home-hero-photo::before{background-position:right center!important;}
+  .home-hero-photo::after{transform:scaleX(-1)!important;}
+  .systems-art-hero,.experience-art-hero{
+    box-sizing:border-box;
+    padding-top:76px;
+    position:relative;
+    isolation:isolate;
+    overflow:hidden;
+    width:100%;
+    min-height:100vh;min-height:100dvh;
+  }
+  .systems-art-hero{background:#F4F1ED;}
+  .experience-art-hero{background:#F4F1ED;}
+  .systems-art-hero::before,.systems-art-hero::after,
+  .experience-art-hero::before,.experience-art-hero::after{
+    content:"";position:absolute;top:76px;bottom:0;
+    width:max(22%,calc((100% - 680px)/2));
+    pointer-events:none;z-index:0;
+    background-image:repeating-radial-gradient(ellipse 110% 55% at 95% 53%,
+      transparent 0,transparent 28px,
+      rgba(107,82,64,.19) 29px,rgba(107,82,64,.19) 30px,
+      transparent 31px,transparent 62px);
+  }
+  .systems-art-hero::before,.experience-art-hero::before{left:0;}
+  .systems-art-hero::after,.experience-art-hero::after{right:0;transform:scaleX(-1);}
+  .systems-art-hero .sys-hero-photo-inner,
+  .experience-art-hero .sys-hero-photo-inner{
+    position:relative;z-index:1;max-width:100%;
+    width:auto;height:calc(100dvh - 76px);
+    aspect-ratio:1024/1536;
+  }
+  .systems-art-hero img,.experience-art-hero img{
+    height:100%;width:100%;object-fit:contain!important;
+  }
+
+  /* Text-oriented pages use true desktop columns and readable line lengths. */
+  .policies-list{
+    max-width:1340px;width:100%;
+    display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:0 clamp(36px,5vw,90px);
+    padding:75px clamp(36px,6vw,90px) 110px;
+  }
+  .policy-item{padding:35px 0;min-width:0;}
+  .policy-item h3{font-size:clamp(24px,2.1vw,33px);}
+  .policy-item p{max-width:530px;font-size:clamp(16px,1.2vw,18px);line-height:1.7;}
+  .policies-waiver-box{max-width:850px;margin-inline:auto;}
+  .tt-hero-wrap .hero-content{
+    width:100%;max-width:1260px;padding:0 clamp(45px,7vw,120px) clamp(86px,8vh,130px);
+  }
+  .tt-hero-wrap .hero-content h1{
+    max-width:1000px;font-size:clamp(58px,5.4vw,91px);
+  }
+  .tt-hero-wrap .hero-content p,
+  .tt-hero-wrap .tt-seo-intro{
+    max-width:920px;font-size:clamp(16px,1.15vw,19px);line-height:1.7;
+  }
+  .tt-tabs,.tt-subtabs-wrap,.tt-content,.tt-section{
+    max-width:1340px;margin-left:auto;margin-right:auto;
+  }
+}

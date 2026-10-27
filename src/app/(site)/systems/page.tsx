@@ -70,7 +70,7 @@ export default function SystemsPage() {
 
 
 {/* HERO */}
-<section className="sys-hero-photo" id="top">
+<section className="sys-hero-photo systems-art-hero" id="top">
   <h1 className="sr-only">
     Personalized Systems™ — One Blueprint. Five Systems. Built entirely for you.
   </h1>

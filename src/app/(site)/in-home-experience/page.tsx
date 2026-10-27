@@ -16,7 +16,7 @@ export default function InHomeExperiencePage() {
 
 
 {/* HERO */}
-<section className="sys-hero-photo" id="top">
+<section className="sys-hero-photo experience-art-hero" id="top">
   <h1 className="sr-only">
     The In-Home Experience™ — Mobile, At-Home Body Contouring in Miami.
     Expert care, where you are. Premium technology, personalized treatment,
