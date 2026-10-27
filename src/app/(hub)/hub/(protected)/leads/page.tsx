@@ -10,9 +10,9 @@ export const dynamic = "force-dynamic";
 // No status values were renamed or removed; this is purely a display
 // grouping over the existing data.
 const COLUMNS: { label: string; statuses: string[] }[] = [
-  { label: "New Lead", statuses: ["NEW"] },
+  { label: "New Lead", statuses: ["NEW", "BLUEPRINT_COMPLETED"] },
   { label: "Contacted", statuses: ["CONTACTED", "QUALIFIED"] },
-  { label: "Consultation", statuses: ["CONSULTATION_SCHEDULED", "BLUEPRINT_COMPLETED"] },
+  { label: "Consultation", statuses: ["CONSULTATION_SCHEDULED"] },
   { label: "Proposal Sent", statuses: ["PAYMENT_PENDING"] },
   { label: "Won", statuses: ["PAYMENT_CONFIRMED", "CONVERTED"] },
   { label: "Lost", statuses: ["LOST", "ARCHIVED"] },
