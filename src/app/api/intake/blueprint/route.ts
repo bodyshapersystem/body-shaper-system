@@ -2,12 +2,10 @@ import { NextRequest,NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { createOrUpdateDraftAssessment } from "@/lib/blueprint-assessments";
 import { createNotification } from "@/lib/notifications";
-import { sendBlueprintReceivedEmail } from "@/lib/email/service";
-import { getResendClient, SENDERS } from "@/lib/email/resend";
+import { sendBlueprintReceivedEmail, sendBlueprintOwnerAlerts } from "@/lib/email/service";
 import { blueprintSections } from "@/app/(site)/body-blueprint/blueprint-fields";
 import type { Prisma } from "@prisma/client";
 export const runtime="nodejs";
-const DESTINATIONS=["beautyboxmia@gmail.com","bodyshapersystem@gmail.com"];
 export async function POST(req:NextRequest){
  let data:Record<string,unknown>;
  try{data=await req.json();}catch{return NextResponse.json({error:"Invalid form data."},{status:400});}
@@ -34,9 +32,16 @@ export async function POST(req:NextRequest){
   await createOrUpdateDraftAssessment(lead.id,{jotformRawData:{source:"native-blueprint",version:1,answers:clean} as Prisma.InputJsonValue,goals,treatmentInterests:Array.isArray(clean.areas)?clean.areas.join(", "):undefined});
   await prisma.leadStatusHistory.create({data:{leadId:lead.id,fromStatus:existing?.status,toStatus:"BLUEPRINT_COMPLETED",note:"Native Blueprint submission from website"}});
   await createNotification({category:"FORMS",description:`New Blueprint submitted by ${firstName} ${lastName}`,linkUrl:`/hub/leads/${lead.id}`});
-  const results=await Promise.allSettled([sendBlueprintReceivedEmail({leadId:lead.id,firstName,email}),...DESTINATIONS.map(to=>getResendClient().emails.send({from:SENDERS.owner,to,subject:`New Body Blueprint™ lead: ${firstName} ${lastName}`,html:`<h2>New Body Blueprint™ submission</h2><p><b>Name:</b> ${escapeHtml(firstName+" "+lastName)}</p><p><b>Email:</b> ${escapeHtml(email)}</p><p><b>Phone:</b> ${escapeHtml(String(clean.phone||""))}</p><p><b>Location:</b> ${escapeHtml(String(clean.city||""))}</p><p>For the full answers, open the protected <a href="https://www.bodyshapersystem.com/hub/leads/${encodeURIComponent(lead.id)}">Owner Hub lead profile</a>.</p>`}))]);
-  results.forEach((r,i)=>{if(r.status==="rejected"||(r.status==="fulfilled"&&r.value&&"error" in r.value&&r.value.error))console.error("Blueprint email delivery issue",i);});
+  const results=await Promise.allSettled([
+   sendBlueprintReceivedEmail({leadId:lead.id,firstName,email}),
+   sendBlueprintOwnerAlerts({leadId:lead.id,firstName,lastName,email,phone:String(clean.phone||""),city:String(clean.city||"")})
+  ]);
+  for(const item of results){
+   if(item.status==="rejected")console.error("Blueprint notification failed",item.reason);
+   else if(Array.isArray(item.value)){
+    for(const result of item.value)if(!result.success)console.error("Blueprint owner alert failed",result.error);
+   }else if(!item.value.success)console.error("Blueprint client confirmation failed",item.value.error);
+  }
   return NextResponse.json({success:true});
  }catch(err){console.error("Native Blueprint submission failed",err);return NextResponse.json({error:"We couldn't save your Blueprint. Please try again."},{status:500});}
 }
-function escapeHtml(s:string){return s.replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]!));}
