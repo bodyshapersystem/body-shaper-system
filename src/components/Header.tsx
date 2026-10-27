@@ -171,16 +171,20 @@ export default function Header() {
           <sup style={{ fontSize: 10 }}>™</sup>
         </Link>
         <nav className="desktop-top-nav" aria-label="Main navigation">
-          <Link href="/">Home</Link>
-          <Link href="/in-home-experience">Experience</Link>
-          <Link href="/body-blueprint">Body Blueprint</Link>
-          <Link href="/systems">Our Systems</Link>
-          <Link href="/transformations">Results</Link>
-          <Link href="/book-appointment">Book</Link>
+          <Link href="/" aria-current={pathname === "/" ? "page" : undefined}>Home</Link>
+          <Link href="/body-blueprint" aria-current={pathname === "/body-blueprint" ? "page" : undefined}>Body Blueprint</Link>
+          <Link href="/systems" aria-current={pathname === "/systems" ? "page" : undefined}>Systems</Link>
+          <Link href="/transformations" aria-current={pathname === "/transformations" ? "page" : undefined}>Results</Link>
+          <Link href="/about" aria-current={pathname === "/about" ? "page" : undefined}>About Us</Link>
+          <Link href="/in-home-experience" aria-current={pathname === "/in-home-experience" ? "page" : undefined}>Experience</Link>
           <details className="desktop-more">
             <summary>More +</summary>
             <div className="desktop-more-list">
-              {NAV_ITEMS.filter(i => !["/","/in-home-experience","/body-blueprint","/systems","/transformations","/book-appointment"].includes(i.href)).map(i => <Link href={i.href} key={i.href}>{i.label}</Link>)}
+              <Link href="/book-appointment">Book Your Blueprint™</Link>
+              <Link href="/reviews">Reviews</Link>
+              <Link href="/faq">Frequently Asked Questions</Link>
+              <Link href="/policies">Policies</Link>
+              <Link href="/tech-talks">Tech Talks™</Link>
             </div>
           </details>
         </nav>
