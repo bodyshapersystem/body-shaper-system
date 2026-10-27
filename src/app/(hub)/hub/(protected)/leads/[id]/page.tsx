@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
+import { blueprintSections } from "@/app/(site)/body-blueprint/blueprint-fields";
 import { getCurrentHubUser, hasPermission } from "@/lib/permissions";
 import { redirect } from "next/navigation";
 import LeadStatusForm from "./LeadStatusForm";
@@ -51,6 +52,9 @@ export default async function LeadDetailPage({
   });
 
   if (!lead) notFound();
+  const blueprint = await prisma.blueprintAssessment.findUnique({ where: { leadId: lead.id }, select: { jotformRawData: true, intakeSubmissionDate: true } });
+  const nativePayload = blueprint?.jotformRawData;
+  const nativeAnswers = nativePayload && typeof nativePayload === "object" && !Array.isArray(nativePayload) && nativePayload.source === "native-blueprint" && nativePayload.answers && typeof nativePayload.answers === "object" && !Array.isArray(nativePayload.answers) ? nativePayload.answers as Record<string, unknown> : null;
 
   const tab: Tab = TABS.includes(tabParam as Tab) ? (tabParam as Tab) : "overview";
   const initials = `${lead.firstName[0] ?? ""}${lead.lastName[0] ?? ""}`.toUpperCase();
@@ -192,6 +196,23 @@ export default async function LeadDetailPage({
             </div>
           )}
 
+          {nativeAnswers && (
+            <section style={{maxWidth:780,marginBottom:32,padding:24,border:"1px solid rgba(0,0,0,.14)",borderRadius:12}}>
+              <h2 style={{fontSize:24,marginBottom:6}}>Body Blueprint™ — Submitted Answers</h2>
+              <p style={{fontSize:12,opacity:.65,marginBottom:20}}>Original answers saved securely at the time of submission.</p>
+              {blueprintSections.map(section=><div key={section.title} style={{marginBottom:22}}>
+                <h3 style={{fontSize:17,marginBottom:10}}>{section.title}</h3>
+                {section.fields.map(field=>{
+                  const answer=nativeAnswers[field.id];
+                  if(answer==null || answer==="" || (Array.isArray(answer)&&answer.length===0))return null;
+                  return <div key={field.id} style={{marginBottom:10}}>
+                    <strong style={{display:"block",fontSize:12,opacity:.75}}>{field.label}</strong>
+                    <span style={{fontSize:14}}>{Array.isArray(answer)?answer.filter((x):x is string=>typeof x==="string").join(", "):typeof answer==="string"?answer:"—"}</span>
+                  </div>;
+                })}
+              </div>)}
+            </section>
+          )}
           {hasPermission(user, "leads.edit") && <LeadStatusForm leadId={lead.id} currentStatus={lead.status} />}
 
           <div style={{ marginTop: 32 }}>
