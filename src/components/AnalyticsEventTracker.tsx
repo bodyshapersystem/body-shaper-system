@@ -38,7 +38,7 @@ export default function AnalyticsEventTracker() {
         window.gtag?.("event", "contact_phone_click", { event_category: "engagement" });
       } else if (href.startsWith("mailto:")) {
         window.gtag?.("event", "contact_email_click", { event_category: "engagement" });
-      } else if (href.includes("jotform.com/beautyboxmia/lets-build-your-blueprint")) {
+      } else if (href.includes("/body-blueprint") || href.includes("jotform.com/beautyboxmia/lets-build-your-blueprint")) {
         window.gtag?.("event", "blueprint_form_click", { event_category: "conversion" });
       }
     }
