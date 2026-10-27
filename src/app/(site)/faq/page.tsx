@@ -66,7 +66,7 @@ const faqJsonLd = {
       name: "Does Exilis® hurt?",
       acceptedAnswer: {
         "@type": "Answer",
-        text: "No. Most clients describe it as a warm, relaxing sensation, similar to a hot stone massage.",
+        text: "Many clients experience a warming sensation. Comfort varies; your specialist should adjust or stop treatment if you experience discomfort.",
       },
     },
     {
