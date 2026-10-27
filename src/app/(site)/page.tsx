@@ -19,6 +19,15 @@ export default function HomePage() {
           and Body Sculpting in Miami. In-Home Treatments Built on Your Body
           Blueprint™.
         </h1>
+        <div className="home-hero-right-panel">
+          <span className="home-hero-right-eyebrow">PERSONALIZED STRATEGY</span>
+          <h2>Build Your<br/>Body <em>Blueprint</em></h2>
+          <p>A customized plan based on your goals, your body and our advanced technology.</p>
+          <Link href="/body-blueprint" className="home-hero-right-cta">
+            CREATE YOUR BLUEPRINT <span aria-hidden="true">⟶</span>
+          </Link>
+        </div>
+        <a className="home-hero-side-whatsapp" href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer">◉ &nbsp; CHAT WITH A SPECIALIST</a>
         <div className="home-hero-photo-inner">
           <img
             src="/images/home-hero.webp"
