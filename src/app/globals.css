@@ -5239,3 +5239,90 @@
   .bp-hero-wrap .page-hero .photo img,
   .sys-hero-wrap .page-hero .photo img{object-fit:contain;}
 }
+
+
+/* DESKTOP COMPOSITION FIX — keep the entire hero artwork visible below
+   the fixed header and give editorial copy a proportional desktop width. */
+@media (min-width:901px){
+  .home-hero-photo{
+    padding-top:76px;
+    height:100vh;height:100dvh;
+    min-height:680px;
+    box-sizing:border-box;
+  }
+  .home-hero-photo-inner{
+    height:100%;
+    width:auto;
+    max-width:100%;
+    aspect-ratio:1023 / 1537;
+    flex:0 0 auto;
+  }
+  .home-hero-photo-inner img{
+    object-fit:contain!important;
+    object-position:center center;
+    width:100%;height:100%;
+  }
+  .home-whatis-wrap>.what-is{
+    max-width:1180px;
+    width:100%;
+    padding:clamp(88px,10vw,145px) clamp(40px,6vw,96px);
+    margin:0 auto;
+  }
+  .home-whatis-wrap .what-is h2{
+    max-width:980px;
+    font-size:clamp(42px,4vw,67px);
+    line-height:1.08;
+    margin:26px auto 38px;
+    text-wrap:balance;
+  }
+  .home-whatis-wrap .what-is p{
+    max-width:810px;
+    font-size:clamp(16px,1.25vw,19px);
+    line-height:1.7;
+  }
+  .home-whatis-wrap .what-is .thesis{
+    max-width:850px;font-size:clamp(24px,2.25vw,34px);line-height:1.35;
+  }
+  .home-whatis-wrap .what-is .video-frame.portrait{
+    max-width:400px;margin-top:74px;
+  }
+}
+
+
+/* Home hero extension: same brand nude on BOTH sides of the uncropped
+   editorial artwork, with the official Blueprint Waves mirrored outward. */
+@media (min-width:901px){
+  .home-hero-photo{
+    background:var(--beige,#EDE2D0)!important;
+    isolation:isolate;
+  }
+  .home-hero-photo::before,
+  .home-hero-photo::after{
+    content:"";
+    position:absolute;
+    top:76px;
+    bottom:0;
+    width:max(22%,calc((100% - 760px)/2));
+    z-index:0;
+    opacity:.38;
+    pointer-events:none;
+    background-color:transparent;
+    background-image:url("/images/blueprint-waves.png");
+    background-repeat:no-repeat;
+    background-size:auto 92%;
+    background-position:right center;
+  }
+  .home-hero-photo::before{
+    left:0;
+    transform:scaleX(-1);
+  }
+  .home-hero-photo::after{
+    right:0;
+    transform:none;
+  }
+  .home-hero-photo-inner{
+    position:relative;
+    z-index:1;
+    background:transparent;
+  }
+}
