@@ -18,6 +18,7 @@ export default function Footer() {
             <Link href="/">Home</Link>
             <Link href="/body-blueprint">Blueprint</Link>
             <Link href="/systems">Systems</Link>
+            <Link href="/after-weight-loss">After Weight Loss &amp; GLP-1</Link>
             <Link href="/transformations">Transformations</Link>
             <Link href="/about">About</Link>
             <Link href="/reviews">Reviews</Link>
@@ -37,7 +38,7 @@ export default function Footer() {
           </div>
           <div className="footer-col">
             <h4>Begin</h4>
-            <Link href="#build" className="cta">
+            <Link href="/body-blueprint" className="cta">
               Build My Blueprint™
             </Link>
           </div>
