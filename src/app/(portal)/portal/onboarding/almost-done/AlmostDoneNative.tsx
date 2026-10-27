@@ -9,6 +9,7 @@ export default function AlmostDoneNative({firstName}:{firstName:string}){
  const [page,setPage]=useState(0),[error,setError]=useState(""),[loading,setLoading]=useState(true),[submitting,setSubmitting]=useState(false);
  const [signature,setSignature]=useState(""),[signed,setSigned]=useState(false);
  useEffect(()=>{fetch("/api/portal/almost-done/questions").then(async r=>{const d=await r.json() as Definition & {error?:string};if(!r.ok||!d.questions)throw new Error(d.error||"Consent unavailable");setFormId(d.formId);setItems(Object.entries(d.questions).map(([id,q])=>({...q,id})).sort((a,b)=>Number(a.order||0)-Number(b.order||0)));}).catch(e=>setError(e instanceof Error?e.message:"Unable to load consent")).finally(()=>setLoading(false));},[]);
+ const unsupported=items.filter(q=>q.required==="Yes"&&!allowed.has(q.type||"")&&!narrative.has(q.type||"")&&q.type!=="control_pagebreak"&&q.type!=="control_button");
  const pages=useMemo(()=>{const groups:Q[][]=[[]];for(const q of items){if(q.type==="control_pagebreak"){if(groups[groups.length-1].length)groups.push([]);}else if(allowed.has(q.type||"")||narrative.has(q.type||""))groups[groups.length-1].push(q);}return groups.filter(g=>g.length);},[items]);
  const current=pages[page]||[];
  function change(id:string,v:string|string[]){setValues(prev=>({...prev,[id]:v}));}
@@ -24,6 +25,7 @@ export default function AlmostDoneNative({firstName}:{firstName:string}){
  return <section className="onb-card" style={{textAlign:"left",maxWidth:800}}>
  <p className="onb-eyebrow">body shaper system™ · private consent</p><h1 className="onb-title">Almost Done™</h1><p className="onb-sub">Medical Consent &amp; Treatment Waiver</p>
  {error&&<p role="alert" style={{color:"#9d3434",margin:"18px 0"}}>{error}</p>}
+ {unsupported.length>0&&<p role="alert">The original medical waiver includes signature or other required fields that must be verified before using this native version. Please contact your specialist.</p>}
  {!pages.length?<p>We could not verify the original medical waiver. Your portal remains securely locked. Please contact your specialist.</p>:<>
  <p className="onb-progress-label">Step {page+1} of {pages.length}</p><div className="onb-progress-track"><div className="onb-progress-fill" style={{width:((page+1)/pages.length*100)+"%"}}/></div>
  {current.map(q=>{const t=q.type||"";const choices=(q.options||"").split("|").filter(Boolean);const v=values[q.id]||(t==="control_checkbox"?[]:"");if(narrative.has(t))return <div key={q.id} style={{margin:"24px 0",whiteSpace:"pre-wrap",lineHeight:1.65}}>{q.text}</div>;
@@ -39,7 +41,7 @@ export default function AlmostDoneNative({firstName}:{firstName:string}){
  <label>Legal name<input value={signature} onChange={e=>setSignature(e.target.value)} style={{width:"100%",padding:12,marginTop:8}}/></label>
  <label style={{display:"flex",gap:10,marginTop:16}}><input type="checkbox" checked={signed} onChange={e=>setSigned(e.target.checked)}/>I agree to use an electronic signature for this document.</label>
  </div>}
- <div style={{display:"flex",justifyContent:"space-between",gap:15,marginTop:25}}>{page>0&&<button className="onb-cta" type="button" onClick={()=>{setPage(page-1);setError("");}}>Back</button>}<button className="onb-cta" type="button" onClick={continuePage} disabled={submitting} style={{marginLeft:"auto"}}>{submitting?"Saving…":page===pages.length-1?"Sign & Complete":"Continue →"}</button></div>
+ <div style={{display:"flex",justifyContent:"space-between",gap:15,marginTop:25}}>{page>0&&<button className="onb-cta" type="button" onClick={()=>{setPage(page-1);setError("");}}>Back</button>}<button className="onb-cta" type="button" onClick={continuePage} disabled={submitting||unsupported.length>0} style={{marginLeft:"auto"}}>{submitting?"Saving…":page===pages.length-1?"Sign & Complete":"Continue →"}</button></div>
  </>}
  </section>;
 }
