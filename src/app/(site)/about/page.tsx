@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { buildMetadata } from "@/lib/seo";
-import { WHATSAPP_URL, JOTFORM_BLUEPRINT_URL } from "@/lib/nav";
+import { WHATSAPP_URL } from "@/lib/nav";
 
 export const metadata: Metadata = buildMetadata({
   title: "Miami Body Contouring Studio Since 2017 | Body Shaper System™",
@@ -303,7 +303,7 @@ export default function AboutPage() {
       <section className="final-cta" id="build">
         <h2 className="reveal">Let&rsquo;s build your personalized strategy.</h2>
         <div className="actions reveal">
-          <a href={JOTFORM_BLUEPRINT_URL} className="btn btn-primary">
+          <a href="/body-blueprint#native-blueprint" className="btn btn-primary">
             Build My Blueprint™
           </a>
           <a href={WHATSAPP_URL} className="btn btn-dark-outline">
