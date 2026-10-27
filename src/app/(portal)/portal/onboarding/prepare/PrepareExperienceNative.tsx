@@ -31,10 +31,10 @@ export default function PrepareExperienceNative({firstName}:{firstName:string}){
   if(page<5){setPage(p=>p+1);window.scrollTo({top:0,behavior:"smooth"});}else submit();
  }
  async function submit(){if(!signature.trim()||!agree){setError("Please type your legal name and agree to sign electronically.");return;}setSending(true);setError("");
-  try{const r=await fetch("/api/portal/prepare-experience",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({values,signature,agree,formVersion:"261860243106046"})});const j=await r.json();if(!r.ok)throw new Error(j.error||"Submission failed");setDone(true);}catch(e){setError(e instanceof Error?e.message:"Unable to save your form.");}finally{setSending(false);}
+  try{const r=await fetch("/api/portal/prepare-experience",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({values,signature,agree,formVersion:"261860243106046"})});const j=await r.json();if(!r.ok)throw new Error(j.error||"Submission failed");setDone(true);window.location.assign("/portal/onboarding");}catch(e){setError(e instanceof Error?e.message:"Unable to save your form.");}finally{setSending(false);}
  }
  if(loading)return <div className="onb-card">Preparing your experience…</div>;
- if(done)return <div className="onb-card"><h1>Thank you, {firstName} ✨</h1><p>Your evaluation has been received and saved to your private client record.</p><a className="onb-cta" href="/portal/onboarding">Continue onboarding →</a></div>;
+ if(done)return <div className="onb-card"><h1>Thank you, {firstName} ✨</h1><p>Your evaluation has been received and saved to your private client record.</p><a className="onb-cta" href="/portal/onboarding">Continue to Almost Done™ →</a></div>;
  return <main className="onb-card" style={{maxWidth:850,textAlign:"left"}}>
  <p className="onb-eyebrow">body shaper system™</p><h1 className="onb-title">Prepare Your Experience™</h1><p className="onb-sub">Body Blueprint™ Pre-Treatment Evaluation — before your first appointment.</p>
  <p className="onb-progress-label">Step {page+1} of 6 · {sections[page]}</p><div className="onb-progress-track"><div className="onb-progress-fill" style={{width:`${(page+1)/6*100}%`}}/></div>
