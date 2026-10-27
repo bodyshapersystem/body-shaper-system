@@ -171,20 +171,22 @@ export default function Header() {
           <sup style={{ fontSize: 10 }}>™</sup>
         </Link>
         <nav className="desktop-top-nav" aria-label="Main navigation">
-          <Link href="/" aria-current={pathname === "/" ? "page" : undefined}>Home</Link>
-          <Link href="/body-blueprint" aria-current={pathname === "/body-blueprint" ? "page" : undefined}>Body Blueprint</Link>
-          <Link href="/systems" aria-current={pathname === "/systems" ? "page" : undefined}>Systems</Link>
-          <Link href="/transformations" aria-current={pathname === "/transformations" ? "page" : undefined}>Results</Link>
-          <Link href="/about" aria-current={pathname === "/about" ? "page" : undefined}>About Us</Link>
-          <Link href="/in-home-experience" aria-current={pathname === "/in-home-experience" ? "page" : undefined}>Experience</Link>
+          <Link href="/">Home</Link>
+          <Link href="/body-blueprint">Body Blueprint</Link>
+          <Link href="/systems">Systems</Link>
+          <Link href="/transformations">Results</Link>
+          <Link href="/about">About Us</Link>
+          <Link href="/in-home-experience">Experience</Link>
+          <Link href="/book-appointment" className="desktop-secondary-link">Book</Link>
+          <Link href="/reviews" className="desktop-secondary-link">Reviews</Link>
           <details className="desktop-more">
             <summary>More +</summary>
             <div className="desktop-more-list">
-              <Link href="/book-appointment">Book Your Blueprint™</Link>
-              <Link href="/reviews">Reviews</Link>
+              <Link href="/book-appointment" className="desktop-more-compact-only">Book Your Blueprint™</Link>
+              <Link href="/reviews" className="desktop-more-compact-only">Reviews</Link>
+              <Link href="/tech-talks">Tech Talks™</Link>
               <Link href="/faq">Frequently Asked Questions</Link>
               <Link href="/policies">Policies</Link>
-              <Link href="/tech-talks">Tech Talks™</Link>
             </div>
           </details>
         </nav>
