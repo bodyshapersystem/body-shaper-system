@@ -22,6 +22,7 @@ export default function NativeBlueprintForm(){
    const response=await fetch("/api/intake/blueprint",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({...answers,website:""})});
    const json=await response.json();
    if(!response.ok)throw new Error(json.error||"Unable to submit. Please try again.");
+   if (typeof window !== "undefined") window.gtag?.("event","generate_lead",{event_category:"conversion",form_name:"native_body_blueprint"});
    setFinished(true);
   }catch(e){setError(e instanceof Error?e.message:"Unable to submit.");}finally{setSending(false);}
  }
