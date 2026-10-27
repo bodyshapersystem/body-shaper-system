@@ -41,6 +41,7 @@ export async function POST(request:NextRequest){
    };
    if(id in conditional&&!conditional[id])continue;
    if(q.required==="Yes"&&!answer.trim())return NextResponse.json({error:"Please complete all required fields."},{status:400});
+   if(id==="107" && (!Array.isArray(v)||v.length!==(q.options?.split("|").length||0)))return NextResponse.json({error:"Please read and acknowledge all required statements."},{status:400});
    if((q.type==="control_radio"||q.type==="control_checkbox")&&answer){
     const options=q.options?.split("|")||[];
     const items=Array.isArray(v)?v:[v];
