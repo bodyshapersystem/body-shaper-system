@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { buildMetadata } from "@/lib/seo";
 import { JOTFORM_BLUEPRINT_URL, WHATSAPP_URL } from "@/lib/nav";
+import DesktopPanoramaHero from "@/components/DesktopPanoramaHero";
 import ServiceAreaMap from "@/components/ServiceAreaMap";
 
 export const metadata: Metadata = buildMetadata({
@@ -22,7 +23,12 @@ export default function InHomeExperiencePage() {
     Expert care, where you are. Premium technology, personalized treatment,
     total convenience.
   </h1>
-  <div className="hero-composed-desktop"><img src="/images/experience-hero-editorial.svg" alt="In Home Experience — original editorial artwork extended into a panoramic wave composition" /></div>
+  <DesktopPanoramaHero
+    name="inhome"
+    width={3380}
+    height={1536}
+    alt="Body Shaper System — The In-Home Experience™: expert care, where you are. Premium technology, personalized treatment, total convenience. How it works: we come to you, personalized care, advanced technology, visible results, real confidence."
+  />
   <div className="sys-hero-photo-inner">
     <img
       src="/images/inhome-hero-banner.webp"

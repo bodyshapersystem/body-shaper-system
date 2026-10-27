@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { INSTAGRAM_URL, WHATSAPP_URL } from "@/lib/nav";
 import { buildMetadata } from "@/lib/seo";
+import DesktopPanoramaHero from "@/components/DesktopPanoramaHero";
 
 export const metadata: Metadata = buildMetadata({
   title: "Non-Surgical Body Contouring & Skin Tightening in Miami",
@@ -19,21 +20,23 @@ export default function HomePage() {
           and Body Sculpting in Miami. In-Home Treatments Built on Your Body
           Blueprint™.
         </h1>
-        <div className="home-hero-right-panel">
-          <span className="home-hero-right-eyebrow">PERSONALIZED STRATEGY</span>
-          <h2>Build Your<br/>Body <em>Blueprint</em></h2>
-          <p>A customized plan based on your goals, your body and our advanced technology.</p>
-          <Link href="/body-blueprint" className="home-hero-right-cta">
-            CREATE YOUR BLUEPRINT <span aria-hidden="true">⟶</span>
-          </Link>
-        </div>
-        <a className="home-hero-side-whatsapp" href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer">◉ &nbsp; CHAT WITH A SPECIALIST</a>
-        <div className="hero-composed-desktop">
-          <img src="/images/home-hero-editorial.svg" alt="Body Shaper System — luxury panoramic editorial hero, personalized Body Blueprint" />
-          <a className="hero-composed-cta hero-composed-blueprint-link" href="/body-blueprint" aria-label="Create your Body Blueprint" />
-          <a className="hero-composed-cta hero-composed-systems-link" href="/systems" aria-label="Explore systems" />
-          <a className="hero-composed-cta hero-composed-whatsapp-link" href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer" aria-label="Chat with a specialist on WhatsApp" />
-        </div>
+        <a className="home-hero-side-whatsapp" href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer" aria-label="Chat with a specialist on WhatsApp">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M12 2C6.48 2 2 6.48 2 12c0 1.85.5 3.58 1.37 5.07L2 22l5.09-1.33A9.94 9.94 0 0 0 12 22c5.52 0 10-4.48 10-10S17.52 2 12 2Z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round"/>
+            <path d="M8.5 9.5c0 3.5 2.5 6 6 6 .5 0 1-.5 1-1v-1l-2-1-1 1c-1-.5-2-1.5-2.5-2.5l1-1-1-2h-1c-.5 0-1 .5-1 1.5Z" fill="currentColor"/>
+          </svg>
+          CHAT WITH A SPECIALIST
+        </a>
+        <DesktopPanoramaHero
+          name="home"
+          width={6560}
+          height={2982}
+          alt="Body Shaper System — The future of body optimization. Science. Strategy. Transformation. Build your Body Blueprint: a customized plan based on your goals, your body and our advanced technology."
+          hotspots={[
+            { href: "/systems", label: "Explore systems", left: 21.28, top: 56.67, width: 7.73, height: 4.02 },
+            { href: "/body-blueprint", label: "Create your Body Blueprint", left: 61.46, top: 52.98, width: 15.85, height: 4.36 },
+          ]}
+        />
         <div className="home-hero-photo-inner">
           <img
             src="/images/home-hero.webp"

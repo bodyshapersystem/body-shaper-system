@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { buildMetadata } from "@/lib/seo";
 import { JOTFORM_BLUEPRINT_URL, WHATSAPP_URL } from "@/lib/nav";
+import DesktopPanoramaHero from "@/components/DesktopPanoramaHero";
 import SystemDepositButton from "./SystemDepositButton";
 
 export const metadata: Metadata = buildMetadata({
@@ -74,7 +75,13 @@ export default function SystemsPage() {
   <h1 className="sr-only">
     Personalized Systems™ — One Blueprint. Five Systems. Built entirely for you.
   </h1>
-  <div className="hero-composed-desktop"><img src="/images/systems-hero-editorial.svg" alt="Personalized Systems — complete original artwork with panoramic wave extensions" /></div>\n  <div className="sys-hero-photo-inner">
+  <DesktopPanoramaHero
+    name="systems"
+    width={3380}
+    height={1536}
+    alt="Body Shaper System — Personalized Systems™: one blueprint, five systems built entirely for you — Sculpt Start, Sculpt Signature, Mom Reset, GLP-1 Reshape, Total Body Optimization"
+  />
+  <div className="sys-hero-photo-inner">
     <img
       src="/images/systems-hero-banner.webp"
       alt="Body Shaper System — Personalized Systems™: one blueprint, five systems built entirely for you — Sculpt Start, Sculpt Signature, Mom Reset, GLP-1 Reshape, Total Body Optimization"

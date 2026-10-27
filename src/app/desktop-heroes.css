@@ -1,15 +1,24 @@
-/* Desktop only: the image ITSELF contains the illustration, text and waves.
-   These rules only display the complete asset instead of the old portrait. */
+/* Desktop only (≥901px): each hero is ONE finished panoramic image (original artwork embedded
+   pixel-for-pixel + reconstructed side extensions). Mobile (≤900px) is untouched. */
 .hero-composed-desktop{display:none}
 @media(min-width:901px){
- .home-hero-photo,.systems-art-hero,.experience-art-hero{background:#ece3d8!important;height:100dvh!important;min-height:600px!important;padding-top:76px!important;box-sizing:border-box!important;display:block!important;overflow:hidden!important}
+ .home-hero-photo,.systems-art-hero,.experience-art-hero{
+   background:#e8e1d8!important;height:100dvh!important;min-height:600px!important;padding-top:76px!important;
+   box-sizing:border-box!important;display:block!important;overflow:hidden!important;position:relative!important}
  .home-hero-photo::before,.home-hero-photo::after,.systems-art-hero::before,.systems-art-hero::after,.experience-art-hero::before,.experience-art-hero::after{content:none!important;display:none!important}
- .home-hero-photo-inner,.systems-art-hero>.sys-hero-photo-inner,.experience-art-hero>.sys-hero-photo-inner,.home-hero-right-panel,.home-hero-side-whatsapp{display:none!important}
- .home-hero-photo>.hero-composed-desktop,.systems-art-hero>.hero-composed-desktop,.experience-art-hero>.hero-composed-desktop{position:relative!important;display:block!important;width:100%!important;height:100%!important}
- .hero-composed-desktop>img{display:block;width:100%;height:100%;object-fit:contain;object-position:center}
- .hero-composed-cta{position:absolute;z-index:5;display:block;background:transparent}
- .hero-composed-cta:focus-visible{outline:3px solid #825e4d;outline-offset:3px}
- .hero-composed-blueprint-link{left:72%;top:49%;width:25%;height:14%}
- .hero-composed-systems-link{left:29%;top:67%;width:16%;height:12%}
- .hero-composed-whatsapp-link{left:0;bottom:3%;width:21%;height:15%}
+ .home-hero-photo-inner,.systems-art-hero>.sys-hero-photo-inner,.experience-art-hero>.sys-hero-photo-inner{display:none!important}
+ .home-hero-photo>.pano-hero,.systems-art-hero>.pano-hero,.experience-art-hero>.pano-hero{
+   display:block!important;position:relative;width:100%;height:100%;overflow:hidden}
+ /* full artwork height always visible; only the outer extensions are trimmed on narrower screens */
+ .pano-hero-frame{position:absolute;top:0;left:50%;height:100%;width:auto;transform:translateX(-50%)}
+ .pano-hero-frame picture{display:block;width:100%;height:100%}
+ .pano-hero-frame img{display:block;width:100%;height:100%;user-select:none;-webkit-user-drag:none}
+ .pano-hero-hotspot{position:absolute;z-index:3;display:block;background:transparent;border-radius:2px}
+ .pano-hero-hotspot:focus-visible{outline:2px solid #825e4d;outline-offset:4px}
+ .home-hero-photo .home-hero-side-whatsapp{
+   display:inline-flex!important;position:absolute;z-index:5;left:clamp(24px,2.6vw,56px);bottom:clamp(24px,4.2vh,56px);
+   align-items:center;gap:10px;padding:13px 22px 13px 16px;background:#4b4039;color:#fff;border-radius:40px;
+   font-family:var(--sans);font-size:11px;font-weight:600;letter-spacing:.11em;text-decoration:none;
+   box-shadow:0 6px 22px rgba(40,30,25,.14);transition:background .2s ease}
+ .home-hero-photo .home-hero-side-whatsapp:hover{background:#3a312b}
 }
