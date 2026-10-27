@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { buildMetadata } from "@/lib/seo";
-import { JOTFORM_BLUEPRINT_URL, WHATSAPP_URL } from "@/lib/nav";
+import { WHATSAPP_URL } from "@/lib/nav";
+import NativeBlueprintForm from "./NativeBlueprintForm";
 
 export const metadata: Metadata = buildMetadata({
   title: "Free Body Assessment for Fat Reduction & Toning | Miami",
@@ -207,8 +208,8 @@ export default function BodyBlueprintPage() {
   <DecoArc className="bp-deco-arc-3" gold />
   <section className="final-cta" id="build">
     <h2 className="reveal">Ready to build yours?</h2>
+    <NativeBlueprintForm />
     <div className="actions reveal">
-      <a href={JOTFORM_BLUEPRINT_URL} className="btn btn-primary">Build My Blueprint™</a>
       <a href={WHATSAPP_URL} className="btn btn-dark-outline">Chat with a Specialist</a>
     </div>
   </section>
