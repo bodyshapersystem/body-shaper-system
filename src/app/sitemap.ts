@@ -6,6 +6,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "",
     "/body-blueprint",
     "/systems",
+    "/after-weight-loss",
     "/in-home-experience",
     "/transformations",
     "/about",
@@ -18,7 +19,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
   return routes.map((route) => ({
     url: `${base}${route}`,
-    lastModified: new Date(),
     changeFrequency: "weekly",
     priority: route === "" ? 1 : 0.7,
   }));
