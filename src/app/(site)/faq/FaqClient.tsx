@@ -20,11 +20,11 @@ const FAQ_DATA: FaqCategory[] = [
   {
     title: "Technologies",
     items: [
-      { q: "Does Exilis® hurt?", a: "No. Most clients describe it as a warm, relaxing sensation, similar to a hot stone massage." },
+      { q: "Does Exilis® hurt?", a: "Many clients experience a warming sensation. Comfort varies; your specialist should adjust or stop treatment if you experience discomfort." },
       { q: "Does EMS® replace exercise?", a: "No. EMS® complements movement and an active lifestyle — it doesn't replace regular physical activity." },
-      { q: "Does Endospheres® hurt?", a: "No. It feels similar to a deep, rhythmic massage, with pressure adjusted to your comfort." },
+      { q: "Does Endospheres® hurt?", a: "Some clients describe rhythmic pressure similar to a deep massage, but comfort varies and pressure should be adjusted to the person." },
       { q: "Can I combine multiple technologies?", a: "Yes — most clients receive a Personalized System™ that combines two or more technologies based on their Body Blueprint™." },
-      { q: "Are treatments safe?", a: "Yes. Every client is professionally evaluated, and every protocol is individualized to that evaluation before any technology is used." },
+      { q: "Are treatments safe?", a: "Every technology has precautions and potential contraindications. We review health history and treatment suitability before beginning, and medical clearance may be required." },
     ],
   },
   {
