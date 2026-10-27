@@ -6,6 +6,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "",
     "/body-blueprint",
     "/systems",
+    "/after-weight-loss",
     "/in-home-experience",
     "/transformations",
     "/about",
