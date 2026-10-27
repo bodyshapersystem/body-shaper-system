@@ -21,7 +21,8 @@ export async function POST(req:NextRequest){
   const l=await fetch("https://api.jotform.com/user/forms?limit=500",{headers:{APIKEY:key},cache:"no-store",signal:AbortSignal.timeout(12000)});
   if(!l.ok)throw new Error("Medical waiver listing unavailable");
   const listing=await l.json() as {content?:{id:string;title?:string;url?:string}[]};
-  const found=(listing.content||[]).find(x=>(x.url||"").includes("waiver---release-form"));
+  const matches=(listing.content||[]).filter(x=>(x.url||"").includes("waiver---release-form")||/almost ready|almost done|waiver.*release/i.test(x.title||""));
+  const found=matches.length===1?matches[0]:matches.find(x=>(x.url||"").includes("waiver---release-form"));
   if(!found||found.id!==data.formId)return NextResponse.json({error:"Unable to validate the official waiver version."},{status:400});
   const resp=await fetch("https://api.jotform.com/form/"+found.id+"/questions",{headers:{APIKEY:key},cache:"no-store",signal:AbortSignal.timeout(12000)});
   if(!resp.ok)throw new Error("Cannot verify medical consent language");
