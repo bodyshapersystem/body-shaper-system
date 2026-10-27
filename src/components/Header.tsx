@@ -170,6 +170,20 @@ export default function Header() {
           body shaper system.
           <sup style={{ fontSize: 10 }}>™</sup>
         </Link>
+        <nav className="desktop-top-nav" aria-label="Main navigation">
+          <Link href="/">Home</Link>
+          <Link href="/in-home-experience">Experience</Link>
+          <Link href="/body-blueprint">Body Blueprint</Link>
+          <Link href="/systems">Our Systems</Link>
+          <Link href="/transformations">Results</Link>
+          <Link href="/book-appointment">Book</Link>
+          <details className="desktop-more">
+            <summary>More +</summary>
+            <div className="desktop-more-list">
+              {NAV_ITEMS.filter(i => !["/","/in-home-experience","/body-blueprint","/systems","/transformations","/book-appointment"].includes(i.href)).map(i => <Link href={i.href} key={i.href}>{i.label}</Link>)}
+            </div>
+          </details>
+        </nav>
         <ClientPortalButton className="client-portal-btn-desktop" />
         <button
           className="menu-toggle"
