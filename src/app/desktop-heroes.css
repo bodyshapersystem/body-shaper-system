@@ -1,0 +1,15 @@
+/* Desktop only: the image ITSELF contains the illustration, text and waves.
+   These rules only display the complete asset instead of the old portrait. */
+.hero-composed-desktop{display:none}
+@media(min-width:901px){
+ .home-hero-photo,.systems-art-hero,.experience-art-hero{background:#ece3d8!important;height:100dvh!important;min-height:600px!important;padding-top:76px!important;box-sizing:border-box!important;display:block!important;overflow:hidden!important}
+ .home-hero-photo::before,.home-hero-photo::after,.systems-art-hero::before,.systems-art-hero::after,.experience-art-hero::before,.experience-art-hero::after{content:none!important;display:none!important}
+ .home-hero-photo-inner,.systems-art-hero>.sys-hero-photo-inner,.experience-art-hero>.sys-hero-photo-inner,.home-hero-right-panel,.home-hero-side-whatsapp{display:none!important}
+ .home-hero-photo>.hero-composed-desktop,.systems-art-hero>.hero-composed-desktop,.experience-art-hero>.hero-composed-desktop{position:relative!important;display:block!important;width:100%!important;height:100%!important}
+ .hero-composed-desktop>img{display:block;width:100%;height:100%;object-fit:contain;object-position:center}
+ .hero-composed-cta{position:absolute;z-index:5;display:block;background:transparent}
+ .hero-composed-cta:focus-visible{outline:3px solid #825e4d;outline-offset:3px}
+ .hero-composed-blueprint-link{left:72%;top:49%;width:25%;height:14%}
+ .hero-composed-systems-link{left:29%;top:47%;width:16%;height:17%}
+ .hero-composed-whatsapp-link{left:0;bottom:3%;width:21%;height:15%}
+}
