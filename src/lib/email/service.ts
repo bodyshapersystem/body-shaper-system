@@ -582,3 +582,15 @@ export async function sendBlueprintOwnerAlerts(params: {
   "bodyshapersystem@gmail.com"
  ].map(recipient=>logAndSend({leadId,template:"BLUEPRINT_RECEIVED",sender:SENDERS.owner,recipient,subject:`New Body Blueprint™ lead: ${firstName} ${lastName}`,html})));
 }
+
+/** Prepare Your Experience™ - logged acknowledgements and private owner alerts. */
+export async function sendPrepareExperienceNotifications(params:{clientId:string;firstName:string;lastName:string;email:string}){
+ const {clientId,firstName,lastName,email}=params;
+ const link=`https://www.bodyshapersystem.com/portal/documents`;
+ const clientHtml=`<div style="font-family:Arial,sans-serif;background:#f5eee4;padding:36px;color:#382d28"><h1 style="font-family:Georgia,serif">You're almost ready. ✨</h1><p>Hi ${firstName}, thank you for completing Prepare Your Experience™.</p><p>We've received your pre-treatment evaluation and saved a signed copy to your private client portal. Our team will review your answers to help prepare your personalized treatment.</p><p><a href="${link}" style="background:#6f333d;color:white;padding:14px 24px;text-decoration:none">View My Documents</a></p><p>With care,<br>The Body Shaper Concierge</p></div>`;
+ const ownerHtml=`<h2>Prepare Your Experience™ completed</h2><p>${firstName} ${lastName} (${email}) completed their signed evaluation.</p><p><a href="https://www.bodyshapersystem.com/hub/clients/${encodeURIComponent(clientId)}?tab=documents">Review in Owner Hub</a></p>`;
+ return Promise.all([
+  logAndSend({clientId,template:"NEW_DOCUMENT_AVAILABLE",sender:SENDERS.concierge,recipient:email,subject:"Your experience is almost ready ✦ Body Shaper System™",html:clientHtml}),
+  ...["beautyboxmia@gmail.com","bodyshapersystem@gmail.com"].map(recipient=>logAndSend({clientId,template:"NEW_DOCUMENT_AVAILABLE",sender:SENDERS.owner,recipient,subject:`New signed evaluation: ${firstName} ${lastName}`,html:ownerHtml}))
+ ]);
+}
