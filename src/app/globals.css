@@ -5400,3 +5400,18 @@
     max-width:1340px;margin-left:auto;margin-right:auto;
   }
 }
+
+
+/* Undo decorative concentric rings: only preserve the ORIGINAL artwork.
+   No independently drawn contours at the sides of image banners. */
+@media(min-width:901px){
+ .home-hero-photo::before,.home-hero-photo::after,
+ .systems-art-hero::before,.systems-art-hero::after,
+ .experience-art-hero::before,.experience-art-hero::after{
+   content:none!important;
+   display:none!important;
+   background-image:none!important;
+ }
+ .home-hero-photo{background:var(--beige,#EDE2D0)!important;}
+ .systems-art-hero,.experience-art-hero{background:#F4F1ED!important;}
+}
