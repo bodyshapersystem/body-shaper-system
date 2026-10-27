@@ -482,7 +482,7 @@ export async function sendWeMissYouEmail(params: {
   const { clientId, firstName, email } = params;
   const { subject, html } = buildWeMissYouEmail({
     firstName,
-    blueprintUrl: "https://form.jotform.com/beautyboxmia/lets-build-your-blueprint",
+    blueprintUrl: "https://www.bodyshapersystem.com/body-blueprint#native-blueprint",
   });
   return logAndSend({ clientId, template: "WE_MISS_YOU", sender: SENDERS.concierge, recipient: email, subject, html });
 }
