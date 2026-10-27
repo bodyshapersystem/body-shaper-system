@@ -5192,3 +5192,50 @@
   .page-hero h1{font-size:clamp(42px,4.1vw,78px);}
   .wave-divider{overflow:hidden;}
 }
+
+
+/* DESKTOP ARTWORK SAFETY: preserve complete illustrated hero compositions.
+   Portrait source images remain at their native proportions with side treatments,
+   never stretched or cropped to fill a wide monitor. */
+@media (min-width:901px){
+  .home-hero-photo{
+    isolation:isolate;width:100%;height:100vh;height:100dvh;min-height:680px;
+    background:radial-gradient(ellipse at 50% 42%,#695145 0%,#382b29 52%,#241d1c 100%);
+  }
+  .home-hero-photo::before,.home-hero-photo::after{
+    content:"";position:absolute;top:0;bottom:0;width:24%;z-index:0;
+    pointer-events:none;opacity:.32;
+    background:repeating-radial-gradient(ellipse at center,
+      transparent 0px,transparent 31px,rgba(214,185,150,.27) 32px,
+      transparent 34px,transparent 76px);
+  }
+  .home-hero-photo::before{left:0;}
+  .home-hero-photo::after{right:0;transform:scaleX(-1);}
+  .home-hero-photo-inner{
+    height:100%;width:auto;max-width:100%;
+    aspect-ratio:1023/1537;margin:0 auto;
+    z-index:1;flex:0 0 auto;
+  }
+  .home-hero-photo-inner img{
+    width:100%;height:100%;object-fit:contain;object-position:center center;
+  }
+  .sys-hero-photo{
+    min-height:100vh;min-height:100dvh;width:100%;
+    background:linear-gradient(90deg,#e8dfd3 0%,#f4f1ed 29%,#f4f1ed 71%,#e8dfd3 100%);
+  }
+  .sys-hero-photo-inner{max-width:min(1024px,100%);width:auto;height:min(100dvh,1536px);aspect-ratio:1024/1536;}
+  .sys-hero-photo-inner img{object-fit:contain;}
+  .desktop-more-compact-only{display:none!important;}
+  #siteHeader .desktop-top-nav{gap:clamp(7px,1.05vw,19px);}
+  #siteHeader .logo{font-size:clamp(18px,1.5vw,24px);}
+}
+@media (min-width:901px) and (max-width:1320px){
+  #siteHeader .desktop-secondary-link{display:none;}
+  .desktop-more-compact-only{display:block!important;}
+}
+/* Keep full-bleed photographic heroes uncropped when the entire artwork
+   contains essential copy, with backgrounds filling the side space. */
+@media (min-width:901px){
+  .bp-hero-wrap .page-hero .photo img,
+  .sys-hero-wrap .page-hero .photo img{object-fit:contain;}
+}
