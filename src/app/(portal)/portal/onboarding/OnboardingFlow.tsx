@@ -122,9 +122,9 @@ export default function OnboardingFlow({
           <a
             href={step === 1 ? agreementUrl : consentUrl}
             className="onb-cta"
-            target={step === 1 && agreementUrl.startsWith("/") ? "_self" : "_blank"}
+            target={(step === 1 ? agreementUrl : consentUrl).startsWith("/") ? "_self" : "_blank"}
             rel={step === 1 && agreementUrl.startsWith("/") ? undefined : "noopener noreferrer"}
-            onClick={() => {if (!(step===1 && agreementUrl.startsWith("/"))) setClickedContinue(true);}}
+            onClick={() => {if (!((step === 1 ? agreementUrl : consentUrl).startsWith("/"))) setClickedContinue(true);}}
           >
             Continue
           </a>
