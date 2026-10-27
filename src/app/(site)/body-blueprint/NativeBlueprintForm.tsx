@@ -12,7 +12,7 @@ export default function NativeBlueprintForm(){
  const section=blueprintSections[step];
  function visible(f: (typeof blueprintSections)[number]["fields"][number]){return !("showWhen" in f && f.showWhen && answers[f.showWhen.id]!==f.showWhen.value);}
  function update(id:string,value:string|string[]){setAnswers(a=>({...a,[id]:value}));}
- function ready(){return section.fields.every(f=>!visible(f)||!("required" in f && f.required)|| (Array.isArray(answers[f.id])?answers[f.id].length>0:typeof answers[f.id]==="string"&&answers[f.id].trim().length>0));}
+ function ready(){return section.fields.every(f=>{const answer=answers[f.id];return !visible(f)||!("required" in f && f.required)||(Array.isArray(answer)?answer.length>0:typeof answer==="string"&&answer.trim().length>0);});}
  async function next(){
   setError("");
   if(!ready()){setError("Please complete all required questions.");return;}
