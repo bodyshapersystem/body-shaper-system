@@ -6,7 +6,6 @@ type JotformQuestion = { qid?:string; type?:string; text?:string; name?:string; 
 const forms = [
  {title:"Prepare Your Experience™", id:"261860243106046"},
  {title:"Prepare Your Experience™ — Ambassador", id:"262157878805066"},
- {title:"Almost Ready™ — Medical Waiver", id:"261875936820064", url:"https://form.jotform.com/beautyboxmia/waiver---release-form"},
  {title:"Content Release Agreement", id:"262001828942051"}
 ];
 async function readQuestions(formId:string):Promise<{questions:JotformQuestion[];error?:string}> {
@@ -26,6 +25,7 @@ export default async function FormsMigrationInventory() {
  return <main className="cat-body portal-page" style={{maxWidth:1100}}>
   <div className="portal-page-head"><p className="portal-eyebrow">Owner Hub · Migration Audit</p><h1>Original Jotform Question Inventory</h1></div>
   <p style={{maxWidth:760,marginBottom:24}}>Owner-only reference for migrating the original language and conditional questions into Body Shaper System™. Jotform remains the signing system until a verified electronic-signature workflow is implemented. This page never exposes Jotform credentials or customer submissions.</p>
+  <p><strong>Medical Waiver / Almost Ready™:</strong> The existing link uses a Jotform vanity URL. Its numeric form ID must be verified before importing its questions; no unrelated form will be substituted.</p>
   {items.map(f=><section key={f.id} style={{padding:24,marginBottom:24,border:"1px solid #bcae9e",borderRadius:12}}>
    <h2>{f.title}</h2><p style={{fontSize:13,opacity:.75}}>Form ID: {f.id} · {f.questions.length} fields/questions</p>
    {f.error&&<p role="alert">{f.error}</p>}
