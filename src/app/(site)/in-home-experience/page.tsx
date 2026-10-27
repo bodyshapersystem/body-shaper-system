@@ -22,6 +22,7 @@ export default function InHomeExperiencePage() {
     Expert care, where you are. Premium technology, personalized treatment,
     total convenience.
   </h1>
+  <div className="hero-composed-desktop"><img src="/images/experience-hero-editorial.svg" alt="In Home Experience — original editorial artwork extended into a panoramic wave composition" /></div>
   <div className="sys-hero-photo-inner">
     <img
       src="/images/inhome-hero-banner.webp"

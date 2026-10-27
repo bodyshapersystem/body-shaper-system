@@ -74,7 +74,7 @@ export default function SystemsPage() {
   <h1 className="sr-only">
     Personalized Systems™ — One Blueprint. Five Systems. Built entirely for you.
   </h1>
-  <div className="sys-hero-photo-inner">
+  <div className="hero-composed-desktop"><img src="/images/systems-hero-editorial.svg" alt="Personalized Systems — complete original artwork with panoramic wave extensions" /></div>\n  <div className="sys-hero-photo-inner">
     <img
       src="/images/systems-hero-banner.webp"
       alt="Body Shaper System — Personalized Systems™: one blueprint, five systems built entirely for you — Sculpt Start, Sculpt Signature, Mom Reset, GLP-1 Reshape, Total Body Optimization"

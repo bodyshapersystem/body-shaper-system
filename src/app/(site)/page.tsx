@@ -28,6 +28,12 @@ export default function HomePage() {
           </Link>
         </div>
         <a className="home-hero-side-whatsapp" href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer">◉ &nbsp; CHAT WITH A SPECIALIST</a>
+        <div className="hero-composed-desktop">
+          <img src="/images/home-hero-editorial.svg" alt="Body Shaper System — luxury panoramic editorial hero, personalized Body Blueprint" />
+          <a className="hero-composed-cta hero-composed-blueprint-link" href="/body-blueprint" aria-label="Create your Body Blueprint" />
+          <a className="hero-composed-cta hero-composed-systems-link" href="/systems" aria-label="Explore systems" />
+          <a className="hero-composed-cta hero-composed-whatsapp-link" href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer" aria-label="Chat with a specialist on WhatsApp" />
+        </div>
         <div className="home-hero-photo-inner">
           <img
             src="/images/home-hero.webp"
