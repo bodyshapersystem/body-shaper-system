@@ -5636,3 +5636,9 @@
 .holiday-ribbon-image-track{display:block!important;height:100%!important;width:100%!important;background-size:auto 300%!important;background-position:0 50%!important;background-repeat:repeat-x!important}
 .holiday-ribbon-image + .home-hero-photo,.holiday-ribbon-image + main,.holiday-ribbon-image + section{margin-top:0!important;padding-top:0!important}
 @media(max-width:768px){.holiday-ribbon-image{height:100px!important}.holiday-ribbon-image-track{background-size:auto 330%!important}}
+
+/* Final mobile polish: visible moving satin lettering and clear WhatsApp button */
+@keyframes holiday-satin-marquee{from{background-position-x:0}to{background-position-x:-1400px}}
+.holiday-ribbon-image-track{animation:holiday-satin-marquee 22s linear infinite!important;will-change:background-position!important}
+@media(max-width:768px){.holiday-ribbon-image-track{animation-duration:26s!important}.home-hero-photo-inner .home-hero-whatsapp-btn{top:8%!important;right:5%!important}}
+@media(prefers-reduced-motion:reduce){.holiday-ribbon-image-track{animation:none!important}}
