@@ -5648,3 +5648,14 @@
 .holiday-ribbon-image-track{height:100%!important;width:100%!important;background-size:auto 300%!important;background-position:0 50%!important;animation:holiday-satin-marquee 28s linear infinite!important}
 .holiday-ribbon-image + .home-hero-photo{margin:0!important;padding-top:0!important;border-top:0!important}
 @media(max-width:768px){.holiday-ribbon-image{height:100px!important;min-height:100px!important}.holiday-ribbon-image-track{background-size:auto 300%!important}}
+
+/* Homepage mobile: approved ticker touches hero; no dark spacer above or below photo. */
+@media(max-width:900px){
+ .holiday-ribbon-image{height:100px!important;min-height:100px!important;margin:0!important;background:#470b1f!important}
+ .holiday-ribbon-image-track{height:100%!important;animation:holiday-satin-marquee 24s linear infinite!important}
+ .home-hero-photo{height:auto!important;min-height:0!important;display:block!important;background:transparent!important;margin:0!important;padding:0!important;overflow:hidden!important}
+ .home-hero-photo-inner{height:auto!important;min-height:0!important;max-height:none!important;width:100%!important;aspect-ratio:auto!important;display:block!important}
+ .home-hero-photo-inner>img{width:100%!important;height:auto!important;object-fit:contain!important;display:block!important}
+ .home-hero-photo-inner .home-hero-whatsapp-btn{top:9%!important}
+ .home-whatis-wrap{margin-top:0!important;padding-top:0!important}
+}
