@@ -16,7 +16,7 @@ export default function SiteLayout({
       <RevealObserver />
       <VisitorPulse />
       <Header />
-      <Link href="/holiday-333" className="holiday-ribbon-image" aria-label="Explore the 333 Holiday Sculpt Ritual"><span className="holiday-ribbon-image-track" aria-hidden="true" /></Link>
+      <Link href="/holiday-333" className="holiday-ribbon-image" aria-label="Explore the 333 Holiday Sculpt Ritual"><span className="holiday-ribbon-marquee" aria-hidden="true"><span className="holiday-ribbon-tile" /><span className="holiday-ribbon-tile" /><span className="holiday-ribbon-tile" /><span className="holiday-ribbon-tile" /></span></Link>
       {children}
       <Footer />
       <WhatsAppFloat />
