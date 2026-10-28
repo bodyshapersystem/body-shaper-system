@@ -5716,3 +5716,10 @@
 /* Crop precisely at the start of the nude 4-week panel (hero is 1320 x 812 in the approved artwork). */
 .holiday-333-poster-crop{aspect-ratio:1320 / 812!important;overflow:hidden!important}
 .holiday-333-poster-crop img{width:100%!important;height:auto!important;position:absolute!important;top:0!important;left:0!important}
+
+/* 333 editorial typography follows the site's existing brand font tokens. */
+.holiday-333-editorial{font-family:var(--sans),sans-serif!important}
+.holiday-333-copy h1,.holiday-333-week h2,.holiday-333-price,.holiday-333-checkout h2{font-family:var(--serif),Georgia,serif!important;font-weight:400!important}
+.holiday-333-copy p,.holiday-333-week p,.holiday-333-week>span,.holiday-333-eyebrow{font-family:var(--sans),sans-serif!important}
+.holiday-333-copy h1{letter-spacing:-.025em!important}
+.holiday-333-eyebrow,.holiday-333-week>span{text-transform:uppercase;letter-spacing:.16em}
