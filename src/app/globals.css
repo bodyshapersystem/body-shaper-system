@@ -5728,3 +5728,9 @@
 @media(max-width:900px){.holiday-ribbon-image{height:124px!important;min-height:124px!important}.holiday-ribbon-marquee{animation-duration:17s!important}.holiday-ribbon-tile{background-size:auto 170%!important}}
 @media(min-width:901px){.holiday-ribbon-image{height:124px!important;min-height:124px!important}.holiday-ribbon-marquee{animation-duration:19s!important}}
 @media(prefers-reduced-motion:reduce){.holiday-ribbon-marquee{animation:none!important}}
+
+/* Approved gift artwork only — no CSS recreation of campaign. */
+.home-holiday-gift{width:100%;margin:0;padding:0;background:#f3e8d9}
+.home-holiday-gift-link{display:block;width:100%;line-height:0}
+.home-holiday-gift-link img{display:block;width:100%;height:auto;object-fit:contain}
+.home-holiday-gift-link:focus-visible{outline:3px solid #6b5240;outline-offset:-3px}
