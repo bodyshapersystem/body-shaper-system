@@ -5723,3 +5723,8 @@
 .holiday-333-copy p,.holiday-333-week p,.holiday-333-week>span,.holiday-333-eyebrow{font-family:var(--sans),sans-serif!important}
 .holiday-333-copy h1{letter-spacing:-.025em!important}
 .holiday-333-eyebrow,.holiday-333-week>span{text-transform:uppercase;letter-spacing:.16em}
+
+/* Approved fuller, calmer holiday satin ribbon proportions. */
+@media(max-width:900px){.holiday-ribbon-image{height:124px!important;min-height:124px!important}.holiday-ribbon-marquee{animation-duration:17s!important}.holiday-ribbon-tile{background-size:auto 170%!important}}
+@media(min-width:901px){.holiday-ribbon-image{height:124px!important;min-height:124px!important}.holiday-ribbon-marquee{animation-duration:19s!important}}
+@media(prefers-reduced-motion:reduce){.holiday-ribbon-marquee{animation:none!important}}
