@@ -5620,3 +5620,8 @@
 @keyframes holiday-art-scroll{to{background-position:-2200px center}}
 @media(max-width:768px){.holiday-ribbon-image{top:62px;height:42px}}
 @media(prefers-reduced-motion:reduce){.holiday-ribbon-image-track{animation:none}}
+
+/* Improve legibility: display the uploaded banner's central satin artwork, not its white canvas margins. */
+.holiday-ribbon-image{height:60px;background:#400919;border:0;box-shadow:none}
+.holiday-ribbon-image-track{height:100%;background-size:auto 185%;background-position:0 50%;animation-duration:65s}
+@media(max-width:768px){.holiday-ribbon-image{height:56px;top:62px}.holiday-ribbon-image-track{background-size:auto 200%;animation-duration:75s}}
