@@ -16,7 +16,7 @@ export default function SiteLayout({
       <RevealObserver />
       <VisitorPulse />
       <Header />
-      <Link href="/holiday-333" className="holiday-ribbon holiday-ribbon-fixed" aria-label="Shop the 333 Holiday Sculpt Ritual"><span className="holiday-ribbon-track">✦ THE 333 HOLIDAY SCULPT RITUAL ✦ 3 TECHNOLOGIES · 9 TREATMENTS · 4 WEEKS ✦ HOLIDAY EXCLUSIVE $1,290 ✦ THE 333 HOLIDAY SCULPT RITUAL ✦ 3 TECHNOLOGIES · 9 TREATMENTS · 4 WEEKS ✦ HOLIDAY EXCLUSIVE $1,290 ✦ </span></Link>
+      <Link href="/holiday-333" className="holiday-ribbon-image" aria-label="Explore the 333 Holiday Sculpt Ritual"><span className="holiday-ribbon-image-track" aria-hidden="true" /></Link>
       {children}
       <Footer />
       <WhatsAppFloat />
