@@ -5712,3 +5712,7 @@
 .holiday-ribbon-marquee{animation-duration:11s!important}
 @media(max-width:900px){.holiday-ribbon-marquee{animation-duration:10s!important}}
 @media(prefers-reduced-motion:reduce){.holiday-ribbon-marquee{animation:none!important}}
+
+/* Crop precisely at the start of the nude 4-week panel (hero is 1320 x 812 in the approved artwork). */
+.holiday-333-poster-crop{aspect-ratio:1320 / 812!important;overflow:hidden!important}
+.holiday-333-poster-crop img{width:100%!important;height:auto!important;position:absolute!important;top:0!important;left:0!important}
