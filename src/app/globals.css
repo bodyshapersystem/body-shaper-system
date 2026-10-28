@@ -5663,3 +5663,10 @@
 /* Fixed header must not overlay the first half of the promotional ribbon. */
 .holiday-ribbon-image{margin-top:76px!important;box-sizing:border-box!important}
 @media(max-width:900px){.holiday-ribbon-image{margin-top:72px!important;height:100px!important;min-height:100px!important}.home-hero-photo{margin-top:0!important}}
+
+/* Animate the actual lettering and satin artwork, not just a static strip. */
+@keyframes holiday-banner-rolling{0%{transform:translate3d(0,0,0)}100%{transform:translate3d(-50%,0,0)}}
+.holiday-ribbon-image{overflow:hidden!important}
+.holiday-ribbon-image-track{width:200%!important;min-width:200%!important;background-image:url('/images/3C3DF875-846D-41E9-8DEA-D43491C46DF0.png')!important;background-repeat:repeat-x!important;background-position:center center!important;background-size:auto 300%!important;animation:holiday-banner-rolling 18s linear infinite!important;will-change:transform!important}
+@media(max-width:900px){.holiday-ribbon-image-track{animation-duration:16s!important}}
+@media(prefers-reduced-motion:reduce){.holiday-ribbon-image-track{animation:none!important}}
