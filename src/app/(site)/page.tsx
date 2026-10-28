@@ -69,8 +69,6 @@ export default function HomePage() {
           />
         </div>
       </section>
-
-      <section aria-label="333 Holiday gift" style={{ background: "#390c1d" }}><Link href="/holiday-333" className="holiday-campaign-image-link" aria-label="Open the 333 Holiday Sculpt Ritual details"><picture><img src="/images/1BD30362-0EA0-4584-8654-504F4293DB8B.jpeg?v=gift-corrected" alt="Open your holiday gift from Body Shaper System" width="1600" height="900" loading="eager" style={{display:"block",width:"100%",height:"auto"}} /></picture></Link></section>
       <div className="home-whatis-wrap">
         <div className="home-deco" style={{top: '20px', right: '6vw', width: '130px', height: '50px'}} aria-hidden="true">
           <svg viewBox="0 0 140 60" width="100%" height="100%" fill="none"><path d="M0 30C20 10 40 10 60 30C80 50 100 50 120 30C130 20 135 15 140 10" stroke="#6B5240" strokeWidth="0.6"/></svg>
