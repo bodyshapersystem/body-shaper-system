@@ -14,6 +14,7 @@ export const metadata: Metadata = buildMetadata({
 export default function HomePage() {
   return (
     <>
+      <Link href="/holiday-333" className="holiday-ribbon" aria-label="Explore the 333 Holiday Sculpt Ritual"><span className="holiday-ribbon-track">✦ THE 333 HOLIDAY SCULPT RITUAL ✦ 3 TECHNOLOGIES · 9 TREATMENTS · 4 WEEKS ✦ HOLIDAY EXCLUSIVE $1,290 ✦ THE 333 HOLIDAY SCULPT RITUAL ✦ 3 TECHNOLOGIES · 9 TREATMENTS · 4 WEEKS ✦ HOLIDAY EXCLUSIVE $1,290 ✦ </span></Link>
       <section className="home-hero-photo" id="top">
         <h1 className="sr-only">
           Body Shaper System™ — Personalized, Non-Surgical Body Contouring
@@ -70,6 +71,7 @@ export default function HomePage() {
         </div>
       </section>
 
+      <Link href="/holiday-333" className="holiday-gift" aria-label="Explore the 333 Holiday Sculpt Ritual"><div className="holiday-gift-copy"><span className="holiday-gift-kicker">BODY SHAPER SYSTEM™ · HOLIDAY EDITION</span><h2>THE 333<br/>HOLIDAY SCULPT RITUAL</h2><p>3 TECHNOLOGIES · 9 TREATMENTS · 4 WEEKS</p><strong>EXPLORE THE 333 RITUAL →</strong></div><div className="holiday-gift-box" aria-hidden="true"><div className="holiday-gift-lid"/><div className="holiday-gift-vertical"/><div className="holiday-gift-horizontal"/><div className="holiday-gift-bow">❦</div></div></Link>
       <div className="home-whatis-wrap">
         <div className="home-deco" style={{top: '20px', right: '6vw', width: '130px', height: '50px'}} aria-hidden="true">
           <svg viewBox="0 0 140 60" width="100%" height="100%" fill="none"><path d="M0 30C20 10 40 10 60 30C80 50 100 50 120 30C130 20 135 15 140 10" stroke="#6B5240" strokeWidth="0.6"/></svg>
