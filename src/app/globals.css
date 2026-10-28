@@ -5685,3 +5685,30 @@
 @keyframes holiday-tile-scroll{from{transform:translateX(0)}to{transform:translateX(-1800px)}}
 @media(max-width:900px){.holiday-ribbon-marquee{animation-duration:17s!important}}
 @media(prefers-reduced-motion:reduce){.holiday-ribbon-marquee{animation:none!important}}
+
+/* Approved holiday poster: show only its first panel, before the nude program band. */
+.holiday-333-editorial{background:#f3e8d9;color:#352721;min-height:100vh}
+.holiday-333-poster-crop{position:relative;width:100%;aspect-ratio:1.67;overflow:hidden;background:#410a1d}
+.holiday-333-poster-crop img{position:absolute;top:0;left:0;width:100%;height:auto;display:block}
+.holiday-333-copy{max-width:980px;margin:0 auto;padding:65px 24px 80px;text-align:center}
+.holiday-333-eyebrow{font-size:11px;letter-spacing:.24em;color:#8b6556;font-weight:600}
+.holiday-333-copy h1{font-family:Georgia,serif;font-weight:400;font-size:clamp(30px,4vw,53px);line-height:1.16;max-width:760px;margin:18px auto 22px}
+.holiday-333-intro{font-size:16px;line-height:1.85;max-width:660px;margin:0 auto 40px}
+.holiday-333-week-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));border-top:1px solid #cdbbaa;border-bottom:1px solid #cdbbaa;margin:38px 0 48px}
+.holiday-333-week{padding:28px 15px;border-right:1px solid #cdbbaa}
+.holiday-333-week:last-child{border-right:0}
+.holiday-333-week>span{font-size:11px;letter-spacing:.2em;color:#986b58}
+.holiday-333-week h2{font-family:Georgia,serif;font-size:24px;font-weight:400;margin:12px 0}
+.holiday-333-week p{font-size:13px;line-height:1.65}
+.holiday-333-pricing{padding:24px 0 34px}
+.holiday-333-original{font-size:15px;margin:20px 0 0}
+.holiday-333-price{font-family:Georgia,serif;font-size:clamp(58px,8vw,90px);line-height:1.1;color:#55152b;margin:10px 0}
+.holiday-333-payment{max-width:600px;margin:25px auto 0;font-size:15px;line-height:1.8}
+.holiday-333-checkout{padding:30px 0}
+.holiday-333-checkout h2{font-family:Georgia,serif;font-size:32px;font-weight:400;margin-bottom:24px}
+.holiday-333-terms{font-size:12px;line-height:1.85;max-width:660px;margin:20px auto 0;color:#6b5a52}
+@media(max-width:700px){.holiday-333-copy{padding:45px 22px 65px}.holiday-333-week-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.holiday-333-week:nth-child(2){border-right:0}.holiday-333-week:nth-child(-n+2){border-bottom:1px solid #cdbbaa}.holiday-333-week{padding:23px 12px}}
+/* Faster continuously moving original burgundy satin image. */
+.holiday-ribbon-marquee{animation-duration:11s!important}
+@media(max-width:900px){.holiday-ribbon-marquee{animation-duration:10s!important}}
+@media(prefers-reduced-motion:reduce){.holiday-ribbon-marquee{animation:none!important}}
