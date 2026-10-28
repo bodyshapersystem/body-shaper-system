@@ -5734,3 +5734,12 @@
 .home-holiday-gift-link{display:block;width:100%;line-height:0}
 .home-holiday-gift-link img{display:block;width:100%;height:auto;object-fit:contain}
 .home-holiday-gift-link:focus-visible{outline:3px solid #6b5240;outline-offset:-3px}
+
+/* 2026-10-28: precise mobile header -> ribbon -> hero stack. No ivory/white gutters. */
+@media(max-width:900px){
+  .holiday-ribbon-image{position:relative!important;top:auto!important;margin:0!important;margin-top:58px!important;padding:0!important;border:0!important;box-shadow:none!important;height:108px!important;min-height:108px!important;background:#450719!important;overflow:hidden!important}
+  .holiday-ribbon-marquee{height:100%!important;animation-duration:17s!important}
+  .holiday-ribbon-tile{height:100%!important;background-size:auto 240%!important;background-position:center center!important}
+  .holiday-ribbon-image+.home-hero-photo,.home-hero-photo{margin-top:0!important;border-top:0!important}
+}
+@media(min-width:901px){.holiday-ribbon-image{margin-top:76px!important}.holiday-ribbon-tile{background-size:auto 220%!important}}
