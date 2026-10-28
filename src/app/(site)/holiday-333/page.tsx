@@ -4,16 +4,9 @@ import HolidayCheckout from "@/components/HolidayCheckout";
 
 export const metadata: Metadata = buildMetadata({
   title: "333 Holiday Sculpt Ritual | Body Shaper System Miami",
-  description: "Three Exilis Ultra, three Endospheres, three EMS sessions. Nine treatments over four weeks for $1,290 in Miami.",
+  description: "Three Exilis Ultra, three Endospheres, three EMS sessions. Nine personalized treatments for $1,290 in Miami.",
   path: "/holiday-333",
 });
-
-const weeks = [
-  { week: "01", title: "Kickstart", sessions: "Exilis Ultra · Endospheres · EMS" },
-  { week: "02", title: "Intensify", sessions: "Exilis Ultra · EMS" },
-  { week: "03", title: "Sculpt & Define", sessions: "Exilis Ultra · Endospheres · EMS" },
-  { week: "04", title: "Complete", sessions: "Endospheres" },
-];
 
 export default function Holiday333Page() {
   return (
@@ -23,17 +16,9 @@ export default function Holiday333Page() {
       </div>
       <section className="holiday-333-copy" aria-label="Your 333 holiday ritual">
         <p className="holiday-333-eyebrow">THE HOLIDAY SCULPT RITUAL</p>
-        <h1>Three technologies. Nine treatments. Four weeks dedicated to you.</h1>
+        <h1>Three technologies. Nine treatments. One personalized strategy.</h1>
         <p className="holiday-333-intro">A personalized approach to sculpting, skin firmness and body confidence, brought to your door in Miami. Your Body Blueprint™ is included.</p>
-        <div className="holiday-333-week-grid">
-          {weeks.map(({week,title,sessions}) => (
-            <div className="holiday-333-week" key={week}>
-              <span>WEEK {week}</span>
-              <h2>{title}</h2>
-              <p>{sessions}</p>
-            </div>
-          ))}
-        </div>
+        <p className="holiday-333-intro">Your nine sessions include 3 Exilis Ultra, 3 Endospheres and 3 EMS treatments. The order, spacing and combination of sessions are determined after your personalized Body Blueprint™ assessment. No two bodies follow exactly the same strategy.</p>
         <div className="holiday-333-pricing">
           <p className="holiday-333-eyebrow">CHRISTMAS SPECIAL</p>
           <p className="holiday-333-original">Regular price <s>$1,575</s></p>
