@@ -14,7 +14,6 @@ export const metadata: Metadata = buildMetadata({
 export default function HomePage() {
   return (
     <>
-      <Link href="/holiday-333" className="holiday-ribbon" aria-label="Explore the 333 Holiday Sculpt Ritual"><span className="holiday-ribbon-track">✦ THE 333 HOLIDAY SCULPT RITUAL ✦ 3 TECHNOLOGIES · 9 TREATMENTS · 4 WEEKS ✦ HOLIDAY EXCLUSIVE $1,290 ✦ THE 333 HOLIDAY SCULPT RITUAL ✦ 3 TECHNOLOGIES · 9 TREATMENTS · 4 WEEKS ✦ HOLIDAY EXCLUSIVE $1,290 ✦ </span></Link>
       <section className="home-hero-photo" id="top">
         <h1 className="sr-only">
           Body Shaper System™ — Personalized, Non-Surgical Body Contouring
