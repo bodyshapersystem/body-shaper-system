@@ -5677,3 +5677,11 @@
  .holiday-ribbon-image-track{height:112px!important;width:200%!important;min-width:200%!important;background-size:auto 175%!important;background-position:0 center!important;animation:holiday-banner-rolling 20s linear infinite!important}
  .home-hero-photo{margin-top:0!important}
 }
+
+/* Seamless image marquee: move actual repeated tiles, not a stationary background. */
+.holiday-ribbon-image{overflow:hidden!important}
+.holiday-ribbon-marquee{display:flex!important;flex-wrap:nowrap!important;width:max-content!important;height:100%!important;animation:holiday-tile-scroll 20s linear infinite!important;will-change:transform!important}
+.holiday-ribbon-tile{display:block!important;flex:0 0 auto!important;width:900px!important;height:100%!important;background-image:url('/images/3C3DF875-846D-41E9-8DEA-D43491C46DF0.png')!important;background-size:auto 175%!important;background-position:center!important;background-repeat:repeat-x!important}
+@keyframes holiday-tile-scroll{from{transform:translateX(0)}to{transform:translateX(-1800px)}}
+@media(max-width:900px){.holiday-ribbon-marquee{animation-duration:17s!important}}
+@media(prefers-reduced-motion:reduce){.holiday-ribbon-marquee{animation:none!important}}
