@@ -5670,3 +5670,10 @@
 .holiday-ribbon-image-track{width:200%!important;min-width:200%!important;background-image:url('/images/3C3DF875-846D-41E9-8DEA-D43491C46DF0.png')!important;background-repeat:repeat-x!important;background-position:center center!important;background-size:auto 300%!important;animation:holiday-banner-rolling 18s linear infinite!important;will-change:transform!important}
 @media(max-width:900px){.holiday-ribbon-image-track{animation-duration:16s!important}}
 @media(prefers-reduced-motion:reduce){.holiday-ribbon-image-track{animation:none!important}}
+
+/* Definitive mobile banner correction: lower ribbon below fixed menu AND show whole text. */
+@media(max-width:900px){
+ .holiday-ribbon-image{position:relative!important;top:auto!important;margin-top:92px!important;height:112px!important;min-height:112px!important;background:#46091d!important;overflow:hidden!important}
+ .holiday-ribbon-image-track{height:112px!important;width:200%!important;min-width:200%!important;background-size:auto 175%!important;background-position:0 center!important;animation:holiday-banner-rolling 20s linear infinite!important}
+ .home-hero-photo{margin-top:0!important}
+}
