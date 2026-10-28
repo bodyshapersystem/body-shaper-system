@@ -14,7 +14,7 @@ const businessJsonLd = {
   name: "Body Shaper System™",
   alternateName: "Body Shaper System",
   description:
-    "Body Shaper System™ creates Personalized Systems™ — not one-size-fits-all treatments. Luxury, mobile body contouring in Miami, built around your Body Blueprint™ using Exilis®, Endospheres®, EMS® and Lymphatic Protocols™.",
+    "Body Shaper System™ creates Personalized Systems™ — not one-size-fits-all treatments. Personalized mobile body contouring and skin-firming treatments in Miami, including aesthetic support during and after weight loss. At-home services include Exilis®, Endospheres®, EMS® and lymphatic protocols, guided by your Body Blueprint™.",
   url: "https://www.bodyshapersystem.com",
   logo: "https://www.bodyshapersystem.com/images/bss-wordmark.png",
   image: "https://www.bodyshapersystem.com/images/og-image.jpg",
@@ -53,11 +53,11 @@ const businessJsonLd = {
 export const metadata: Metadata = {
   metadataBase: new URL("https://www.bodyshapersystem.com"),
   title: {
-    default: "Body Shaper System™ | Personalized Body Optimization, Miami",
+    default: "Mobile Body Contouring & Skin Firming Miami | Body Shaper System™",
     template: "%s | Body Shaper System™",
   },
   description:
-    "Body Shaper System™ creates Personalized Systems™ — not one-size-fits-all treatments. Luxury, mobile body contouring in Miami, built around your Body Blueprint™.",
+    "Body Shaper System™ creates Personalized Systems™ — not one-size-fits-all treatments. Personalized body contouring and skin-firming treatments at your home in Miami. Explore post-weight-loss, GLP-1 and postpartum body care with Body Blueprint™.",
   alternates: {
     canonical: "https://www.bodyshapersystem.com",
   },
@@ -87,7 +87,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Body Shaper System™",
     description:
-      "Personalized Body Systems. Delivered to You. Luxury mobile body contouring in Miami.",
+      "Personalized Body Systems. Delivered to You. Mobile body contouring and skin-firming treatments at home in Miami.",
     url: "https://www.bodyshapersystem.com",
     siteName: "Body Shaper System™",
     locale: "en_US",
@@ -105,7 +105,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Body Shaper System™",
     description:
-      "Personalized Body Systems. Delivered to You. Luxury mobile body contouring in Miami.",
+      "Personalized Body Systems. Delivered to You. Mobile body contouring and skin-firming treatments at home in Miami.",
     images: ["/images/og-image.jpg"],
   },
 };
