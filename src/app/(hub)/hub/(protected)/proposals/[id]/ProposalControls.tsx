@@ -39,7 +39,7 @@ export default function ProposalControls(props: {
     <div className="pt-card">
       <h3>private link</h3>
       <span className={`pt-pill ${props.status.toLowerCase()}`}>{props.status.toLowerCase()}</span>
-      {props.status !== "ACTIVE" && <p className="pb-hint">the link only opens while the proposal is active.</p>}
+      {props.status !== "ACTIVE" && <p className="pb-err">this link is OFF — press «activate» so the client can open it.</p>}
       <div className="pt-link">{props.link}</div>
       <div className="pt-btns">
         <button type="button" className="pt-btn" onClick={() => copy(props.link, "link")}>{copied === "link" ? "copied ✓" : "copy link"}</button>

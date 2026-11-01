@@ -92,7 +92,7 @@ export async function saveProposal(input: ProposalInput): Promise<{ id?: string;
     revalidatePath("/hub/proposals");
     return { id: input.id };
   }
-  const created = await prisma.clientProposal.create({ data: { ...data, token: newProposalToken(), status: "DRAFT", createdById: user.id } });
+  const created = await prisma.clientProposal.create({ data: { ...data, token: newProposalToken(), status: "ACTIVE", createdById: user.id } });
   revalidatePath("/hub/proposals");
   return { id: created.id };
 }
