@@ -17,9 +17,8 @@ export const metadata: Metadata = {
 };
 export const viewport: Viewport = { themeColor: "#3a181b" };
 
-/** Non-production sample at /p/sample (en) and /p/sample-es — placeholder name, checkout disabled. */
+/** Master sample at /p/sample (en) and /p/sample-es — placeholder name, checkout disabled, noindex. */
 function sampleLang(token: string): "en" | "es" | null {
-  if (process.env.VERCEL_ENV === "production") return null;
   if (token === "sample") return "en";
   if (token === "sample-es") return "es";
   return null;
