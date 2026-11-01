@@ -22,7 +22,7 @@ export default function AfterWeightLossPage(){
    <span className="eyebrow">GLP-1 Reshape™ · Miami In-Home Experience</span>
    <h1 style={{fontFamily:"var(--serif)",fontWeight:400,fontSize:"clamp(38px,5vw,78px)",lineHeight:1.1,maxWidth:1050,margin:"20px 0 30px"}}>Your body after weight loss deserves a <em>personalized next chapter.</em></h1>
    <p style={{fontSize:"clamp(17px,1.3vw,21px)",lineHeight:1.75,maxWidth:830}}>Whether you have lost weight through lifestyle changes, bariatric care, or clinician-prescribed GLP-1 medication, your goals may shift toward the appearance of skin firmness, muscle definition and body confidence. Our non-surgical body contouring plans in Miami begin with understanding your body—not selling you a one-size-fits-all treatment.</p>
-   <div style={{display:"flex",gap:18,flexWrap:"wrap",marginTop:32}}><Link className="btn btn-primary" href="/body-blueprint">Build Your Body Blueprint™</Link><Link className="btn btn-dark-outline" href="/systems">Explore Our Systems</Link></div>
+   <div style={{display:"flex",gap:18,flexWrap:"wrap",marginTop:32}}><Link className="btn btn-primary" href="/body-blueprint#native-blueprint">Build Your Body Blueprint™</Link><Link className="btn btn-dark-outline" href="/systems">Explore Our Systems</Link></div>
   </section>
   <div className="wave-divider"><svg viewBox="0 0 180 40" fill="none"><path d="M0 20C20 5 40 5 60 20C80 35 100 35 120 20C140 5 160 5 180 20" stroke="#6B5240" strokeWidth="1"/></svg></div>
   <section className="section" style={{maxWidth:1180,margin:"0 auto"}}>
@@ -42,6 +42,6 @@ export default function AfterWeightLossPage(){
     <span className="eyebrow">Frequently asked questions</span><h2 style={{fontFamily:"var(--serif)",fontWeight:400,fontSize:"clamp(32px,3.7vw,52px)",margin:"20px 0"}}>After weight loss: what to know</h2>
     {faqs.map(f=><article key={f.q} style={{padding:"25px 0",borderBottom:"1px solid #cfc3b6"}}><h3 style={{fontFamily:"var(--serif)",fontWeight:500,fontSize:"clamp(22px,2vw,29px)"}}>{f.q}</h3><p style={{maxWidth:900,lineHeight:1.8}}>{f.a}</p></article>)}
   </section>
-  <section className="section" style={{textAlign:"center",background:"#e9ded3"}}><h2 style={{fontFamily:"var(--serif)",fontWeight:400,fontSize:"clamp(30px,4vw,55px)",marginBottom:20}}>Start with your Body Blueprint™.</h2><p style={{maxWidth:650,margin:"0 auto 30px",lineHeight:1.75}}>Tell us your goals and receive a personalized recommendation after a suitability review.</p><Link href="/body-blueprint" className="btn btn-primary">Begin Your Blueprint™</Link></section>
+  <section className="section" style={{textAlign:"center",background:"#e9ded3"}}><h2 style={{fontFamily:"var(--serif)",fontWeight:400,fontSize:"clamp(30px,4vw,55px)",marginBottom:20}}>Start with your Body Blueprint™.</h2><p style={{maxWidth:650,margin:"0 auto 30px",lineHeight:1.75}}>Tell us your goals and receive a personalized recommendation after a suitability review.</p><Link href="/body-blueprint#native-blueprint" className="btn btn-primary">Begin Your Blueprint™</Link></section>
  </main>;
 }

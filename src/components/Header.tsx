@@ -250,7 +250,7 @@ export default function Header() {
               );
             })}
           </div>
-          <Link href="#build" className="cta btn menu-cta" onClick={() => setOpen(false)}>
+          <Link href="/body-blueprint#native-blueprint" className="cta btn menu-cta" onClick={() => setOpen(false)}>
             Build My Blueprint™
           </Link>
           {demoAuthed && <ProfileLogout className="menu-profile" />}

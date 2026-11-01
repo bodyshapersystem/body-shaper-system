@@ -130,7 +130,7 @@ export default function FaqClient() {
           Your body deserves more than a one-size-fits-all solution. Let&rsquo;s build a Personalized System™ designed around you.
         </p>
         <div className="actions reveal">
-          <a href="/body-blueprint" className="btn btn-primary">
+          <a href="/body-blueprint#native-blueprint" className="btn btn-primary">
             Build My Body Blueprint™
           </a>
         </div>

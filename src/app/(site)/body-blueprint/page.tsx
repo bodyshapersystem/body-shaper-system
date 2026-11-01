@@ -95,7 +95,7 @@ export default function BodyBlueprintPage() {
       <span className="eyebrow sr-only">The Body Blueprint™</span>
       <h1 className="sr-only">Every personalized body contouring plan in Miami begins with a blueprint.</h1>
       <p>Before recommending any technology, we first understand your body.</p>
-      <a href="#build" className="btn btn-primary">Build My Blueprint™</a>
+      <a href="#native-blueprint" className="btn btn-primary">Build My Blueprint™</a>
     </div>
   </section>
 </div>

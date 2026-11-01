@@ -34,7 +34,7 @@ export default function HomePage() {
           alt="Body Shaper System — The future of body optimization. Science. Strategy. Transformation. Build your Body Blueprint: a customized plan based on your goals, your body and our advanced technology."
           hotspots={[
             { href: "/systems", label: "Explore systems", left: 21.28, top: 56.67, width: 7.73, height: 4.02 },
-            { href: "/body-blueprint", label: "Create your Body Blueprint", left: 61.46, top: 52.98, width: 15.85, height: 4.36 },
+            { href: "/body-blueprint#native-blueprint", label: "Create your Body Blueprint", left: 61.46, top: 52.98, width: 15.85, height: 4.36 },
           ]}
         />
         <div className="home-hero-photo-inner">

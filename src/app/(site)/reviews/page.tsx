@@ -96,7 +96,7 @@ export default function ReviewsPage() {
 <section className="final-cta" id="build">
   <h2 className="reveal">Join hundreds of women who have trusted Body Shaper System™ since 2017.</h2>
   <div className="actions reveal">
-    <a href="/body-blueprint" className="btn btn-primary">Build My Blueprint™</a>
+    <a href="/body-blueprint#native-blueprint" className="btn btn-primary">Build My Blueprint™</a>
   </div>
 </section>
 

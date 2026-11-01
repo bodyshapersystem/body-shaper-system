@@ -41,7 +41,7 @@ export default function InHomeExperiencePage() {
 </section>
 
 <div className="sys-hero-cta-wrap reveal">
-  <a href="#build" className="btn btn-primary">Build My Blueprint™</a>
+  <a href="/body-blueprint#native-blueprint" className="btn btn-primary">Build My Blueprint™</a>
   <a href={WHATSAPP_URL} className="btn btn-dark-outline">Reserve Your Appointment</a>
 </div>
 

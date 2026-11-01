@@ -20,7 +20,8 @@ export const NAV_ITEMS: NavItem[] = [
 export const WHATSAPP_URL = "https://wa.me/17379755112";
 export const INSTAGRAM_URL = "https://instagram.com/bodyshapersystem";
 export const FACEBOOK_URL = "https://facebook.com/bodyshapersystem";
+// Every "Build My Blueprint™" button goes straight to the interactive form.
 export const JOTFORM_BLUEPRINT_URL =
-  "/body-blueprint";
+  "/body-blueprint#native-blueprint";
 export const JOTFORM_WAIVER_URL =
   "/portal/onboarding";

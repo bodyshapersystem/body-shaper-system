@@ -38,7 +38,7 @@ export default function Footer() {
           </div>
           <div className="footer-col">
             <h4>Begin</h4>
-            <Link href="/body-blueprint" className="cta">
+            <Link href="/body-blueprint#native-blueprint" className="cta">
               Build My Blueprint™
             </Link>
           </div>

@@ -269,7 +269,7 @@ export default function TechTalksClient() {
     <div className="tech-final-cta">
       <h3>Not sure if Exilis® is right for you?</h3>
       <p>Every body responds differently. Start with your personalized Body Blueprint™ and we'll recommend the most effective Personalized System™ for your goals.</p>
-      <a href="/body-blueprint" className="btn btn-primary">Build My Body Blueprint™</a>
+      <a href="/body-blueprint#native-blueprint" className="btn btn-primary">Build My Body Blueprint™</a>
     </div>
   </div>
   </div>
@@ -336,7 +336,7 @@ export default function TechTalksClient() {
     <div className="tech-final-cta">
       <h3>Not sure which technology is right for you?</h3>
       <p>Every transformation begins with understanding your body. Build your personalized Body Blueprint™ and we'll recommend the right Personalized System™ for your goals.</p>
-      <a href="/body-blueprint" className="btn btn-primary">Build My Body Blueprint™</a>
+      <a href="/body-blueprint#native-blueprint" className="btn btn-primary">Build My Body Blueprint™</a>
     </div>
   </div>
   </div>
@@ -413,7 +413,7 @@ export default function TechTalksClient() {
     <div className="tech-final-cta">
       <h3>Not sure if EMS® is right for you?</h3>
       <p>Every body has different goals. Let's create a Personalized System™ designed specifically for you.</p>
-      <a href="/body-blueprint" className="btn btn-primary">Build My Body Blueprint™</a>
+      <a href="/body-blueprint#native-blueprint" className="btn btn-primary">Build My Body Blueprint™</a>
     </div>
   </div>
   </div>
@@ -491,7 +491,7 @@ export default function TechTalksClient() {
     <div className="tech-final-cta">
       <h3>Every body has different recovery needs.</h3>
       <p>Start with your Body Blueprint™ and we'll recommend the right Personalized System™ for your goals.</p>
-      <a href="/body-blueprint" className="btn btn-primary">Build My Body Blueprint™</a>
+      <a href="/body-blueprint#native-blueprint" className="btn btn-primary">Build My Body Blueprint™</a>
     </div>
   </div>
   </div>
@@ -551,7 +551,7 @@ export default function TechTalksClient() {
     </div>
     <div className="edu-cta">
       <p style={{fontFamily: 'var(--serif)', fontStyle: 'italic', color: 'var(--mocha)', fontSize: '18px'}}>Ready to create a Personalized System™ designed specifically for your body?</p>
-      <a href="/body-blueprint" className="btn btn-primary">Build My Body Blueprint™</a>
+      <a href="/body-blueprint#native-blueprint" className="btn btn-primary">Build My Body Blueprint™</a>
       <a href="#panel-education" className="back-to-library" onClick={() => { setMainTab("education"); setEduCategory("all"); }}>Back to Body Education™</a>
     </div>
   </article>
@@ -570,7 +570,7 @@ export default function TechTalksClient() {
     </div>
     <div className="edu-cta">
       <p style={{fontFamily: 'var(--serif)', fontStyle: 'italic', color: 'var(--mocha)', fontSize: '18px'}}>Ready to create a Personalized System™ designed specifically for your body?</p>
-      <a href="/body-blueprint" className="btn btn-primary">Build My Body Blueprint™</a>
+      <a href="/body-blueprint#native-blueprint" className="btn btn-primary">Build My Body Blueprint™</a>
       <a href="#panel-education" className="back-to-library" onClick={() => { setMainTab("education"); setEduCategory("all"); }}>Back to Body Education™</a>
     </div>
   </article>
@@ -589,7 +589,7 @@ export default function TechTalksClient() {
     </div>
     <div className="edu-cta">
       <p style={{fontFamily: 'var(--serif)', fontStyle: 'italic', color: 'var(--mocha)', fontSize: '18px'}}>Ready to create a Personalized System™ designed specifically for your body?</p>
-      <a href="/body-blueprint" className="btn btn-primary">Build My Body Blueprint™</a>
+      <a href="/body-blueprint#native-blueprint" className="btn btn-primary">Build My Body Blueprint™</a>
       <a href="#panel-education" className="back-to-library" onClick={() => { setMainTab("education"); setEduCategory("all"); }}>Back to Body Education™</a>
     </div>
   </article>
@@ -608,7 +608,7 @@ export default function TechTalksClient() {
     </div>
     <div className="edu-cta">
       <p style={{fontFamily: 'var(--serif)', fontStyle: 'italic', color: 'var(--mocha)', fontSize: '18px'}}>Ready to create a Personalized System™ designed specifically for your body?</p>
-      <a href="/body-blueprint" className="btn btn-primary">Build My Body Blueprint™</a>
+      <a href="/body-blueprint#native-blueprint" className="btn btn-primary">Build My Body Blueprint™</a>
       <a href="#panel-education" className="back-to-library" onClick={() => { setMainTab("education"); setEduCategory("all"); }}>Back to Body Education™</a>
     </div>
   </article>
@@ -627,7 +627,7 @@ export default function TechTalksClient() {
     </div>
     <div className="edu-cta">
       <p style={{fontFamily: 'var(--serif)', fontStyle: 'italic', color: 'var(--mocha)', fontSize: '18px'}}>Ready to create a Personalized System™ designed specifically for your body?</p>
-      <a href="/body-blueprint" className="btn btn-primary">Build My Body Blueprint™</a>
+      <a href="/body-blueprint#native-blueprint" className="btn btn-primary">Build My Body Blueprint™</a>
       <a href="#panel-education" className="back-to-library" onClick={() => { setMainTab("education"); setEduCategory("all"); }}>Back to Body Education™</a>
     </div>
   </article>
@@ -646,7 +646,7 @@ export default function TechTalksClient() {
     </div>
     <div className="edu-cta">
       <p style={{fontFamily: 'var(--serif)', fontStyle: 'italic', color: 'var(--mocha)', fontSize: '18px'}}>Ready to create a Personalized System™ designed specifically for your body?</p>
-      <a href="/body-blueprint" className="btn btn-primary">Build My Body Blueprint™</a>
+      <a href="/body-blueprint#native-blueprint" className="btn btn-primary">Build My Body Blueprint™</a>
       <a href="#panel-education" className="back-to-library" onClick={() => { setMainTab("education"); setEduCategory("all"); }}>Back to Body Education™</a>
     </div>
   </article>
@@ -665,7 +665,7 @@ export default function TechTalksClient() {
     </div>
     <div className="edu-cta">
       <p style={{fontFamily: 'var(--serif)', fontStyle: 'italic', color: 'var(--mocha)', fontSize: '18px'}}>Ready to create a Personalized System™ designed specifically for your body?</p>
-      <a href="/body-blueprint" className="btn btn-primary">Build My Body Blueprint™</a>
+      <a href="/body-blueprint#native-blueprint" className="btn btn-primary">Build My Body Blueprint™</a>
       <a href="#panel-education" className="back-to-library" onClick={() => { setMainTab("education"); setEduCategory("all"); }}>Back to Body Education™</a>
     </div>
   </article>
@@ -685,7 +685,7 @@ export default function TechTalksClient() {
     </div>
     <div className="edu-cta">
       <p style={{fontFamily: 'var(--serif)', fontStyle: 'italic', color: 'var(--mocha)', fontSize: '18px'}}>Ready to create a Personalized System™ designed specifically for your body?</p>
-      <a href="/body-blueprint" className="btn btn-primary">Build My Body Blueprint™</a>
+      <a href="/body-blueprint#native-blueprint" className="btn btn-primary">Build My Body Blueprint™</a>
       <a href="#panel-education" className="back-to-library" onClick={() => { setMainTab("education"); setEduCategory("all"); }}>Back to Body Education™</a>
     </div>
   </article>
@@ -704,7 +704,7 @@ export default function TechTalksClient() {
     </div>
     <div className="edu-cta">
       <p style={{fontFamily: 'var(--serif)', fontStyle: 'italic', color: 'var(--mocha)', fontSize: '18px'}}>Ready to create a Personalized System™ designed specifically for your body?</p>
-      <a href="/body-blueprint" className="btn btn-primary">Build My Body Blueprint™</a>
+      <a href="/body-blueprint#native-blueprint" className="btn btn-primary">Build My Body Blueprint™</a>
       <a href="#panel-education" className="back-to-library" onClick={() => { setMainTab("education"); setEduCategory("all"); }}>Back to Body Education™</a>
     </div>
   </article>
@@ -723,7 +723,7 @@ export default function TechTalksClient() {
     </div>
     <div className="edu-cta">
       <p style={{fontFamily: 'var(--serif)', fontStyle: 'italic', color: 'var(--mocha)', fontSize: '18px'}}>Ready to create a Personalized System™ designed specifically for your body?</p>
-      <a href="/body-blueprint" className="btn btn-primary">Build My Body Blueprint™</a>
+      <a href="/body-blueprint#native-blueprint" className="btn btn-primary">Build My Body Blueprint™</a>
       <a href="#panel-education" className="back-to-library" onClick={() => { setMainTab("education"); setEduCategory("all"); }}>Back to Body Education™</a>
     </div>
   </article>
@@ -742,7 +742,7 @@ export default function TechTalksClient() {
     </div>
     <div className="edu-cta">
       <p style={{fontFamily: 'var(--serif)', fontStyle: 'italic', color: 'var(--mocha)', fontSize: '18px'}}>Ready to create a Personalized System™ designed specifically for your body?</p>
-      <a href="/body-blueprint" className="btn btn-primary">Build My Body Blueprint™</a>
+      <a href="/body-blueprint#native-blueprint" className="btn btn-primary">Build My Body Blueprint™</a>
       <a href="#panel-education" className="back-to-library" onClick={() => { setMainTab("education"); setEduCategory("all"); }}>Back to Body Education™</a>
     </div>
   </article>
@@ -761,7 +761,7 @@ export default function TechTalksClient() {
     </div>
     <div className="edu-cta">
       <p style={{fontFamily: 'var(--serif)', fontStyle: 'italic', color: 'var(--mocha)', fontSize: '18px'}}>Ready to create a Personalized System™ designed specifically for your body?</p>
-      <a href="/body-blueprint" className="btn btn-primary">Build My Body Blueprint™</a>
+      <a href="/body-blueprint#native-blueprint" className="btn btn-primary">Build My Body Blueprint™</a>
       <a href="#panel-education" className="back-to-library" onClick={() => { setMainTab("education"); setEduCategory("all"); }}>Back to Body Education™</a>
     </div>
   </article>
@@ -780,7 +780,7 @@ export default function TechTalksClient() {
     </div>
     <div className="edu-cta">
       <p style={{fontFamily: 'var(--serif)', fontStyle: 'italic', color: 'var(--mocha)', fontSize: '18px'}}>Ready to create a Personalized System™ designed specifically for your body?</p>
-      <a href="/body-blueprint" className="btn btn-primary">Build My Body Blueprint™</a>
+      <a href="/body-blueprint#native-blueprint" className="btn btn-primary">Build My Body Blueprint™</a>
       <a href="#panel-education" className="back-to-library" onClick={() => { setMainTab("education"); setEduCategory("all"); }}>Back to Body Education™</a>
     </div>
   </article>
@@ -805,7 +805,7 @@ export default function TechTalksClient() {
     </div>
     <div className="edu-cta">
       <p style={{fontFamily: 'var(--serif)', fontStyle: 'italic', color: 'var(--mocha)', fontSize: '18px'}}>Ready to create a Personalized System™ designed specifically for your body?</p>
-      <a href="/body-blueprint" className="btn btn-primary">Build My Body Blueprint™</a>
+      <a href="/body-blueprint#native-blueprint" className="btn btn-primary">Build My Body Blueprint™</a>
       <a href="#panel-education" className="back-to-library" onClick={() => { setMainTab("education"); setEduCategory("all"); }}>Back to Body Education™</a>
     </div>
   </article>
@@ -817,7 +817,7 @@ export default function TechTalksClient() {
 <section className="final-cta" id="build">
   <h2 className="reveal">Every technology, chosen for a reason.</h2>
   <div className="actions reveal">
-    <a href="/body-blueprint" className="btn btn-primary">Build My Blueprint™</a>
+    <a href="/body-blueprint#native-blueprint" className="btn btn-primary">Build My Blueprint™</a>
   </div>
 </section>
 
