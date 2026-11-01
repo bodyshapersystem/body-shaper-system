@@ -110,7 +110,7 @@ export function sampleProposal(lang: Lang = "en"): ClientProposal {
     status: "ACTIVE",
     clientId: null,
     clientName: lang === "es" ? "tu nombre" : "your name",
-    locationLabel: "key biscayne",
+    locationLabel: null,
     language: lang,
     zones: ["legs"],
     goals: ["laxity", "muscle-tone", "firmness"],

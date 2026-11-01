@@ -97,7 +97,7 @@ export async function createProposalCheckout(args: CreateArgs): Promise<{ url: s
       installmentNumber: String(args.installment),
       amountCents: String(amountCents),
     },
-    success_url: `${args.origin}/p/${args.token}?checkout=success#plan`,
+    success_url: `${args.origin}/p/${args.token}?checkout=success#next`,
     cancel_url: `${args.origin}/p/${args.token}#plan`,
   });
   if (!session.url) return { error: "Checkout could not be started. Please try again.", status: 500 };

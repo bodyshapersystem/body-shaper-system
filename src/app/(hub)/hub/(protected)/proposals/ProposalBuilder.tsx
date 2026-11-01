@@ -84,7 +84,7 @@ export default function ProposalBuilder({
 
   const keyBiscayne = () => {
     setPrograms(structuredClone(f.language === "es" ? KEY_BISCAYNE_TEMPLATE_ES : KEY_BISCAYNE_TEMPLATE));
-    setF((s) => ({ ...s, zones: ["legs"], goals: ["laxity", "muscle-tone", "firmness"], recommendedKey: "sculpt-signature-ii", locationLabel: s.locationLabel || "key biscayne" }));
+    setF((s) => ({ ...s, zones: ["legs"], goals: ["laxity", "muscle-tone", "firmness"], recommendedKey: "sculpt-signature-ii" }));
   };
 
   const totals = useMemo(() => programs.map((p) => ({ n: totalSessions(p), pr: priceProgram(p) })), [programs]);
@@ -131,8 +131,8 @@ export default function ProposalBuilder({
             <input className="sched-input" value={f.clientName} maxLength={60} onChange={(e) => set("clientName", e.target.value)} placeholder="e.g. her first name" />
           </label>
           <label className="sched-label">
-            location label (optional)
-            <input className="sched-input" value={f.locationLabel} maxLength={60} onChange={(e) => set("locationLabel", e.target.value)} placeholder="key biscayne" />
+            location (hub only — not shown on the page)
+            <input className="sched-input" value={f.locationLabel} maxLength={60} onChange={(e) => set("locationLabel", e.target.value)} placeholder="optional" />
           </label>
           <label className="sched-label">
             language
@@ -146,7 +146,7 @@ export default function ProposalBuilder({
           a new client is created automatically (lead → client, portal invite) only when she pays, using the details she enters in stripe checkout.
         </p>
         <button type="button" className="dash-view-btn" onClick={keyBiscayne}>
-          load key biscayne example
+          load standard programs (sculpt signature I, II, total body optimization)
         </button>
       </section>
 

@@ -57,6 +57,8 @@ export default function ProposalExperience({ view, checkoutState }: Props) {
   const [techOpen, setTechOpen] = useState<TechnologyKey | null>(null);
   const [faqOpen, setFaqOpen] = useState<number | null>(null);
   const dialogRef = useRef<HTMLDialogElement>(null);
+  const sheetRef = useRef<HTMLDialogElement>(null);
+  const [sheetOpen, setSheetOpen] = useState(false);
 
   const program = useMemo(() => view.programs.find((p) => p.key === programKey) ?? view.programs[0], [programKey, view.programs]);
   const zones = view.zones.filter((z): z is ZoneKey => z in t.zones);
@@ -143,11 +145,24 @@ export default function ProposalExperience({ view, checkoutState }: Props) {
     document.getElementById(id)?.scrollIntoView({ behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
   };
 
-  const choose = (key: string) => {
+  const openSheet = (key: string) => {
     setProgramKey(key);
+    setMode("full");
+    setConsent(false);
     setError(null);
+    setSheetOpen(true);
     track("select_program", { programKey: key });
   };
+  useEffect(() => {
+    const d = sheetRef.current;
+    if (!d) return;
+    if (sheetOpen && !d.open) d.showModal();
+    if (!sheetOpen && d.open) d.close();
+  }, [sheetOpen]);
+  // after Stripe: land on the "next step" block
+  useEffect(() => {
+    if (checkoutState === "success") setTimeout(() => document.getElementById("next")?.scrollIntoView({ block: "start" }), 300);
+  }, [checkoutState]);
 
   async function startCheckout(kind: "program" | "promo") {
     if (!view.token) return;
@@ -216,17 +231,6 @@ export default function ProposalExperience({ view, checkoutState }: Props) {
           <div className="pp-bgwrap" aria-hidden="true"><div className="pp-bgimg" /></div>
           <div className="pp-inner">
             <div>
-              <p className="pp-coords" aria-hidden="true">
-                25.7617° N
-                <br />
-                80.1918° W
-                {view.locationLabel ? (
-                  <>
-                    <br />
-                    {view.locationLabel}
-                  </>
-                ) : null}
-              </p>
               <p className="pp-eyebrow pp-for" data-reveal>
                 {t.preparedFor}
               </p>
@@ -427,17 +431,13 @@ export default function ProposalExperience({ view, checkoutState }: Props) {
             <p className="pp-lead" style={{ color: "var(--ivory-soft)" }} data-reveal>
               {t.sec.planIntro}
             </p>
-            {checkoutState === "success" && <div className="pp-banner" role="status">{es ? "gracias — estamos confirmando tu pago." : "thank you — we are confirming your payment."}</div>}
-            {view.payment.status === "paid_in_full" && <div className="pp-banner" role="status">{t.paidFull}{paidProgram ? ` (${displayName(paidProgram.name)})` : ""}</div>}
-            {view.payment.status === "first_installment_paid" && <div className="pp-banner" role="status">{t.paidFirst(money(view.payment.balanceDueCents))}</div>}
 
             <div className="pp-cards" style={{ ["--n" as string]: String(Math.min(3, view.programs.length || 1)) }}>
               {view.programs.map((p, i) => {
                 const open = openCard === p.key;
                 const rec = view.recommendedKey === p.key;
-                const sel = program?.key === p.key;
-                return (
-                  <article key={p.key} className={`pp-card${rec ? " is-rec" : ""}${sel ? " is-sel" : ""}`} data-reveal style={{ ["--d" as string]: `${i * 0.08}s` }}>
+                                return (
+                  <article key={p.key} className={`pp-card${rec ? " is-rec" : ""}`} data-reveal style={{ ["--d" as string]: `${i * 0.08}s` }}>
                     {rec && <span className="pp-badge">{t.recommended}</span>}
                     <span className="pp-opt">{t.option(i + 1)}</span>
                     <h3>{displayName(p.name)}</h3>
@@ -474,67 +474,13 @@ export default function ProposalExperience({ view, checkoutState }: Props) {
                     <div className="pp-price">
                       {t.from} <strong>{money(p.pricing.fullCents)}</strong>
                     </div>
-                    <button type="button" className={`pp-btn ${sel ? "pp-btn-burgundy" : "pp-btn-line"}`} aria-pressed={sel} onClick={() => choose(p.key)}>
-                      {sel ? t.sec.selected : t.sec.select}
+                    <button type="button" className={`pp-btn ${rec ? "pp-btn-burgundy" : "pp-btn-line"}`} aria-haspopup="dialog" onClick={() => openSheet(p.key)}>
+                      {t.sec.select} <span className="pp-arrow" aria-hidden="true" />
                     </button>
                   </article>
                 );
               })}
             </div>
-
-            {program && pricing && (
-              <div className="pp-paybox" data-reveal>
-                <div className="pp-paybox-head">
-                  <span className="pp-label-l">{t.choosePayment}</span>
-                  <strong>{displayName(program.name)}</strong>
-                </div>
-                <fieldset className="pp-options">
-                  <legend className="pp-sr">{t.choosePayment}</legend>
-                  <label className="pp-option">
-                    <input type="radio" name="pp-mode" value="full" checked={mode === "full"} onChange={() => { setMode("full"); track("select_payment", { programKey: program.key, mode: "full" }); }} />
-                    <span className="pp-radio" aria-hidden="true" />
-                    <span>
-                      <span className="pp-option-t">{t.payFull}</span>
-                      {pricing.savingCents > 0 && <span className="pp-option-s">{t.payFullNote(money(pricing.savingCents))}</span>}
-                    </span>
-                    <span className="pp-option-p">{money(pricing.fullCents)}</span>
-                  </label>
-                  {pricing.split && (
-                    <label className="pp-option">
-                      <input type="radio" name="pp-mode" value="split" checked={mode === "split"} onChange={() => { setMode("split"); track("select_payment", { programKey: program.key, mode: "split" }); }} />
-                      <span className="pp-radio" aria-hidden="true" />
-                      <span>
-                        <span className="pp-option-t">{t.pay2}</span>
-                        <span className="pp-option-s">{t.pay2Note(money(pricing.split.firstCents), money(pricing.split.secondCents))}</span>
-                      </span>
-                      <span className="pp-option-p">
-                        {money(pricing.split.firstCents)}
-                        <small>{pricing.split.firstCents === pricing.split.secondCents ? t.each : "+ " + money(pricing.split.secondCents)}</small>
-                      </span>
-                    </label>
-                  )}
-                </fieldset>
-                <div className="pp-due" aria-live="polite">
-                  <span>{t.dueToday}</span>
-                  <strong>{money(due)}</strong>
-                </div>
-                {mode === "split" && pricing.split && (
-                  <label className="pp-consent">
-                    <input type="checkbox" checked={consent} onChange={(e) => setConsent(e.target.checked)} />
-                    <span>{t.consent(money(pricing.split.firstCents), money(pricing.split.secondCents))}</span>
-                  </label>
-                )}
-                <button type="button" className="pp-btn pp-btn-champagne pp-btn-wide" onClick={() => startCheckout("program")} disabled={!view.token || busy !== null || (mode === "split" && !consent)}>
-                  {busy === "program" ? t.redirecting : t.bookPay} <span className="pp-arrow" aria-hidden="true" />
-                </button>
-                {!view.token && <p className="pp-small"><i aria-hidden="true">i</i><span>{t.previewOnly}</span></p>}
-                {error && busy !== "promo" && <p className="pp-error" role="alert">{error}</p>}
-                <p className="pp-small">
-                  <i aria-hidden="true">i</i>
-                  <span>{t.scheduleNote}</span>
-                </p>
-              </div>
-            )}
 
             {view.promo && (
               <div id="seasonal" className="pp-promo" data-reveal>
@@ -585,10 +531,84 @@ export default function ProposalExperience({ view, checkoutState }: Props) {
           </div>
         </section>
 
+
+        {/* payment sheet: opens from "choose this program", goes straight to Stripe */}
+        <dialog ref={sheetRef} className="pp-modal pp-sheet" aria-labelledby="pp-sheet-title" onClose={() => setSheetOpen(false)} onClick={(e) => e.target === sheetRef.current && busy === null && setSheetOpen(false)}>
+          {sheetOpen && program && pricing && (
+            <div className="pp-modal-in">
+              <button type="button" className="pp-modal-close" onClick={() => setSheetOpen(false)} aria-label={t.close} />
+              <p className="pp-eyebrow" style={{ color: "#6b3a35", marginBottom: 6 }}>{t.choosePayment}</p>
+              <h3 id="pp-sheet-title">{displayName(program.name)}</h3>
+              <p className="pp-sheet-sub">
+                {t.technologySessions(program.total)} · {TECHNOLOGIES.filter((k) => program.sessions[k] > 0).map((k) => `${program.sessions[k]} ${t.tech[k].name}`).join(" · ")}
+              </p>
+              <fieldset className="pp-options">
+                <legend className="pp-sr">{t.choosePayment}</legend>
+                <label className="pp-option">
+                  <input type="radio" name="pp-mode" value="full" checked={mode === "full"} onChange={() => { setMode("full"); track("select_payment", { programKey: program.key, mode: "full" }); }} />
+                  <span className="pp-radio" aria-hidden="true" />
+                  <span>
+                    <span className="pp-option-t">{t.payFull}</span>
+                    {pricing.savingCents > 0 && <span className="pp-option-s">{t.payFullNote(money(pricing.savingCents))}</span>}
+                  </span>
+                  <span className="pp-option-p">{money(pricing.fullCents)}</span>
+                </label>
+                {pricing.split && (
+                  <label className="pp-option">
+                    <input type="radio" name="pp-mode" value="split" checked={mode === "split"} onChange={() => { setMode("split"); track("select_payment", { programKey: program.key, mode: "split" }); }} />
+                    <span className="pp-radio" aria-hidden="true" />
+                    <span>
+                      <span className="pp-option-t">{t.pay2}</span>
+                      <span className="pp-option-s">{t.pay2Note(money(pricing.split.firstCents), money(pricing.split.secondCents))}</span>
+                    </span>
+                    <span className="pp-option-p">
+                      {money(pricing.split.firstCents)}
+                      <small>{pricing.split.firstCents === pricing.split.secondCents ? t.each : "+ " + money(pricing.split.secondCents)}</small>
+                    </span>
+                  </label>
+                )}
+              </fieldset>
+              <div className="pp-due" aria-live="polite">
+                <span>{t.dueToday}</span>
+                <strong>{money(due)}</strong>
+              </div>
+              {mode === "split" && pricing.split && (
+                <label className="pp-consent">
+                  <input type="checkbox" checked={consent} onChange={(e) => setConsent(e.target.checked)} />
+                  <span>{t.consent(money(pricing.split.firstCents), money(pricing.split.secondCents))}</span>
+                </label>
+              )}
+              <button type="button" className="pp-btn pp-btn-burgundy pp-btn-wide" onClick={() => startCheckout("program")} disabled={!view.token || busy !== null || (mode === "split" && !consent)}>
+                {busy === "program" ? t.redirecting : t.payNow} <span className="pp-arrow" aria-hidden="true" />
+              </button>
+              {!view.token && <p className="pp-small"><i aria-hidden="true">i</i><span>{t.previewOnly}</span></p>}
+              {error && busy !== "promo" && <p className="pp-error" role="alert">{error}</p>}
+              <p className="pp-small"><i aria-hidden="true">i</i><span>{t.scheduleNote}</span></p>
+            </div>
+          )}
+        </dialog>
+
         {/* ------------------------------------------------ 05 questions + contact */}
         <section id="faq" className="pp-sec pp-sand" aria-labelledby="pp-faq-title">
           <div className="pp-bgwrap" aria-hidden="true"><div className="pp-bgimg" /></div>
           <div className="pp-inner">
+            {(checkoutState === "success" || ["paid_in_full", "first_installment_paid", "completed"].includes(view.payment.status ?? "")) && (
+              <div id="next" className="pp-next" role="status">
+                <p className="pp-eyebrow">{t.next.eyebrow}</p>
+                <h2 className="pp-h2 pp-h2-sm">{t.next.title(view.clientName)}</h2>
+                <p className="pp-lead">
+                  {view.payment.status === "first_installment_paid"
+                    ? `${t.paidFirst(money(view.payment.balanceDueCents))} `
+                    : view.payment.status === "paid_in_full" || view.payment.status === "completed"
+                      ? `${t.paidFull} `
+                      : `${t.next.confirming} `}
+                  {t.next.text}
+                </p>
+                <a className="pp-btn pp-btn-burgundy" href={`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(t.next.wa(paidProgram ? displayName(paidProgram.name) : program ? displayName(program.name) : ""))}`} target="_blank" rel="noopener noreferrer">
+                  {t.next.button} <span className="pp-arrow" aria-hidden="true" />
+                </a>
+              </div>
+            )}
             <p className="pp-eyebrow" data-reveal>
               05 — {t.sec.faq}
             </p>

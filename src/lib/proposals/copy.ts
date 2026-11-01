@@ -23,6 +23,8 @@ type Copy = {
   title: [string, string];
   explore: string;
   nav: { blueprint: string; technology: string; results: string; plan: string; faq: string };
+  payNow: string;
+  next: { eyebrow: string; title: (n: string) => string; confirming: string; text: string; button: string; wa: (p: string) => string };
   sec: { technology: string; results: string; plan: string; planTitle: string; planIntro: string; faq: string; select: string; selected: string; promoOr: string };
   pillars: [string, string, string];
   goalsEyebrow: string;
@@ -102,6 +104,8 @@ const en: Copy = {
   title: ["your personalized", "body blueprint"],
   explore: "explore your blueprint",
   nav: { blueprint: "your blueprint", technology: "technology", results: "results", plan: "your plan", faq: "faq" },
+  payNow: "continue to secure payment",
+  next: { eyebrow: "next step", title: (n) => `thank you, ${n}`, confirming: "your payment is being confirmed.", text: "now let's schedule your appointments — message us and we'll organize your calendar with you.", button: "schedule my appointments on whatsapp", wa: (p) => `hi! i just reserved my ${p} program and i'd like to schedule my appointments.` },
   sec: { technology: "how each technology works", results: "the vision & real results", plan: "your plan & investment", planTitle: "choose your program", planIntro: "only the programs selected for you. your session distribution is confirmed after your evaluation.", faq: "questions", select: "choose this program", selected: "selected", promoOr: "or begin with our seasonal ritual" },
   pillars: ["personalized protocol", "advanced technology", "guided transformation"],
   goalsEyebrow: "understanding your goals",
@@ -253,6 +257,8 @@ const es: Copy = {
   title: ["tu body blueprint", "personalizado"],
   explore: "explora tu blueprint",
   nav: { blueprint: "tu blueprint", technology: "tecnología", results: "resultados", plan: "tu plan", faq: "preguntas" },
+  payNow: "continuar al pago seguro",
+  next: { eyebrow: "siguiente paso", title: (n) => `gracias, ${n}`, confirming: "tu pago se está confirmando.", text: "ahora agendemos tus citas — escríbenos y organizamos tu calendario contigo.", button: "agendar mis citas por whatsapp", wa: (p) => `¡hola! acabo de reservar mi programa ${p} y quiero agendar mis citas.` },
   sec: { technology: "cómo funciona cada tecnología", results: "la visión y resultados reales", plan: "tu plan e inversión", planTitle: "elige tu programa", planIntro: "solo los programas seleccionados para ti. la distribución de tus sesiones se confirma tras tu evaluación.", faq: "preguntas", select: "elegir este programa", selected: "seleccionado", promoOr: "o empieza con nuestro ritual de temporada" },
   pillars: ["protocolo personalizado", "tecnología avanzada", "transformación guiada"],
   goalsEyebrow: "entendiendo tus objetivos",
