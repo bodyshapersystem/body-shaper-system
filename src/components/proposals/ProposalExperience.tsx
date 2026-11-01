@@ -6,16 +6,18 @@ import { COPY, WHATSAPP_NUMBER } from "@/lib/proposals/copy";
 import { money, TECHNOLOGIES, type GoalKey, type PaymentMode, type TechnologyKey, type ZoneKey } from "@/lib/proposals/types";
 import type { ProposalView } from "@/lib/proposals/server";
 
+/**
+ * Master template — five steps:
+ * 01 your blueprint (welcome + goals) · 02 technology · 03 vision & real results ·
+ * 04 your plan & investment (programs, payment, seasonal offer) · 05 questions.
+ */
+
 const A = "/proposal-assets";
-const ICON: Record<string, string> = {
+const ICON: Record<TechnologyKey, string> = {
   exilis: `${A}/brand/icons/line-contour-waves.png`,
   endospheres: `${A}/brand/icons/line-molecule.png`,
   ems: `${A}/brand/icons/line-target-cross.png`,
-  protocol: `${A}/brand/icons/line-target-grid.png`,
-  technology: `${A}/brand/icons/line-contour-waves.png`,
-  guided: `${A}/brand/icons/line-arch-spiral.png`,
 };
-const STEP_ICONS = ["line-target-cross", "line-target-grid", "line-grid-circle", "line-contour-waves", "line-arch-spiral"];
 function Ic({ src }: { src: string }) {
   return <span className="pp-ic" aria-hidden="true" style={{ ["--ic" as string]: `url(${src})` }} />;
 }
@@ -38,13 +40,15 @@ type Props = { view: ProposalView; checkoutState?: string | null };
 
 export default function ProposalExperience({ view, checkoutState }: Props) {
   const t = COPY[view.lang];
+  const es = view.lang === "es";
   const rootRef = useRef<HTMLDivElement>(null);
   const [solid, setSolid] = useState(false);
   const [active, setActive] = useState("welcome");
-  const [focusZone, setFocusZone] = useState<ZoneKey | null>(null);
   const [openCard, setOpenCard] = useState<string | null>(null);
   const firstKey = view.recommendedKey ?? view.programs[0]?.key ?? null;
-  const [programKey, setProgramKey] = useState<string | null>(view.payment.programKey && view.programs.some((p) => p.key === view.payment.programKey) ? view.payment.programKey : firstKey);
+  const [programKey, setProgramKey] = useState<string | null>(
+    view.payment.programKey && view.programs.some((p) => p.key === view.payment.programKey) ? view.payment.programKey : firstKey,
+  );
   const [mode, setMode] = useState<PaymentMode>("full");
   const [consent, setConsent] = useState(false);
   const [busy, setBusy] = useState<string | null>(null);
@@ -53,11 +57,12 @@ export default function ProposalExperience({ view, checkoutState }: Props) {
   const [techOpen, setTechOpen] = useState<TechnologyKey | null>(null);
   const [faqOpen, setFaqOpen] = useState<number | null>(null);
   const dialogRef = useRef<HTMLDialogElement>(null);
-  const stepsRef = useRef<HTMLDivElement>(null);
 
   const program = useMemo(() => view.programs.find((p) => p.key === programKey) ?? view.programs[0], [programKey, view.programs]);
-  const zoneLabels = view.zones.filter((z): z is ZoneKey => z in t.zones).map((z) => t.zones[z as ZoneKey]);
-  const goalLabels = view.goals.filter((g): g is GoalKey => g in t.goals).map((g) => t.goals[g as GoalKey]);
+  const zones = view.zones.filter((z): z is ZoneKey => z in t.zones);
+  const goals = view.goals.filter((g): g is GoalKey => g in t.goals);
+  const zoneLabels = zones.map((z) => t.zones[z]);
+  const goalLabels = goals.map((g) => t.goals[g]);
 
   // ---- tracking (best-effort, never blocks the page) ----
   const track = useCallback(
@@ -84,7 +89,7 @@ export default function ProposalExperience({ view, checkoutState }: Props) {
     if (!seen) track("view");
   }, [track, view.token]);
 
-  // ---- reveal, lazy backgrounds, active section, top bar, steps line ----
+  // ---- reveal, lazy backgrounds, active section, top bar ----
   useEffect(() => {
     const root = rootRef.current;
     if (!root) return;
@@ -99,8 +104,7 @@ export default function ProposalExperience({ view, checkoutState }: Props) {
         }),
       { rootMargin: "0px 0px -8% 0px", threshold: 0.08 },
     );
-    root.querySelectorAll("[data-reveal], .pp-step").forEach((el) => (reduce ? el.classList.add("is-in") : reveal.observe(el)));
-
+    root.querySelectorAll("[data-reveal]").forEach((el) => (reduce ? el.classList.add("is-in") : reveal.observe(el)));
     const bg = new IntersectionObserver(
       (entries) =>
         entries.forEach((e) => {
@@ -112,22 +116,11 @@ export default function ProposalExperience({ view, checkoutState }: Props) {
       { rootMargin: "700px 0px" },
     );
     root.querySelectorAll(".pp-sec").forEach((el) => bg.observe(el));
-
-    const spy = new IntersectionObserver(
-      (entries) => entries.forEach((e) => e.isIntersecting && setActive((e.target as HTMLElement).id)),
-      { rootMargin: "-45% 0px -50% 0px" },
-    );
+    const spy = new IntersectionObserver((entries) => entries.forEach((e) => e.isIntersecting && setActive((e.target as HTMLElement).id)), {
+      rootMargin: "-45% 0px -50% 0px",
+    });
     root.querySelectorAll("section[id]").forEach((el) => spy.observe(el));
-
-    const onScroll = () => {
-      setSolid(window.scrollY > window.innerHeight * 0.55);
-      const ol = stepsRef.current;
-      if (ol) {
-        const r = ol.getBoundingClientRect();
-        const p = Math.min(1, Math.max(0, (window.innerHeight * 0.8 - r.top) / (r.height + window.innerHeight * 0.2)));
-        ol.style.setProperty("--p", reduce ? "1" : p.toFixed(3));
-      }
-    };
+    const onScroll = () => setSolid(window.scrollY > window.innerHeight * 0.55);
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => {
@@ -156,39 +149,30 @@ export default function ProposalExperience({ view, checkoutState }: Props) {
     track("select_program", { programKey: key });
   };
 
-  async function bookAndPay() {
-    if (!program || !view.token) return;
-    if (mode === "split" && !consent) {
-      setError(view.lang === "es" ? "confirma el calendario de las dos cuotas para continuar." : "please confirm the two-installment schedule to continue.");
-      return;
-    }
-    setBusy("program");
-    setError(null);
-    try {
-      const res = await fetch(`/api/proposals/${view.token}/checkout`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ programKey: program.key, mode, consent: mode === "split" ? consent : false }),
-      });
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok || !data.url) throw new Error(data.error || "checkout unavailable");
-      window.location.assign(data.url);
-    } catch (e) {
-      setError(e instanceof Error ? e.message : "checkout unavailable");
-      setBusy(null);
-    }
-  }
-
-  async function bookPromo() {
+  async function startCheckout(kind: "program" | "promo") {
     if (!view.token) return;
-    setBusy("promo");
+    if (kind === "program") {
+      if (!program) return;
+      if (mode === "split" && !consent) {
+        setError(es ? "confirma el calendario de las dos cuotas para continuar." : "please confirm the two-installment schedule to continue.");
+        return;
+      }
+    }
+    setBusy(kind);
     setError(null);
     try {
-      const res = await fetch(`/api/holiday-333/checkout`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ plan: promoMode, proposalToken: view.token }),
-      });
+      const res =
+        kind === "program"
+          ? await fetch(`/api/proposals/${view.token}/checkout`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ programKey: program!.key, mode, consent: mode === "split" ? consent : false }),
+            })
+          : await fetch(`/api/holiday-333/checkout`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ plan: promoMode, proposalToken: view.token }),
+            });
       const data = await res.json().catch(() => ({}));
       if (!res.ok || !data.url) throw new Error(data.error || "checkout unavailable");
       window.location.assign(data.url);
@@ -202,25 +186,24 @@ export default function ProposalExperience({ view, checkoutState }: Props) {
   const due = pricing ? (mode === "full" ? pricing.fullCents : pricing.split?.firstCents ?? pricing.fullCents) : 0;
   const paidProgram = view.payment.programKey ? view.programs.find((p) => p.key === view.payment.programKey) : null;
   const navItems: [string, string][] = [
-    ["plan", t.nav.plan],
-    ["goals", t.nav.goals],
+    ["welcome", t.nav.blueprint],
     ["technology", t.nav.technology],
-    ["process", t.nav.process],
+    ["results", t.nav.results],
+    ["plan", t.nav.plan],
     ["faq", t.nav.faq],
   ];
   const tech = techOpen ? t.tech[techOpen] : null;
-  const waText = encodeURIComponent(view.lang === "es" ? "hola, tengo una pregunta sobre mi body blueprint." : "hi, i have a question about my body blueprint.");
+  const waText = encodeURIComponent(es ? "hola, tengo una pregunta sobre mi body blueprint." : "hi, i have a question about my body blueprint.");
 
   return (
     <div className="pp" ref={rootRef}>
-      {/* ---------------------------------------------------------------- top bar */}
       <header className={`pp-top${solid ? " is-solid" : ""}`}>
         <a href="#welcome" className="pp-logo" onClick={go("welcome")} aria-label="body shaper system — back to top">
           body shaper system<sup>™</sup>
         </a>
-        <nav className="pp-nav" aria-label={view.lang === "es" ? "secciones" : "sections"}>
+        <nav className="pp-nav" aria-label={es ? "secciones" : "sections"}>
           {navItems.map(([id, label], i) => (
-            <a key={id} href={`#${id}`} onClick={go(id)} className={active === id || (id === "plan" && active === "payment") ? "is-active" : ""}>
+            <a key={id} href={`#${id}`} onClick={go(id)} className={active === id ? "is-active" : ""}>
               {i + 1}. {label}
             </a>
           ))}
@@ -228,7 +211,7 @@ export default function ProposalExperience({ view, checkoutState }: Props) {
       </header>
 
       <main>
-        {/* ------------------------------------------------------------ 01 welcome */}
+        {/* ------------------------------------------------ 01 your blueprint: welcome + goals */}
         <section id="welcome" className="pp-sec pp-burgundy pp-hero bg-on" aria-labelledby="pp-title">
           <div className="pp-inner">
             <div>
@@ -255,267 +238,54 @@ export default function ProposalExperience({ view, checkoutState }: Props) {
               <p className="pp-lead" data-reveal style={{ ["--d" as string]: "0.3s" }}>
                 {view.personalMessage || t.welcomeText(goalLabels, zoneLabels)}
               </p>
-              <a href="#goals" className="pp-btn pp-btn-champagne" onClick={go("goals")} data-reveal style={{ ["--d" as string]: "0.4s" }}>
+              <a href="#technology" className="pp-btn pp-btn-champagne" onClick={go("technology")} data-reveal style={{ ["--d" as string]: "0.4s" }}>
                 {t.explore} <span className="pp-arrow down" aria-hidden="true" />
               </a>
-              <ul className="pp-pillars" data-reveal style={{ ["--d" as string]: "0.5s", padding: 0 }}>
-                {(["protocol", "technology", "guided"] as const).map((k, i) => (
-                  <li key={k}>
-                    <Ic src={ICON[k]} />
-                    {t.pillars[i]}
-                  </li>
-                ))}
-              </ul>
             </div>
-            <div className={`pp-arch${view.showWelcomeVideo ? "" : " is-empty"}`} data-reveal style={{ ["--d" as string]: "0.3s" }}>
-              {view.showWelcomeVideo && view.welcomeVideoSrc ? (
-                <video src={view.welcomeVideoSrc} autoPlay muted playsInline loop preload="metadata" aria-hidden="true" />
-              ) : (
-                <div className="pp-arch-words" aria-hidden="true">
-                  <span>{view.lang === "es" ? "ciencia" : "science"}</span>
-                  <span>{view.lang === "es" ? "estrategia" : "strategy"}</span>
-                  <span>{view.lang === "es" ? "transformación" : "transformation"}</span>
-                </div>
-              )}
-            </div>
-          </div>
-        </section>
 
-        {/* ------------------------------------------------------------ 02 goals */}
-        <section id="goals" className="pp-sec pp-sand" aria-labelledby="pp-goals-title">
-          <div className="pp-inner">
-            <p className="pp-eyebrow" data-reveal>
-              02 — {t.goalsEyebrow}
-            </p>
-            <h2 id="pp-goals-title" className="pp-h2" data-reveal>
-              {t.goalsTitle}
-            </h2>
-            <p className="pp-lead" data-reveal>
-              {t.goalsIntro}
-            </p>
-            <div className="pp-goals-grid">
-              <div className="pp-diagram" data-reveal>
-                <img src={`${A}/blueprint/body-diagram/body-diagram-official.jpg`} alt={view.lang === "es" ? "diagrama corporal body blueprint con tus zonas prioritarias" : "body blueprint diagram showing your priority zones"} width={828} height={1024} />
-                {(Object.keys(ZONE_POINTS) as ZoneKey[]).map((z) =>
+            {/* goals: official diagram with only her zones + her goals */}
+            <div className="pp-goals" data-reveal style={{ ["--d" as string]: "0.3s" }} aria-label={t.goalsEyebrow}>
+              <div className="pp-diagram">
+                <img
+                  src={`${A}/blueprint/body-diagram/body-diagram-official.jpg`}
+                  alt={es ? "diagrama corporal body blueprint con tus zonas prioritarias" : "body blueprint diagram showing your priority zones"}
+                  width={828}
+                  height={1024}
+                />
+                {zones.map((z) =>
                   ZONE_POINTS[z].map(([x, y], i) => (
-                    <span
-                      key={`${z}${i}`}
-                      className={`pp-mark${view.zones.includes(z) || focusZone === z ? " on" : ""}${focusZone === z ? " focus" : ""}`}
-                      style={{ left: `${(x / 828) * 100}%`, top: `${(y / 1024) * 100}%` }}
-                      aria-hidden="true"
-                    />
+                    <span key={`${z}${i}`} className="pp-mark on" style={{ left: `${(x / 828) * 100}%`, top: `${(y / 1024) * 100}%` }} aria-hidden="true" />
                   )),
                 )}
               </div>
-              <div data-reveal>
-                <p className="pp-label">{t.zonesLabel}</p>
-                <div className="pp-chiprow" role="group" aria-label={t.zonesLabel}>
-                  {(Object.keys(t.zones) as ZoneKey[]).map((z) => {
-                    const on = view.zones.includes(z);
-                    return (
-                      <button
-                        key={z}
-                        type="button"
-                        className={`pp-chip${on ? " on" : ""}${!on && focusZone !== z ? " dim" : ""}`}
-                        aria-pressed={focusZone === z}
-                        onClick={() => setFocusZone((f) => (f === z ? null : z))}
-                      >
-                        {t.zones[z]}
-                      </button>
-                    );
-                  })}
-                </div>
-                <p className="pp-label">{t.goalsLabel}</p>
-                <ul className="pp-goal-list">
-                  {(goalLabels.length ? goalLabels : [t.goals.firmness, t.goals.contour]).map((g) => (
-                    <li key={g}>{g}</li>
-                  ))}
-                </ul>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* ------------------------------------------------------------ 03 systems */}
-        <section id="plan" className="pp-sec pp-sand" aria-labelledby="pp-plan-title" style={{ paddingTop: 40 }}>
-          <div className="pp-inner">
-            <p className="pp-eyebrow" data-reveal>
-              03 — {t.systemsEyebrow}
-            </p>
-            <h2 id="pp-plan-title" className="pp-h2" data-reveal>
-              {t.systemsTitle}
-            </h2>
-            <p className="pp-lead" data-reveal>
-              {t.systemsIntro}
-            </p>
-            <div className="pp-cards" style={{ ["--n" as string]: String(Math.min(3, view.programs.length || 1)) }}>
-              {view.programs.map((p, i) => {
-                const open = openCard === p.key;
-                const rec = view.recommendedKey === p.key;
-                return (
-                  <article key={p.key} className={`pp-card${rec ? " is-rec" : ""}`} data-reveal style={{ ["--d" as string]: `${i * 0.08}s` }}>
-                    {rec && <span className="pp-badge">{t.recommended}</span>}
-                    <button type="button" className="pp-card-head" aria-expanded={open} aria-controls={`pp-x-${p.key}`} onClick={() => setOpenCard(open ? null : p.key)}>
-                      <span className="pp-opt">{t.option(i + 1)}</span>
-                      <h3>{p.name}</h3>
-                      <span className="pp-sessions">{t.technologySessions(p.total)}</span>
-                    </button>
-                    <ul className="pp-techrows">
-                      {TECHNOLOGIES.filter((k) => p.sessions[k] > 0).map((k) => (
-                        <li key={k}>
-                          <Ic src={ICON[k]} />
-                          <b>{p.sessions[k]}</b>
-                          <span>{t.tech[k].name}</span>
-                        </li>
+              <div className="pp-goals-text">
+                <p className="pp-eyebrow">{t.goalsEyebrow}</p>
+                {zoneLabels.length > 0 && (
+                  <>
+                    <span className="pp-label-l">{t.zonesLabel}</span>
+                    <p className="pp-goals-big">{zoneLabels.join(" · ")}</p>
+                  </>
+                )}
+                {goalLabels.length > 0 && (
+                  <>
+                    <span className="pp-label-l">{t.goalsLabel}</span>
+                    <ul className="pp-goal-list">
+                      {goalLabels.map((g) => (
+                        <li key={g}>{g}</li>
                       ))}
                     </ul>
-                    <p>{p.description}</p>
-                    <div className="pp-price">
-                      {t.from} <strong>{money(p.pricing.fullCents)}</strong>
-                    </div>
-                    <div id={`pp-x-${p.key}`} className={`pp-expand${open ? " open" : ""}`}>
-                      <div>
-                        <div className="pp-expand-body">
-                          {p.focus.length > 0 && (
-                            <div>
-                              <span className="pp-label">{t.objectives}</span>
-                              <ul>
-                                {p.focus.map((f) => (
-                                  <li key={f}>{f}</li>
-                                ))}
-                              </ul>
-                            </div>
-                          )}
-                          <span className="pp-regular">
-                            {t.regular} {money(p.pricing.regularCents)} · {t.payFull} {money(p.pricing.fullCents)}
-                            {p.pricing.split ? ` · ${t.pay2} ${money(p.pricing.split.firstCents)} + ${money(p.pricing.split.secondCents)}` : ""}
-                          </span>
-                          <button
-                            type="button"
-                            className="pp-btn pp-btn-burgundy"
-                            onClick={() => {
-                              choose(p.key);
-                              go("payment")();
-                            }}
-                          >
-                            {t.bookPay} <span className="pp-arrow" aria-hidden="true" />
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                    <button type="button" className="pp-btn pp-btn-line" style={{ marginTop: 14 }} aria-expanded={open} aria-controls={`pp-x-${p.key}`} onClick={() => setOpenCard(open ? null : p.key)}>
-                      {open ? t.hideDetails : t.viewDetails} <span className="pp-arrow" aria-hidden="true" />
-                    </button>
-                  </article>
-                );
-              })}
+                  </>
+                )}
+              </div>
             </div>
           </div>
         </section>
 
-        {/* ------------------------------------------------------------ 04 payment */}
-        {program && pricing && (
-          <section id="payment" className="pp-sec pp-burgundy pp-pay" aria-labelledby="pp-pay-title">
-            <div className="pp-inner">
-              <p className="pp-eyebrow" data-reveal>
-                04 — {t.paymentEyebrow}
-              </p>
-              {checkoutState === "success" && <div className="pp-banner" role="status">{view.lang === "es" ? "gracias — estamos confirmando tu pago." : "thank you — we are confirming your payment."}</div>}
-              {view.payment.status === "paid_in_full" && <div className="pp-banner" role="status">{t.paidFull}{paidProgram ? ` (${paidProgram.name})` : ""}</div>}
-              {view.payment.status === "first_installment_paid" && <div className="pp-banner" role="status">{t.paidFirst(money(view.payment.balanceDueCents))}</div>}
-              <div className="pp-pay-grid">
-                <div data-reveal>
-                  <span className="pp-label" style={{ color: "var(--ivory-soft)" }}>
-                    {t.chooseProgram}
-                  </span>
-                  {view.programs.length > 1 && (
-                    <div className="pp-seg" role="group" aria-label={t.chooseProgram}>
-                      {view.programs.map((p) => (
-                        <button key={p.key} type="button" aria-pressed={p.key === program.key} onClick={() => choose(p.key)}>
-                          {p.name}
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                  <h2 id="pp-pay-title" className="pp-pay-name">
-                    {program.name}
-                  </h2>
-                  <span className="pp-sessions" style={{ color: "var(--ivory-soft)" }}>
-                    {t.technologySessions(program.total)}
-                  </span>
-                  <div className="pp-icons3">
-                    {TECHNOLOGIES.map((k) => (
-                      <div key={k}>
-                        <Ic src={ICON[k]} />
-                        <b>{program.sessions[k]}</b>
-                        <span>{t.tech[k].name}</span>
-                      </div>
-                    ))}
-                  </div>
-                  <p className="pp-lead" style={{ color: "var(--ivory-soft)" }}>
-                    {program.description}
-                  </p>
-                </div>
-
-                <div data-reveal>
-                  <fieldset className="pp-options">
-                    <legend className="pp-label" style={{ color: "var(--ivory-soft)" }}>
-                      {t.choosePayment}
-                    </legend>
-                    <label className="pp-option">
-                      <input type="radio" name="pp-mode" value="full" checked={mode === "full"} onChange={() => { setMode("full"); track("select_payment", { programKey: program.key, mode: "full" }); }} />
-                      <span className="pp-radio" aria-hidden="true" />
-                      <span>
-                        <span className="pp-option-t">{t.payFull}</span>
-                        {pricing.savingCents > 0 && <span className="pp-option-s">{t.payFullNote(money(pricing.savingCents))}</span>}
-                      </span>
-                      <span className="pp-option-p">{money(pricing.fullCents)}</span>
-                    </label>
-                    {pricing.split && (
-                      <label className="pp-option">
-                        <input type="radio" name="pp-mode" value="split" checked={mode === "split"} onChange={() => { setMode("split"); track("select_payment", { programKey: program.key, mode: "split" }); }} />
-                        <span className="pp-radio" aria-hidden="true" />
-                        <span>
-                          <span className="pp-option-t">{t.pay2}</span>
-                          <span className="pp-option-s">{t.pay2Note(money(pricing.split.firstCents), money(pricing.split.secondCents))}</span>
-                        </span>
-                        <span className="pp-option-p">
-                          {money(pricing.split.firstCents)}
-                          <small>{pricing.split.firstCents === pricing.split.secondCents ? t.each : "+ " + money(pricing.split.secondCents)}</small>
-                        </span>
-                      </label>
-                    )}
-                  </fieldset>
-                  <div className="pp-due" aria-live="polite">
-                    <span>{t.dueToday}</span>
-                    <strong>{money(due)}</strong>
-                  </div>
-                  {mode === "split" && pricing.split && (
-                    <label className="pp-consent">
-                      <input type="checkbox" checked={consent} onChange={(e) => setConsent(e.target.checked)} />
-                      <span>{t.consent(money(pricing.split.firstCents), money(pricing.split.secondCents))}</span>
-                    </label>
-                  )}
-                  <button type="button" className="pp-btn pp-btn-champagne" onClick={bookAndPay} disabled={!view.token || busy !== null || (mode === "split" && !consent)}>
-                    {busy === "program" ? t.redirecting : t.bookPay} <span className="pp-arrow" aria-hidden="true" />
-                  </button>
-                  {!view.token && <p className="pp-small"><i>i</i><span>{t.previewOnly}</span></p>}
-                  {error && busy !== "promo" && <p className="pp-error" role="alert">{error}</p>}
-                  <p className="pp-small">
-                    <i aria-hidden="true">i</i>
-                    <span>{t.scheduleNote}</span>
-                  </p>
-                </div>
-              </div>
-            </div>
-          </section>
-        )}
-
-        {/* ------------------------------------------------------------ 05 technology */}
+        {/* ------------------------------------------------ 02 technology */}
         <section id="technology" className="pp-sec pp-olive" aria-labelledby="pp-tech-title">
           <div className="pp-inner">
             <p className="pp-eyebrow" data-reveal>
-              05 — {t.techEyebrow}
+              02 — {t.sec.technology}
             </p>
             <h2 id="pp-tech-title" className="pp-h2" data-reveal>
               {t.techTitle}
@@ -529,24 +299,24 @@ export default function ProposalExperience({ view, checkoutState }: Props) {
                 return (
                   <article key={k} data-reveal style={{ ["--d" as string]: `${i * 0.1}s` }}>
                     <div className="pp-tech-photo">
-                      {ph ? <Image src={ph.src} alt={ph.alt} fill sizes="(max-width: 600px) 30vw, 220px" style={{ objectFit: "cover", objectPosition: ph.pos }} /> : <span className="pp-placeholder">{t.photoPending}</span>}
+                      {ph ? (
+                        <Image src={ph.src} alt={ph.alt} fill sizes="(max-width: 600px) 30vw, 220px" style={{ objectFit: "cover", objectPosition: ph.pos }} />
+                      ) : (
+                        <span className="pp-placeholder">{t.photoPending}</span>
+                      )}
                     </div>
                     <h3>{t.tech[k].name}</h3>
                     <p>{t.tech[k].short}</p>
+                    <dl className="pp-rhythm">
+                      <div><dt className="pp-sr">{es ? "frecuencia" : "frequency"}</dt><dd>{t.tech[k].freq}</dd></div>
+                      <div><dt className="pp-sr">{es ? "duración" : "duration"}</dt><dd>{t.tech[k].time}</dd></div>
+                    </dl>
                     <button type="button" className="pp-btn pp-btn-line" onClick={() => setTechOpen(k)} aria-haspopup="dialog">
                       {t.learnMore} <span className="pp-arrow" aria-hidden="true" />
                     </button>
                   </article>
                 );
               })}
-            </div>
-            <div className="pp-integral" data-reveal>
-              <h3>{view.lang === "es" ? "un enfoque integral y personalizado" : "an integrated, personalized approach"}</h3>
-              <p>
-                {view.lang === "es"
-                  ? "combinamos tecnología avanzada, estrategia y acompañamiento cercano para ayudarte a lograr la versión que buscas de ti."
-                  : "we combine advanced technology, strategy and close guidance to help you work toward the version of you that you are looking for."}
-              </p>
             </div>
           </div>
         </section>
@@ -564,6 +334,8 @@ export default function ProposalExperience({ view, checkoutState }: Props) {
                 {t.techEyebrow}
               </p>
               <h3 id="pp-modal-title">{tech.name}</h3>
+              <h4>{t.modalHeads.rhythm}</h4>
+              <p>{tech.freq} · {tech.time}</p>
               {(["what", "use", "integrate", "feel", "eligibility"] as const).map((k) => (
                 <div key={k}>
                   <h4>{t.modalHeads[k]}</h4>
@@ -575,111 +347,245 @@ export default function ProposalExperience({ view, checkoutState }: Props) {
           )}
         </dialog>
 
-        {/* ------------------------------------------------------------ 06 process */}
-        <section id="process" className="pp-sec pp-sand" aria-labelledby="pp-process-title">
+        {/* ------------------------------------------------ 03 vision & real results */}
+        <section id="results" className="pp-sec pp-sand" aria-labelledby="pp-founder-title">
           <div className="pp-inner">
             <p className="pp-eyebrow" data-reveal>
-              06 — {t.processEyebrow}
+              03 — {t.sec.results}
             </p>
-            <h2 id="pp-process-title" className="pp-h2" data-reveal>
-              {t.processTitle}
-            </h2>
-            <p className="pp-lead" data-reveal>
-              {t.processIntro}
-            </p>
-            <div className="pp-steps-wrap" ref={stepsRef}>
-            <span className="pp-steps-line" aria-hidden="true" />
-            <ol className="pp-steps">
-              {t.steps.map((s, i) => (
-                <li key={s.title} className="pp-step" style={{ transitionDelay: `${i * 0.08}s` }}>
-                  <span className="pp-step-icon">
-                    <Ic src={`${A}/brand/icons/${STEP_ICONS[i]}.png`} />
-                  </span>
-                  <div>
-                    <span className="pp-step-n">{String(i + 1).padStart(2, "0")}</span>
-                    <h3>{s.title}</h3>
-                    <p>{s.text}</p>
-                  </div>
-                </li>
-              ))}
-            </ol>
-            </div>
-          </div>
-        </section>
-
-        {/* ------------------------------------------------------------ 07 founder */}
-        <section id="founder" className="pp-sec pp-burgundy" aria-labelledby="pp-founder-title">
-          <div className="pp-inner pp-founder">
-            <div className="pp-founder-photo" data-reveal>
-              <Image src={`${A}/founder/portrait/emmy-founder-seated-original.jpg`} alt={view.lang === "es" ? "emmy, fundadora de body shaper system" : "emmy, founder of body shaper system"} fill sizes="(max-width: 900px) 90vw, 420px" style={{ objectFit: "cover", objectPosition: "50% 22%" }} />
-            </div>
-            <div data-reveal>
-              <p className="pp-eyebrow">07 — {t.founderEyebrow}</p>
-              <h2 id="pp-founder-title" className="pp-h2">
-                {view.founder.title}
-              </h2>
-              <p className="pp-lead">{view.founder.bio || t.founderDefaultBio}</p>
-              <p className="pp-sign">
-                emmy branger
-                <small>{view.lang === "es" ? "fundadora · body shaper system™" : "founder · body shaper system™"}</small>
-              </p>
-            </div>
-          </div>
-        </section>
-
-        {/* ------------------------------------------------------------ 08 results */}
-        {view.results.length > 0 && (
-          <section id="results" className="pp-sec pp-olive" aria-labelledby="pp-results-title">
-            <div className="pp-inner">
-              <p className="pp-eyebrow" data-reveal>
-                08 — {t.resultsEyebrow}
-              </p>
-              <h2 id="pp-results-title" className="pp-h2" data-reveal>
-                {t.resultsTitle}
-              </h2>
-              <p className="pp-lead" style={{ color: "var(--ivory-soft)" }} data-reveal>
-                {t.resultsIntro}
-              </p>
-              <div className="pp-results" tabIndex={0} aria-label={t.resultsTitle}>
-                {view.results.map((c) => (
-                  <article key={c.id} className="pp-result" data-reveal>
-                    <div className="pp-ba">
-                      <figure>
-                        <div className="pp-ba-img">
-                          <Image src={c.before} alt={`${t.before} — ${c.system}`} fill sizes="(max-width: 600px) 42vw, 210px" style={{ objectFit: "cover" }} />
-                        </div>
-                        <figcaption>{t.before}</figcaption>
-                      </figure>
-                      <figure>
-                        <div className="pp-ba-img">
-                          <Image src={c.after} alt={`${t.after} — ${c.system}`} fill sizes="(max-width: 600px) 42vw, 210px" style={{ objectFit: "cover" }} />
-                        </div>
-                        <figcaption>{t.after}</figcaption>
-                      </figure>
-                    </div>
-                    <div className="pp-result-meta">
-                      <span>
-                        <b>{c.system}</b>
-                        {c.technologies}
-                      </span>
-                      <span style={{ textAlign: "right" }}>
-                        <b>{c.sessions}</b>
-                        {view.lang === "es" ? (c.sessions === 1 ? "sesión" : "sesiones") : c.sessions === 1 ? "session" : "sessions"}
-                      </span>
-                    </div>
-                  </article>
-                ))}
+            <div className="pp-founder" data-reveal>
+              <div className="pp-founder-photo">
+                <Image
+                  src={`${A}/founder/portrait/emmy-founder-seated-original.jpg`}
+                  alt={es ? "Emmy Branger, fundadora de body shaper system" : "Emmy Branger, founder of body shaper system"}
+                  fill
+                  sizes="(max-width: 900px) 40vw, 300px"
+                  style={{ objectFit: "cover", objectPosition: "50% 22%" }}
+                />
               </div>
-              <p className="pp-small" style={{ display: "block" }}>{t.resultsNote}</p>
+              <div>
+                <h2 id="pp-founder-title" className="pp-h2 pp-h2-sm">
+                  {view.founder.title}
+                </h2>
+                <p className="pp-lead">{view.founder.bio || t.founderDefaultBio}</p>
+                <p className="pp-sign">
+                  Emmy Branger
+                  <small>{es ? "fundadora · body shaper system™" : "founder · body shaper system™"}</small>
+                </p>
+              </div>
             </div>
-          </section>
-        )}
+            {view.results.length > 0 && (
+              <>
+                <h3 className="pp-h3" data-reveal>
+                  {t.resultsTitle}
+                </h3>
+                <div className="pp-results" tabIndex={0} aria-label={t.resultsTitle}>
+                  {view.results.map((c) => (
+                    <article key={c.id} className="pp-result" data-reveal>
+                      <div className="pp-ba">
+                        {(["before", "after"] as const).map((k) => (
+                          <figure key={k}>
+                            <div className="pp-ba-img">
+                              <Image src={c[k]} alt={`${t[k]} — ${c.system}`} fill sizes="(max-width: 600px) 42vw, 210px" style={{ objectFit: "cover" }} />
+                            </div>
+                            <figcaption>{t[k]}</figcaption>
+                          </figure>
+                        ))}
+                      </div>
+                      <div className="pp-result-meta">
+                        <span>
+                          <b>{c.system}</b>
+                          {c.technologies}
+                        </span>
+                        <span style={{ textAlign: "right" }}>
+                          <b>{c.sessions}</b>
+                          {es ? (c.sessions === 1 ? "sesión" : "sesiones") : c.sessions === 1 ? "session" : "sessions"}
+                        </span>
+                      </div>
+                    </article>
+                  ))}
+                </div>
+                <p className="pp-note">{t.resultsNote}</p>
+              </>
+            )}
+          </div>
+        </section>
 
-        {/* ------------------------------------------------------------ 09 faq */}
+        {/* ------------------------------------------------ 04 your plan & investment */}
+        <section id="plan" className="pp-sec pp-burgundy pp-pay" aria-labelledby="pp-plan-title">
+          <div className="pp-inner">
+            <p className="pp-eyebrow" data-reveal>
+              04 — {t.sec.plan}
+            </p>
+            <h2 id="pp-plan-title" className="pp-h2" data-reveal>
+              {t.sec.planTitle}
+            </h2>
+            <p className="pp-lead" style={{ color: "var(--ivory-soft)" }} data-reveal>
+              {t.sec.planIntro}
+            </p>
+            {checkoutState === "success" && <div className="pp-banner" role="status">{es ? "gracias — estamos confirmando tu pago." : "thank you — we are confirming your payment."}</div>}
+            {view.payment.status === "paid_in_full" && <div className="pp-banner" role="status">{t.paidFull}{paidProgram ? ` (${paidProgram.name})` : ""}</div>}
+            {view.payment.status === "first_installment_paid" && <div className="pp-banner" role="status">{t.paidFirst(money(view.payment.balanceDueCents))}</div>}
+
+            <div className="pp-cards" style={{ ["--n" as string]: String(Math.min(3, view.programs.length || 1)) }}>
+              {view.programs.map((p, i) => {
+                const open = openCard === p.key;
+                const rec = view.recommendedKey === p.key;
+                const sel = program?.key === p.key;
+                return (
+                  <article key={p.key} className={`pp-card${rec ? " is-rec" : ""}${sel ? " is-sel" : ""}`} data-reveal style={{ ["--d" as string]: `${i * 0.08}s` }}>
+                    {rec && <span className="pp-badge">{t.recommended}</span>}
+                    <span className="pp-opt">{t.option(i + 1)}</span>
+                    <h3>{p.name}</h3>
+                    <span className="pp-sessions">{t.technologySessions(p.total)}</span>
+                    <ul className="pp-techrows">
+                      {TECHNOLOGIES.filter((k) => p.sessions[k] > 0).map((k) => (
+                        <li key={k}>
+                          <Ic src={ICON[k]} />
+                          <b>{p.sessions[k]}</b>
+                          <span>{t.tech[k].name}</span>
+                        </li>
+                      ))}
+                    </ul>
+                    <p>{p.description}</p>
+                    <div id={`pp-x-${p.key}`} className={`pp-expand${open ? " open" : ""}`}>
+                      <div>
+                        {p.focus.length > 0 && (
+                          <div className="pp-expand-body">
+                            <span className="pp-label">{t.objectives}</span>
+                            <ul>
+                              {p.focus.map((f) => (
+                                <li key={f}>{f}</li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                    {p.focus.length > 0 && (
+                      <button type="button" className="pp-link" aria-expanded={open} aria-controls={`pp-x-${p.key}`} onClick={() => setOpenCard(open ? null : p.key)}>
+                        {open ? t.hideDetails : t.viewDetails} <span className="pp-plus" aria-hidden="true" />
+                      </button>
+                    )}
+                    <div className="pp-price">
+                      {t.from} <strong>{money(p.pricing.fullCents)}</strong>
+                    </div>
+                    <button type="button" className={`pp-btn ${sel ? "pp-btn-burgundy" : "pp-btn-line"}`} aria-pressed={sel} onClick={() => choose(p.key)}>
+                      {sel ? t.sec.selected : t.sec.select}
+                    </button>
+                  </article>
+                );
+              })}
+            </div>
+
+            {program && pricing && (
+              <div className="pp-paybox" data-reveal>
+                <div className="pp-paybox-head">
+                  <span className="pp-label-l">{t.choosePayment}</span>
+                  <strong>{program.name}</strong>
+                </div>
+                <fieldset className="pp-options">
+                  <legend className="pp-sr">{t.choosePayment}</legend>
+                  <label className="pp-option">
+                    <input type="radio" name="pp-mode" value="full" checked={mode === "full"} onChange={() => { setMode("full"); track("select_payment", { programKey: program.key, mode: "full" }); }} />
+                    <span className="pp-radio" aria-hidden="true" />
+                    <span>
+                      <span className="pp-option-t">{t.payFull}</span>
+                      {pricing.savingCents > 0 && <span className="pp-option-s">{t.payFullNote(money(pricing.savingCents))}</span>}
+                    </span>
+                    <span className="pp-option-p">{money(pricing.fullCents)}</span>
+                  </label>
+                  {pricing.split && (
+                    <label className="pp-option">
+                      <input type="radio" name="pp-mode" value="split" checked={mode === "split"} onChange={() => { setMode("split"); track("select_payment", { programKey: program.key, mode: "split" }); }} />
+                      <span className="pp-radio" aria-hidden="true" />
+                      <span>
+                        <span className="pp-option-t">{t.pay2}</span>
+                        <span className="pp-option-s">{t.pay2Note(money(pricing.split.firstCents), money(pricing.split.secondCents))}</span>
+                      </span>
+                      <span className="pp-option-p">
+                        {money(pricing.split.firstCents)}
+                        <small>{pricing.split.firstCents === pricing.split.secondCents ? t.each : "+ " + money(pricing.split.secondCents)}</small>
+                      </span>
+                    </label>
+                  )}
+                </fieldset>
+                <div className="pp-due" aria-live="polite">
+                  <span>{t.dueToday}</span>
+                  <strong>{money(due)}</strong>
+                </div>
+                {mode === "split" && pricing.split && (
+                  <label className="pp-consent">
+                    <input type="checkbox" checked={consent} onChange={(e) => setConsent(e.target.checked)} />
+                    <span>{t.consent(money(pricing.split.firstCents), money(pricing.split.secondCents))}</span>
+                  </label>
+                )}
+                <button type="button" className="pp-btn pp-btn-champagne pp-btn-wide" onClick={() => startCheckout("program")} disabled={!view.token || busy !== null || (mode === "split" && !consent)}>
+                  {busy === "program" ? t.redirecting : t.bookPay} <span className="pp-arrow" aria-hidden="true" />
+                </button>
+                {!view.token && <p className="pp-small"><i aria-hidden="true">i</i><span>{t.previewOnly}</span></p>}
+                {error && busy !== "promo" && <p className="pp-error" role="alert">{error}</p>}
+                <p className="pp-small">
+                  <i aria-hidden="true">i</i>
+                  <span>{t.scheduleNote}</span>
+                </p>
+              </div>
+            )}
+
+            {view.promo && (
+              <div id="seasonal" className="pp-promo" data-reveal>
+                <div className="pp-promo-img">
+                  <Image src={view.promo.image} alt={view.promo.title} width={1672} height={940} sizes="(max-width: 900px) 92vw, 520px" />
+                </div>
+                <div>
+                  <p className="pp-eyebrow">{t.sec.promoOr}</p>
+                  <h3 className="pp-h3">
+                    the <em>333</em> holiday sculpt ritual
+                  </h3>
+                  <span className="pp-sessions" style={{ color: "var(--ivory-soft)" }}>
+                    {t.promoTreatments} · 3 exilis ultra + 3 endospheres + 3 ems
+                  </span>
+                  <fieldset className="pp-options">
+                    <legend className="pp-label-l">
+                      {t.choosePayment} · <span className="pp-strike">{money(view.promo.regularCents)}</span>
+                    </legend>
+                    <label className="pp-option">
+                      <input type="radio" name="pp-promo" checked={promoMode === "full"} onChange={() => setPromoMode("full")} />
+                      <span className="pp-radio" aria-hidden="true" />
+                      <span className="pp-option-t">{t.payFull}</span>
+                      <span className="pp-option-p">{money(view.promo.fullCents)}</span>
+                    </label>
+                    <label className="pp-option">
+                      <input type="radio" name="pp-promo" checked={promoMode === "split"} onChange={() => setPromoMode("split")} />
+                      <span className="pp-radio" aria-hidden="true" />
+                      <span>
+                        <span className="pp-option-t">{t.pay2}</span>
+                        <span className="pp-option-s">{t.pay2Note(money(view.promo.installmentCents), money(view.promo.installmentCents))}</span>
+                      </span>
+                      <span className="pp-option-p">
+                        {money(view.promo.installmentCents)}
+                        <small>{t.each}</small>
+                      </span>
+                    </label>
+                  </fieldset>
+                  <button type="button" className="pp-btn pp-btn-line pp-btn-wide" style={{ marginTop: 18 }} onClick={() => startCheckout("promo")} disabled={!view.token || busy !== null}>
+                    {busy === "promo" ? t.redirecting : t.promoBook} <span className="pp-arrow" aria-hidden="true" />
+                  </button>
+                  {error && busy === "promo" && <p className="pp-error" role="alert">{error}</p>}
+                  <p className="pp-terms">
+                    {es ? `${view.promo.paymentNoteEs} ${view.promo.termsEs}` : `${view.promo.paymentNote} ${view.promo.terms}`}
+                  </p>
+                </div>
+              </div>
+            )}
+          </div>
+        </section>
+
+        {/* ------------------------------------------------ 05 questions + contact */}
         <section id="faq" className="pp-sec pp-sand" aria-labelledby="pp-faq-title">
           <div className="pp-inner">
             <p className="pp-eyebrow" data-reveal>
-              09 — {t.faqEyebrow}
+              05 — {t.sec.faq}
             </p>
             <h2 id="pp-faq-title" className="pp-h2" data-reveal>
               {t.faqTitle}
@@ -704,88 +610,22 @@ export default function ProposalExperience({ view, checkoutState }: Props) {
                 );
               })}
             </div>
-          </div>
-        </section>
-
-        {/* ------------------------------------------------------------ 10 seasonal */}
-        {view.promo && (
-          <section id="seasonal" className="pp-sec pp-burgundy" aria-labelledby="pp-promo-title">
-            <div className="pp-inner pp-promo">
-              <div className="pp-promo-img" data-reveal>
-                <Image src={view.promo.image} alt={view.promo.title} width={1672} height={940} sizes="(max-width: 900px) 92vw, 540px" />
-              </div>
-              <div data-reveal>
-                <p className="pp-eyebrow">10 — {view.promo.eyebrow}</p>
-                <h2 id="pp-promo-title" className="pp-h2">
-                  the <em>333</em> holiday sculpt ritual
-                </h2>
-                <span className="pp-sessions" style={{ color: "var(--ivory-soft)" }}>
-                  {t.promoTreatments}
-                </span>
-                <div className="pp-icons3">
-                  {TECHNOLOGIES.map((k) => (
-                    <div key={k}>
-                      <b>{view.promo!.sessions[k]}</b>
-                      <span>{t.tech[k].name}</span>
-                    </div>
-                  ))}
-                </div>
-                <fieldset className="pp-options">
-                  <legend className="pp-label" style={{ color: "var(--ivory-soft)" }}>
-                    {t.choosePayment} · <span className="pp-strike">{money(view.promo.regularCents)}</span>
-                  </legend>
-                  <label className="pp-option">
-                    <input type="radio" name="pp-promo" checked={promoMode === "full"} onChange={() => setPromoMode("full")} />
-                    <span className="pp-radio" aria-hidden="true" />
-                    <span className="pp-option-t">{t.payFull}</span>
-                    <span className="pp-option-p">{money(view.promo.fullCents)}</span>
-                  </label>
-                  <label className="pp-option">
-                    <input type="radio" name="pp-promo" checked={promoMode === "split"} onChange={() => setPromoMode("split")} />
-                    <span className="pp-radio" aria-hidden="true" />
-                    <span>
-                      <span className="pp-option-t">{t.pay2}</span>
-                      <span className="pp-option-s">{t.pay2Note(money(view.promo.installmentCents), money(view.promo.installmentCents))}</span>
-                    </span>
-                    <span className="pp-option-p">
-                      {money(view.promo.installmentCents)}
-                      <small>{t.each}</small>
-                    </span>
-                  </label>
-                </fieldset>
-                <button type="button" className="pp-btn pp-btn-champagne" style={{ width: "100%", marginTop: 22, minHeight: 54 }} onClick={bookPromo} disabled={!view.token || busy !== null}>
-                  {busy === "promo" ? t.redirecting : t.promoBook} <span className="pp-arrow" aria-hidden="true" />
-                </button>
-                {error && busy === "promo" && <p className="pp-error" role="alert">{error}</p>}
-                <p className="pp-terms">
-                  {view.promo.paymentNote} {view.promo.terms}
-                </p>
-              </div>
+            <div className="pp-close">
+              <h3 className="pp-h3">{t.ctaTitle}</h3>
+              <p className="pp-lead">{t.ctaText}</p>
+              <a className="pp-btn pp-btn-burgundy" href={`https://wa.me/${WHATSAPP_NUMBER}?text=${waText}`} target="_blank" rel="noopener noreferrer">
+                {t.ctaButton} <span className="pp-arrow" aria-hidden="true" />
+              </a>
+              <p className="pp-logo3" aria-label="body shaper system">
+                body
+                <br />
+                shaper
+                <br />
+                system<sup>™</sup>
+              </p>
+              <p className="pp-tag">{t.footerTagline}</p>
+              <p className="pp-disclaimer">{t.disclaimer}</p>
             </div>
-          </section>
-        )}
-
-        {/* ------------------------------------------------------------ closing */}
-        <section id="contact" className="pp-sec pp-sand pp-close" aria-labelledby="pp-close-title">
-          <div className="pp-inner">
-            <h2 id="pp-close-title" className="pp-h2" data-reveal>
-              {t.ctaTitle}
-            </h2>
-            <p className="pp-lead" data-reveal>
-              {t.ctaText}
-            </p>
-            <a className="pp-btn pp-btn-burgundy" href={`https://wa.me/${WHATSAPP_NUMBER}?text=${waText}`} target="_blank" rel="noopener noreferrer" data-reveal>
-              {t.ctaButton} <span className="pp-arrow" aria-hidden="true" />
-            </a>
-            <p className="pp-logo3" aria-label="body shaper system">
-              body
-              <br />
-              shaper
-              <br />
-              system<sup>™</sup>
-            </p>
-            <p className="pp-tag">{t.footerTagline}</p>
-            <p className="pp-disclaimer">{t.disclaimer}</p>
           </div>
         </section>
       </main>

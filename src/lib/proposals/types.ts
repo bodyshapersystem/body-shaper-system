@@ -164,6 +164,10 @@ export const CAMPAIGNS = {
       "At least 3 of the 9 treatments must be completed before January 27, 2027. Remaining sessions may be completed afterward on your personalized schedule. Subject to treatment suitability and appointment availability. Results vary.",
     paymentNote:
       "Pay $1,290 in full, or two installments of $645. The first is paid at checkout; the second is due during Week 2 of your actual treatment program.",
+    termsEs:
+      "Al menos 3 de los 9 tratamientos deben completarse antes del 27 de enero de 2027. Las sesiones restantes pueden completarse después según tu agenda personalizada. Sujeto a idoneidad del tratamiento y disponibilidad de citas. Los resultados varían.",
+    paymentNoteEs:
+      "Paga $1,290 completo, o dos cuotas de $645. La primera se paga al reservar; la segunda vence durante la semana 2 de tu programa real.",
   },
 } as const;
 export type CampaignKey = keyof typeof CAMPAIGNS;
