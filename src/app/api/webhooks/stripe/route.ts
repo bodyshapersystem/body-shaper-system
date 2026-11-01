@@ -6,6 +6,7 @@ import { sendAppointmentConfirmationEmail, sendSystemDepositReceivedEmail, sendP
 import { createNotification } from "@/lib/notifications";
 import { getBusinessTimezone, formatDateInTimezone, formatTimeInTimezone } from "@/lib/format-datetime";
 import type Stripe from "stripe";
+import { handleProposalCheckoutCompleted, handleProposalPromoCompleted } from "@/lib/proposals/checkout";
 
 export const dynamic = "force-dynamic";
 
@@ -68,6 +69,21 @@ export async function POST(request: NextRequest) {
   const meta = session.metadata ?? {};
   const { firstName, lastName, email, phone, city } = meta;
   const flowType = meta.flowType ?? "consultation_deposit"; // default: pre-existing sessions never had flowType set
+
+  // client_proposal (/p/[token] → book & pay, and Hub → 2nd installment
+  // link): its own idempotent handler — amounts were fixed server-side when
+  // the session was created and are re-checked against amount_total.
+  if (flowType === "client_proposal") {
+    const owner = await prisma.user.findFirst({ where: { email: "hello@bodyshapersystem.com" } });
+    const result = await handleProposalCheckoutCompleted(session, owner?.id);
+    return NextResponse.json({ received: true, flowType, ...result });
+  }
+  // 333 Holiday ritual bought from a client proposal: same existing product,
+  // only attached to the proposal for Hub tracking.
+  if (meta.product === "holiday_333" && meta.proposal_id) {
+    await handleProposalPromoCompleted(session);
+    return NextResponse.json({ received: true, flowType: "holiday_333_proposal" });
+  }
 
   if (!firstName || !lastName || !email) {
     console.error("[stripe-webhook] missing required metadata on session", session.id, meta);

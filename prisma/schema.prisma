@@ -79,27 +79,27 @@ enum PortalStatus {
 }
 
 model User {
-  id           String        @id @default(cuid())
-  authUserId   String        @unique // Supabase Auth user id (auth.users.id)
-  email        String        @unique
-  fullName     String
-  phone        String?
+  id                String        @id @default(cuid())
+  authUserId        String        @unique // Supabase Auth user id (auth.users.id)
+  email             String        @unique
+  fullName          String
+  phone             String?
   avatarStoragePath String?
-  roleId       String
-  role         Role          @relation(fields: [roleId], references: [id])
-  status       UserStatus    @default(ACTIVE)
-  portalStatus PortalStatus? // Client-role users only
+  roleId            String
+  role              Role          @relation(fields: [roleId], references: [id])
+  status            UserStatus    @default(ACTIVE)
+  portalStatus      PortalStatus? // Client-role users only
 
   // Notification preferences (Owner Hub Settings™) — persisted but
   // not yet wired into every notification-sending code path; see
   // Settings page notes.
-  emailNotifications      Boolean @default(true)
-  appointmentReminders    Boolean @default(true)
-  paymentNotifications    Boolean @default(true)
-  leadNotifications       Boolean @default(true)
-  weeklyReports           Boolean @default(true)
-  notifyPortalActivated   Boolean @default(true)
-  notifyWaiverCompleted   Boolean @default(true)
+  emailNotifications       Boolean @default(true)
+  appointmentReminders     Boolean @default(true)
+  paymentNotifications     Boolean @default(true)
+  leadNotifications        Boolean @default(true)
+  weeklyReports            Boolean @default(true)
+  notifyPortalActivated    Boolean @default(true)
+  notifyWaiverCompleted    Boolean @default(true)
   notifyBlueprintCompleted Boolean @default(true)
 
   createdAt   DateTime  @default(now())
@@ -115,9 +115,9 @@ model User {
   totpSecret  String?
   totpEnabled Boolean @default(false)
 
-  leadsCreated      Lead[]              @relation("LeadCreatedBy")
-  leadStatusChanges LeadStatusHistory[]
-  clientRecord      Client?
+  leadsCreated          Lead[]              @relation("LeadCreatedBy")
+  leadStatusChanges     LeadStatusHistory[]
+  clientRecord          Client?
   managedCollaborations Collaboration[]
 
   @@map("users")
@@ -148,16 +148,16 @@ enum PaymentStatus {
 }
 
 model Lead {
-  id        String  @id @default(cuid())
-  firstName String
-  lastName  String
-  email     String
-  phone     String?
-  city      String?
-  goals     String?
-  source    String? // e.g. "website", "instagram", "referral", "jotform:lets-build-your-blueprint"
-  referredByClientId String? // the real Client whose referral link/code brought this lead in
-  referredByClient   Client? @relation("ClientReferrals", fields: [referredByClientId], references: [id])
+  id                    String  @id @default(cuid())
+  firstName             String
+  lastName              String
+  email                 String
+  phone                 String?
+  city                  String?
+  goals                 String?
+  source                String? // e.g. "website", "instagram", "referral", "jotform:lets-build-your-blueprint"
+  referredByClientId    String? // the real Client whose referral link/code brought this lead in
+  referredByClient      Client? @relation("ClientReferrals", fields: [referredByClientId], references: [id])
   referralRewardGranted Boolean @default(false) // guards against double-awarding the 250 Society Points
 
   status        LeadStatus    @default(NEW)
@@ -223,50 +223,50 @@ model LeadEmailLog {
 // identity backs at most one client.
 
 model Client {
-  id             String  @id @default(cuid())
-  leadId         String  @unique
-  lead           Lead    @relation(fields: [leadId], references: [id])
-  userId         String  @unique
-  user           User    @relation(fields: [userId], references: [id])
-  firstName      String
-  lastName       String
-  email          String
-  phone          String?
-  city           String?
-  membershipTier String  @default("Standard")
-  clientType     ClientType @default(STANDARD)
+  id                               String     @id @default(cuid())
+  leadId                           String     @unique
+  lead                             Lead       @relation(fields: [leadId], references: [id])
+  userId                           String     @unique
+  user                             User       @relation(fields: [userId], references: [id])
+  firstName                        String
+  lastName                         String
+  email                            String
+  phone                            String?
+  city                             String?
+  membershipTier                   String     @default("Standard")
+  clientType                       ClientType @default(STANDARD)
   // Real per-client override — not every Ambassador actually needs
   // the Content Release Agreement (some are collab-only). Defaults
   // to false so nobody is unexpectedly required to complete it;
   // the Owner turns this on per-client when it genuinely applies.
-  requiresContentRelease Boolean @default(false)
-  lastCelebratedMeasurementId     String? // Measurement.id of the last body-composition scan the client has already seen a Congratulations overlay for
-  lastCelebratedBodyMeasurementId String? // BodyMeasurement.id of the last tape-measurement session already celebrated
+  requiresContentRelease           Boolean    @default(false)
+  lastCelebratedMeasurementId      String? // Measurement.id of the last body-composition scan the client has already seen a Congratulations overlay for
+  lastCelebratedBodyMeasurementId  String? // BodyMeasurement.id of the last tape-measurement session already celebrated
   lastCelebratedPhotoSessionNumber Int? // Progress Photos™ session number already shown a Congratulations overlay
 
   // Reminder Center™ — client-facing quiet hours (applies to all
   // non-essential System Nudges) + Owner-configured protocol goals
   // that Nudges are computed against. Real config, not hardcoded.
-  quietHoursStart               String?  // "HH:MM" 24h
-  quietHoursEnd                 String?  // "HH:MM" 24h
-  hydrationGoalGlasses          Int      @default(8)
-  proteinGoalGrams              Int?
-  movementGoalSteps             Int      @default(8000)
-  compressionDays               String[] @default([]) // e.g. ["MON","WED","FRI"] — empty means every day
-  compressionHoursRequired      Float?
-  compressionProtocolStartDate  DateTime?
-  compressionProtocolEndDate    DateTime?
+  quietHoursStart                String? // "HH:MM" 24h
+  quietHoursEnd                  String? // "HH:MM" 24h
+  hydrationGoalGlasses           Int                  @default(8)
+  proteinGoalGrams               Int?
+  movementGoalSteps              Int                  @default(8000)
+  compressionDays                String[]             @default([]) // e.g. ["MON","WED","FRI"] — empty means every day
+  compressionHoursRequired       Float?
+  compressionProtocolStartDate   DateTime?
+  compressionProtocolEndDate     DateTime?
   peptideJourneyInviteSentAt     DateTime?
   peptideJourneyInviteSentByName String?
-  reminderPreferences           ReminderPreference[]
-  nudgeLogs                     NudgeLog[]
-  address                String? // full street address — distinct from `city` (Service Zone)
-  birthday               DateTime?
-  importedLastAppointmentAt DateTime? // historical, from legacy import — real appointments use the Appointment table instead
-  importedLastTreatment     String?
-  importedLifetimeValueCents Int?
-  importSource               String? // e.g. "CSV Import 2026-07-16" — null for normal onboarding-created clients
-  pausedAt       DateTime? // treatment temporarily paused — null = not paused
+  reminderPreferences            ReminderPreference[]
+  nudgeLogs                      NudgeLog[]
+  address                        String? // full street address — distinct from `city` (Service Zone)
+  birthday                       DateTime?
+  importedLastAppointmentAt      DateTime? // historical, from legacy import — real appointments use the Appointment table instead
+  importedLastTreatment          String?
+  importedLifetimeValueCents     Int?
+  importSource                   String? // e.g. "CSV Import 2026-07-16" — null for normal onboarding-created clients
+  pausedAt                       DateTime? // treatment temporarily paused — null = not paused
 
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
@@ -283,18 +283,19 @@ model Client {
   midpointReviews      MidpointReview[]
   techSupportPurchases TechSupportPurchase[]
   collaboration        Collaboration?
-  referrals            Lead[]           @relation("ClientReferrals")
+  referrals            Lead[]                @relation("ClientReferrals")
   formSubmissions      FormSubmission[]
   progressSnapshots    ProgressSnapshot[]
-  appointments   Appointment[]
-  payments       Payment[]
-  measurements   Measurement[]
-  documents      Document[]
-  notes          ClientNote[]
-  messageThread  MessageThread?
-  rewardsAccount RewardsAccount?
-  portalInvite   PortalInvitation?
-  emailEvents    EmailEvent[]
+  appointments         Appointment[]
+  payments             Payment[]
+  measurements         Measurement[]
+  documents            Document[]
+  notes                ClientNote[]
+  messageThread        MessageThread?
+  rewardsAccount       RewardsAccount?
+  portalInvite         PortalInvitation?
+  emailEvents          EmailEvent[]
+  proposals            ClientProposal[]
 
   @@map("clients")
 }
@@ -360,13 +361,13 @@ enum BodyType {
 }
 
 model BlueprintAssessment {
-  id       String            @id @default(cuid())
-  leadId   String?           @unique
-  lead     Lead?             @relation(fields: [leadId], references: [id])
+  id       String           @id @default(cuid())
+  leadId   String?          @unique
+  lead     Lead?            @relation(fields: [leadId], references: [id])
   clientId String?
-  client   Client?           @relation(fields: [clientId], references: [id], onDelete: Cascade)
-  version  Int               @default(1)
-  status   AssessmentStatus  @default(INTAKE_SUBMITTED)
+  client   Client?          @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  version  Int              @default(1)
+  status   AssessmentStatus @default(INTAKE_SUBMITTED)
 
   // Body Profile™ — single source of truth for body-type classification.
   // Nullable until the Owner sets it at assessment; drives Section 01
@@ -375,9 +376,9 @@ model BlueprintAssessment {
   bodyType BodyType?
 
   // Jotform intake (Let's Build Your Blueprint™)
-  jotformSubmissionId String?
-  jotformRawData      Json?
-  intakeSubmissionDate DateTime?
+  jotformSubmissionId     String?
+  jotformRawData          Json?
+  intakeSubmissionDate    DateTime?
   baselineAppointmentDate DateTime?
 
   // Strategy — original recommendation is frozen once set; validated
@@ -385,35 +386,35 @@ model BlueprintAssessment {
   // appointment. `recommendedSystem`/`treatmentInterests` remain the
   // live current values (unchanged mechanism from before — updated by
   // recordStrategyChange when they actually change).
-  goals                    String?
-  treatmentInterests       String?
-  recommendedSystem        String?
+  goals                     String?
+  treatmentInterests        String?
+  recommendedSystem         String?
   originalRecommendedSystem String? // frozen at intake — never overwritten
-  planTotalCents            Int?    // the sold package's total price — set by the Owner, never hardcoded; null until entered
-  discountCents             Int?    // a manual discount the Owner applies for this client — subtracted from planTotalCents when computing the real balance owed
+  planTotalCents            Int? // the sold package's total price — set by the Owner, never hardcoded; null until entered
+  discountCents             Int? // a manual discount the Owner applies for this client — subtracted from planTotalCents when computing the real balance owed
 
-  initialFrequency      String?
-  validatedFrequency     String?
-  initialSessionCount    Int?
-  validatedSessionCount  Int?
+  initialFrequency               String?
+  validatedFrequency             String?
+  initialSessionCount            Int?
+  validatedSessionCount          Int?
   // Manual credit for sessions the client already completed BEFORE
   // being added to the portal (e.g. they started treatment in person
   // weeks/months before onboarding) — added on top of the real
   // COMPLETED-Appointment count everywhere progress is shown, without
   // needing to fabricate backdated Appointment rows for history that
   // predates this system. Set directly by the Owner, defaults to 0.
-  priorCompletedSessions Int     @default(0)
-  complementarySessions  String?
-  homeCareGuidance       String?
+  priorCompletedSessions         Int     @default(0)
+  complementarySessions          String?
+  homeCareGuidance               String?
   // Compression Garment — the default Home Care recommendation,
   // per-client and fully editable (never hardcoded). recommended
   // gates whether the hours/duration fields apply.
-  compressionGarmentRecommended    Boolean @default(false)
-  compressionGarmentHoursPerDay    Int?
-  compressionGarmentDuration       Int?
-  compressionGarmentDurationUnit   String? // "days" | "weeks"
-  compressionGarmentNote           String?
-  optimizationNotes      String?
+  compressionGarmentRecommended  Boolean @default(false)
+  compressionGarmentHoursPerDay  Int?
+  compressionGarmentDuration     Int?
+  compressionGarmentDurationUnit String? // "days" | "weeks"
+  compressionGarmentNote         String?
+  optimizationNotes              String?
 
   validationNotes String?
   validatedById   String?
@@ -423,10 +424,10 @@ model BlueprintAssessment {
   // from the "you completed your system" email instead of the generic
   // blueprint page. Populated by the Owner via the Hub at completion time;
   // all optional so completion still works if these are left blank.
-  completionHighlights String?   // short bullet-style summary of results achieved, e.g. "- Abdomen: visibly more defined, fibrosis reduced\n- Legs/glutes: cellulite noticeably reduced"
-  completionPhotoUrls  Json?     // array of storage paths for the before/after images featured on this page (separate from the regular session photo gallery)
-  nextSystemName        String?  // e.g. "Sculpt Signature™"
-  nextSystemProposal    String?  // bullet-style breakdown of the proposed sessions, e.g. "- 6 Exilis® (4 legs, 2 abdomen)\n- 6 Endospheres® (legs)\n- 2 additional EMS"
+  completionHighlights String? // short bullet-style summary of results achieved, e.g. "- Abdomen: visibly more defined, fibrosis reduced\n- Legs/glutes: cellulite noticeably reduced"
+  completionPhotoUrls  Json? // array of storage paths for the before/after images featured on this page (separate from the regular session photo gallery)
+  nextSystemName       String? // e.g. "Sculpt Signature™"
+  nextSystemProposal   String? // bullet-style breakdown of the proposed sessions, e.g. "- 6 Exilis® (4 legs, 2 abdomen)\n- 6 Endospheres® (legs)\n- 2 additional EMS"
 
   // Google review request — completedAt is set once, at the moment
   // markSystemCompleted runs, and never touched again (unlike
@@ -434,8 +435,8 @@ model BlueprintAssessment {
   // after completion" cron has a stable timestamp to check against.
   // reviewRequestSentAt prevents the cron from ever double-sending,
   // and also gets set when Emmy sends it manually from the Hub.
-  completedAt          DateTime?
-  reviewRequestSentAt  DateTime?
+  completedAt         DateTime?
+  reviewRequestSentAt DateTime?
 
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
@@ -476,7 +477,7 @@ model BodyMeasurement {
   rightThighCm   Float?
   leftThighCm    Float?
   notes          String?
-  createdAt      DateTime @default(now())
+  createdAt      DateTime             @default(now())
   specialistId   String?
   // Shared session tracking across the client's real visit history —
   // same pattern as Photo.sessionNumber, so a Session can exist even
@@ -498,20 +499,20 @@ enum PhotoType {
 }
 
 model Photo {
-  id            String              @id @default(cuid())
+  id            String               @id @default(cuid())
   clientId      String
-  client        Client              @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  client        Client               @relation(fields: [clientId], references: [id], onDelete: Cascade)
   assessmentId  String?
   assessment    BlueprintAssessment? @relation(fields: [assessmentId], references: [id], onDelete: SetNull)
   appointmentId String?
-  appointment   Appointment?        @relation(fields: [appointmentId], references: [id], onDelete: SetNull)
+  appointment   Appointment?         @relation(fields: [appointmentId], references: [id], onDelete: SetNull)
   type          PhotoType
   storagePath   String
   takenAt       DateTime?
-  uploadedAt    DateTime  @default(now())
+  uploadedAt    DateTime             @default(now())
   specialistId  String?
   notes         String?
-  visibility    Visibility @default(INTERNAL_ONLY)
+  visibility    Visibility           @default(INTERNAL_ONLY)
   // Explicit session grouping — set by the Owner when the automatic
   // "chunks of 4 in upload order" grouping gets it wrong (e.g. an old
   // incomplete session's leftover photos merging with a new session's
@@ -530,8 +531,8 @@ model SpecialistObservation {
   assessment   BlueprintAssessment @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
   authorId     String?
   body         String
-  visibility   Visibility @default(INTERNAL_ONLY)
-  createdAt    DateTime @default(now())
+  visibility   Visibility          @default(INTERNAL_ONLY)
+  createdAt    DateTime            @default(now())
 
   @@map("specialist_observations")
 }
@@ -546,7 +547,7 @@ model StrategyChange {
   newStrategy      String
   reason           String?
   changedById      String?
-  changedAt        DateTime @default(now())
+  changedAt        DateTime            @default(now())
 
   @@map("strategy_changes")
 }
@@ -588,13 +589,13 @@ model FormSubmission {
 // ---------- Measurements (manual entry, RENPHO-shaped; historical only) ----------
 
 model Measurement {
-  id                     String   @id @default(cuid())
+  id                     String               @id @default(cuid())
   clientId               String
-  client                 Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  client                 Client               @relation(fields: [clientId], references: [id], onDelete: Cascade)
   assessmentId           String?
   assessment             BlueprintAssessment? @relation(fields: [assessmentId], references: [id], onDelete: SetNull)
   appointmentId          String?
-  appointment            Appointment? @relation(fields: [appointmentId], references: [id], onDelete: SetNull)
+  appointment            Appointment?         @relation(fields: [appointmentId], references: [id], onDelete: SetNull)
   scanDate               DateTime
   weightKg               Float?
   bodyFatPercent         Float?
@@ -611,15 +612,15 @@ model Measurement {
   fatFreeWeightKg        Float?
   whr                    Float? // waist-to-hip ratio, from RENPHO
   smi                    Float? // skeletal muscle index (kg/m²), from RENPHO
-  deviceSource     String   @default("RENPHO Health")
-  notes            String?
-  createdAt        DateTime @default(now())
-  createdById      String?
+  deviceSource           String               @default("RENPHO Health")
+  notes                  String?
+  createdAt              DateTime             @default(now())
+  createdById            String?
   // Shared session tracking across the client's real visit history —
   // same pattern as Photo.sessionNumber, so a Session can exist even
   // without a photo taken that day. Null = not yet assigned to a
   // numbered session.
-  sessionNumber    Int?
+  sessionNumber          Int?
 
   @@map("measurements")
 }
@@ -633,29 +634,29 @@ model Measurement {
 // job/report generator somewhere to write results.
 
 model ProgressSnapshot {
-  id                     String    @id @default(cuid())
-  clientId               String
-  client                 Client    @relation(fields: [clientId], references: [id], onDelete: Cascade)
-  assessmentId           String?
-  assessment             BlueprintAssessment? @relation(fields: [assessmentId], references: [id], onDelete: SetNull)
-  baselineMeasurementId  String?
-  latestMeasurementId    String?
+  id                    String               @id @default(cuid())
+  clientId              String
+  client                Client               @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  assessmentId          String?
+  assessment            BlueprintAssessment? @relation(fields: [assessmentId], references: [id], onDelete: SetNull)
+  baselineMeasurementId String?
+  latestMeasurementId   String?
 
-  date                   DateTime // the point in time this snapshot represents
-  weightDeltaKg          Float?
-  bodyFatDeltaPercent    Float?
-  visceralFatDelta       Float?
-  skeletalMuscleDeltaKg  Float?
-  inchesLost             Float?
-  estimatedFatLossKg     Float?
-  estimatedMuscleGainKg  Float?
-  adherenceScore         Float? // e.g. 0-100, future adherence-tracking input
-  specialistSummary      String?
-  aiSummary              String? // reserved for future AI-generated summary
-  metrics                Json?   // escape hatch for future delta types
+  date                  DateTime // the point in time this snapshot represents
+  weightDeltaKg         Float?
+  bodyFatDeltaPercent   Float?
+  visceralFatDelta      Float?
+  skeletalMuscleDeltaKg Float?
+  inchesLost            Float?
+  estimatedFatLossKg    Float?
+  estimatedMuscleGainKg Float?
+  adherenceScore        Float? // e.g. 0-100, future adherence-tracking input
+  specialistSummary     String?
+  aiSummary             String? // reserved for future AI-generated summary
+  metrics               Json? // escape hatch for future delta types
 
-  generatedAt            DateTime  @default(now()) // when this snapshot record was produced
-  notes                  String?
+  generatedAt DateTime @default(now()) // when this snapshot record was produced
+  notes       String?
 
   @@map("progress_snapshots")
 }
@@ -760,7 +761,7 @@ model MidpointReview {
   assessmentId String
   assessment   BlueprintAssessment @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
 
-  triggeredAt      DateTime  @default(now()) // when the session completing 50% was marked COMPLETED
+  triggeredAt       DateTime @default(now()) // when the session completing 50% was marked COMPLETED
   hasSufficientData Boolean  @default(false)
 
   // Baseline vs. midpoint snapshots — captured once and frozen, so
@@ -781,18 +782,18 @@ model MidpointReview {
   midpointBodyWaterPercent Float?
   midpointWaistCm          Float?
 
-  insightText        String? // "Your Midpoint Insight" plain-language read of the comparison
-  nextPhaseCategory  String? // CONTINUE | MUSCLE_SUPPORT | FIRMNESS_SUPPORT | TISSUE_SUPPORT | SYSTEM_EVOLUTION
-  nextPhaseCopy      String? // the category's body copy (may be Owner-edited)
-  suggestedAddOn     String? // "EMS" | "Exilis" | "Endospheres" | a System name — display only, not auto-sold
+  insightText       String? // "Your Midpoint Insight" plain-language read of the comparison
+  nextPhaseCategory String? // CONTINUE | MUSCLE_SUPPORT | FIRMNESS_SUPPORT | TISSUE_SUPPORT | SYSTEM_EVOLUTION
+  nextPhaseCopy     String? // the category's body copy (may be Owner-edited)
+  suggestedAddOn    String? // "EMS" | "Exilis" | "Endospheres" | a System name — display only, not auto-sold
 
   // CONTINUE never needs review (no commercial ask). Every other
   // category is gated: NOT_APPLICABLE (n/a, i.e. CONTINUE) |
   // PENDING_REVIEW | APPROVED | DECLINED. Only APPROVED is ever shown
   // to the client for a commercial category.
-  reviewStatus String    @default("NOT_APPLICABLE")
-  reviewedById String?
-  reviewedAt   DateTime?
+  reviewStatus             String    @default("NOT_APPLICABLE")
+  reviewedById             String?
+  reviewedAt               DateTime?
   clientRequestedExploreAt DateTime? // set when the client taps "Explore My Next Phase" — sends a real message to the specialist
 
   dataReadyEmailSent   Boolean @default(false)
@@ -813,7 +814,7 @@ model PeptideProtocol {
   customGoal        String? // free-text goal, used when goalCategory is GENERAL_CUSTOM (or blank)
   dose              String?
   frequency         String // "Daily" | "Weekly" | "Bi-weekly" | "Custom"
-  injectionDays     String[] @default([]) // e.g. ["MON"] for weekly
+  injectionDays     String[]  @default([]) // e.g. ["MON"] for weekly
   injectionTime     String // 24h "HH:MM"
   injectionSite     String?
   protocolStartDate DateTime?
@@ -840,38 +841,38 @@ model PeptideLog {
 
   // Post-injection check-in — real, self-reported, 1-5 dot ratings.
   // This is tracking/adherence only; never used to suggest dose changes.
-  appetite  Int?
-  energy    Int?
-  bloating  Int?
-  digestion Int?
+  appetite    Int?
+  energy      Int?
+  bloating    Int?
+  digestion   Int?
   sleepRating Int?
-  mood      Int?
-  nausea    Int?
+  mood        Int?
+  nausea      Int?
 
-  createdAt      DateTime @default(now())
+  createdAt DateTime @default(now())
 
   @@map("peptide_logs")
 }
 
 model DailyTracker {
-  id        String   @id @default(cuid())
-  clientId  String
-  client    Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
-  date      DateTime // normalized to midnight UTC — one row per client per calendar day
+  id       String   @id @default(cuid())
+  clientId String
+  client   Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  date     DateTime // normalized to midnight UTC — one row per client per calendar day
 
-  waterGlasses      Int      @default(0) // 0-8
-  steps             Int?
-  stepsGoal         Int      @default(8000)
-  sleepHours        Float?
-  sleepQuality      String? // Poor | Fair | Good | Excellent
-  compressionWorn   Boolean?
-  compressionHours  Float?
-  moodCheckIn       String? // GREAT | OKAY | BLOATED
-  moodNote          String?
-  proteinGrams      Float? // grams logged today toward Client.proteinGoalGrams
-  symptoms          String[] @default([])
-  dailyNote         String?
-  weightLbs         Float?
+  waterGlasses     Int      @default(0) // 0-8
+  steps            Int?
+  stepsGoal        Int      @default(8000)
+  sleepHours       Float?
+  sleepQuality     String? // Poor | Fair | Good | Excellent
+  compressionWorn  Boolean?
+  compressionHours Float?
+  moodCheckIn      String? // GREAT | OKAY | BLOATED
+  moodNote         String?
+  proteinGrams     Float? // grams logged today toward Client.proteinGoalGrams
+  symptoms         String[] @default([])
+  dailyNote        String?
+  weightLbs        Float?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -907,7 +908,7 @@ model Document {
   storagePath   String
   fileType      String?
   sizeBytes     Int?
-  uploadedAt    DateTime @default(now())
+  uploadedAt    DateTime         @default(now())
   uploadedById  String?
 
   @@map("documents")
@@ -946,19 +947,19 @@ model Message {
 // ---------- Rewards ----------
 
 model RewardsAccount {
-  id            String   @id @default(cuid())
-  clientId      String   @unique
-  client        Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
-  pointsBalance Int      @default(0)
-  lifetimePoints Int     @default(0) // only ever increases — real basis for tier thresholds, unaffected by redemptions
-  tier          String   @default("Standard")
-  suspended     Boolean  @default(false)
+  id                        String    @id @default(cuid())
+  clientId                  String    @unique
+  client                    Client    @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  pointsBalance             Int       @default(0)
+  lifetimePoints            Int       @default(0) // only ever increases — real basis for tier thresholds, unaffected by redemptions
+  tier                      String    @default("Standard")
+  suspended                 Boolean   @default(false)
   societyWelcomeEmailSentAt DateTime? // real delayed-send tracker — guards against re-sending
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  createdAt                 DateTime  @default(now())
+  updatedAt                 DateTime  @updatedAt
 
-  transactions RewardsTransaction[]
-  redemptions  RewardRedemption[]
+  transactions       RewardsTransaction[]
+  redemptions        RewardRedemption[]
   missionCompletions MissionCompletion[]
 
   @@map("rewards_accounts")
@@ -1119,37 +1120,37 @@ enum AgreementStatus {
 }
 
 model Collaboration {
-  id                 String            @id @default(cuid())
-  clientId           String            @unique
-  client             Client            @relation(fields: [clientId], references: [id], onDelete: Cascade)
-  collaborationType  CollaborationType @default(AMBASSADOR)
-  treatmentValueCents Int              @default(0) // retail value of the treatment(s) given
-  clientContributionCents Int          @default(0) // what the client actually paid — $0 = fully complimentary
-  campaignName       String?
-  instagramHandle    String?
-  deliverables       String?
-  internalNotes      String?
-  managerId          String?
-  manager            User?             @relation(fields: [managerId], references: [id])
-  agreementStatus    AgreementStatus   @default(PENDING)
-  createdAt          DateTime          @default(now())
-  updatedAt          DateTime          @updatedAt
+  id                      String            @id @default(cuid())
+  clientId                String            @unique
+  client                  Client            @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  collaborationType       CollaborationType @default(AMBASSADOR)
+  treatmentValueCents     Int               @default(0) // retail value of the treatment(s) given
+  clientContributionCents Int               @default(0) // what the client actually paid — $0 = fully complimentary
+  campaignName            String?
+  instagramHandle         String?
+  deliverables            String?
+  internalNotes           String?
+  managerId               String?
+  manager                 User?             @relation(fields: [managerId], references: [id])
+  agreementStatus         AgreementStatus   @default(PENDING)
+  createdAt               DateTime          @default(now())
+  updatedAt               DateTime          @updatedAt
 
   @@map("collaborations")
 }
 
 model Appointment {
-  id               String            @id @default(cuid())
-  clientId         String
-  client           Client            @relation(fields: [clientId], references: [id], onDelete: Cascade)
-  title            String
-  startsAt         DateTime
-  endsAt           DateTime?
-  status           AppointmentStatus @default(SCHEDULED)
-  locationType     AppointmentLocationType @default(HOME) // chosen by the therapist when scheduling — this business is mobile-first, so Home is the sensible default
-  technologies     Json? // array of selected technology objects for this session
-  estimatedMinutes Int?
-  notes            String?
+  id                  String                  @id @default(cuid())
+  clientId            String
+  client              Client                  @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  title               String
+  startsAt            DateTime
+  endsAt              DateTime?
+  status              AppointmentStatus       @default(SCHEDULED)
+  locationType        AppointmentLocationType @default(HOME) // chosen by the therapist when scheduling — this business is mobile-first, so Home is the sensible default
+  technologies        Json? // array of selected technology objects for this session
+  estimatedMinutes    Int?
+  notes               String?
   // True for backdated/historical appointments entered after the
   // fact (e.g. logging a client's real past sessions before they had
   // portal access) — set automatically when startsAt is in the past
@@ -1157,10 +1158,10 @@ model Appointment {
   // client-facing confirmation email, and the daily cron's
   // day-after-first-appointment check-in explicitly skips it too,
   // regardless of what date it happens to fall on.
-  skipAutomatedEmails Boolean         @default(false)
-  createdAt        DateTime          @default(now())
-  updatedAt        DateTime          @updatedAt
-  createdById      String?
+  skipAutomatedEmails Boolean                 @default(false)
+  createdAt           DateTime                @default(now())
+  updatedAt           DateTime                @updatedAt
+  createdById         String?
   // Interactive Session Map™ — frozen at save time, never
   // recalculated later (a session's map is a historical record, per
   // direction: "Do not dynamically overwrite old session maps when
@@ -1170,7 +1171,7 @@ model Appointment {
   // logged. Per-technology areas/objectives live inside the existing
   // `technologies` JSON array (each entry gains real `areas: string[]`
   // and `objectives: string[]`) rather than a second column.
-  blueprintAlignment Json?
+  blueprintAlignment  Json?
   // Real cancellation/reschedule policy tracking. Per direction: the
   // client's FIRST cancellation (ever) is always forgiven — doesn't
   // consume a purchased session. Every cancellation after that is
@@ -1180,8 +1181,8 @@ model Appointment {
   // reschedule of the same logical session; on the 3rd attempt
   // (rescheduleCount already at 2), the session is forfeited instead
   // of rescheduled again.
-  rescheduleCount    Int      @default(0)
-  sessionForfeited   Boolean  @default(false)
+  rescheduleCount     Int                     @default(0)
+  sessionForfeited    Boolean                 @default(false)
 
   // Long-term architecture: every appointment is the permanent
   // clinical session record. Photos, Renpho scans, professional
@@ -1299,8 +1300,8 @@ model PortalInvitation {
   // Delivery tracking — lets the Hub show invite status and safely
   // support "Resend Invitation" without ever creating a duplicate
   // Auth user or Client record.
-  lastSentAt    DateTime?
-  attemptCount  Int       @default(0)
+  lastSentAt   DateTime?
+  attemptCount Int       @default(0)
 
   @@map("portal_invitations")
 }
@@ -1371,3 +1372,103 @@ model EmailEvent {
   @@map("email_events")
 }
 
+// ---------------------------------------------------------------------------
+// Client Proposals™ — private, tokenised proposal pages (/p/[token]).
+// Every proposal uses the same master template; only these rows change.
+// Amounts are always recomputed server-side from `programs` (never from the
+// browser). No cards are stored and no subscriptions are created: a split
+// plan is two separate one-off Checkout Sessions, the second generated from
+// the Hub once the real program start date is known (due in Week 2).
+// ---------------------------------------------------------------------------
+enum ProposalStatus {
+  DRAFT
+  ACTIVE
+  INACTIVE
+}
+
+model ClientProposal {
+  id                  String         @id @default(cuid())
+  token               String         @unique // 256-bit random, base64url — the only thing in the private link
+  status              ProposalStatus @default(DRAFT)
+  clientId            String?
+  client              Client?        @relation(fields: [clientId], references: [id], onDelete: SetNull)
+  clientName          String // display name only (editable) — never derived from another client
+  locationLabel       String?
+  language            String         @default("en") // en | es
+  zones               String[]       @default([])
+  goals               String[]       @default([])
+  personalMessage     String?
+  internalNotes       String? // Hub-only, never sent to the page
+  programs            Json // ProposalProgram[] — see src/lib/proposals/types.ts
+  recommendedKey      String?
+  promoEnabled        Boolean        @default(false)
+  showWelcomeVideo    Boolean        @default(false)
+  resultCaseIds       String[]       @default([])
+  expiresAt           DateTime?
+  programStartDate    DateTime? // real start date — drives the Week 2 due date of a 2nd installment
+  viewCount           Int            @default(0)
+  firstViewedAt       DateTime?
+  lastViewedAt        DateTime?
+  selectedProgramKey  String?
+  selectedPaymentMode String? // full | split
+  checkoutStatus      String? // started | paid_in_full | first_installment_paid | completed
+  amountPaidCents     Int            @default(0)
+  balanceDueCents     Int            @default(0)
+  splitConsentAt      DateTime?
+  splitConsentText    String?
+  createdById         String?
+  createdAt           DateTime       @default(now())
+  updatedAt           DateTime       @updatedAt
+
+  events    ProposalEvent[]
+  checkouts ProposalCheckout[]
+
+  @@index([status])
+  @@index([clientId])
+  @@map("client_proposals")
+}
+
+model ProposalEvent {
+  id         String         @id @default(cuid())
+  proposalId String
+  proposal   ClientProposal @relation(fields: [proposalId], references: [id], onDelete: Cascade)
+  type       String // view | select_program | select_payment | checkout_started | paid | promo_checkout_started | promo_paid | link_regenerated | status_changed
+  data       Json?
+  createdAt  DateTime       @default(now())
+
+  @@index([proposalId, createdAt])
+  @@map("proposal_events")
+}
+
+model ProposalCheckout {
+  id                String         @id @default(cuid())
+  proposalId        String
+  proposal          ClientProposal @relation(fields: [proposalId], references: [id], onDelete: Cascade)
+  stripeSessionId   String         @unique
+  kind              String         @default("program") // program | promo
+  programKey        String
+  programName       String
+  paymentMode       String // full | split
+  installmentNumber Int            @default(1)
+  installmentTotal  Int            @default(1)
+  amountCents       Int // exactly what this Checkout Session charges (server-computed)
+  programTotalCents Int // what the client owes in total under this payment mode
+  status            String         @default("OPEN") // OPEN | PAID
+  paymentId         String?
+  createdAt         DateTime       @default(now())
+  paidAt            DateTime?
+
+  @@index([proposalId])
+  @@map("proposal_checkouts")
+}
+
+model ProposalSettings {
+  id             String   @id @default("default")
+  founderTitle   String   @default("the vision behind body shaper system™")
+  founderBio     String?
+  founderBioEs   String?
+  activeCampaign String?  @default("holiday_333") // null = no seasonal module available
+  updatedAt      DateTime @updatedAt
+
+  @@map("proposal_settings")
+}

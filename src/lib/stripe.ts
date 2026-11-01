@@ -13,7 +13,13 @@ let client: Stripe | null = null;
 
 export function getStripeClient(): Stripe {
   if (!client) {
-    client = new Stripe(process.env.STRIPE_SECRET_KEY || "sk_missing_key");
+    // Local test harness only (never on Vercel): point the SDK at a fake
+    // Stripe API to verify request payloads without a network call.
+    const local = !process.env.VERCEL && process.env.STRIPE_LOCAL_TEST_API ? new URL(process.env.STRIPE_LOCAL_TEST_API) : null;
+    client = new Stripe(
+      process.env.STRIPE_SECRET_KEY || "sk_missing_key",
+      local ? { host: local.hostname, port: Number(local.port), protocol: local.protocol.replace(":", "") as "http" | "https" } : undefined,
+    );
   }
   return client;
 }
