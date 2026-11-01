@@ -76,6 +76,8 @@ export async function createProposalCheckout(args: CreateArgs): Promise<{ url: s
     mode: "payment",
     ...(proposal.client?.email ? { customer_email: proposal.client.email } : {}),
     customer_creation: autoSecond ? ("always" as const) : ("if_required" as const),
+    // The automatic 2nd charge needs a reusable card: no BNPL wallets on a split plan.
+    ...(autoSecond ? { payment_method_types: ["card", "link"] as ("card" | "link")[] } : {}),
     billing_address_collection: "auto",
     phone_number_collection: { enabled: !proposal.client },
     line_items: [
