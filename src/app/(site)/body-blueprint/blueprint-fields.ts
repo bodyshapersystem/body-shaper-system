@@ -6,6 +6,7 @@ export const blueprintSections = [
     {id:"phone",label:"Phone Number",type:"tel",required:true},
     {id:"dateOfBirth",label:"Date of Birth",type:"date"},
     {id:"city",label:"Which area are you located in?",type:"select",required:true,options:["Miami","Miami Beach","Brickell / Downtown","Coral Gables","Coconut Grove","Kendall","Doral","Hialeah","Aventura","North Miami","Fort Lauderdale","West Palm Beach","Other"]},
+    {id:"zoneId",label:"Area selected on the map (zone id)",type:"text"},
     {id:"buildingAccess",label:"Does your building require any of the following?",type:"multiple",options:["Valet Parking","Paid Parking Garage","Gate Code","Concierge Access","Elevator","Stairs Only","Street Parking Available","Other"]},
     {id:"referralSource",label:"How did you hear about us?",type:"multiple",required:true,options:["Instagram","Facebook","TikTok","Google Search","Google Maps","Friend / Family","Existing Client","Event","Other"]},
     {id:"referredBy",label:"Who may we thank for referring you?",type:"text"}

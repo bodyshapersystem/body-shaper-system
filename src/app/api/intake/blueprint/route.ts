@@ -17,6 +17,13 @@ export async function POST(req:NextRequest){
   if(typeof v==="string")clean[k]=v.trim().slice(0,3000);
   if(Array.isArray(v)&&v.every(x=>typeof x==="string"))clean[k]=v.slice(0,30).map(x=>x.slice(0,200));
  }
+ // "How committed are you to starting?" is answered by "When would you like to begin?" in the
+ // interactive Blueprint (same question asked once) — derive it so the Hub keeps both answers.
+ if(!clean.commitment&&typeof clean.startTimeline==="string"){
+  const t=clean.startTimeline;
+  clean.commitment=t==="This week"||t==="Within the next 2 weeks"?"Ready to begin immediately":t==="This month"?"Within the next 30 days":"Still exploring";
+ }
+ if(typeof clean.zoneId==="string")clean.zoneId=clean.zoneId.toLowerCase().replace(/[^a-z0-9-]/g,"").slice(0,60);
  for(const s of blueprintSections)for(const f of s.fields){
   if("required" in f&&f.required){
    const val=clean[f.id];
