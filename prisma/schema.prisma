@@ -1376,9 +1376,10 @@ model EmailEvent {
 // Client Proposals™ — private, tokenised proposal pages (/p/[token]).
 // Every proposal uses the same master template; only these rows change.
 // Amounts are always recomputed server-side from `programs` (never from the
-// browser). No cards are stored and no subscriptions are created: a split
-// plan is two separate one-off Checkout Sessions, the second generated from
-// the Hub once the real program start date is known (due in Week 2).
+// browser). No subscriptions: a split plan is installment 1 via Checkout
+// (card saved in Stripe for off-session use) + one automatic charge of
+// installment 2 on the date the client chose (end of week 2 / start of week 3).
+// Card data never touches this database — only Stripe customer/payment-method ids.
 // ---------------------------------------------------------------------------
 enum ProposalStatus {
   DRAFT
@@ -1441,22 +1442,27 @@ model ProposalEvent {
 }
 
 model ProposalCheckout {
-  id                String         @id @default(cuid())
-  proposalId        String
-  proposal          ClientProposal @relation(fields: [proposalId], references: [id], onDelete: Cascade)
-  stripeSessionId   String         @unique
-  kind              String         @default("program") // program | promo
-  programKey        String
-  programName       String
-  paymentMode       String // full | split
-  installmentNumber Int            @default(1)
-  installmentTotal  Int            @default(1)
-  amountCents       Int // exactly what this Checkout Session charges (server-computed)
-  programTotalCents Int // what the client owes in total under this payment mode
-  status            String         @default("OPEN") // OPEN | PAID
-  paymentId         String?
-  createdAt         DateTime       @default(now())
-  paidAt            DateTime?
+  id                    String         @id @default(cuid())
+  proposalId            String
+  proposal              ClientProposal @relation(fields: [proposalId], references: [id], onDelete: Cascade)
+  stripeSessionId       String         @unique
+  kind                  String         @default("program") // program | promo
+  programKey            String
+  programName           String
+  paymentMode           String // full | split
+  installmentNumber     Int            @default(1)
+  installmentTotal      Int            @default(1)
+  amountCents           Int // exactly what this Checkout Session charges (server-computed)
+  programTotalCents     Int // what the client owes in total under this payment mode
+  status                String         @default("OPEN") // OPEN | PAID
+  paymentId             String?
+  // Split plans: the 2nd installment is charged automatically on the date the
+  // client chose. Only Stripe ids are kept here — the card itself stays in Stripe.
+  secondChargeDate      DateTime?
+  stripeCustomerId      String?
+  stripePaymentMethodId String?
+  createdAt             DateTime       @default(now())
+  paidAt                DateTime?
 
   @@index([proposalId])
   @@map("proposal_checkouts")

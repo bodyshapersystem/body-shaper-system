@@ -66,11 +66,11 @@ export default function ProposalControls(props: {
       </div>
       {props.canSecondInstallment && (
         <div style={{ display: "grid", gap: 8 }}>
-          <p className="pb-hint">2nd installment — due in week 2 of the real program. {props.hasStartDate ? "" : "set the program start date first."}</p>
+          <p className="pb-hint">2nd installment — charged automatically on the day she chose. if the automatic charge fails, send her this link instead.</p>
           <button
             type="button"
             className="pt-btn solid"
-            disabled={pending || !props.hasStartDate}
+            disabled={pending}
             onClick={() =>
               start(async () => {
                 const r = await createSecondInstallmentLink(props.id);
@@ -79,7 +79,7 @@ export default function ProposalControls(props: {
               })
             }
           >
-            generate 2nd installment link
+            generate 2nd installment link (fallback)
           </button>
           {second && (
             <>

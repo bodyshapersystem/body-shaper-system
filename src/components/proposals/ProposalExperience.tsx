@@ -3,8 +3,9 @@
 import Image from "next/image";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { COPY, WHATSAPP_NUMBER } from "@/lib/proposals/copy";
-import { displayName, money, TECHNOLOGIES, type GoalKey, type PaymentMode, type TechnologyKey, type ZoneKey } from "@/lib/proposals/types";
+import { displayName, formatDay, money, secondChargeOptions, TECHNOLOGIES, type GoalKey, type PaymentMode, type TechnologyKey, type ZoneKey } from "@/lib/proposals/types";
 import type { ProposalView } from "@/lib/proposals/server";
+import { BACK_ZONES, FILL_SELECTED, FRONT_ZONES, IMAGE_HEIGHT, IMAGE_VIEWBOX, IMAGE_WIDTH } from "@/lib/body-map-zones";
 
 /**
  * Master template — five steps:
@@ -27,14 +28,15 @@ const TECH_PHOTO: Record<TechnologyKey, { src: string; alt: string; pos: string 
   ems: { src: `${A}/technologies/ems/emszero-applicator-emmy.jpeg`, alt: "ems applicator held by the founder", pos: "50% 45%" },
 };
 
-/** Marker positions on the official body diagram (828 × 1024). */
-const ZONE_POINTS: Record<ZoneKey, [number, number][]> = {
-  arms: [[268, 341], [441, 349]],
-  waist: [[323, 426], [381, 426]],
-  abdomen: [[352, 488]],
-  glutes: [[276, 554], [428, 554]],
-  legs: [[297, 658], [409, 654], [310, 812], [395, 812]],
+/** Session Area Map™ zones lit for each priority zone (legs = thighs only, never calves). */
+const ZONE_MAP: Record<ZoneKey, string[]> = {
+  legs: ["Left Front Thigh", "Right Front Thigh", "Left Posterior Thigh", "Right Posterior Thigh"],
+  abdomen: ["Upper Left Abdomen", "Upper Right Abdomen", "Lower Left Abdomen", "Lower Right Abdomen"],
+  waist: ["Left Lateral", "Right Lateral"],
+  arms: ["Left Front Arm", "Right Front Arm", "Left Posterior Arm", "Right Posterior Arm"],
+  glutes: ["Left Glute", "Right Glute"],
 };
+const MAP_IMG = { front: `${A}/blueprint/session-area-map/front.png`, back: `${A}/blueprint/session-area-map/back.png` };
 
 type Props = { view: ProposalView; checkoutState?: string | null };
 
@@ -51,6 +53,8 @@ export default function ProposalExperience({ view, checkoutState }: Props) {
   );
   const [mode, setMode] = useState<PaymentMode>("full");
   const [consent, setConsent] = useState(false);
+  const [secondDate, setSecondDate] = useState<string | null>(null);
+  const dateOptions = useMemo(() => secondChargeOptions(), []);
   const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [promoMode, setPromoMode] = useState<PaymentMode>("full");
@@ -64,6 +68,7 @@ export default function ProposalExperience({ view, checkoutState }: Props) {
   const zones = view.zones.filter((z): z is ZoneKey => z in t.zones);
   const goals = view.goals.filter((g): g is GoalKey => g in t.goals);
   const zoneLabels = zones.map((z) => t.zones[z]);
+  const litZones = new Set(zones.flatMap((z) => ZONE_MAP[z]));
   const goalLabels = goals.map((g) => t.goals[g]);
 
   // ---- tracking (best-effort, never blocks the page) ----
@@ -149,6 +154,7 @@ export default function ProposalExperience({ view, checkoutState }: Props) {
     setProgramKey(key);
     setMode("full");
     setConsent(false);
+    setSecondDate(null);
     setError(null);
     setSheetOpen(true);
     track("select_program", { programKey: key });
@@ -168,6 +174,10 @@ export default function ProposalExperience({ view, checkoutState }: Props) {
     if (!view.token) return;
     if (kind === "program") {
       if (!program) return;
+      if (mode === "split" && !secondDate) {
+        setError(t.pickDateError);
+        return;
+      }
       if (mode === "split" && !consent) {
         setError(es ? "confirma el calendario de las dos cuotas para continuar." : "please confirm the two-installment schedule to continue.");
         return;
@@ -181,7 +191,7 @@ export default function ProposalExperience({ view, checkoutState }: Props) {
           ? await fetch(`/api/proposals/${view.token}/checkout`, {
               method: "POST",
               headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ programKey: program!.key, mode, consent: mode === "split" ? consent : false }),
+              body: JSON.stringify({ programKey: program!.key, mode, consent: mode === "split" ? consent : false, secondDate: mode === "split" ? secondDate : null }),
             })
           : await fetch(`/api/holiday-333/checkout`, {
               method: "POST",
@@ -250,18 +260,23 @@ export default function ProposalExperience({ view, checkoutState }: Props) {
 
             {/* goals: official diagram with only her zones + her goals */}
             <div className="pp-goals" data-reveal style={{ ["--d" as string]: "0.3s" }} aria-label={t.goalsEyebrow}>
-              <div className="pp-diagram">
-                <img
-                  src={`${A}/blueprint/body-diagram/body-diagram-official.jpg`}
-                  alt={es ? "diagrama corporal body blueprint con tus zonas prioritarias" : "body blueprint diagram showing your priority zones"}
-                  width={828}
-                  height={1024}
-                />
-                {zones.map((z) =>
-                  ZONE_POINTS[z].map(([x, y], i) => (
-                    <span key={`${z}${i}`} className="pp-mark on" style={{ left: `${(x / 828) * 100}%`, top: `${(y / 1024) * 100}%` }} aria-hidden="true" />
-                  )),
-                )}
+              <div className="pp-map">
+                <p className="pp-map-title">session area map</p>
+                <div className="pp-map-figs">
+                  {([["front", FRONT_ZONES], ["back", BACK_ZONES]] as const).map(([side, list]) => (
+                    <figure key={side}>
+                      <figcaption>{side === "front" ? (es ? "frente" : "front") : es ? "espalda" : "back"}</figcaption>
+                      <div className="pp-map-fig">
+                        <img src={MAP_IMG[side]} alt={es ? `zonas a trabajar, vista ${side === "front" ? "frontal" : "posterior"}` : `areas we will work on, ${side} view`} width={IMAGE_WIDTH} height={IMAGE_HEIGHT} />
+                        <svg viewBox={IMAGE_VIEWBOX} aria-hidden="true">
+                          {list.filter((z) => litZones.has(z.name)).map((z) => (
+                            <path key={z.name} d={z.path} fill={FILL_SELECTED} />
+                          ))}
+                        </svg>
+                      </div>
+                    </figure>
+                  ))}
+                </div>
               </div>
               <div className="pp-goals-text">
                 <p className="pp-eyebrow">{t.goalsEyebrow}</p>
@@ -388,27 +403,26 @@ export default function ProposalExperience({ view, checkoutState }: Props) {
                 </h3>
                 <div className="pp-results" tabIndex={0} aria-label={t.resultsTitle}>
                   {view.results.map((c) => (
-                    <article key={c.id} className="pp-result" data-reveal>
-                      <div className="pp-ba">
-                        {(["before", "after"] as const).map((k) => (
-                          <figure key={k}>
-                            <div className="pp-ba-img">
-                              <Image src={c[k]} alt={`${t[k]} — ${c.system}`} fill sizes="(max-width: 600px) 42vw, 210px" style={{ objectFit: "cover" }} />
-                            </div>
-                            <figcaption>{t[k]}</figcaption>
-                          </figure>
-                        ))}
-                      </div>
-                      <div className="pp-result-meta">
-                        <span>
-                          <b>{c.system}</b>
-                          {c.technologies}
-                        </span>
-                        <span style={{ textAlign: "right" }}>
-                          <b>{c.sessions}</b>
-                          {es ? (c.sessions === 1 ? "sesión" : "sesiones") : c.sessions === 1 ? "session" : "sessions"}
-                        </span>
-                      </div>
+                    <article key={c.id} className={`pp-result pp-result-${c.kind}`} data-reveal>
+                      {c.kind === "card" ? (
+                        <div className="pp-result-card">
+                          <Image src={c.image} alt={c.alt} fill sizes="(max-width: 600px) 86vw, 440px" style={{ objectFit: "cover" }} />
+                        </div>
+                      ) : (
+                        <div className="pp-ba">
+                          {(["before", "after"] as const).map((k) => (
+                            <figure key={k}>
+                              <div className="pp-ba-img">
+                                <Image src={c[k]} alt={`${t[k]} — ${c.label}`} fill sizes="(max-width: 600px) 42vw, 210px" style={{ objectFit: "cover" }} />
+                              </div>
+                              <figcaption>
+                                {t[k]} · {k === "before" ? c.beforeCaption.replace("session", es ? "sesión" : "session") : c.afterCaption.replace("session", es ? "sesión" : "session")}
+                              </figcaption>
+                            </figure>
+                          ))}
+                        </div>
+                      )}
+                      <p className="pp-result-label">{es ? c.label.replace(/session/g, "sesión") : c.label}</p>
                     </article>
                   ))}
                 </div>
@@ -573,12 +587,28 @@ export default function ProposalExperience({ view, checkoutState }: Props) {
                 <strong>{money(due)}</strong>
               </div>
               {mode === "split" && pricing.split && (
-                <label className="pp-consent">
-                  <input type="checkbox" checked={consent} onChange={(e) => setConsent(e.target.checked)} />
-                  <span>{t.consent(money(pricing.split.firstCents), money(pricing.split.secondCents))}</span>
-                </label>
+                <>
+                  <fieldset className="pp-dates">
+                    <legend className="pp-label">{t.pickDate}</legend>
+                    <p className="pp-dates-hint">{t.pickDateHint}</p>
+                    <div className="pp-dates-row">
+                      {dateOptions.map((d) => (
+                        <label key={d} className={`pp-date${secondDate === d ? " on" : ""}`}>
+                          <input type="radio" name="pp-second" value={d} checked={secondDate === d} onChange={() => setSecondDate(d)} />
+                          {formatDay(d, view.lang)}
+                        </label>
+                      ))}
+                    </div>
+                  </fieldset>
+                  {secondDate && (
+                    <label className="pp-consent">
+                      <input type="checkbox" checked={consent} onChange={(e) => setConsent(e.target.checked)} />
+                      <span>{t.consentAuto(money(pricing.split.firstCents), money(pricing.split.secondCents), formatDay(secondDate, view.lang))}</span>
+                    </label>
+                  )}
+                </>
               )}
-              <button type="button" className="pp-btn pp-btn-burgundy pp-btn-wide" onClick={() => startCheckout("program")} disabled={!view.token || busy !== null || (mode === "split" && !consent)}>
+              <button type="button" className="pp-btn pp-btn-burgundy pp-btn-wide" onClick={() => startCheckout("program")} disabled={!view.token || busy !== null || (mode === "split" && (!consent || !secondDate))}>
                 {busy === "program" ? t.redirecting : t.payNow} <span className="pp-arrow" aria-hidden="true" />
               </button>
               {!view.token && <p className="pp-small"><i aria-hidden="true">i</i><span>{t.previewOnly}</span></p>}

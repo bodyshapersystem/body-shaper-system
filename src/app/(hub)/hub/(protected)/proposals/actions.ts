@@ -124,7 +124,6 @@ export async function createSecondInstallmentLink(id: string): Promise<{ url?: s
   const p = await prisma.clientProposal.findUnique({ where: { id }, include: { checkouts: true } });
   if (!p) return { error: "Proposal not found." };
   if (p.checkoutStatus !== "first_installment_paid") return { error: "The first installment has not been paid yet." };
-  if (!p.programStartDate) return { error: "Set the program start date first — the 2nd installment is due in Week 2 of the real program." };
   const first = p.checkouts.find((c) => c.status === "PAID" && c.paymentMode === "split" && c.installmentNumber === 1);
   if (!first) return { error: "No paid first installment found." };
   const res = await createProposalCheckout({ proposalId: p.id, token: p.token, origin: await currentOrigin(), programKey: first.programKey, mode: "split", installment: 2 });

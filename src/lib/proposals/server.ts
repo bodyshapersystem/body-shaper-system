@@ -15,15 +15,18 @@ export function isTokenShape(token: string): boolean {
   return /^[A-Za-z0-9_-]{40,64}$/.test(token);
 }
 
-/** Published before/after cases already on /transformations (authorised for publication). */
-export const RESULT_CASES = [
-  { id: "case1", before: "/images/transformations/case1-before.jpg", after: "/images/transformations/case1-after.jpg", system: "sculpt start™", technologies: "exilis®", sessions: 4 },
-  { id: "case2", before: "/images/transformations/case2-before.jpg", after: "/images/transformations/case2-after.jpg", system: "sculpt signature™", technologies: "exilis® + endospheres®", sessions: 6 },
-  { id: "case3", before: "/images/transformations/case3-before.jpg", after: "/images/transformations/case3-after.jpg", system: "total body optimization™", technologies: "exilis® + ems®", sessions: 6 },
-  { id: "case4", before: "/images/transformations/case4-before.jpg", after: "/images/transformations/case4-after.jpg", system: "glp-1 reshape™", technologies: "exilis® + lymphatic protocols™", sessions: 4 },
-  { id: "case5", before: "/images/transformations/case5-before.jpg", after: "/images/transformations/case5-after.jpg", system: "sculpt start™", technologies: "exilis®", sessions: 1 },
-] as const;
-export const DEFAULT_RESULT_IDS = ["case2", "case3"];
+/** Authentic, authorised before/after results chosen by Emmy. "card" = her designed results card; "pair" = two photos. */
+const R = "/proposal-assets/results";
+export type ResultCase =
+  | { id: string; kind: "card"; image: string; label: string; alt: string }
+  | { id: string; kind: "pair"; before: string; after: string; label: string; beforeCaption: string; afterCaption: string };
+export const RESULT_CASES: ResultCase[] = [
+  { id: "exilis-front", kind: "card", image: `${R}/exilis-front-session1-3.jpg`, label: "exilis® · session 1 → 3", alt: "before and after, front view, exilis session 1 to session 3" },
+  { id: "exilis-side", kind: "card", image: `${R}/exilis-side-session1-3.jpg`, label: "exilis® · session 1 → 3", alt: "before and after, side view, exilis session 1 to session 3" },
+  { id: "front-s1-s3", kind: "pair", before: `${R}/front-session1-before.jpg`, after: `${R}/front-session3-after.jpg`, label: "session 1 → session 3", beforeCaption: "session 1", afterCaption: "session 3" },
+  { id: "sculpt-start", kind: "card", image: `${R}/sculpt-start-abdomen.jpg`, label: "sculpt start™", alt: "before and after, abdomen, sculpt start" },
+];
+export const DEFAULT_RESULT_IDS = ["exilis-front", "exilis-side", "front-s1-s3", "sculpt-start"];
 
 /** Only what the private page needs. No ids, emails, notes or other clients' data. */
 export type ProposalView = {
@@ -40,7 +43,7 @@ export type ProposalView = {
   showWelcomeVideo: boolean;
   welcomeVideoSrc: string | null;
   founder: { title: string; bio: string | null };
-  results: (typeof RESULT_CASES)[number][];
+  results: ResultCase[];
   payment: { status: string | null; programKey: string | null; mode: string | null; balanceDueCents: number };
 };
 
@@ -60,7 +63,8 @@ export async function buildProposalView(p: ClientProposal, opts: { sample?: bool
   const programs = normalizePrograms(p.programs).map((pr) => ({ ...pr, total: totalSessions(pr), pricing: priceProgram(pr) }));
   const campaignKey = (settings ? settings.activeCampaign : "holiday_333") as CampaignKey | null;
   const promo = p.promoEnabled && campaignKey && CAMPAIGNS[campaignKey] ? CAMPAIGNS[campaignKey] : null;
-  const resultIds = p.resultCaseIds.length ? p.resultCaseIds : DEFAULT_RESULT_IDS;
+  const known = p.resultCaseIds.filter((id) => RESULT_CASES.some((c) => c.id === id));
+  const resultIds = known.length ? known : DEFAULT_RESULT_IDS;
   return {
     token: opts.sample ? null : p.token,
     lang,

@@ -5,7 +5,7 @@ import { getStripeClient, isStripeConfigured } from "@/lib/stripe";
 import { findOrCreateClientFromCheckout } from "@/lib/checkout-client";
 import { sendPaymentConfirmationEmail } from "@/lib/email/service";
 import { createNotification } from "@/lib/notifications";
-import { displayName, money, normalizePrograms, priceProgram, type PaymentMode } from "./types";
+import { displayName, formatDay, money, normalizePrograms, priceProgram, secondChargeOptions, type PaymentMode } from "./types";
 import { logProposalEvent } from "./server";
 
 /**
@@ -23,8 +23,15 @@ export function proposalPaymentsStatus(): { ok: true; testMode: boolean } | { ok
   return { ok: true, testMode };
 }
 
-export const SPLIT_SCHEDULE_TEXT = (first: number, second: number) =>
-  `Installment 1 of 2: ${money(first, { cents: true })} today. Installment 2 of 2: ${money(second, { cents: true })} due during Week 2 of your treatment program, counted from your confirmed start date. You will receive a secure payment link for it. No card is stored and no recurring charges are created.`;
+export const SPLIT_SCHEDULE_TEXT = (first: number, second: number, date?: string | null) =>
+  date
+    ? `Installment 1 of 2: ${money(first, { cents: true })} today. Installment 2 of 2: ${money(second, { cents: true })} charged automatically to this card on ${formatDay(date, "en")} (date you chose). Your card is saved by Stripe only for that payment — no subscription, no other charges.`
+    : `Installment 1 of 2: ${money(first, { cents: true })} today. Installment 2 of 2: ${money(second, { cents: true })} due during Weeks 2–3 of your program.`;
+
+/** Server-side check that a chosen 2nd-payment day is inside the allowed window. */
+export function validSecondChargeDate(iso: unknown): string | null {
+  return typeof iso === "string" && secondChargeOptions().includes(iso) ? iso : null;
+}
 
 type CreateArgs = {
   proposalId: string;
@@ -33,6 +40,7 @@ type CreateArgs = {
   programKey: string;
   mode: PaymentMode;
   installment: 1 | 2;
+  secondChargeDate?: string | null; // split, installment 1: day chosen for the automatic 2nd charge
 };
 
 /** Creates a one-off Checkout Session for a proposal program. Amounts come only from the DB. */
@@ -58,13 +66,16 @@ export async function createProposalCheckout(args: CreateArgs): Promise<{ url: s
     amountCents = args.installment === 1 ? pricing.split!.firstCents : pricing.split!.secondCents;
   }
   if (amountCents < 50) return { error: "Invalid amount.", status: 400 };
+  const autoSecond = args.mode === "split" && args.installment === 1 ? validSecondChargeDate(args.secondChargeDate) : null;
+  if (args.mode === "split" && args.installment === 1 && !autoSecond) return { error: "Please choose the day for your second payment.", status: 400 };
 
   const label =
     args.mode === "full" ? "Pay in full" : args.installment === 1 ? "Installment 1 of 2 (at booking)" : "Installment 2 of 2 (Week 2)";
   const stripe = getStripeClient();
   const session = await stripe.checkout.sessions.create({
     mode: "payment",
-    ...(proposal.client?.email ? { customer_email: proposal.client.email } : { customer_creation: "if_required" as const }),
+    ...(proposal.client?.email ? { customer_email: proposal.client.email } : {}),
+    customer_creation: autoSecond ? ("always" as const) : ("if_required" as const),
     billing_address_collection: "auto",
     phone_number_collection: { enabled: !proposal.client },
     line_items: [
@@ -77,17 +88,19 @@ export async function createProposalCheckout(args: CreateArgs): Promise<{ url: s
             name: `${displayName(program.name)} — ${label}`,
             description:
               args.mode === "split"
-                ? SPLIT_SCHEDULE_TEXT(pricing.split!.firstCents, pricing.split!.secondCents).slice(0, 480)
+                ? SPLIT_SCHEDULE_TEXT(pricing.split!.firstCents, pricing.split!.secondCents, autoSecond).slice(0, 480)
                 : `Body Shaper System™ personalized program · ${program.sessions.exilis} Exilis Ultra + ${program.sessions.endospheres} Endospheres + ${program.sessions.ems} EMS`,
           },
         },
       },
     ],
-    ...(args.mode === "split" ? { custom_text: { submit: { message: SPLIT_SCHEDULE_TEXT(pricing.split!.firstCents, pricing.split!.secondCents) } } } : {}),
-    // One-off payment only: no setup_future_usage, no saved payment method, no subscription.
+    ...(args.mode === "split" ? { custom_text: { submit: { message: SPLIT_SCHEDULE_TEXT(pricing.split!.firstCents, pricing.split!.secondCents, autoSecond) } } } : {}),
+    // No subscription. Only a split plan's 1st installment saves the card (in Stripe)
+    // so the single 2nd installment can be charged automatically on the chosen day.
     payment_intent_data: {
       description: `Client proposal — ${displayName(program.name)} — ${label}`,
       metadata: { flowType: "client_proposal", proposalId: proposal.id },
+      ...(autoSecond ? { setup_future_usage: "off_session" as const } : {}),
     },
     metadata: {
       flowType: "client_proposal",
@@ -96,6 +109,7 @@ export async function createProposalCheckout(args: CreateArgs): Promise<{ url: s
       paymentMode: args.mode,
       installmentNumber: String(args.installment),
       amountCents: String(amountCents),
+      ...(autoSecond ? { secondChargeDate: autoSecond } : {}),
     },
     success_url: `${args.origin}/p/${args.token}?checkout=success#next`,
     cancel_url: `${args.origin}/p/${args.token}#plan`,
@@ -113,6 +127,7 @@ export async function createProposalCheckout(args: CreateArgs): Promise<{ url: s
       installmentTotal: args.mode === "split" ? 2 : 1,
       amountCents,
       programTotalCents,
+      secondChargeDate: autoSecond ? new Date(`${autoSecond}T14:00:00Z`) : null,
     },
   });
   await logProposalEvent(proposal.id, args.installment === 2 ? "second_installment_link" : "checkout_started", {
@@ -200,6 +215,22 @@ export async function handleProposalCheckoutCompleted(session: Stripe.Checkout.S
       paymentId = p.id;
       if (isSplit) {
         const second = row.programTotalCents - row.amountCents;
+        // Keep the Stripe ids needed for the automatic 2nd charge (never card data).
+        const piId = typeof session.payment_intent === "string" ? session.payment_intent : session.payment_intent?.id;
+        if (piId) {
+          try {
+            const pi = await getStripeClient().paymentIntents.retrieve(piId);
+            await prisma.proposalCheckout.update({
+              where: { id: row.id },
+              data: {
+                stripePaymentMethodId: typeof pi.payment_method === "string" ? pi.payment_method : pi.payment_method?.id ?? null,
+                stripeCustomerId: typeof pi.customer === "string" ? pi.customer : pi.customer?.id ?? null,
+              },
+            });
+          } catch (e) {
+            console.error("[stripe-webhook] could not read payment intent for auto 2nd charge", piId, e);
+          }
+        }
         await prisma.payment.create({
           data: {
             clientId,
@@ -210,8 +241,10 @@ export async function handleProposalCheckoutCompleted(session: Stripe.Checkout.S
             reference: `proposal:${proposal.id}:2`,
             installmentNumber: 2,
             installmentTotal: 2,
-            dueDate: proposal.programStartDate ? new Date(proposal.programStartDate.getTime() + 7 * 86400000) : null,
-            notes: `${row.programName} — installment 2 of 2, due during Week 2 of the program (from the confirmed start date). Generate the link from Hub → Client Proposals.`,
+            dueDate: row.secondChargeDate ?? (proposal.programStartDate ? new Date(proposal.programStartDate.getTime() + 7 * 86400000) : null),
+            notes: row.secondChargeDate
+              ? `${row.programName} — installment 2 of 2, charged automatically on the date the client chose. If it fails, send the link from Hub → Client Proposals.`
+              : `${row.programName} — installment 2 of 2. Send the link from Hub → Client Proposals.`,
             createdById: systemUserId,
           },
         });
@@ -260,4 +293,69 @@ export async function handleProposalPromoCompleted(session: Stripe.Checkout.Sess
   const exists = await prisma.proposalEvent.findFirst({ where: { proposalId, type: "promo_paid", data: { path: ["sessionId"], equals: session.id } } });
   if (exists) return;
   await logProposalEvent(proposalId, "promo_paid", { sessionId: session.id, plan: session.metadata?.payment_plan, amountCents: session.amount_total });
+}
+
+/**
+ * Daily cron: charge every automatic 2nd installment that is due.
+ * One off-session PaymentIntent per installment (idempotency key), max 3 attempts.
+ */
+export async function chargeDueInstallments(now = new Date()) {
+  const due = await prisma.payment.findMany({
+    where: { status: "PENDING", installmentNumber: 2, reference: { startsWith: "proposal:" }, dueDate: { lte: now } },
+  });
+  const results: { paymentId: string; status: string }[] = [];
+  for (const pay of due) {
+    const proposalId = pay.reference!.split(":")[1];
+    const first = await prisma.proposalCheckout.findFirst({
+      where: { proposalId, status: "PAID", paymentMode: "split", installmentNumber: 1 },
+      include: { proposal: true },
+    });
+    if (!first?.stripeCustomerId || !first.stripePaymentMethodId) {
+      results.push({ paymentId: pay.id, status: "no_saved_card" });
+      continue;
+    }
+    const attempts = await prisma.proposalEvent.count({ where: { proposalId, type: { in: ["auto_charge_failed"] } } });
+    if (attempts >= 3) {
+      results.push({ paymentId: pay.id, status: "gave_up" });
+      continue;
+    }
+    const amount = first.programTotalCents - first.amountCents;
+    try {
+      const pi = await getStripeClient().paymentIntents.create(
+        {
+          amount,
+          currency: "usd",
+          customer: first.stripeCustomerId,
+          payment_method: first.stripePaymentMethodId,
+          off_session: true,
+          confirm: true,
+          description: `Client proposal — ${displayName(first.programName)} — Installment 2 of 2 (automatic)`,
+          metadata: { flowType: "client_proposal_auto", proposalId, paymentId: pay.id },
+        },
+        { idempotencyKey: `proposal-${proposalId}-inst2-attempt${attempts}` },
+      );
+      if (pi.status !== "succeeded") throw Object.assign(new Error(`status ${pi.status}`), { code: pi.status });
+      await prisma.payment.update({ where: { id: pay.id }, data: { status: "PAID", paidAt: new Date(), reference: pi.id, amountCents: amount } });
+      const p = first.proposal;
+      await prisma.clientProposal.update({ where: { id: p.id }, data: { amountPaidCents: p.amountPaidCents + amount, balanceDueCents: 0, checkoutStatus: "completed" } });
+      await logProposalEvent(p.id, "paid", { installment: 2, auto: true, amountCents: amount, paymentIntent: pi.id });
+      const client = p.clientId ? await prisma.client.findUnique({ where: { id: p.clientId } }) : null;
+      if (client) {
+        await sendPaymentConfirmationEmail({ clientId: client.id, firstName: client.firstName, email: client.email, amountLabel: money(amount, { cents: true }), portalUrl: "https://www.bodyshapersystem.com/portal/appointments" }).catch(() => undefined);
+      }
+      await createNotification({ clientId: p.clientId ?? undefined, category: "PAYMENTS", description: `${p.clientName} — 2nd installment ${money(amount, { cents: true })} charged automatically (${displayName(first.programName)})`, linkUrl: `/hub/proposals/${p.id}` });
+      results.push({ paymentId: pay.id, status: "charged" });
+    } catch (e) {
+      const err = e as { code?: string; message?: string; raw?: { code?: string } };
+      await logProposalEvent(proposalId, "auto_charge_failed", { paymentId: pay.id, code: err.raw?.code ?? err.code ?? null, message: err.message ?? null });
+      await createNotification({
+        clientId: first.proposal.clientId ?? undefined,
+        category: "PAYMENTS",
+        description: `${first.proposal.clientName} — automatic 2nd installment could not be charged. Send her the payment link from Hub → Client Proposals.`,
+        linkUrl: `/hub/proposals/${proposalId}`,
+      });
+      results.push({ paymentId: pay.id, status: "failed" });
+    }
+  }
+  return results;
 }

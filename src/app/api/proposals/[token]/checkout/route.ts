@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { findActiveProposal } from "@/lib/proposals/server";
-import { createProposalCheckout, SPLIT_SCHEDULE_TEXT } from "@/lib/proposals/checkout";
+import { createProposalCheckout, SPLIT_SCHEDULE_TEXT, validSecondChargeDate } from "@/lib/proposals/checkout";
 import { normalizePrograms, priceProgram } from "@/lib/proposals/types";
 import { prisma } from "@/lib/prisma";
 
@@ -19,7 +19,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ tok
   const proposal = await findActiveProposal(token);
   if (!proposal) return NextResponse.json({ error: "Not found." }, { status: 404, headers: NO_STORE });
 
-  let body: { programKey?: unknown; mode?: unknown; consent?: unknown };
+  let body: { programKey?: unknown; mode?: unknown; consent?: unknown; secondDate?: unknown };
   try {
     body = await request.json();
   } catch {
@@ -33,7 +33,11 @@ export async function POST(request: Request, { params }: { params: Promise<{ tok
     return NextResponse.json({ error: "This proposal is already reserved. Please message us for any change." }, { status: 409, headers: NO_STORE });
   }
 
+  const secondDate = mode === "split" ? validSecondChargeDate(body.secondDate) : null;
   if (mode === "split") {
+    if (!secondDate) {
+      return NextResponse.json({ error: "Please choose the day for your second payment." }, { status: 400, headers: NO_STORE });
+    }
     if (body.consent !== true) {
       return NextResponse.json({ error: "Please confirm the two-installment schedule to continue." }, { status: 400, headers: NO_STORE });
     }
@@ -42,12 +46,12 @@ export async function POST(request: Request, { params }: { params: Promise<{ tok
     if (!split) return NextResponse.json({ error: "Two payments are not available for this program." }, { status: 400, headers: NO_STORE });
     await prisma.clientProposal.update({
       where: { id: proposal.id },
-      data: { splitConsentAt: new Date(), splitConsentText: SPLIT_SCHEDULE_TEXT(split.firstCents, split.secondCents) },
+      data: { splitConsentAt: new Date(), splitConsentText: SPLIT_SCHEDULE_TEXT(split.firstCents, split.secondCents, secondDate) },
     });
   }
 
   const origin = new URL(request.url).origin;
-  const result = await createProposalCheckout({ proposalId: proposal.id, token, origin, programKey, mode, installment: 1 }).catch((e) => {
+  const result = await createProposalCheckout({ proposalId: proposal.id, token, origin, programKey, mode, installment: 1, secondChargeDate: secondDate }).catch((e) => {
     console.error("[proposal-checkout]", e);
     return { error: "Checkout could not be started. Please try again.", status: 500 };
   });

@@ -384,3 +384,32 @@
 .pp-next .pp-lead { margin: 0 auto 22px; color: var(--ink); }
 .pp-next .pp-h2 { color: var(--ink); }
 .pp-modal h3 { line-height: 1.02; }
+
+/* ---------- v5 · session area map + new results ---------- */
+.pp-goals { grid-template-columns: 1fr; }
+@media (min-width: 560px) { .pp-goals { grid-template-columns: 1.1fr 0.9fr; } }
+.pp-map { background: #fbf8f6; border-radius: 18px; padding: 14px 10px 6px; color: #4a3229; }
+.pp-map-title { font-family: var(--serif); font-size: 22px; text-align: center; margin: 0 0 6px; }
+.pp-map-figs { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.pp-map figure { margin: 0; }
+.pp-map figcaption { text-align: center; font-family: var(--serif); font-size: 16px; margin-bottom: 2px; }
+.pp-map-fig { position: relative; }
+.pp-map-fig img { width: 100%; height: auto; }
+.pp-map-fig svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.pp-results { grid-auto-columns: min(86%, 420px); }
+.pp-result-card { position: relative; aspect-ratio: 1; border-radius: 14px; overflow: hidden; }
+.pp-result-pair .pp-ba-img { border-radius: 14px; aspect-ratio: 0.75; }
+.pp-result-label { margin: 12px 2px 0; font-size: 12px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--ink); text-align: center; font-variant-numeric: lining-nums; }
+.pp-sand .pp-ba figcaption { font-size: 11px; }
+.pp-results { padding-bottom: 30px; align-items: start; } .pp-result { overflow: visible; }
+
+/* ---------- v6 · choose the day of the automatic 2nd payment ---------- */
+.pp-dates { border: 0; padding: 0; margin: 0 0 18px; }
+.pp-dates-hint { font-size: 12.5px !important; margin: 4px 0 12px !important; }
+.pp-dates-row { display: flex; flex-wrap: wrap; gap: 8px; }
+.pp-date { position: relative; padding: 9px 14px; border-radius: 999px; border: 1px solid rgba(76, 36, 39, 0.35); font-size: 13px; cursor: pointer; color: var(--ink); font-variant-numeric: lining-nums; transition: background 0.25s, color 0.25s; }
+.pp-date input { position: absolute; opacity: 0; pointer-events: none; }
+.pp-date.on { background: var(--burgundy); border-color: var(--burgundy); color: var(--ivory); }
+.pp-date:has(input:focus-visible) { outline: 1px solid var(--gold); outline-offset: 3px; }
+.pp-modal-close { position: absolute !important; top: 14px; right: 14px; float: none !important; margin: 0 !important; z-index: 3; }
+.pp-modal-in > .pp-eyebrow { padding-right: 52px; }

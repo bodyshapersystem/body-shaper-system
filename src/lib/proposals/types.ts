@@ -61,6 +61,30 @@ export function priceProgram(p: ProposalProgram): ProgramPricing {
   };
 }
 
+/**
+ * Days the client may pick for the automatic 2nd installment: end of week 2 to
+ * start of week 3 after paying the 1st (day 12 → day 18), in Miami time.
+ */
+export const SECOND_CHARGE_MIN_DAY = 12;
+export const SECOND_CHARGE_MAX_DAY = 18;
+export function miamiToday(now = new Date()): string {
+  return new Intl.DateTimeFormat("en-CA", { timeZone: "America/New_York", year: "numeric", month: "2-digit", day: "2-digit" }).format(now);
+}
+export function addDaysISO(iso: string, days: number): string {
+  const d = new Date(`${iso}T12:00:00Z`);
+  d.setUTCDate(d.getUTCDate() + days);
+  return d.toISOString().slice(0, 10);
+}
+export function secondChargeOptions(now = new Date()): string[] {
+  const today = miamiToday(now);
+  const out: string[] = [];
+  for (let i = SECOND_CHARGE_MIN_DAY; i <= SECOND_CHARGE_MAX_DAY; i++) out.push(addDaysISO(today, i));
+  return out;
+}
+export function formatDay(iso: string, lang: "en" | "es"): string {
+  return new Date(`${iso}T12:00:00Z`).toLocaleDateString(lang === "es" ? "es-US" : "en-US", { weekday: "short", month: "short", day: "numeric", timeZone: "UTC" }).toLowerCase();
+}
+
 export function money(cents: number, opts: { cents?: boolean } = {}): string {
   const v = cents / 100;
   return `$${v.toLocaleString("en-US", {

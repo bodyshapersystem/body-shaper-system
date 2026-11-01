@@ -7,7 +7,7 @@ import { GOALS, KEY_BISCAYNE_TEMPLATE, KEY_BISCAYNE_TEMPLATE_ES, money, pricePro
 import { COPY } from "@/lib/proposals/copy";
 
 type ClientOption = { id: string; name: string; firstName: string; city: string | null };
-type ResultCase = { id: string; system: string; sessions: number };
+type ResultCase = { id: string; label: string };
 
 const PRESETS: { label: string; program: ProposalProgram }[] = [
   ...KEY_BISCAYNE_TEMPLATE.map((p) => ({ label: p.name, program: p })),
@@ -26,6 +26,8 @@ const PRESETS: { label: string; program: ProposalProgram }[] = [
   })),
 ];
 
+const ZONE_HUB_LABEL: Record<string, string> = { legs: "legs (thighs front/back/sides — no calves)", abdomen: "abdomen", arms: "arms", glutes: "glutes", waist: "waist / laterals" };
+
 const blank = (): ProposalInput => ({
   clientId: null,
   clientName: "",
@@ -39,7 +41,7 @@ const blank = (): ProposalInput => ({
   recommendedKey: "sculpt-signature-ii",
   promoEnabled: true,
   showWelcomeVideo: false,
-  resultCaseIds: ["case2", "case3"],
+  resultCaseIds: [],
   expiresAt: null,
   programStartDate: null,
 });
@@ -156,7 +158,7 @@ export default function ProposalBuilder({
         <div className="pb-chips">
           {ZONES.map((z) => (
             <button key={z} type="button" className={`pb-chip${f.zones.includes(z) ? " on" : ""}`} onClick={() => toggle("zones", z)} aria-pressed={f.zones.includes(z)}>
-              {t.zones[z]}
+              {ZONE_HUB_LABEL[z]}
             </button>
           ))}
         </div>
@@ -258,7 +260,7 @@ export default function ProposalBuilder({
         <div className="pb-chips">
           {resultCases.map((c) => (
             <button key={c.id} type="button" className={`pb-chip${f.resultCaseIds.includes(c.id) ? " on" : ""}`} onClick={() => toggle("resultCaseIds", c.id)}>
-              {c.system} · {c.sessions} {c.sessions === 1 ? "session" : "sessions"}
+              {c.label}
             </button>
           ))}
         </div>

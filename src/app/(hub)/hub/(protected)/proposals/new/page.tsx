@@ -22,7 +22,7 @@ export default async function NewProposalPage() {
       <ProposalBuilder
         initial={null}
         clients={clients.map((c) => ({ id: c.id, name: `${c.firstName} ${c.lastName}`, firstName: c.firstName, city: c.city }))}
-        resultCases={RESULT_CASES.map((c) => ({ id: c.id, system: c.system, sessions: c.sessions }))}
+        resultCases={RESULT_CASES.map((c) => ({ id: c.id, label: c.label + (c.kind === "card" && c.id.includes("side") ? " (side)" : "") }))}
         videoAvailable={!!WELCOME_VIDEO_SRC}
       />
     </div>

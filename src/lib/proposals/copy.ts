@@ -55,6 +55,10 @@ type Copy = {
   payFullNote: (saving: string) => string;
   pay2: string;
   pay2Note: (first: string, second: string) => string;
+  pickDate: string;
+  pickDateHint: string;
+  pickDateError: string;
+  consentAuto: (first: string, second: string, date: string) => string;
   each: string;
   regular: string;
   dueToday: string;
@@ -185,7 +189,12 @@ const en: Copy = {
   payFull: "pay in full",
   payFullNote: (s) => `save ${s}`,
   pay2: "pay in 2",
-  pay2Note: (a, b) => `${a} at booking + ${b} in week 2`,
+  pay2Note: (a, b) => `${a} today + ${b} automatically on the day you choose`,
+  pickDate: "choose the day for your 2nd payment",
+  pickDateHint: "between the end of week 2 and the start of week 3. it is charged automatically to the same card.",
+  pickDateError: "please choose the day for your second payment.",
+  consentAuto: (a, b, d) =>
+    `i agree to pay in two installments: ${a} today, and ${b} charged automatically to the same card on ${d}. my card is kept securely by stripe only for this second payment — no subscription and no other charges. i can ask body shaper system to change the date before it is charged.`,
   each: "each",
   regular: "regular",
   dueToday: "due today",
@@ -197,7 +206,7 @@ const en: Copy = {
   scheduleNote:
     "your program begins on the date confirmed after your evaluation. session distribution is personalized and may be completed after week 2 based on your schedule, eligibility and availability.",
   paidFull: "your program is reserved and paid in full. thank you.",
-  paidFirst: (b) => `your program is reserved. your second installment of ${b} is due during week 2 of your program.`,
+  paidFirst: (b) => `your program is reserved. your second installment of ${b} will be charged automatically on the day you chose.`,
   techEyebrow: "our technology",
   techTitle: "three technologies, one strategy",
   techIntro: "advanced technologies combined in synergy, adjusted to your body at every stage.",
@@ -240,7 +249,7 @@ const en: Copy = {
     { q: "how long and how often are sessions?", a: "exilis ultra: about 30 minutes, usually once a week (every 7–15 days). endospheres: 15–45 minutes, 1 to 3 times a week. ems: 30 minutes, 1 to 3 times a week. everything depends on your case and is confirmed in your evaluation." },
     { q: "when will i see results?", a: "many clients notice changes progressively over the program. results vary from person to person and are not guaranteed." },
     { q: "are there contraindications?", a: "yes — such as pregnancy, implanted electronic devices or metal in the area, and some medical conditions. your eligibility is reviewed before you start." },
-    { q: "how do payments work?", a: "pay in full and save, or pay in 2: the first installment at booking and the second during week 2 of your actual program. no cards are stored and there are no recurring charges." },
+    { q: "how do payments work?", a: "pay in full and save, or pay in 2: the first installment today and the second charged automatically on the day you choose (end of week 2 / start of week 3). your card is kept by stripe only for that payment — no subscriptions." },
   ],
   promoTreatments: "3 technologies · 9 treatments",
   promoBook: "reserve my 333 ritual",
@@ -327,7 +336,12 @@ const es: Copy = {
   payFull: "pago completo",
   payFullNote: (s) => `ahorras ${s}`,
   pay2: "2 pagos",
-  pay2Note: (a, b) => `${a} al reservar + ${b} en la semana 2`,
+  pay2Note: (a, b) => `${a} hoy + ${b} automático el día que elijas`,
+  pickDate: "elige el día de tu segundo pago",
+  pickDateHint: "entre el final de la semana 2 y el inicio de la semana 3. se cobra automáticamente a la misma tarjeta.",
+  pickDateError: "elige el día de tu segundo pago.",
+  consentAuto: (a, b, d) =>
+    `acepto pagar en dos cuotas: ${a} hoy, y ${b} cobrados automáticamente a la misma tarjeta el ${d}. stripe guarda mi tarjeta de forma segura solo para este segundo pago — sin suscripción ni otros cobros. puedo pedir a body shaper system cambiar la fecha antes del cobro.`,
   each: "c/u",
   regular: "precio regular",
   dueToday: "a pagar hoy",
@@ -339,7 +353,7 @@ const es: Copy = {
   scheduleNote:
     "tu programa comienza en la fecha confirmada tras tu evaluación. la distribución de sesiones es personalizada y puede completarse después de la semana 2 según tu agenda, elegibilidad y disponibilidad.",
   paidFull: "tu programa está reservado y pagado por completo. gracias.",
-  paidFirst: (b) => `tu programa está reservado. tu segunda cuota de ${b} vence durante la semana 2 de tu programa.`,
+  paidFirst: (b) => `tu programa está reservado. tu segunda cuota de ${b} se cobrará automáticamente el día que elegiste.`,
   techEyebrow: "nuestra tecnología",
   techTitle: "tres tecnologías, una estrategia",
   techIntro: "tecnologías avanzadas que trabajan en sinergia, ajustadas a tu cuerpo en cada etapa.",
@@ -375,7 +389,7 @@ const es: Copy = {
     { q: "¿cuánto dura cada sesión y cada cuánto?", a: "exilis ultra: unos 30 minutos, por lo general una vez por semana (cada 7 a 15 días). endospheres: de 15 a 45 minutos, de 1 a 3 veces por semana. ems: 30 minutos, de 1 a 3 veces por semana. todo depende de tu caso y se confirma en tu evaluación." },
     { q: "¿cuándo veré resultados?", a: "muchas clientas notan cambios de forma progresiva durante el programa. los resultados varían y no están garantizados." },
     { q: "¿hay contraindicaciones?", a: "sí — como embarazo, dispositivos electrónicos implantados o metal en la zona, y algunas condiciones médicas. tu elegibilidad se revisa antes de empezar." },
-    { q: "¿cómo funcionan los pagos?", a: "paga completo y ahorra, o en 2 pagos: el primero al reservar y el segundo durante la semana 2 de tu programa real. no guardamos tarjetas ni hay cobros recurrentes." },
+    { q: "¿cómo funcionan los pagos?", a: "paga completo y ahorra, o en 2 pagos: el primero hoy y el segundo se cobra automáticamente el día que elijas (final de la semana 2 / inicio de la semana 3). stripe guarda tu tarjeta solo para ese pago — sin suscripciones." },
   ],
   promoTreatments: "3 tecnologías · 9 tratamientos",
   promoBook: "reservar mi ritual 333",

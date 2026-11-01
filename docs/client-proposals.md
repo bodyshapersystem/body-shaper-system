@@ -17,10 +17,14 @@ Permission: `payments.manage`.
 
 ## Payments (existing Stripe integration)
 * Amounts are recomputed on the server from the stored proposal (`priceProgram`), never taken from the browser.
-* Pay in full = total − saving (default $100). Pay in 2 = total split in two one-off Checkout Sessions:
-  installment 1 at booking (explicit consent checkbox, stored with timestamp and text), installment 2 generated
-  from the Hub once the real program start date is set (due Week 2 = start + 7 days).
-* No subscriptions, no `setup_future_usage`, no saved cards.
+* Pay in full = total − saving (default $100); one-off payment, card not saved.
+* Pay in 2: installment 1 in Checkout today; the client picks the day of installment 2 (day 12–18 after
+  paying = end of week 2 / start of week 3), validated on the server, and consents (stored with timestamp
+  and text). Checkout saves the card **in Stripe** (`setup_future_usage: off_session`); this database only
+  keeps the Stripe customer and payment-method ids.
+* Daily cron `/api/cron/proposal-installments` (10:00 ET) charges due installments off-session once
+  (idempotency key, max 3 attempts). On failure: Hub notification + event; the Hub can send a payment link.
+* No subscriptions.
 * Webhook branch `flowType: client_proposal` (idempotent, re-checks `amount_total`) records Payments
   (FULL_PAYMENT, or INSTALLMENT 1/2 PAID + 2/2 PENDING with due date).
 * 333 promo reuses `/api/holiday-333/checkout` (same product/prices/terms) with an optional `proposalToken`.

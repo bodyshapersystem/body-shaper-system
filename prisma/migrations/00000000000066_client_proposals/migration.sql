@@ -64,6 +64,9 @@ CREATE TABLE "proposal_checkouts" (
     "programTotalCents" INTEGER NOT NULL,
     "status" TEXT NOT NULL DEFAULT 'OPEN',
     "paymentId" TEXT,
+    "secondChargeDate" TIMESTAMP(3),
+    "stripeCustomerId" TEXT,
+    "stripePaymentMethodId" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "paidAt" TIMESTAMP(3),
 
