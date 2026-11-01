@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { MIAMI_MAP, type MiamiZone } from "@/lib/miami-map-data";
+import "./miami-map.css";
 
 /**
  * Interactive Miami map — official Miami-Dade / City of Miami boundaries, pre-projected
@@ -158,7 +159,7 @@ export default function MiamiMap({ value, onChange }: { value: string | null; on
         )}
       </div>
       <label className="mm-select">
-        <span className="bp2-sr">your area</span>
+        <span className="mm-sr">your area</span>
         <span className="mm-pin" aria-hidden="true" />
         <select value={value ?? ""} onChange={(e) => onChange(e.target.value || null)}>
           <option value="">choose your area…</option>

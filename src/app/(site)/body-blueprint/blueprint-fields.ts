@@ -4,6 +4,9 @@ export const blueprintSections = [
     {id:"lastName",label:"Last Name",type:"text",required:true},
     {id:"email",label:"Email Address",type:"email",required:true},
     {id:"phone",label:"Phone Number",type:"tel",required:true},
+    {id:"ageRange",label:"Age range",type:"single",required:true,options:["18–22","23–27","28–32","33–37","38–42","43–47","48–52","53–57","58–62","63+"]},
+    // Full date of birth is collected later in Prepare Your Experience™ (Jotform); kept here only so
+    // older Blueprint submissions still display it in the Hub.
     {id:"dateOfBirth",label:"Date of Birth",type:"date"},
     {id:"city",label:"Which area are you located in?",type:"select",required:true,options:["Miami","Miami Beach","Brickell / Downtown","Coral Gables","Coconut Grove","Kendall","Doral","Hialeah","Aventura","North Miami","Fort Lauderdale","West Palm Beach","Other"]},
     {id:"zoneId",label:"Area selected on the map (zone id)",type:"text"},

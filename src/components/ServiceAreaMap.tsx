@@ -2,9 +2,9 @@
 
 import { useRef, useState } from "react";
 
-type RegionId = "miami-dade" | "broward" | "palm-beach";
+export type RegionId = "miami-dade" | "broward" | "palm-beach";
 
-const REGIONS: Record<
+export const REGIONS: Record<
   RegionId,
   { name: string; fill: string; fee: string; availability: string; hours: string }
 > = {

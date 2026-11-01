@@ -107,37 +107,11 @@
 @keyframes bs-light { from { fill-opacity: 0; } to { fill-opacity: 0.82; } }
 @keyframes bs-trace { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
 
-/* ------------------------------------------------ miami map */
-.mm { display: grid; gap: 12px; }
-.mm-map { position: relative; width: 100%; border-radius: 22px; overflow: hidden; background: #5c5d45; border: 1px solid var(--gold-line); touch-action: pan-y; }
-.mm-map svg { display: block; width: 100%; height: 100%; }
-.mm-water { fill: #5c5d45; }
-.mm-land { fill: #c9b79c; transition: fill 0.4s var(--ease); }
-.mm-other { fill: #bfad91; transition: fill 0.4s var(--ease); }
-.mm-land.dim, .mm-other.dim { fill: #8f8270; }
-.mm-zone { fill: #d9c8ac; stroke: rgba(76, 36, 39, 0.35); stroke-width: 0.8; vector-effect: non-scaling-stroke; cursor: pointer; transition: fill 0.45s var(--ease), opacity 0.45s var(--ease); -webkit-tap-highlight-color: transparent; outline: none; }
-.mm-zone:hover { fill: #e6d6bb; }
-.mm-zone.dim { fill: #9c8e7a; }
-.mm-zone.on { fill: #f2deb9; stroke: #b8925e; stroke-width: 1.6; animation: mm-light 0.45s var(--ease) both; }
-.mm-zone.top { pointer-events: none; }
-@keyframes mm-light { from { fill: #d9c8ac; } to { fill: #f2deb9; } }
-.mm-glow { fill: #f4dfb6; opacity: 0.75; pointer-events: none; animation: mm-glow 0.5s var(--ease) both; }
-@keyframes mm-glow { from { opacity: 0; } to { opacity: 0.75; } }
-.mm-hit { fill: transparent; stroke: transparent; vector-effect: none; pointer-events: stroke; cursor: pointer; }
-.mm-label { fill: #4c2427; font-family: var(--sans); text-anchor: middle; dominant-baseline: middle; pointer-events: none; letter-spacing: 0.02em; paint-order: stroke; stroke: rgba(242, 232, 214, 0.75); stroke-width: 2.4px; vector-effect: non-scaling-stroke; }
-.mm-tag { position: absolute; transform: translate(-50%, calc(-100% - 10px)); max-width: calc(100% - 16px); overflow: hidden; text-overflow: ellipsis; display: inline-flex; align-items: center; gap: 8px; white-space: nowrap; padding: 8px 14px; border-radius: 999px; background: var(--ivory); color: var(--burgundy); font-size: 12.5px; box-shadow: 0 10px 24px -12px rgba(0, 0, 0, 0.5); animation: bp2-in 0.4s var(--ease) 0.2s both; pointer-events: none; }
-.mm-check { width: 18px; height: 18px; border-radius: 50%; background: var(--burgundy); position: relative; flex: none; display: inline-block; }
-.mm-check::after { content: ""; position: absolute; left: 6px; top: 3px; width: 4px; height: 8px; border: solid var(--ivory); border-width: 0 1.5px 1.5px 0; transform: rotate(45deg); }
-.mm-reset { position: absolute; right: 10px; top: 10px; border: 1px solid var(--gold-line); background: rgba(58, 24, 27, 0.75); color: var(--ivory); font: inherit; font-size: 12px; padding: 8px 14px; border-radius: 999px; cursor: pointer; backdrop-filter: blur(4px); }
-.mm-select { position: relative; display: flex; align-items: center; }
-.mm-select select { width: 100%; appearance: none; font: inherit; font-size: 16px; padding: 15px 44px 15px 46px; border-radius: 999px; border: 1px solid var(--gold-line); background: var(--ivory); color: var(--burgundy); }
-.mm-select::after { content: ""; position: absolute; right: 20px; width: 8px; height: 8px; border-right: 1.5px solid var(--burgundy); border-bottom: 1.5px solid var(--burgundy); transform: rotate(45deg) translateY(-3px); pointer-events: none; }
-.mm-pin { width: 16px; height: 16px; display: inline-block; flex: none; position: relative; }
-.mm-select .mm-pin { position: absolute; left: 18px; z-index: 1; }
-.mm-pin::before { content: ""; position: absolute; inset: 0 2px 3px; border: 1.5px solid var(--burgundy); border-radius: 50% 50% 50% 0; transform: rotate(-45deg); }
-.mm-note { display: flex; align-items: center; gap: 10px; margin: 0; font-size: 13px; padding: 12px 14px; border-radius: 14px; background: rgba(248, 241, 231, 0.14); }
-
 @media (prefers-reduced-motion: reduce) {
   .bp2 *, .bp2 *::before, .bp2 *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
 }
 .bp2-btn { white-space: nowrap; } .bp2-nav .bp2-btn { padding: 0 22px; }
+.bp2-ages .bp2-cards { grid-template-columns: repeat(5, 1fr); gap: 8px; }
+.bp2-ages .bp2-card { justify-content: center; padding: 10px 4px; min-height: 44px; font-size: 13px; font-variant-numeric: lining-nums; }
+.bp2-ages .bp2-tick { display: none; }
+@media (max-width: 380px) { .bp2-ages .bp2-cards { grid-template-columns: repeat(4, 1fr); } }

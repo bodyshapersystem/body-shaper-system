@@ -1,0 +1,47 @@
+/* Interactive Miami map (official boundaries) — shared by Build Your Blueprint and Service Area. */
+/* ------------------------------------------------ miami map */
+.mm { display: grid; gap: 12px; }
+.mm-map { position: relative; width: 100%; border-radius: 22px; overflow: hidden; background: #5c5d45; border: 1px solid rgba(214, 182, 132, 0.6); touch-action: pan-y; }
+.mm-map svg { display: block; width: 100%; height: 100%; }
+.mm-water { fill: #5c5d45; }
+.mm-land { fill: #c9b79c; transition: fill 0.4s cubic-bezier(0.22, 0.61, 0.36, 1); }
+.mm-other { fill: #bfad91; transition: fill 0.4s cubic-bezier(0.22, 0.61, 0.36, 1); }
+.mm-land.dim, .mm-other.dim { fill: #8f8270; }
+.mm-zone { fill: #d9c8ac; stroke: rgba(76, 36, 39, 0.35); stroke-width: 0.8; vector-effect: non-scaling-stroke; cursor: pointer; transition: fill 0.45s cubic-bezier(0.22, 0.61, 0.36, 1), opacity 0.45s cubic-bezier(0.22, 0.61, 0.36, 1); -webkit-tap-highlight-color: transparent; outline: none; }
+.mm-zone:hover { fill: #e6d6bb; }
+.mm-zone.dim { fill: #9c8e7a; }
+.mm-zone.on { fill: #f2deb9; stroke: #b8925e; stroke-width: 1.6; animation: mm-light 0.45s cubic-bezier(0.22, 0.61, 0.36, 1) both; }
+.mm-zone.top { pointer-events: none; }
+@keyframes mm-light { from { fill: #d9c8ac; } to { fill: #f2deb9; } }
+.mm-glow { fill: #f4dfb6; opacity: 0.75; pointer-events: none; animation: mm-glow 0.5s cubic-bezier(0.22, 0.61, 0.36, 1) both; }
+@keyframes mm-glow { from { opacity: 0; } to { opacity: 0.75; } }
+.mm-hit { fill: transparent; stroke: transparent; vector-effect: none; pointer-events: stroke; cursor: pointer; }
+.mm-label { fill: #4c2427; font-family: "Montserrat", "Helvetica Neue", Arial, sans-serif; text-anchor: middle; dominant-baseline: middle; pointer-events: none; letter-spacing: 0.02em; paint-order: stroke; stroke: rgba(242, 232, 214, 0.75); stroke-width: 2.4px; vector-effect: non-scaling-stroke; }
+.mm-tag { position: absolute; transform: translate(-50%, calc(-100% - 10px)); max-width: calc(100% - 16px); overflow: hidden; text-overflow: ellipsis; display: inline-flex; align-items: center; gap: 8px; white-space: nowrap; padding: 8px 14px; border-radius: 999px; background: #f8f1e7; color: #4c2427; font-size: 12.5px; box-shadow: 0 10px 24px -12px rgba(0, 0, 0, 0.5); animation: mm-in 0.4s cubic-bezier(0.22, 0.61, 0.36, 1) 0.2s both; pointer-events: none; }
+.mm-check { width: 18px; height: 18px; border-radius: 50%; background: #4c2427; position: relative; flex: none; display: inline-block; }
+.mm-check::after { content: ""; position: absolute; left: 6px; top: 3px; width: 4px; height: 8px; border: solid #f8f1e7; border-width: 0 1.5px 1.5px 0; transform: rotate(45deg); }
+.mm-reset { position: absolute; right: 10px; top: 10px; border: 1px solid rgba(214, 182, 132, 0.6); background: rgba(58, 24, 27, 0.75); color: #f8f1e7; font: inherit; font-size: 12px; padding: 8px 14px; border-radius: 999px; cursor: pointer; backdrop-filter: blur(4px); }
+.mm-select { position: relative; display: flex; align-items: center; }
+.mm-select select { width: 100%; appearance: none; font: inherit; font-size: 16px; padding: 15px 44px 15px 46px; border-radius: 999px; border: 1px solid rgba(214, 182, 132, 0.6); background: #f8f1e7; color: #4c2427; }
+.mm-select::after { content: ""; position: absolute; right: 20px; width: 8px; height: 8px; border-right: 1.5px solid #4c2427; border-bottom: 1.5px solid #4c2427; transform: rotate(45deg) translateY(-3px); pointer-events: none; }
+.mm-pin { width: 16px; height: 16px; display: inline-block; flex: none; position: relative; }
+.mm-select .mm-pin { position: absolute; left: 18px; z-index: 1; }
+.mm-pin::before { content: ""; position: absolute; inset: 0 2px 3px; border: 1.5px solid #4c2427; border-radius: 50% 50% 50% 0; transform: rotate(-45deg); }
+.mm-note { display: flex; align-items: center; gap: 10px; margin: 0; font-size: 13px; padding: 12px 14px; border-radius: 14px; background: rgba(248, 241, 231, 0.14); }
+
+@keyframes mm-in { from { opacity: 0; transform: translate(-50%, calc(-100% - 2px)); } to { opacity: 1; transform: translate(-50%, calc(-100% - 10px)); } }
+.mm-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+.mm { font-family: "Montserrat", "Helvetica Neue", Arial, sans-serif; text-align: left; }
+@media (prefers-reduced-motion: reduce) { .mm *, .mm *::before, .mm *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; } }
+/* Service Area explorer (In-Home Experience page) */
+.sae { max-width: 520px; margin: 30px auto 0; display: grid; gap: 14px; font-family: "Montserrat", "Helvetica Neue", Arial, sans-serif; }
+.sae .mm-map { box-shadow: 0 30px 60px -40px rgba(40, 14, 16, 0.5); }
+.sae-info { text-align: left; background: #f8f1e7; border: 1px solid rgba(201, 164, 110, 0.6); border-radius: 18px; padding: 16px 18px; color: #2b1a17; min-height: 64px; }
+.sae-area { font-family: "Cormorant Garamond", Georgia, serif; font-size: 24px; margin: 0 0 6px; text-transform: lowercase; color: #4c2427; }
+.sae-hint { margin: 0; font-size: 13.5px; color: #5a4a41; }
+.sae-row { display: flex; justify-content: space-between; gap: 12px; font-size: 13.5px; padding: 7px 0; border-top: 1px solid rgba(76, 36, 39, 0.12); }
+.sae-row span { color: #7a6a5c; text-transform: lowercase; }
+.sae-legend { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.sae-legend div { border: 1px solid rgba(76, 36, 39, 0.18); border-radius: 14px; padding: 10px 8px; text-align: center; font-size: 12px; display: grid; gap: 3px; background: rgba(248, 241, 231, 0.6); transition: background 0.3s, border-color 0.3s; }
+.sae-legend div.on { background: #4c2427; color: #f8f1e7; border-color: #4c2427; }
+.sae-legend b { font-weight: 500; }

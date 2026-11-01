@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { buildMetadata } from "@/lib/seo";
 import { JOTFORM_BLUEPRINT_URL, WHATSAPP_URL } from "@/lib/nav";
 import DesktopPanoramaHero from "@/components/DesktopPanoramaHero";
-import ServiceAreaMap from "@/components/ServiceAreaMap";
+import ServiceAreaExplorer from "@/components/ServiceAreaExplorer";
 
 export const metadata: Metadata = buildMetadata({
   title: "Mobile Body Contouring — In-Home Treatments in Miami",
@@ -147,7 +147,7 @@ export default function InHomeExperiencePage() {
   <span className="eyebrow reveal">Where We Go</span>
   <h2 className="reveal" style={{fontFamily: 'var(--serif)', fontWeight: '400', fontSize: 'clamp(28px,3.6vw,42px)', margin: '16px 0'}}>Service Area</h2>
   <p className="reveal" style={{maxWidth: '480px', margin: '0 auto', color: '#4a443d', fontSize: '15.5px'}}>Serving Greater Miami. Extended areas available. Travel fees may apply depending on location.</p>
-  <ServiceAreaMap />
+  <ServiceAreaExplorer />
 </section>
 
 {/* FINAL CTA */}

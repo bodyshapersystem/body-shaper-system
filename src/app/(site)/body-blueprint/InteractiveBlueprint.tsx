@@ -35,7 +35,7 @@ const STEPS: Step[] = [
   { key: "investment", tone: "sand", title: "preferred investment option", required: ["investment"] },
   { key: "location", tone: "olive", title: "where are you located?", hint: "tap your area on the map or choose it below. we only need the area, never your address.", required: ["city"] },
   { key: "access", tone: "sand", title: "a few details for your visit", required: ["referralSource"] },
-  { key: "about", tone: "sand", title: "let's make it personal.", hint: "tell us how to reach you.", required: ["firstName", "lastName", "email", "phone"] },
+  { key: "about", tone: "sand", title: "let's make it personal.", hint: "tell us how to reach you.", required: ["firstName", "lastName", "email", "phone", "ageRange"] },
   { key: "vision", tone: "burgundy", title: "imagine we're celebrating your results three months from now.", hint: "what would make you say: “i'm so glad i did this.” (optional)", required: [] },
   { key: "review", tone: "olive", title: "your blueprint in review", hint: "please confirm before sending.", required: [] },
 ];
@@ -316,7 +316,8 @@ export default function InteractiveBlueprint() {
                   {text("lastName", { autoComplete: "family-name", placeholder: "last name" })}
                   {text("email", { type: "email", autoComplete: "email", placeholder: "you@email.com" })}
                   {text("phone", { type: "tel", autoComplete: "tel", placeholder: "(305) 555-1234" })}
-                  {text("dateOfBirth", { type: "date", optional: true })}
+                  {sub("age range *")}
+                  <div className="bp2-ages">{chips("ageRange", false)}</div>
                   {zoneLabel && (
                     <button type="button" className="bp2-chiprow" onClick={() => go(STEPS.findIndex((x) => x.key === "location"))}>
                       <span className="mm-pin" aria-hidden="true" /> your area: <b>{zoneLabel}</b> <span className="bp2-edit">edit</span>
@@ -337,7 +338,7 @@ export default function InteractiveBlueprint() {
                     ["what matters most", (a.priorities as string[])?.join(", "), "priorities"],
                     ["investment", a.investment, "investment"],
                     ["area", zoneLabel, "location"],
-                    ["contact", [`${a.firstName ?? ""} ${a.lastName ?? ""}`.trim(), a.email, a.phone].filter(Boolean).join(" · "), "about"],
+                    ["contact", [`${a.firstName ?? ""} ${a.lastName ?? ""}`.trim(), a.email, a.phone, a.ageRange ? `age ${a.ageRange}` : ""].filter(Boolean).join(" · "), "about"],
                   ].map(([k, v, target]) => (
                     <div key={k as string}>
                       <dt>{k as string}</dt>
