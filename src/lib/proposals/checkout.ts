@@ -5,7 +5,7 @@ import { getStripeClient, isStripeConfigured } from "@/lib/stripe";
 import { findOrCreateClientFromCheckout } from "@/lib/checkout-client";
 import { sendPaymentConfirmationEmail } from "@/lib/email/service";
 import { createNotification } from "@/lib/notifications";
-import { money, normalizePrograms, priceProgram, type PaymentMode } from "./types";
+import { displayName, money, normalizePrograms, priceProgram, type PaymentMode } from "./types";
 import { logProposalEvent } from "./server";
 
 /**
@@ -74,7 +74,7 @@ export async function createProposalCheckout(args: CreateArgs): Promise<{ url: s
           currency: "usd",
           unit_amount: amountCents,
           product_data: {
-            name: `${program.name} — ${label}`,
+            name: `${displayName(program.name)} — ${label}`,
             description:
               args.mode === "split"
                 ? SPLIT_SCHEDULE_TEXT(pricing.split!.firstCents, pricing.split!.secondCents).slice(0, 480)
@@ -86,7 +86,7 @@ export async function createProposalCheckout(args: CreateArgs): Promise<{ url: s
     ...(args.mode === "split" ? { custom_text: { submit: { message: SPLIT_SCHEDULE_TEXT(pricing.split!.firstCents, pricing.split!.secondCents) } } } : {}),
     // One-off payment only: no setup_future_usage, no saved payment method, no subscription.
     payment_intent_data: {
-      description: `Client proposal — ${program.name} — ${label}`,
+      description: `Client proposal — ${displayName(program.name)} — ${label}`,
       metadata: { flowType: "client_proposal", proposalId: proposal.id },
     },
     metadata: {

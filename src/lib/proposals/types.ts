@@ -27,6 +27,11 @@ export type ZoneKey = (typeof ZONES)[number];
 export const GOALS = ["firmness", "laxity", "texture", "contour", "muscle-tone"] as const;
 export type GoalKey = (typeof GOALS)[number];
 
+/** Program names stay lowercase, but a trailing roman numeral is shown in capitals (sculpt signature II). */
+export function displayName(name: string): string {
+  return name.replace(/\b(i{1,3}|iv|v|vi{1,3}|ix|x)\s*$/i, (m) => m.toUpperCase());
+}
+
 export function totalSessions(p: Pick<ProposalProgram, "sessions">): number {
   return TECHNOLOGIES.reduce((n, t) => n + (Number(p.sessions?.[t]) || 0), 0);
 }

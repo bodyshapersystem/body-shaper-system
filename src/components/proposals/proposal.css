@@ -15,7 +15,7 @@
   --olive: #686950;
   --sand: #a08975;
   --ivory: #f8f1e7;
-  --ivory-soft: rgba(248, 241, 231, 0.78);
+  --ivory-soft: rgba(248, 241, 231, 0.9);
   --champagne: #e6cfae;
   --gold: #c9a46e;
   --gold-line: rgba(214, 182, 132, 0.55);
@@ -40,13 +40,17 @@
 .pp-ic { display: inline-block; background: currentColor; -webkit-mask: var(--ic) center / contain no-repeat; mask: var(--ic) center / contain no-repeat; }
 
 /* ---------- section backgrounds (original files) ---------- */
-.pp-sec { position: relative; padding: clamp(84px, 12vw, 140px) var(--gutter); background-size: cover; background-position: center; background-repeat: no-repeat; scroll-margin-top: 56px; }
+.pp-sec { position: relative; isolation: isolate; padding: clamp(84px, 12vw, 140px) var(--gutter); scroll-margin-top: 56px; }
+/* The original marble is never stretched to the section height: it is pinned to the
+   viewport (≈ its native 1536×1024 size) and the section is a window onto it. */
+.pp-bgwrap { position: absolute; inset: 0; z-index: -1; overflow: hidden; clip: rect(0, auto, auto, 0); clip-path: inset(0); pointer-events: none; }
+.pp-bgimg { position: fixed; top: 0; left: 0; width: 100%; height: 100vh; height: 100lvh; background-size: cover; background-position: center; background-repeat: no-repeat; }
 .pp-burgundy { background-color: var(--burgundy); color: var(--ivory); }
 .pp-sand { background-color: var(--sand); color: var(--ink); }
 .pp-olive { background-color: var(--olive); color: var(--ivory); }
-.pp-burgundy.bg-on { background-image: url("/proposal-assets/brand/backgrounds/burgundy-marble/burgundy-marble-original.png"); }
-.pp-sand.bg-on { background-image: url("/proposal-assets/brand/backgrounds/sand-marble/sand-marble-gold-waves-original.png"); }
-.pp-olive.bg-on { background-image: url("/proposal-assets/brand/backgrounds/olive-marble/olive-marble-gold-waves-original.png"); }
+.pp-burgundy.bg-on > .pp-bgwrap > .pp-bgimg { background-image: url("/proposal-assets/brand/backgrounds/burgundy-marble/burgundy-marble-original.png"); }
+.pp-sand.bg-on > .pp-bgwrap > .pp-bgimg { background-image: url("/proposal-assets/brand/backgrounds/sand-marble/sand-marble-gold-waves-original.png"); }
+.pp-olive.bg-on > .pp-bgwrap > .pp-bgimg { background-image: url("/proposal-assets/brand/backgrounds/olive-marble/olive-marble-gold-waves-original.png"); }
 .pp-inner { max-width: 1120px; margin: 0 auto; position: relative; }
 
 /* ---------- typography ---------- */
@@ -326,3 +330,31 @@
 .pp-tech article { display: flex; flex-direction: column; align-items: center; }
 .pp-tech article .pp-btn { margin-top: auto; }
 .pp-tech article .pp-rhythm { width: 100%; }
+
+/* ---------- v3 · legibility ---------- */
+.pp { font-weight: 400; }
+.pp-lead { font-size: 15.5px; line-height: 1.7; }
+.pp-eyebrow { font-size: 11.5px; letter-spacing: 0.22em; font-weight: 500; }
+.pp-nav a { font-size: 12px; }
+.pp-sessions { font-size: 13.5px; }
+.pp-card p { font-size: 14.5px; }
+.pp-techrows li { font-size: 14px; }
+.pp-option-t { font-size: 15px; }
+.pp-option-s { font-size: 12.5px; }
+.pp-consent, .pp-small { font-size: 13px; }
+.pp-terms { font-size: 12.5px; }
+.pp-tech p { font-size: 12.5px; }
+.pp-rhythm { font-size: 12px; }
+.pp-faq-q { font-size: 15px; }
+.pp-faq-a p { font-size: 14.5px; }
+.pp-label, .pp-label-l, .pp-opt { font-size: 11px; font-weight: 500; }
+/* lining figures for every price, count and step number */
+.pp-price strong, .pp-option-p, .pp-due strong, .pp-techrows b, .pp-icons3 b, .pp-result-meta b, .pp-coords, .pp-opt, .pp-paybox-head strong { font-variant-numeric: lining-nums tabular-nums; font-feature-settings: "lnum" 1, "tnum" 1; }
+.pp-price strong, .pp-due strong, .pp-option-p { font-weight: 600; }
+.pp-techrows b { font-weight: 600; }
+/* founder: dark text on a solid ivory panel so it never fights the marble */
+.pp-sand .pp-founder { background: rgba(248, 241, 231, 0.88); border: 1px solid rgba(201, 164, 110, 0.6); border-radius: 26px; padding: 22px; }
+.pp-sand .pp-founder .pp-h2 { color: var(--ink); }
+.pp-sand .pp-founder .pp-lead { color: #2c1614; }
+.pp-sand .pp-result-meta, .pp-sand .pp-ba figcaption { color: var(--ink); }
+.pp-sand .pp-note { color: var(--ink); }

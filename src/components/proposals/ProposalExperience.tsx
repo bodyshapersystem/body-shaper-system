@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { COPY, WHATSAPP_NUMBER } from "@/lib/proposals/copy";
-import { money, TECHNOLOGIES, type GoalKey, type PaymentMode, type TechnologyKey, type ZoneKey } from "@/lib/proposals/types";
+import { displayName, money, TECHNOLOGIES, type GoalKey, type PaymentMode, type TechnologyKey, type ZoneKey } from "@/lib/proposals/types";
 import type { ProposalView } from "@/lib/proposals/server";
 
 /**
@@ -213,6 +213,7 @@ export default function ProposalExperience({ view, checkoutState }: Props) {
       <main>
         {/* ------------------------------------------------ 01 your blueprint: welcome + goals */}
         <section id="welcome" className="pp-sec pp-burgundy pp-hero bg-on" aria-labelledby="pp-title">
+          <div className="pp-bgwrap" aria-hidden="true"><div className="pp-bgimg" /></div>
           <div className="pp-inner">
             <div>
               <p className="pp-coords" aria-hidden="true">
@@ -283,6 +284,7 @@ export default function ProposalExperience({ view, checkoutState }: Props) {
 
         {/* ------------------------------------------------ 02 technology */}
         <section id="technology" className="pp-sec pp-olive" aria-labelledby="pp-tech-title">
+          <div className="pp-bgwrap" aria-hidden="true"><div className="pp-bgimg" /></div>
           <div className="pp-inner">
             <p className="pp-eyebrow" data-reveal>
               02 — {t.sec.technology}
@@ -349,6 +351,7 @@ export default function ProposalExperience({ view, checkoutState }: Props) {
 
         {/* ------------------------------------------------ 03 vision & real results */}
         <section id="results" className="pp-sec pp-sand" aria-labelledby="pp-founder-title">
+          <div className="pp-bgwrap" aria-hidden="true"><div className="pp-bgimg" /></div>
           <div className="pp-inner">
             <p className="pp-eyebrow" data-reveal>
               03 — {t.sec.results}
@@ -413,6 +416,7 @@ export default function ProposalExperience({ view, checkoutState }: Props) {
 
         {/* ------------------------------------------------ 04 your plan & investment */}
         <section id="plan" className="pp-sec pp-burgundy pp-pay" aria-labelledby="pp-plan-title">
+          <div className="pp-bgwrap" aria-hidden="true"><div className="pp-bgimg" /></div>
           <div className="pp-inner">
             <p className="pp-eyebrow" data-reveal>
               04 — {t.sec.plan}
@@ -424,7 +428,7 @@ export default function ProposalExperience({ view, checkoutState }: Props) {
               {t.sec.planIntro}
             </p>
             {checkoutState === "success" && <div className="pp-banner" role="status">{es ? "gracias — estamos confirmando tu pago." : "thank you — we are confirming your payment."}</div>}
-            {view.payment.status === "paid_in_full" && <div className="pp-banner" role="status">{t.paidFull}{paidProgram ? ` (${paidProgram.name})` : ""}</div>}
+            {view.payment.status === "paid_in_full" && <div className="pp-banner" role="status">{t.paidFull}{paidProgram ? ` (${displayName(paidProgram.name)})` : ""}</div>}
             {view.payment.status === "first_installment_paid" && <div className="pp-banner" role="status">{t.paidFirst(money(view.payment.balanceDueCents))}</div>}
 
             <div className="pp-cards" style={{ ["--n" as string]: String(Math.min(3, view.programs.length || 1)) }}>
@@ -436,7 +440,7 @@ export default function ProposalExperience({ view, checkoutState }: Props) {
                   <article key={p.key} className={`pp-card${rec ? " is-rec" : ""}${sel ? " is-sel" : ""}`} data-reveal style={{ ["--d" as string]: `${i * 0.08}s` }}>
                     {rec && <span className="pp-badge">{t.recommended}</span>}
                     <span className="pp-opt">{t.option(i + 1)}</span>
-                    <h3>{p.name}</h3>
+                    <h3>{displayName(p.name)}</h3>
                     <span className="pp-sessions">{t.technologySessions(p.total)}</span>
                     <ul className="pp-techrows">
                       {TECHNOLOGIES.filter((k) => p.sessions[k] > 0).map((k) => (
@@ -482,7 +486,7 @@ export default function ProposalExperience({ view, checkoutState }: Props) {
               <div className="pp-paybox" data-reveal>
                 <div className="pp-paybox-head">
                   <span className="pp-label-l">{t.choosePayment}</span>
-                  <strong>{program.name}</strong>
+                  <strong>{displayName(program.name)}</strong>
                 </div>
                 <fieldset className="pp-options">
                   <legend className="pp-sr">{t.choosePayment}</legend>
@@ -583,6 +587,7 @@ export default function ProposalExperience({ view, checkoutState }: Props) {
 
         {/* ------------------------------------------------ 05 questions + contact */}
         <section id="faq" className="pp-sec pp-sand" aria-labelledby="pp-faq-title">
+          <div className="pp-bgwrap" aria-hidden="true"><div className="pp-bgimg" /></div>
           <div className="pp-inner">
             <p className="pp-eyebrow" data-reveal>
               05 — {t.sec.faq}
