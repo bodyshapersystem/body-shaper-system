@@ -1,0 +1,35 @@
+/* Prepare Your Experience™ + Almost Ready™ — native forms on top of the Blueprint bp2 system. */
+.of-page { min-height: 100dvh; background: #efe7dc; padding: 12px 10px 40px; }
+.of-page .bp2 { margin: 12px auto; }
+.of-q { margin-top: 6px; }
+.of-q.err .bp2-sub { color: #a12b2b; }
+.tone-olive .of-q.err .bp2-sub, .tone-burgundy .of-q.err .bp2-sub { color: #ffc9c0; }
+.of-qhint { font-size: 12px; margin: -4px 0 10px; opacity: 0.85; }
+.of-locked { font-size: 11px; opacity: 0.75; letter-spacing: 0.04em; }
+.bp2-field input[readonly] { opacity: 0.75; }
+.tone-olive .bp2-field input, .tone-burgundy .bp2-field input, .tone-olive .bp2-field textarea, .tone-burgundy .bp2-field textarea { border-color: rgba(236, 214, 178, 0.5); }
+
+/* legal text */
+.of-legal { background: rgba(248, 241, 231, 0.93); color: var(--ink); border-radius: 22px; padding: 20px 20px 18px; font-size: 14px; line-height: 1.7; }
+.of-legal h4 { font-family: var(--serif); font-weight: 500; font-size: 21px; line-height: 1.2; margin: 0 0 10px; color: #4c2427; }
+.of-legal h5 { font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; margin: 16px 0 6px; color: #6b3a35; font-weight: 500; }
+.of-legal p { margin: 0 0 10px; white-space: pre-line; }
+.of-legal p:last-child { margin-bottom: 0; }
+.of-agree { margin-top: 14px; }
+.of-agree .bp2-card { width: 100%; }
+.of-sectiondots { display: flex; justify-content: center; gap: 6px; margin: -8px 0 18px; }
+.of-sectiondots i { width: 7px; height: 7px; border-radius: 50%; border: 1px solid currentColor; opacity: 0.6; }
+.of-sectiondots i.on { background: var(--gold); border-color: var(--gold); opacity: 1; }
+
+/* signature */
+.of-sig { position: relative; margin-top: 14px; }
+.of-sigpad { display: block; width: 100%; height: 170px; background: #fff; border-radius: 18px; border: 1px solid rgba(76, 36, 39, 0.3); touch-action: none; cursor: crosshair; }
+.of-sighint { position: absolute; left: 0; right: 0; top: 64px; text-align: center; font-family: var(--serif); font-style: italic; font-size: 20px; color: rgba(76, 36, 39, 0.4); pointer-events: none; }
+.of-sigline { position: absolute; left: 22px; right: 22px; bottom: 38px; height: 1px; background: rgba(76, 36, 39, 0.25); pointer-events: none; }
+.of-clear { position: absolute; right: 12px; top: 8px; color: #4c2427; padding: 6px; }
+.of-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.of-row .bp2-field { margin-top: 8px; }
+.of-date { font-size: 12.5px; margin: 12px 0 0; opacity: 0.9; }
+.of-done-actions { display: grid; gap: 12px; margin-top: 26px; }
+.of-done-actions a { text-decoration: none; }
+@media (max-width: 380px) { .of-row { grid-template-columns: 1fr; } }

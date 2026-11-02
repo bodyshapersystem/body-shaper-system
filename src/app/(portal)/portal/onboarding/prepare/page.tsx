@@ -9,5 +9,5 @@ export default async function PreparePage(){
  if(client.clientType==="AMBASSADOR")redirect("/portal/onboarding");
  const status=await getOnboardingStatus(client.id);
  if(status.agreementComplete)redirect("/portal/onboarding");
- return <div className="onb-shell"><PrepareExperienceNative firstName={client.firstName}/></div>;
+ return <div className="of-page"><PrepareExperienceNative client={{firstName:client.firstName,lastName:client.lastName,email:client.email,phone:client.phone??""}}/></div>;
 }

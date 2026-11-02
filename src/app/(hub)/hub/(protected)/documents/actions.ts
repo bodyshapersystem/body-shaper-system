@@ -6,8 +6,8 @@ import { createNotification } from "@/lib/notifications";
 import { revalidatePath } from "next/cache";
 
 const FORM_URLS: Record<string, string> = {
-  POLICIES_APPOINTMENTS: "https://form.jotform.com/261860243106046",
-  CONSENT_TREATMENT: "https://form.jotform.com/beautyboxmia/waiver---release-form",
+  POLICIES_APPOINTMENTS: "https://www.bodyshapersystem.com/portal/onboarding/prepare",
+  CONSENT_TREATMENT: "https://www.bodyshapersystem.com/portal/onboarding/almost-done",
 };
 
 /**

@@ -9,5 +9,5 @@ export default async function AlmostDonePage(){
  const status=await getOnboardingStatus(client.id);
  if(status.isComplete)redirect("/portal/dashboard");
  if(!status.agreementComplete)redirect("/portal/onboarding/prepare");
- return <div className="onb-shell"><AlmostDoneNative firstName={client.firstName}/></div>;
+ return <div className="of-page"><AlmostDoneNative client={{firstName:client.firstName,lastName:client.lastName,email:client.email}}/></div>;
 }
