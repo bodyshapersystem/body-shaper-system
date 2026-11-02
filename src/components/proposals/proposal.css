@@ -413,3 +413,22 @@
 .pp-date:has(input:focus-visible) { outline: 1px solid var(--gold); outline-offset: 3px; }
 .pp-modal-close { position: absolute !important; top: 14px; right: 14px; float: none !important; margin: 0 !important; z-index: 3; }
 .pp-modal-in > .pp-eyebrow { padding-right: 52px; }
+
+/* complimentary gift on a program card */
+.pp-gift { display: grid; gap: 2px; margin: 14px 0 4px; padding: 10px 12px; border-radius: 12px; border: 1px dashed rgba(201, 164, 110, 0.9); background: rgba(236, 214, 178, 0.18); font-size: 12.5px; line-height: 1.45; color: var(--ink); }
+.pp-gift .pp-label { margin: 0; }
+.pp-gift small { font-size: 10.5px; letter-spacing: 0.12em; text-transform: uppercase; color: #6b3a35; }
+.pp-credit { margin-bottom: 0; padding-top: 12px; color: #6b3a35; }
+
+/* body blueprint™ assessment reservation */
+.pp-assess { margin-top: 64px; padding-top: 48px; border-top: 1px solid var(--gold-line); max-width: 720px; margin-left: auto; margin-right: auto; text-align: center; }
+.pp-assess .pp-lead { margin-left: auto; margin-right: auto; }
+.pp-assess .pp-btn { margin-top: 22px; }
+.pp-assess-dl { margin: 22px auto 0; display: grid; gap: 0; max-width: 460px; border-top: 1px solid var(--gold-line); text-align: left; }
+.pp-assess-dl div { display: flex; justify-content: space-between; gap: 16px; padding: 11px 2px; border-bottom: 1px solid var(--gold-line); font-size: 13px; }
+.pp-assess-dl dt { font-size: 10.5px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--champagne); }
+.pp-assess-dl dd { margin: 0; text-align: right; color: var(--ivory); }
+.pp-assess-paid { margin-top: 22px; font-size: 14px; color: var(--champagne); }
+.pp-assess .pp-small { justify-content: center; color: var(--ivory-soft); }
+.pp-regular { font-size: 12px; color: #6b3a35; }
+.pp-split-line { font-size: 12px !important; margin: -6px 0 14px !important; color: #6b3a35 !important; }

@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react";
 import { saveProposalSettings } from "../actions";
 
-type S = { founderTitle: string; founderBio: string; founderBioEs: string; activeCampaign: string | null };
+type S = { founderTitle: string; founderBio: string; founderBioEs: string; activeCampaign: string | null; assessmentDollars: number };
 
 export default function SettingsForm({ initial }: { initial: S }) {
   const [s, setS] = useState<S>(initial);
@@ -36,6 +36,13 @@ export default function SettingsForm({ initial }: { initial: S }) {
           </select>
         </label>
         <p className="pb-hint">each proposal can also hide the offer individually. future campaigns are added here as new options.</p>
+      </section>
+      <section className="pb-block">
+        <h3 className="pb-h">11 · body blueprint™ assessment reservation</h3>
+        <label className="sched-label" style={{ maxWidth: 260 }}>
+          amount ($) — shown on every proposal, credited once toward the program
+          <input type="number" min={50} max={2000} step={1} className="sched-input" value={s.assessmentDollars} onChange={(e) => setS({ ...s, assessmentDollars: Number(e.target.value) })} />
+        </label>
       </section>
       <div className="pb-save">
         <button

@@ -26,6 +26,7 @@ export default async function ProposalSettingsPage() {
           founderBio: s?.founderBio ?? COPY.en.founderDefaultBio,
           founderBioEs: s?.founderBioEs ?? COPY.es.founderDefaultBio,
           activeCampaign: s ? s.activeCampaign : "holiday_333",
+          assessmentDollars: (s?.assessmentCents ?? 35000) / 100,
         }}
       />
     </div>

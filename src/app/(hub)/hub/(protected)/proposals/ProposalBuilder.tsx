@@ -44,6 +44,11 @@ const blank = (): ProposalInput => ({
   resultCaseIds: [],
   expiresAt: null,
   programStartDate: null,
+  leadId: null,
+  assessmentEnabled: true,
+  assessmentDate: null,
+  assessmentTimeConfirmed: false,
+  assessmentTime: null,
 });
 
 export default function ProposalBuilder({
@@ -51,11 +56,13 @@ export default function ProposalBuilder({
   clients,
   resultCases,
   videoAvailable,
+  leadLabel = null,
 }: {
   initial: ProposalInput | null;
   clients: ClientOption[];
   resultCases: ResultCase[];
   videoAvailable: boolean;
+  leadLabel?: string | null;
 }) {
   const router = useRouter();
   const [f, setF] = useState<ProposalInput>(initial ?? blank());
@@ -144,6 +151,11 @@ export default function ProposalBuilder({
             </select>
           </label>
         </div>
+        {f.leadId && leadLabel && (
+          <p className="pb-hint" style={{ fontWeight: 500 }}>
+            linked lead: {leadLabel} — saving or sharing this proposal does not convert her. paying a program converts this same lead (history kept); the assessment reservation never does.
+          </p>
+        )}
         <p className="pb-hint">
           a new client is created automatically (lead → client, portal invite) only when she pays, using the details she enters in stripe checkout.
         </p>
@@ -215,6 +227,24 @@ export default function ProposalBuilder({
               <label className="pb-inline" style={{ alignSelf: "end" }}>
                 <input type="checkbox" checked={p.allowSplit} onChange={(e) => setProgram(i, { allowSplit: e.target.checked })} /> offer pay in 2
               </label>
+              <label className="pb-inline" style={{ alignSelf: "end" }}>
+                <input type="checkbox" checked={!!p.bestValue} onChange={(e) => setPrograms((ps) => ps.map((x, j) => ({ ...x, bestValue: j === i ? e.target.checked : e.target.checked ? false : x.bestValue })))} /> best value badge
+              </label>
+            </div>
+            <div className="pb-grid4">
+              {(["exilis", "endospheres", "ems"] as const).map((k) => (
+                <label key={k} className="sched-label">
+                  gift: {t.tech[k].name} sessions
+                  <input type="number" min={0} max={20} className="sched-input" value={p.bonus?.sessions?.[k] ?? 0} onChange={(e) => setProgram(i, { bonus: { label: p.bonus?.label ?? "", fullOnly: p.bonus?.fullOnly ?? false, sessions: { ...(p.bonus?.sessions ?? {}), [k]: Number(e.target.value) } } })} />
+                </label>
+              ))}
+              <label className="sched-label">
+                gift text (shown)
+                <input className="sched-input" maxLength={140} value={p.bonus?.label ?? ""} placeholder="e.g. 2 additional exilis sessions for arms" onChange={(e) => setProgram(i, { bonus: { sessions: p.bonus?.sessions ?? {}, fullOnly: p.bonus?.fullOnly ?? false, label: e.target.value } })} />
+              </label>
+              <label className="pb-inline" style={{ alignSelf: "end" }}>
+                <input type="checkbox" checked={!!p.bonus?.fullOnly} onChange={(e) => setProgram(i, { bonus: { sessions: p.bonus?.sessions ?? {}, label: p.bonus?.label ?? "", fullOnly: e.target.checked } })} /> gift only with pay in full
+              </label>
             </div>
             <div className="pb-grid2">
               <label className="sched-label">
@@ -264,6 +294,22 @@ export default function ProposalBuilder({
             </button>
           ))}
         </div>
+        <p className="pb-hint" style={{ marginTop: 14 }}>body blueprint™ assessment reservation (amount set in proposal settings · credited once toward the program)</p>
+        <label className="pb-inline">
+          <input type="checkbox" checked={f.assessmentEnabled !== false} onChange={(e) => set("assessmentEnabled", e.target.checked)} /> show “not sure which program is right for you?” — reserve the assessment
+        </label>
+        {f.assessmentEnabled !== false && (
+          <div className="pb-grid2">
+            <label className="sched-label">
+              tentative assessment date (optional)
+              <input type="date" className="sched-input" value={f.assessmentDate ?? ""} onChange={(e) => set("assessmentDate", e.target.value || null)} />
+            </label>
+            <label className="sched-label">
+              confirmed time (leave empty = “to be confirmed”)
+              <input className="sched-input" maxLength={40} value={f.assessmentTime ?? ""} placeholder="e.g. 10:00 am" onChange={(e) => setF((s) => ({ ...s, assessmentTime: e.target.value, assessmentTimeConfirmed: !!e.target.value.trim() }))} />
+            </label>
+          </div>
+        )}
         <div className="pb-grid2">
           <label className="sched-label">
             program start date (sets the week-2 due date)

@@ -604,6 +604,18 @@ export async function sendWaiverNotifications(params:{clientId:string;firstName:
  ]);
 }
 
+/** Body Blueprint™ Assessment reserved from a client proposal — confirmation to her + both owner inboxes. */
+export async function sendAssessmentReservedEmails(params: { clientId?: string; leadId?: string; firstName: string; clientName: string; email: string | null; amountLabel: string; dateISO: string | null; time: string | null; hubUrl: string }) {
+  const { clientId, leadId, firstName, clientName, email, amountLabel, dateISO, time, hubUrl } = params;
+  const dateLabel = dateISO ? new Date(`${dateISO}T12:00:00Z`).toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric", timeZone: "UTC" }) : "To be confirmed";
+  const timeLabel = time || "To be confirmed";
+  const clientHtml = `<div style="font-family:Arial,sans-serif;background:#f5eee4;padding:36px;color:#382d28"><p style="letter-spacing:.25em;font-size:11px;text-transform:uppercase;color:#6f333d">Body Blueprint™ Assessment</p><h1 style="font-family:Georgia,serif;font-weight:400">Your assessment is reserved. ✨</h1><p>Hi ${ownerEsc(firstName)}, thank you — we received your ${ownerEsc(amountLabel)} reservation for your Private In-Home Body Blueprint™ Assessment.</p><table style="margin:18px 0;border-collapse:collapse;font-size:14px"><tr><td style="padding:6px 18px 6px 0;color:#6f333d">Date</td><td>${ownerEsc(dateLabel)}</td></tr><tr><td style="padding:6px 18px 6px 0;color:#6f333d">Time</td><td>${ownerEsc(timeLabel)}</td></tr><tr><td style="padding:6px 18px 6px 0;color:#6f333d">Type</td><td>Private In-Home Body Blueprint™ Assessment</td></tr></table><p>${time ? "" : "We'll contact you to confirm the exact time. "}You don't need to choose your program yet — we can decide together during your assessment. Your ${ownerEsc(amountLabel)} reservation will be credited once toward the program you choose.</p><p>With care,<br>The Body Shaper Concierge</p></div>`;
+  const ownerHtml = `<h2>Assessment reserved — ${ownerEsc(amountLabel)} paid</h2><p><b>${ownerEsc(clientName)}</b>${email ? ` (${ownerEsc(email)})` : ""} reserved her Body Blueprint™ Assessment from her proposal.</p><p><b>Date:</b> ${ownerEsc(dateLabel)} · <b>Time:</b> ${ownerEsc(timeLabel)}</p><p>Program not chosen yet — the reservation is credited once when she pays a program.</p><p><a href="${hubUrl}">Open in Owner Hub</a></p>`;
+  const sends = OWNER_INBOXES.map((recipient) => logAndSend({ clientId, leadId, template: "NEW_DOCUMENT_AVAILABLE", sender: SENDERS.owner, recipient, subject: `Assessment reserved: ${clientName}`, html: ownerHtml }));
+  if (email) sends.unshift(logAndSend({ clientId, leadId, template: "PAYMENT_CONFIRMATION", sender: SENDERS.concierge, recipient: email, subject: "Your Body Blueprint™ Assessment is reserved ✦", html: clientHtml }));
+  return Promise.all(sends);
+}
+
 /** Prepare Your Experience™ - logged acknowledgements and private owner alerts. */
 export async function sendPrepareExperienceNotifications(params:{clientId:string;firstName:string;lastName:string;email:string}){
  const {clientId,firstName,lastName,email}=params;

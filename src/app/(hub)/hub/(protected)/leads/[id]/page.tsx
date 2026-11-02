@@ -1,3 +1,4 @@
+import { LEAD_STAGE_LABEL } from "@/lib/proposals/lead";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { blueprintSections } from "@/app/(site)/body-blueprint/blueprint-fields";
@@ -48,6 +49,7 @@ export default async function LeadDetailPage({
     include: {
       statusHistory: { orderBy: { changedAt: "desc" }, include: { changedBy: true } },
       convertedClient: true,
+      proposals: { orderBy: { createdAt: "desc" }, include: { checkouts: { where: { status: "PAID" }, orderBy: { paidAt: "asc" } } } },
     },
   });
 
@@ -76,7 +78,7 @@ export default async function LeadDetailPage({
             <strong>
               {lead.firstName} {lead.lastName}
             </strong>
-            <span className="dash-status">{lead.status.replace(/_/g, " ")}</span>
+            <span className="dash-status">{LEAD_STAGE_LABEL[lead.status] ?? lead.status.replace(/_/g, " ")}</span>
           </div>
           <p className="cl-header-contact">
             {lead.phone && `${lead.phone} · `}
@@ -216,14 +218,43 @@ export default async function LeadDetailPage({
           {hasPermission(user, "leads.edit") && <LeadStatusForm leadId={lead.id} currentStatus={lead.status} />}
 
           {hasPermission(user, "payments.manage") && (
-            <div style={{ marginTop: 24, marginBottom: 16 }}>
-              <a className="cl-quick-btn" href={`/hub/proposals/new?leadId=${encodeURIComponent(lead.id)}`}>
-                Create Proposal for {lead.firstName} (no conversion required)
-              </a>
-              <p style={{ fontSize: 12, opacity: 0.7, marginTop: 8 }}>
-                Share the private proposal link, then mark this lead as Proposal Sent. Convert to client after acceptance.
+            <section style={{ marginTop: 24, marginBottom: 16, maxWidth: 780, padding: 20, border: "1px solid rgba(0,0,0,.14)", borderRadius: 12 }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
+                <h2 style={{ fontSize: 20, margin: 0 }}>Proposals</h2>
+                <a className="cl-quick-btn" href={`/hub/proposals/new?leadId=${encodeURIComponent(lead.id)}`}>
+                  + Create Proposal
+                </a>
+              </div>
+              <p style={{ fontSize: 12, opacity: 0.7, margin: "6px 0 14px" }}>
+                Prepared before conversion — creating or sharing a proposal never converts the lead. History moves to the client when she converts.
               </p>
-            </div>
+              {lead.proposals.length === 0 ? (
+                <p className="dash-empty">No proposals yet.</p>
+              ) : (
+                lead.proposals.map((p) => {
+                  const assessment = p.checkouts.find((c) => c.kind === "assessment");
+                  const programPaid = p.checkouts.filter((c) => c.kind !== "assessment");
+                  return (
+                    <div key={p.id} style={{ padding: "12px 0", borderTop: "1px solid rgba(0,0,0,.08)", fontSize: 13, lineHeight: 1.6 }}>
+                      <div style={{ display: "flex", justifyContent: "space-between", gap: 10, flexWrap: "wrap" }}>
+                        <strong>{p.clientName} · {p.status.toLowerCase()}</strong>
+                        <a href={`/hub/proposals/${p.id}`} style={{ textDecoration: "underline" }}>open proposal</a>
+                      </div>
+                      <div>created {p.createdAt.toLocaleDateString()} · {p.viewCount ? `viewed ${p.viewCount}× (last ${p.lastViewedAt?.toLocaleDateString()})` : "not opened yet"}</div>
+                      {p.assessmentEnabled && (
+                        <div>
+                          assessment: {assessment ? <b>reserved — ${(assessment.amountCents / 100).toFixed(0)} paid {assessment.paidAt?.toLocaleDateString()}</b> : "not reserved"}
+                          {p.assessmentDate && <> · {p.assessmentDate.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric", timeZone: "UTC" })} — {p.assessmentTimeConfirmed && p.assessmentTime ? p.assessmentTime : "time to be confirmed (tentative)"}</>}
+                        </div>
+                      )}
+                      <div>
+                        program: {programPaid.length ? programPaid.map((c) => `${c.programName} — ${c.paymentMode === "split" ? `installment ${c.installmentNumber}/2` : "paid in full"} $${(c.amountCents / 100).toFixed(2)}${c.creditCents ? ` (+ $${(c.creditCents / 100).toFixed(0)} credit)` : ""}`).join(" · ") : "not selected yet"}
+                      </div>
+                    </div>
+                  );
+                })
+              )}
+            </section>
           )}
           <div style={{ marginTop: 32 }}>
             <LeadConversionPanel

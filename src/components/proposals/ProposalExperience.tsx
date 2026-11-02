@@ -2,8 +2,8 @@
 
 import Image from "next/image";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { COPY, WHATSAPP_NUMBER } from "@/lib/proposals/copy";
-import { displayName, formatDay, money, secondChargeOptions, TECHNOLOGIES, type GoalKey, type PaymentMode, type TechnologyKey, type ZoneKey } from "@/lib/proposals/types";
+import { COPY, EXTRA, WHATSAPP_NUMBER } from "@/lib/proposals/copy";
+import { applyCredit, bonusApplies, displayName, formatDay, money, secondChargeOptions, TECHNOLOGIES, type GoalKey, type PaymentMode, type TechnologyKey, type ZoneKey } from "@/lib/proposals/types";
 import type { ProposalView } from "@/lib/proposals/server";
 import { BACK_ZONES, FILL_SELECTED, FRONT_ZONES, IMAGE_HEIGHT, IMAGE_VIEWBOX, IMAGE_WIDTH } from "@/lib/body-map-zones";
 
@@ -42,6 +42,7 @@ type Props = { view: ProposalView; checkoutState?: string | null };
 
 export default function ProposalExperience({ view, checkoutState }: Props) {
   const t = COPY[view.lang];
+  const x = EXTRA[view.lang];
   const es = view.lang === "es";
   const rootRef = useRef<HTMLDivElement>(null);
   const [solid, setSolid] = useState(false);
@@ -167,8 +168,24 @@ export default function ProposalExperience({ view, checkoutState }: Props) {
   }, [sheetOpen]);
   // after Stripe: land on the "next step" block
   useEffect(() => {
-    if (checkoutState === "success") setTimeout(() => document.getElementById("next")?.scrollIntoView({ block: "start" }), 300);
+    if (checkoutState === "success" || checkoutState === "assessment") setTimeout(() => document.getElementById("next")?.scrollIntoView({ block: "start" }), 300);
+    if (checkoutState === "cancelled") setTimeout(() => document.getElementById("assessment")?.scrollIntoView({ block: "start" }), 300);
   }, [checkoutState]);
+
+  async function startAssessment() {
+    if (!view.token) return;
+    setBusy("assessment");
+    setError(null);
+    try {
+      const res = await fetch(`/api/proposals/${view.token}/assessment`, { method: "POST", headers: { "Content-Type": "application/json" }, body: "{}" });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || !data.url) throw new Error(data.error || "checkout unavailable");
+      window.location.assign(data.url);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "checkout unavailable");
+      setBusy(null);
+    }
+  }
 
   async function startCheckout(kind: "program" | "promo") {
     if (!view.token) return;
@@ -207,8 +224,17 @@ export default function ProposalExperience({ view, checkoutState }: Props) {
     }
   }
 
+  // Only explain the technologies that are actually part of this client's programs.
+  const usedTech = TECHNOLOGIES.filter((k) => view.programs.some((p) => p.sessions[k] > 0)).length >= 2 ? TECHNOLOGIES.filter((k) => view.programs.some((p) => p.sessions[k] > 0)) : [...TECHNOLOGIES];
   const pricing = program?.pricing;
-  const due = pricing ? (mode === "full" ? pricing.fullCents : pricing.split?.firstCents ?? pricing.fullCents) : 0;
+  const creditAvail = view.assessment?.creditAvailableCents ?? 0;
+  const applied = pricing && (mode === "full" || pricing.split) ? applyCredit(pricing, mode, creditAvail) : null;
+  const due = applied ? applied.todayCents : 0;
+  const assessmentPaid = !!view.assessment?.paid;
+  const programPaid = ["paid_in_full", "first_installment_paid", "completed"].includes(view.payment.status ?? "");
+  const assessmentDateLabel = view.assessment?.date
+    ? new Date(`${view.assessment.date}T12:00:00Z`).toLocaleDateString(es ? "es-US" : "en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric", timeZone: "UTC" }).toLowerCase()
+    : null;
   const paidProgram = view.payment.programKey ? view.programs.find((p) => p.key === view.payment.programKey) : null;
   const navItems: [string, string][] = [
     ["welcome", t.nav.blueprint],
@@ -309,13 +335,13 @@ export default function ProposalExperience({ view, checkoutState }: Props) {
               02 — {t.sec.technology}
             </p>
             <h2 id="pp-tech-title" className="pp-h2" data-reveal>
-              {t.techTitle}
+              {usedTech.length === 2 ? (es ? "dos tecnologías, una estrategia" : "two technologies, one strategy") : t.techTitle}
             </h2>
             <p className="pp-lead" style={{ color: "var(--ivory-soft)" }} data-reveal>
               {t.techIntro}
             </p>
-            <div className="pp-tech">
-              {TECHNOLOGIES.map((k, i) => {
+            <div className="pp-tech" style={{ gridTemplateColumns: `repeat(${usedTech.length}, 1fr)` }}>
+              {usedTech.map((k, i) => {
                 const ph = TECH_PHOTO[k];
                 return (
                   <article key={k} data-reveal style={{ ["--d" as string]: `${i * 0.1}s` }}>
@@ -445,14 +471,20 @@ export default function ProposalExperience({ view, checkoutState }: Props) {
             <p className="pp-lead" style={{ color: "var(--ivory-soft)" }} data-reveal>
               {t.sec.planIntro}
             </p>
+            {view.assessment && (
+              <p className="pp-small" style={{ color: "var(--ivory-soft)", maxWidth: 640 }} data-reveal>
+                <i aria-hidden="true">i</i>
+                <span>{x.preliminary}</span>
+              </p>
+            )}
 
             <div className="pp-cards" style={{ ["--n" as string]: String(Math.min(3, view.programs.length || 1)) }}>
               {view.programs.map((p, i) => {
                 const open = openCard === p.key;
-                const rec = view.recommendedKey === p.key;
+                const rec = view.recommendedKey === p.key || !!p.bestValue;
                                 return (
                   <article key={p.key} className={`pp-card${rec ? " is-rec" : ""}`} data-reveal style={{ ["--d" as string]: `${i * 0.08}s` }}>
-                    {rec && <span className="pp-badge">{t.recommended}</span>}
+                    {rec && <span className="pp-badge">{p.bestValue ? x.bestValue : t.recommended}</span>}
                     <span className="pp-opt">{t.option(i + 1)}</span>
                     <h3>{displayName(p.name)}</h3>
                     <span className="pp-sessions">{t.technologySessions(p.total)}</span>
@@ -466,6 +498,13 @@ export default function ProposalExperience({ view, checkoutState }: Props) {
                       ))}
                     </ul>
                     <p>{p.description}</p>
+                    {p.bonus?.label && (
+                      <div className="pp-gift">
+                        <span className="pp-label">{x.gift}</span>
+                        <span>{p.bonus.label}</span>
+                        <small>{p.bonus.fullOnly ? x.giftFullOnly : x.giftAny}</small>
+                      </div>
+                    )}
                     <div id={`pp-x-${p.key}`} className={`pp-expand${open ? " open" : ""}`}>
                       <div>
                         {p.focus.length > 0 && (
@@ -487,7 +526,9 @@ export default function ProposalExperience({ view, checkoutState }: Props) {
                     )}
                     <div className="pp-price">
                       {t.from} <strong>{money(p.pricing.fullCents)}</strong>
+                      {p.pricing.savingCents > 0 && <span className="pp-regular"> · {es ? "precio regular" : "regular"} <s>{money(p.pricing.regularCents)}</s></span>}
                     </div>
+                    {p.pricing.split && <p className="pp-split-line">{es ? "o en 2 pagos" : "or pay in 2"}: {money(p.pricing.split.firstCents)} + {money(p.pricing.split.secondCents)}</p>}
                     <button type="button" className={`pp-btn ${rec ? "pp-btn-burgundy" : "pp-btn-line"}`} aria-haspopup="dialog" onClick={() => openSheet(p.key)}>
                       {t.sec.select} <span className="pp-arrow" aria-hidden="true" />
                     </button>
@@ -495,6 +536,32 @@ export default function ProposalExperience({ view, checkoutState }: Props) {
                 );
               })}
             </div>
+
+            {view.assessment && (
+              <div id="assessment" className="pp-assess" data-reveal>
+                <p className="pp-eyebrow">{x.assessmentEyebrow}</p>
+                <h3 className="pp-h3">{x.assessmentTitle}</h3>
+                <p className="pp-lead" style={{ color: "var(--ivory-soft)" }}>{x.assessmentText(money(view.assessment.cents))}</p>
+                <dl className="pp-assess-dl">
+                  <div><dt>{es ? "tipo" : "appointment type"}</dt><dd>{x.assessmentType}</dd></div>
+                  {assessmentDateLabel && <div><dt>{x.assessmentDate}</dt><dd>{assessmentDateLabel}</dd></div>}
+                  <div><dt>{x.assessmentTime}</dt><dd>{view.assessment.timeConfirmed && view.assessment.time ? view.assessment.time : x.toBeConfirmed}</dd></div>
+                </dl>
+                {assessmentPaid ? (
+                  <p className="pp-assess-paid" role="status"><span aria-hidden="true">✓</span> {x.assessmentPaid(money(view.assessment.cents))}</p>
+                ) : programPaid ? null : (
+                  <>
+                    <button type="button" className="pp-btn pp-btn-line pp-btn-wide" onClick={startAssessment} disabled={!view.token || busy !== null}>
+                      {busy === "assessment" ? t.redirecting : x.assessmentButton(money(view.assessment.cents))} <span className="pp-arrow" aria-hidden="true" />
+                    </button>
+                    {checkoutState === "cancelled" && <p className="pp-small"><i aria-hidden="true">i</i><span>{es ? "el pago no se completó — no se hizo ningún cargo." : "payment was not completed — you have not been charged."}</span></p>}
+                    {error && busy === "assessment" && <p className="pp-error" role="alert">{error}</p>}
+                    {!view.token && <p className="pp-small"><i aria-hidden="true">i</i><span>{t.previewOnly}</span></p>}
+                    <p className="pp-terms">{x.assessmentCredit(money(view.assessment.cents))}</p>
+                  </>
+                )}
+              </div>
+            )}
 
             {view.promo && (
               <div id="seasonal" className="pp-promo" data-reveal>
@@ -582,6 +649,12 @@ export default function ProposalExperience({ view, checkoutState }: Props) {
                   </label>
                 )}
               </fieldset>
+              {program.bonus?.label && (
+                <p className="pp-small"><i aria-hidden="true">✦</i><span>{bonusApplies(program, mode) ? x.giftWithFull(program.bonus.label) : x.giftNotWithSplit(program.bonus.label)}</span></p>
+              )}
+              {applied && applied.creditCents > 0 && (
+                <div className="pp-due pp-credit"><span>{x.creditLine(money(applied.creditCents))}</span></div>
+              )}
               <div className="pp-due" aria-live="polite">
                 <span>{t.dueToday}</span>
                 <strong>{money(due)}</strong>
@@ -603,7 +676,7 @@ export default function ProposalExperience({ view, checkoutState }: Props) {
                   {secondDate && (
                     <label className="pp-consent">
                       <input type="checkbox" checked={consent} onChange={(e) => setConsent(e.target.checked)} />
-                      <span>{t.consentAuto(money(pricing.split.firstCents), money(pricing.split.secondCents), formatDay(secondDate, view.lang))}</span>
+                      <span>{t.consentAuto(money(applied?.todayCents ?? pricing.split.firstCents), money(applied?.secondCents ?? pricing.split.secondCents), formatDay(secondDate, view.lang))}</span>
                     </label>
                   )}
                 </>
@@ -622,7 +695,19 @@ export default function ProposalExperience({ view, checkoutState }: Props) {
         <section id="faq" className="pp-sec pp-sand" aria-labelledby="pp-faq-title">
           <div className="pp-bgwrap" aria-hidden="true"><div className="pp-bgimg" /></div>
           <div className="pp-inner">
-            {(checkoutState === "success" || ["paid_in_full", "first_installment_paid", "completed"].includes(view.payment.status ?? "")) && (
+            {(checkoutState === "assessment" || assessmentPaid) && !programPaid && checkoutState !== "success" && view.assessment && (
+              <div id="next" className="pp-next" role="status">
+                <p className="pp-eyebrow">{x.assessmentEyebrow}</p>
+                <h2 className="pp-h2 pp-h2-sm">{x.assessmentNextTitle(view.clientName)}</h2>
+                <p className="pp-lead">
+                  {assessmentPaid ? x.assessmentPaid(money(view.assessment.cents)) : t.next.confirming} {x.assessmentNextText}
+                </p>
+                <a className="pp-btn pp-btn-burgundy" href={`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(x.assessmentWa)}`} target="_blank" rel="noopener noreferrer">
+                  {t.next.button} <span className="pp-arrow" aria-hidden="true" />
+                </a>
+              </div>
+            )}
+            {(checkoutState === "success" || programPaid) && (
               <div id="next" className="pp-next" role="status">
                 <p className="pp-eyebrow">{t.next.eyebrow}</p>
                 <h2 className="pp-h2 pp-h2-sm">{t.next.title(view.clientName)}</h2>

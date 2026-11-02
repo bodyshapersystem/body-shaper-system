@@ -124,6 +124,8 @@ const en: Copy = {
     texture: "skin texture",
     contour: "contour",
     "muscle-tone": "muscle tone",
+    "fat-reduction": "localized fat reduction",
+    "natural-results": "natural-looking results",
   },
   welcomeText: (goals, zones) =>
     goals.length || zones.length
@@ -276,7 +278,7 @@ const es: Copy = {
   zonesLabel: "zonas prioritarias",
   goalsLabel: "tus objetivos",
   zones: { legs: "piernas", abdomen: "abdomen", arms: "brazos", glutes: "glúteos", waist: "cintura" },
-  goals: { firmness: "firmeza", laxity: "apariencia de flacidez", texture: "textura de la piel", contour: "contorno", "muscle-tone": "tono muscular" },
+  goals: { firmness: "firmeza", laxity: "apariencia de flacidez", texture: "textura de la piel", contour: "contorno", "muscle-tone": "tono muscular", "fat-reduction": "reducción de grasa localizada", "natural-results": "resultados naturales" },
   welcomeText: (goals, zones) =>
     goals.length || zones.length
       ? `una estrategia a tu medida${zones.length ? ` — enfocada en ${listJoin(zones, "y")}` : ""}${
@@ -402,3 +404,57 @@ const es: Copy = {
 
 export const COPY: Record<Lang, Copy> = { en, es };
 export const WHATSAPP_NUMBER = "17379755112";
+
+/** Copy for the complimentary gift, best-value badge and the Body Blueprint™ Assessment reservation. */
+export const EXTRA = {
+  en: {
+    bestValue: "best value",
+    gift: "complimentary gift",
+    giftFullOnly: "only with pay in full",
+    giftAny: "included with either payment option",
+    giftNotPaid: "complimentary sessions are a gift and are not counted as paid sessions.",
+    giftWithFull: (label: string) => `includes your complimentary gift: ${label}`,
+    giftNotWithSplit: (label: string) => `the complimentary gift (${label}) is included only when paying in full.`,
+    assessmentEyebrow: "body blueprint™ assessment",
+    assessmentTitle: "not sure which program is right for you?",
+    assessmentText: (amount: string) =>
+      `reserve your private in-home body blueprint™ assessment for ${amount}. we'll review your goals, treatment history, and the areas you'd like to improve. you don't have to choose your treatment program today. we can make that decision together during your assessment.`,
+    assessmentButton: (amount: string) => `reserve my assessment — ${amount}`,
+    assessmentType: "private in-home body blueprint™ assessment",
+    assessmentDate: "date",
+    assessmentTime: "time",
+    toBeConfirmed: "to be confirmed",
+    assessmentCredit: (amount: string) => `your ${amount} reservation is credited toward the program you choose.`,
+    assessmentPaid: (amount: string) => `your assessment is reserved — ${amount} received. it will be credited toward the program you choose.`,
+    creditLine: (amount: string) => `assessment credit −${amount}`,
+    assessmentNextTitle: (name: string) => `${name}, your assessment is reserved.`,
+    assessmentNextText: "we'll confirm the exact time with you. you can choose your program now or during your assessment — your reservation is credited either way.",
+    assessmentWa: "hi! i just reserved my body blueprint™ assessment. i'd like to confirm the time.",
+    preliminary: "this plan is preliminary and subject to your in-home assessment, including a review of your surgical history and eligibility.",
+  },
+  es: {
+    bestValue: "mejor valor",
+    gift: "regalo de cortesía",
+    giftFullOnly: "solo pagando completo",
+    giftAny: "incluido con cualquier forma de pago",
+    giftNotPaid: "las sesiones de cortesía son un regalo y no cuentan como sesiones pagadas.",
+    giftWithFull: (label: string) => `incluye tu regalo de cortesía: ${label}`,
+    giftNotWithSplit: (label: string) => `el regalo de cortesía (${label}) se incluye solo pagando completo.`,
+    assessmentEyebrow: "evaluación body blueprint™",
+    assessmentTitle: "¿no sabes qué programa es el ideal para ti?",
+    assessmentText: (amount: string) =>
+      `reserva tu evaluación privada body blueprint™ en casa por ${amount}. revisaremos tus objetivos, tu historial de tratamientos y las zonas que quieres mejorar. no tienes que elegir tu programa hoy: podemos decidirlo juntas durante tu evaluación.`,
+    assessmentButton: (amount: string) => `reservar mi evaluación — ${amount}`,
+    assessmentType: "evaluación privada body blueprint™ en casa",
+    assessmentDate: "fecha",
+    assessmentTime: "hora",
+    toBeConfirmed: "por confirmar",
+    assessmentCredit: (amount: string) => `tu reserva de ${amount} se acredita al programa que elijas.`,
+    assessmentPaid: (amount: string) => `tu evaluación está reservada — recibimos ${amount}. se acreditará al programa que elijas.`,
+    creditLine: (amount: string) => `crédito de evaluación −${amount}`,
+    assessmentNextTitle: (name: string) => `${name}, tu evaluación está reservada.`,
+    assessmentNextText: "te confirmaremos la hora exacta. puedes elegir tu programa ahora o durante tu evaluación — tu reserva se acredita en ambos casos.",
+    assessmentWa: "¡hola! acabo de reservar mi evaluación body blueprint™. quiero confirmar la hora.",
+    preliminary: "este plan es preliminar y está sujeto a tu evaluación en casa, incluida la revisión de tu historial quirúrgico y tu elegibilidad.",
+  },
+};

@@ -22,7 +22,7 @@ export default async function ProposalDetailPage({ params }: { params: Promise<{
   const { id } = await params;
   const p = await prisma.clientProposal.findUnique({
     where: { id },
-    include: { events: { orderBy: { createdAt: "desc" }, take: 40 }, checkouts: { orderBy: { createdAt: "desc" } }, client: { select: { firstName: true, lastName: true, phone: true } } },
+    include: { events: { orderBy: { createdAt: "desc" }, take: 40 }, checkouts: { orderBy: { createdAt: "desc" } }, client: { select: { firstName: true, lastName: true, phone: true } }, lead: { select: { id: true, firstName: true, lastName: true, phone: true } } },
   });
   if (!p) notFound();
   const clients = await prisma.client.findMany({ where: { archivedAt: null }, orderBy: { firstName: "asc" }, select: { id: true, firstName: true, lastName: true, city: true } });
@@ -40,7 +40,7 @@ export default async function ProposalDetailPage({ params }: { params: Promise<{
       <div className="portal-page-head">
         <p className="portal-eyebrow"><Link href="/hub/proposals">client proposals</Link></p>
         <h1>{p.clientName}.</h1>
-        <p className="dash-subtitle">{p.locationLabel ?? ""} {p.client ? `· linked to ${p.client.firstName} ${p.client.lastName}` : "· no client record yet"}</p>
+        <p className="dash-subtitle">{p.locationLabel ?? ""} {p.client ? `· linked to ${p.client.firstName} ${p.client.lastName}` : p.lead ? "" : "· no client record yet"}{p.lead && <> · lead: <Link href={`/hub/leads/${p.lead.id}`}>{p.lead.firstName} {p.lead.lastName}</Link></>}</p>
       </div>
       <div className="pt-layout">
         <ProposalBuilder
@@ -61,7 +61,13 @@ export default async function ProposalDetailPage({ params }: { params: Promise<{
             resultCaseIds: p.resultCaseIds,
             expiresAt: iso(p.expiresAt),
             programStartDate: iso(p.programStartDate),
+            leadId: p.leadId,
+            assessmentEnabled: p.assessmentEnabled,
+            assessmentDate: iso(p.assessmentDate),
+            assessmentTimeConfirmed: p.assessmentTimeConfirmed,
+            assessmentTime: p.assessmentTime,
           }}
+          leadLabel={p.lead ? `${p.lead.firstName} ${p.lead.lastName}` : null}
           clients={clients.map((c) => ({ id: c.id, name: `${c.firstName} ${c.lastName}`, firstName: c.firstName, city: c.city }))}
           resultCases={RESULT_CASES.map((c) => ({ id: c.id, label: c.label + (c.kind === "card" && c.id.includes("side") ? " (side)" : "") }))}
           videoAvailable={!!WELCOME_VIDEO_SRC}
@@ -72,7 +78,7 @@ export default async function ProposalDetailPage({ params }: { params: Promise<{
             status={p.status}
             link={link}
             clientName={p.clientName}
-            phone={p.client?.phone ?? null}
+            phone={p.client?.phone ?? p.lead?.phone ?? null}
             canSecondInstallment={p.checkoutStatus === "first_installment_paid"}
             hasStartDate={!!p.programStartDate}
             paymentsNote={gate.ok ? (gate.testMode ? "stripe: test mode" : "stripe: live") : "online payment not enabled yet — " + gate.reason}
@@ -94,8 +100,8 @@ export default async function ProposalDetailPage({ params }: { params: Promise<{
               <h3>checkouts</h3>
               {p.checkouts.map((c) => (
                 <div key={c.id} className="pt-row">
-                  <span>{c.programName} · {c.paymentMode === "split" ? `${c.installmentNumber}/2` : "full"}</span>
-                  <span>{money(c.amountCents, { cents: true })} · {c.status.toLowerCase()}</span>
+                  <span>{c.programName}{c.kind === "assessment" ? "" : ` · ${c.paymentMode === "split" ? `${c.installmentNumber}/2` : "full"}`}</span>
+                  <span>{money(c.amountCents, { cents: true })}{c.creditCents ? ` + ${money(c.creditCents)} credit` : ""} · {c.status.toLowerCase()}</span>
                 </div>
               ))}
             </div>

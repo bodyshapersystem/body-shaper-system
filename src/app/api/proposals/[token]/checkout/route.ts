@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
-import { findActiveProposal } from "@/lib/proposals/server";
+import { availableAssessmentCredit, findActiveProposal } from "@/lib/proposals/server";
 import { createProposalCheckout, SPLIT_SCHEDULE_TEXT, validSecondChargeDate } from "@/lib/proposals/checkout";
-import { normalizePrograms, priceProgram } from "@/lib/proposals/types";
+import { applyCredit, normalizePrograms, priceProgram } from "@/lib/proposals/types";
 import { prisma } from "@/lib/prisma";
 
 export const runtime = "nodejs";
@@ -42,11 +42,13 @@ export async function POST(request: Request, { params }: { params: Promise<{ tok
       return NextResponse.json({ error: "Please confirm the two-installment schedule to continue." }, { status: 400, headers: NO_STORE });
     }
     const program = normalizePrograms(proposal.programs).find((p) => p.key === programKey);
-    const split = program ? priceProgram(program).split : null;
-    if (!split) return NextResponse.json({ error: "Two payments are not available for this program." }, { status: 400, headers: NO_STORE });
+    const pricing = program ? priceProgram(program) : null;
+    if (!pricing?.split) return NextResponse.json({ error: "Two payments are not available for this program." }, { status: 400, headers: NO_STORE });
+    const credit = await availableAssessmentCredit(proposal.id);
+    const applied = applyCredit(pricing, "split", credit?.availableCents ?? 0);
     await prisma.clientProposal.update({
       where: { id: proposal.id },
-      data: { splitConsentAt: new Date(), splitConsentText: SPLIT_SCHEDULE_TEXT(split.firstCents, split.secondCents, secondDate) },
+      data: { splitConsentAt: new Date(), splitConsentText: SPLIT_SCHEDULE_TEXT(applied.todayCents, applied.secondCents, secondDate) + (applied.creditCents ? ` Assessment credit applied: ${(applied.creditCents / 100).toFixed(2)}.` : "") },
     });
   }
 

@@ -6,6 +6,7 @@ import { prisma } from "@/lib/prisma";
 import { getCurrentHubUser, hasPermission } from "@/lib/permissions";
 import { newProposalToken, logProposalEvent, RESULT_CASES } from "@/lib/proposals/server";
 import { createProposalCheckout } from "@/lib/proposals/checkout";
+import { advanceLeadStatus } from "@/lib/proposals/lead";
 import { CAMPAIGNS, GOALS, normalizePrograms, ZONES } from "@/lib/proposals/types";
 
 async function requireManager() {
@@ -38,6 +39,11 @@ export type ProposalInput = {
   resultCaseIds: string[];
   expiresAt: string | null;
   programStartDate: string | null;
+  leadId?: string | null;
+  assessmentEnabled?: boolean;
+  assessmentDate?: string | null;
+  assessmentTimeConfirmed?: boolean;
+  assessmentTime?: string | null;
 };
 
 function parseDate(v: string | null): Date | null {
@@ -58,6 +64,12 @@ export async function saveProposal(input: ProposalInput): Promise<{ id?: string;
 
   let clientId: string | null = input.clientId || null;
   if (clientId && !(await prisma.client.findUnique({ where: { id: clientId }, select: { id: true } }))) clientId = null;
+  let leadId: string | null = input.leadId || null;
+  const lead = leadId ? await prisma.lead.findUnique({ where: { id: leadId }, select: { id: true, convertedClient: { select: { id: true } } } }) : null;
+  if (!lead) leadId = null;
+  // A converted lead's proposal belongs to its client too.
+  if (lead?.convertedClient && !clientId) clientId = lead.convertedClient.id;
+  const assessmentTime = String(input.assessmentTime ?? "").trim().slice(0, 40) || null;
 
   const data = {
     clientId,
@@ -75,12 +87,22 @@ export async function saveProposal(input: ProposalInput): Promise<{ id?: string;
     resultCaseIds: (input.resultCaseIds ?? []).filter((id) => RESULT_CASES.some((c) => c.id === id)),
     expiresAt: parseDate(input.expiresAt),
     programStartDate: parseDate(input.programStartDate),
+    leadId,
+    assessmentEnabled: input.assessmentEnabled !== false,
+    assessmentDate: input.assessmentDate && /^\d{4}-\d{2}-\d{2}$/.test(input.assessmentDate) ? new Date(`${input.assessmentDate}T00:00:00Z`) : null,
+    // A time is only "confirmed" when one is actually entered.
+    assessmentTimeConfirmed: Boolean(input.assessmentTimeConfirmed) && !!assessmentTime,
+    assessmentTime,
   };
 
   if (input.id) {
     const existing = await prisma.clientProposal.findUnique({ where: { id: input.id } });
     if (!existing) return { error: "Proposal not found." };
     await prisma.clientProposal.update({ where: { id: input.id }, data });
+    if (leadId && data.assessmentDate && !existing.assessmentDate) {
+      await advanceLeadStatus(leadId, "CONSULTATION_SCHEDULED", `Assessment tentatively ${data.assessmentDate.toISOString().slice(0, 10)} — time to be confirmed`, user.id);
+    }
+    if (leadId) revalidatePath(`/hub/leads/${leadId}`);
     // Keep a pending 2nd installment's due date tied to the real start date.
     if (data.programStartDate && existing.clientId) {
       await prisma.payment.updateMany({
@@ -93,6 +115,11 @@ export async function saveProposal(input: ProposalInput): Promise<{ id?: string;
     return { id: input.id };
   }
   const created = await prisma.clientProposal.create({ data: { ...data, token: newProposalToken(), status: "ACTIVE", createdById: user.id } });
+  if (leadId) {
+    await advanceLeadStatus(leadId, "PROPOSAL_CREATED", "Proposal created in the Hub (lead not converted)", user.id);
+    if (data.assessmentDate) await advanceLeadStatus(leadId, "CONSULTATION_SCHEDULED", `Assessment tentatively ${data.assessmentDate.toISOString().slice(0, 10)}${data.assessmentTimeConfirmed ? ` at ${assessmentTime}` : " — time to be confirmed"}`, user.id);
+    revalidatePath(`/hub/leads/${leadId}`);
+  }
   revalidatePath("/hub/proposals");
   return { id: created.id };
 }
@@ -132,7 +159,7 @@ export async function createSecondInstallmentLink(id: string): Promise<{ url?: s
   return { url: res.url };
 }
 
-export async function saveProposalSettings(input: { founderTitle: string; founderBio: string; founderBioEs: string; activeCampaign: string | null }) {
+export async function saveProposalSettings(input: { founderTitle: string; founderBio: string; founderBioEs: string; activeCampaign: string | null; assessmentDollars?: number }) {
   const user = await requireManager();
   if (!user) return { error: "No permission." };
   const activeCampaign = input.activeCampaign && input.activeCampaign in CAMPAIGNS ? input.activeCampaign : null;
@@ -141,6 +168,7 @@ export async function saveProposalSettings(input: { founderTitle: string; founde
     founderBio: String(input.founderBio ?? "").trim().slice(0, 2000) || null,
     founderBioEs: String(input.founderBioEs ?? "").trim().slice(0, 2000) || null,
     activeCampaign,
+    assessmentCents: Math.min(200000, Math.max(5000, Math.round((Number(input.assessmentDollars) || 350) * 100))),
   };
   await prisma.proposalSettings.upsert({ where: { id: "default" }, update: data, create: { id: "default", ...data } });
   revalidatePath("/hub/proposals/settings");

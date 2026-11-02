@@ -45,6 +45,14 @@ export type ProposalView = {
   founder: { title: string; bio: string | null };
   results: ResultCase[];
   payment: { status: string | null; programKey: string | null; mode: string | null; balanceDueCents: number };
+  assessment: null | {
+    cents: number;
+    date: string | null; // YYYY-MM-DD, tentative
+    timeConfirmed: boolean;
+    time: string | null;
+    paid: boolean;
+    creditAvailableCents: number; // paid and not yet used toward a program
+  };
 };
 
 export const WELCOME_VIDEO_SRC: string | null = null; // set when Emmy's original hands video is added to /proposal-assets/founder/welcome-video
@@ -57,8 +65,17 @@ export async function getProposalSettings() {
   }
 }
 
+/** A paid assessment deposit not yet credited toward a paid program checkout. */
+export async function availableAssessmentCredit(proposalId: string) {
+  const paid = await prisma.proposalCheckout.findFirst({ where: { proposalId, kind: "assessment", status: "PAID" }, orderBy: { paidAt: "asc" } });
+  if (!paid) return null;
+  const used = await prisma.proposalCheckout.findUnique({ where: { creditFromCheckoutId: paid.id } });
+  return { checkout: paid, availableCents: used ? 0 : paid.amountCents };
+}
+
 export async function buildProposalView(p: ClientProposal, opts: { sample?: boolean } = {}): Promise<ProposalView> {
   const settings = await getProposalSettings();
+  const credit = opts.sample || p.id === "sample" ? null : await availableAssessmentCredit(p.id);
   const lang: Lang = p.language === "es" ? "es" : "en";
   const programs = normalizePrograms(p.programs).map((pr) => ({ ...pr, total: totalSessions(pr), pricing: priceProgram(pr) }));
   const campaignKey = (settings ? settings.activeCampaign : "holiday_333") as CampaignKey | null;
@@ -89,6 +106,16 @@ export async function buildProposalView(p: ClientProposal, opts: { sample?: bool
       mode: p.selectedPaymentMode,
       balanceDueCents: p.balanceDueCents,
     },
+    assessment: p.assessmentEnabled
+      ? {
+          cents: credit?.checkout.amountCents ?? settings?.assessmentCents ?? 35000,
+          date: p.assessmentDate ? p.assessmentDate.toISOString().slice(0, 10) : null,
+          timeConfirmed: p.assessmentTimeConfirmed && !!p.assessmentTime,
+          time: p.assessmentTimeConfirmed ? p.assessmentTime : null,
+          paid: !!credit,
+          creditAvailableCents: credit?.availableCents ?? 0,
+        }
+      : null,
   };
 }
 
@@ -113,6 +140,11 @@ export function sampleProposal(lang: Lang = "en"): ClientProposal {
     token: "sample",
     status: "ACTIVE",
     clientId: null,
+    leadId: null,
+    assessmentEnabled: true,
+    assessmentDate: null,
+    assessmentTimeConfirmed: false,
+    assessmentTime: null,
     clientName: lang === "es" ? "tu nombre" : "your name",
     locationLabel: null,
     language: lang,

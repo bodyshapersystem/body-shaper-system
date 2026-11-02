@@ -135,6 +135,8 @@ enum LeadStatus {
   CONSULTATION_SCHEDULED
   PAYMENT_PENDING
   PAYMENT_CONFIRMED
+  PROPOSAL_CREATED
+  PROPOSAL_ACCEPTED
   CONVERTED
   LOST
   ARCHIVED
@@ -180,6 +182,7 @@ model Lead {
   convertedAt     DateTime?
 
   blueprintAssessment BlueprintAssessment?
+  proposals           ClientProposal[]
 
   statusHistory LeadStatusHistory[]
   emailHistory  LeadEmailLog[]
@@ -1399,6 +1402,14 @@ model ClientProposal {
   status              ProposalStatus @default(DRAFT)
   clientId            String?
   client              Client?        @relation(fields: [clientId], references: [id], onDelete: SetNull)
+  // Proposals can be prepared for a lead before conversion; the link survives conversion.
+  leadId              String?
+  lead                Lead?          @relation(fields: [leadId], references: [id], onDelete: SetNull)
+  // Body Blueprint™ Assessment reservation (rule for every proposal; amount in ProposalSettings).
+  assessmentEnabled   Boolean        @default(true)
+  assessmentDate      DateTime?      @db.Date // tentative date shown to the client
+  assessmentTimeConfirmed Boolean    @default(false)
+  assessmentTime      String? // e.g. "10:00 am" once confirmed
   clientName          String // display name only (editable) — never derived from another client
   locationLabel       String?
   language            String         @default("en") // en | es
@@ -1432,6 +1443,7 @@ model ClientProposal {
 
   @@index([status])
   @@index([clientId])
+  @@index([leadId])
   @@map("client_proposals")
 }
 
@@ -1452,7 +1464,10 @@ model ProposalCheckout {
   proposalId            String
   proposal              ClientProposal @relation(fields: [proposalId], references: [id], onDelete: Cascade)
   stripeSessionId       String         @unique
-  kind                  String         @default("program") // program | promo
+  kind                  String         @default("program") // program | promo | assessment
+  // A paid assessment deposit credited toward this program checkout (once, enforced by unique).
+  creditCents           Int            @default(0)
+  creditFromCheckoutId  String?        @unique
   programKey            String
   programName           String
   paymentMode           String // full | split
@@ -1480,6 +1495,7 @@ model ProposalSettings {
   founderBio     String?
   founderBioEs   String?
   activeCampaign String?  @default("holiday_333") // null = no seasonal module available
+  assessmentCents Int     @default(35000) // Body Blueprint™ Assessment reservation, credited toward the program
   updatedAt      DateTime @updatedAt
 
   @@map("proposal_settings")

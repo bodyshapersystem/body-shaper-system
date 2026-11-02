@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { findActiveProposal, logProposalEvent } from "@/lib/proposals/server";
+import { advanceLeadStatus } from "@/lib/proposals/lead";
 import { normalizePrograms } from "@/lib/proposals/types";
 
 export const runtime = "nodejs";
@@ -27,6 +28,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ tok
         data: { viewCount: { increment: 1 }, lastViewedAt: now, firstViewedAt: proposal.firstViewedAt ?? now },
       });
       await logProposalEvent(proposal.id, "view");
+      if (proposal.leadId && !proposal.firstViewedAt) await advanceLeadStatus(proposal.leadId, "PAYMENT_PENDING", "Proposal opened by the lead (sent)");
       return done;
     }
     const programKey = typeof body.programKey === "string" ? body.programKey : "";

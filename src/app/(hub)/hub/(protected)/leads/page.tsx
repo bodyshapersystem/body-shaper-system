@@ -12,9 +12,9 @@ export const dynamic = "force-dynamic";
 const COLUMNS: { label: string; statuses: string[] }[] = [
   { label: "New Lead", statuses: ["NEW", "BLUEPRINT_COMPLETED"] },
   { label: "Contacted", statuses: ["CONTACTED", "QUALIFIED"] },
-  { label: "Consultation", statuses: ["CONSULTATION_SCHEDULED"] },
-  { label: "Proposal Sent", statuses: ["PAYMENT_PENDING"] },
-  { label: "Won", statuses: ["PAYMENT_CONFIRMED", "CONVERTED"] },
+  { label: "Proposal", statuses: ["PROPOSAL_CREATED", "PAYMENT_PENDING"] },
+  { label: "Assessment", statuses: ["CONSULTATION_SCHEDULED", "PAYMENT_CONFIRMED"] },
+  { label: "Won", statuses: ["PROPOSAL_ACCEPTED", "CONVERTED"] },
   { label: "Lost", statuses: ["LOST", "ARCHIVED"] },
 ];
 

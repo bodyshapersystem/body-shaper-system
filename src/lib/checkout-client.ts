@@ -69,3 +69,33 @@ export async function findOrCreateClientFromCheckout(params: {
 
   return { success: true, clientId: client.id, client };
 }
+
+/**
+ * Converts an EXISTING lead (e.g. the lead a client proposal was prepared for) into a Client
+ * after a program payment — same finishConversion() as the Hub, so the lead record, its
+ * Blueprint and proposal history stay linked instead of a duplicate lead being created.
+ * If that email already belongs to a client, the existing client is returned.
+ */
+export async function convertExistingLeadForPayment(leadId: string, systemUserId?: string): Promise<{ success: true; clientId: string; client: Client } | { success: false; error: string }> {
+  const already = await prisma.client.findUnique({ where: { leadId } });
+  if (already) return { success: true, clientId: already.id, client: already };
+  const lead = await prisma.lead.findUnique({ where: { id: leadId } });
+  if (!lead) return { success: false, error: "Lead not found." };
+  const byEmail = await prisma.client.findFirst({ where: { email: { equals: lead.email, mode: "insensitive" } } });
+  if (byEmail) return { success: true, clientId: byEmail.id, client: byEmail };
+  const admin = createSupabaseAdminClient();
+  const { data: authData, error: authError } = await admin.auth.admin.createUser({ email: lead.email, email_confirm: true });
+  let authUserId: string;
+  if (authError || !authData.user) {
+    if (!authError?.message?.toLowerCase().includes("already")) return { success: false, error: `Auth creation failed: ${authError?.message ?? "unknown"}` };
+    const { data: list } = await admin.auth.admin.listUsers();
+    const found = list?.users.find((u) => u.email?.toLowerCase() === lead.email.toLowerCase());
+    if (!found) return { success: false, error: `Auth lookup failed for ${lead.email}` };
+    authUserId = found.id;
+  } else authUserId = authData.user.id;
+  const conversion = await finishConversion(lead, authUserId, systemUserId ?? "", "STANDARD");
+  if (!conversion.success || !conversion.clientId) return { success: false, error: conversion.error ?? "Conversion failed." };
+  const client = await prisma.client.findUnique({ where: { id: conversion.clientId } });
+  if (!client) return { success: false, error: "Client lookup failed after creation." };
+  return { success: true, clientId: client.id, client };
+}

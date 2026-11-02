@@ -17,6 +17,15 @@ export type ProposalProgram = {
   totalCents: number; // regular program total
   fullDiscountCents: number; // "pay in full" saving (default $100)
   allowSplit: boolean; // "pay in 2" available
+  // Complimentary sessions — never priced, never counted as paid sessions.
+  bonus?: ProgramBonus | null;
+  bestValue?: boolean;
+};
+
+export type ProgramBonus = {
+  sessions: Partial<Record<TechnologyKey, number>>;
+  label: string; // e.g. "2 additional exilis sessions for arms"
+  fullOnly: boolean; // true = only when paying in full
 };
 
 export type PaymentMode = "full" | "split";
@@ -24,7 +33,7 @@ export type PaymentMode = "full" | "split";
 export const ZONES = ["legs", "abdomen", "arms", "glutes", "waist"] as const;
 export type ZoneKey = (typeof ZONES)[number];
 
-export const GOALS = ["firmness", "laxity", "texture", "contour", "muscle-tone"] as const;
+export const GOALS = ["firmness", "laxity", "texture", "contour", "muscle-tone", "fat-reduction", "natural-results"] as const;
 export type GoalKey = (typeof GOALS)[number];
 
 /** Program names stay lowercase, but a trailing roman numeral is shown in capitals (sculpt signature II). */
@@ -93,6 +102,42 @@ export function money(cents: number, opts: { cents?: boolean } = {}): string {
   })}`;
 }
 
+function normalizeBonus(raw: unknown): ProgramBonus | null {
+  if (!raw || typeof raw !== "object") return null;
+  const r = raw as Record<string, unknown>;
+  const s = (r.sessions ?? {}) as Record<string, unknown>;
+  const sessions: Partial<Record<TechnologyKey, number>> = {};
+  for (const t of TECHNOLOGIES) {
+    const n = Math.min(20, Math.max(0, Math.round(Number(s[t]) || 0)));
+    if (n) sessions[t] = n;
+  }
+  const label = String(r.label ?? "").trim().slice(0, 140);
+  if (!label && !Object.keys(sessions).length) return null;
+  return { sessions, label, fullOnly: Boolean(r.fullOnly) };
+}
+
+/** Is the complimentary gift included with this payment mode? */
+export function bonusApplies(p: Pick<ProposalProgram, "bonus">, mode: PaymentMode): boolean {
+  return !!p.bonus && (!p.bonus.fullOnly || mode === "full");
+}
+
+/**
+ * What is charged today when a paid assessment deposit is credited (once) toward a program.
+ * Full: full price − credit. Pay in 2: credit comes off the 1st installment (2nd unchanged);
+ * if the credit exceeds the 1st installment, the rest comes off the 2nd.
+ */
+export function applyCredit(pricing: ProgramPricing, mode: PaymentMode, creditCents: number) {
+  const credit = Math.max(0, Math.round(creditCents));
+  if (mode === "full") {
+    const c = Math.min(credit, pricing.fullCents);
+    return { creditCents: c, todayCents: pricing.fullCents - c, secondCents: 0, totalCents: pricing.fullCents };
+  }
+  const sp = pricing.split!;
+  const c1 = Math.min(credit, sp.firstCents);
+  const c2 = Math.min(credit - c1, sp.secondCents);
+  return { creditCents: c1 + c2, todayCents: sp.firstCents - c1, secondCents: sp.secondCents - c2, totalCents: sp.totalCents };
+}
+
 /** Validates/normalises programs coming from the Hub form or the DB JSON. */
 export function normalizePrograms(raw: unknown): ProposalProgram[] {
   if (!Array.isArray(raw)) return [];
@@ -124,6 +169,8 @@ export function normalizePrograms(raw: unknown): ProposalProgram[] {
       totalCents: int(r.totalCents, 10_000_000),
       fullDiscountCents: int(r.fullDiscountCents ?? 10000, 10_000_000),
       allowSplit: r.allowSplit === undefined ? true : Boolean(r.allowSplit),
+      bonus: normalizeBonus(r.bonus),
+      bestValue: Boolean(r.bestValue),
     });
   }
   return out.slice(0, 6);

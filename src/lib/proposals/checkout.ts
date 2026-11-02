@@ -2,11 +2,12 @@ import "server-only";
 import type Stripe from "stripe";
 import { prisma } from "@/lib/prisma";
 import { getStripeClient, isStripeConfigured } from "@/lib/stripe";
-import { findOrCreateClientFromCheckout } from "@/lib/checkout-client";
-import { sendPaymentConfirmationEmail } from "@/lib/email/service";
+import { findOrCreateClientFromCheckout, convertExistingLeadForPayment } from "@/lib/checkout-client";
+import { sendPaymentConfirmationEmail, sendAssessmentReservedEmails } from "@/lib/email/service";
 import { createNotification } from "@/lib/notifications";
-import { displayName, formatDay, money, normalizePrograms, priceProgram, secondChargeOptions, type PaymentMode } from "./types";
-import { logProposalEvent } from "./server";
+import { applyCredit, bonusApplies, displayName, formatDay, money, normalizePrograms, priceProgram, secondChargeOptions, type PaymentMode } from "./types";
+import { availableAssessmentCredit, getProposalSettings, logProposalEvent } from "./server";
+import { advanceLeadStatus, attachLeadProposalsToClient } from "./lead";
 
 /**
  * Safety gate: proposal checkouts run with a Stripe TEST key at any time,
@@ -48,7 +49,7 @@ export async function createProposalCheckout(args: CreateArgs): Promise<{ url: s
   const gate = proposalPaymentsStatus();
   if (!gate.ok) return { error: gate.reason, status: 503 };
 
-  const proposal = await prisma.clientProposal.findUnique({ where: { id: args.proposalId }, include: { client: true } });
+  const proposal = await prisma.clientProposal.findUnique({ where: { id: args.proposalId }, include: { client: true, lead: true } });
   if (!proposal) return { error: "Proposal not found.", status: 404 };
   const program = normalizePrograms(proposal.programs).find((p) => p.key === args.programKey);
   if (!program) return { error: "This program is not part of your proposal.", status: 400 };
@@ -57,29 +58,42 @@ export async function createProposalCheckout(args: CreateArgs): Promise<{ url: s
 
   let amountCents: number;
   let programTotalCents: number;
-  if (args.mode === "full") {
-    if (args.installment !== 1) return { error: "Invalid installment.", status: 400 };
-    amountCents = pricing.fullCents;
-    programTotalCents = pricing.fullCents;
+  let creditCents = 0;
+  let secondAfterCredit = pricing.split?.secondCents ?? 0;
+  if (args.installment === 1) {
+    if (args.mode === "full") programTotalCents = pricing.fullCents;
+    else programTotalCents = pricing.split!.totalCents;
+    // A paid Body Blueprint™ Assessment reservation is credited once, server-side only.
+    const credit = await availableAssessmentCredit(proposal.id);
+    const applied = applyCredit(pricing, args.mode, credit?.availableCents ?? 0);
+    amountCents = applied.todayCents;
+    creditCents = applied.creditCents;
+    secondAfterCredit = applied.secondCents;
   } else {
-    programTotalCents = pricing.split!.totalCents;
-    amountCents = args.installment === 1 ? pricing.split!.firstCents : pricing.split!.secondCents;
+    if (args.mode !== "split") return { error: "Invalid installment.", status: 400 };
+    const first = await prisma.proposalCheckout.findFirst({ where: { proposalId: proposal.id, status: "PAID", paymentMode: "split", installmentNumber: 1 } });
+    if (!first) return { error: "The first installment has not been paid yet.", status: 400 };
+    programTotalCents = first.programTotalCents;
+    amountCents = first.programTotalCents - first.amountCents - first.creditCents;
   }
   if (amountCents < 50) return { error: "Invalid amount.", status: 400 };
   const autoSecond = args.mode === "split" && args.installment === 1 ? validSecondChargeDate(args.secondChargeDate) : null;
   if (args.mode === "split" && args.installment === 1 && !autoSecond) return { error: "Please choose the day for your second payment.", status: 400 };
 
+  const gift = bonusApplies(program, args.mode) && program.bonus?.label ? ` · Complimentary gift: ${program.bonus.label}` : "";
+  const creditNote = creditCents ? ` · Assessment credit applied: ${money(creditCents, { cents: true })}` : "";
+  const email = proposal.client?.email ?? proposal.lead?.email ?? null;
   const label =
     args.mode === "full" ? "Pay in full" : args.installment === 1 ? "Installment 1 of 2 (at booking)" : "Installment 2 of 2 (Week 2)";
   const stripe = getStripeClient();
   const session = await stripe.checkout.sessions.create({
     mode: "payment",
-    ...(proposal.client?.email ? { customer_email: proposal.client.email } : {}),
+    ...(email ? { customer_email: email } : {}),
     customer_creation: autoSecond ? ("always" as const) : ("if_required" as const),
     // The automatic 2nd charge needs a reusable card: no BNPL wallets on a split plan.
     ...(autoSecond ? { payment_method_types: ["card", "link"] as ("card" | "link")[] } : {}),
     billing_address_collection: "auto",
-    phone_number_collection: { enabled: !proposal.client },
+    phone_number_collection: { enabled: !proposal.client && !proposal.lead },
     line_items: [
       {
         quantity: 1,
@@ -90,13 +104,13 @@ export async function createProposalCheckout(args: CreateArgs): Promise<{ url: s
             name: `${displayName(program.name)} — ${label}`,
             description:
               args.mode === "split"
-                ? SPLIT_SCHEDULE_TEXT(pricing.split!.firstCents, pricing.split!.secondCents, autoSecond).slice(0, 480)
-                : `Body Shaper System™ personalized program · ${program.sessions.exilis} Exilis Ultra + ${program.sessions.endospheres} Endospheres + ${program.sessions.ems} EMS`,
+                ? (SPLIT_SCHEDULE_TEXT(amountCents, secondAfterCredit, autoSecond) + creditNote + gift).slice(0, 480)
+                : `Body Shaper System™ personalized program · ${programSessionsText(program)}${creditNote}${gift}`.slice(0, 480),
           },
         },
       },
     ],
-    ...(args.mode === "split" ? { custom_text: { submit: { message: SPLIT_SCHEDULE_TEXT(pricing.split!.firstCents, pricing.split!.secondCents, autoSecond) } } } : {}),
+    ...(args.mode === "split" && args.installment === 1 ? { custom_text: { submit: { message: SPLIT_SCHEDULE_TEXT(amountCents, secondAfterCredit, autoSecond) } } } : {}),
     // No subscription. Only a split plan's 1st installment saves the card (in Stripe)
     // so the single 2nd installment can be charged automatically on the chosen day.
     payment_intent_data: {
@@ -111,6 +125,8 @@ export async function createProposalCheckout(args: CreateArgs): Promise<{ url: s
       paymentMode: args.mode,
       installmentNumber: String(args.installment),
       amountCents: String(amountCents),
+      ...(creditCents ? { creditCents: String(creditCents) } : {}),
+      ...(proposal.leadId ? { leadId: proposal.leadId } : {}),
       ...(autoSecond ? { secondChargeDate: autoSecond } : {}),
     },
     success_url: `${args.origin}/p/${args.token}?checkout=success#next`,
@@ -129,6 +145,7 @@ export async function createProposalCheckout(args: CreateArgs): Promise<{ url: s
       installmentTotal: args.mode === "split" ? 2 : 1,
       amountCents,
       programTotalCents,
+      creditCents,
       secondChargeDate: autoSecond ? new Date(`${autoSecond}T14:00:00Z`) : null,
     },
   });
@@ -136,9 +153,125 @@ export async function createProposalCheckout(args: CreateArgs): Promise<{ url: s
     programKey: program.key,
     mode: args.mode,
     amountCents,
+    creditCents,
     testMode: gate.testMode,
   });
   return { url: session.url };
+}
+
+function programSessionsText(p: { sessions: Record<string, number> }) {
+  const parts: string[] = [];
+  if (p.sessions.exilis) parts.push(`${p.sessions.exilis} Exilis Ultra`);
+  if (p.sessions.endospheres) parts.push(`${p.sessions.endospheres} Endospheres`);
+  if (p.sessions.ems) parts.push(`${p.sessions.ems} EMS`);
+  return parts.join(" + ");
+}
+
+/**
+ * $350 Body Blueprint™ Assessment reservation — never a program or installment, and never a
+ * client conversion. One paid reservation per proposal; an open Checkout is reused so two tabs
+ * can't create two charges.
+ */
+export async function createAssessmentCheckout(args: { proposalId: string; token: string; origin: string }): Promise<{ url: string } | { error: string; status: number }> {
+  const gate = proposalPaymentsStatus();
+  if (!gate.ok) return { error: gate.reason, status: 503 };
+  const proposal = await prisma.clientProposal.findUnique({ where: { id: args.proposalId }, include: { client: true, lead: true } });
+  if (!proposal || !proposal.assessmentEnabled) return { error: "Assessment reservation is not available for this proposal.", status: 400 };
+  if (await prisma.proposalCheckout.findFirst({ where: { proposalId: proposal.id, kind: "assessment", status: "PAID" } })) {
+    return { error: "Your assessment is already reserved — no further payment is needed.", status: 409 };
+  }
+  const settings = await getProposalSettings();
+  const amountCents = settings?.assessmentCents ?? 35000;
+  const stripe = getStripeClient();
+  const open = await prisma.proposalCheckout.findFirst({ where: { proposalId: proposal.id, kind: "assessment", status: "OPEN", createdAt: { gte: new Date(Date.now() - 20 * 3600_000) } }, orderBy: { createdAt: "desc" } });
+  if (open && open.amountCents === amountCents) {
+    try {
+      const existing = await stripe.checkout.sessions.retrieve(open.stripeSessionId);
+      if (existing.status === "open" && existing.url) return { url: existing.url };
+      if (existing.status === "complete") return { error: "Your assessment is already reserved — we're confirming your payment.", status: 409 };
+    } catch {
+      /* fall through and create a new session */
+    }
+  }
+  const email = proposal.client?.email ?? proposal.lead?.email ?? null;
+  const dateText = proposal.assessmentDate ? ` · ${proposal.assessmentDate.toISOString().slice(0, 10)} (time to be confirmed)` : "";
+  const session = await stripe.checkout.sessions.create({
+    mode: "payment",
+    ...(email ? { customer_email: email } : {}),
+    customer_creation: "if_required",
+    billing_address_collection: "auto",
+    phone_number_collection: { enabled: !proposal.client && !proposal.lead },
+    line_items: [
+      {
+        quantity: 1,
+        price_data: {
+          currency: "usd",
+          unit_amount: amountCents,
+          product_data: {
+            name: "Body Blueprint™ Assessment — reservation",
+            description: `Private in-home Body Blueprint™ Assessment${dateText}. Credited once toward the program you choose. This is not a treatment package.`.slice(0, 480),
+          },
+        },
+      },
+    ],
+    payment_intent_data: { description: "Client proposal — Body Blueprint™ Assessment reservation", metadata: { flowType: "client_proposal", proposalId: proposal.id, kind: "assessment" } },
+    metadata: { flowType: "client_proposal", kind: "assessment", proposalId: proposal.id, amountCents: String(amountCents), ...(proposal.leadId ? { leadId: proposal.leadId } : {}) },
+    success_url: `${args.origin}/p/${args.token}?checkout=assessment#next`,
+    cancel_url: `${args.origin}/p/${args.token}?checkout=cancelled#assessment`,
+  }, { idempotencyKey: `proposal-${proposal.id}-assessment-${Math.floor(Date.now() / 60000)}` });
+  if (!session.url) return { error: "Checkout could not be started. Please try again.", status: 500 };
+  await prisma.proposalCheckout.create({
+    data: { proposalId: proposal.id, stripeSessionId: session.id, kind: "assessment", programKey: "assessment", programName: "Body Blueprint™ Assessment", paymentMode: "full", amountCents, programTotalCents: amountCents },
+  });
+  await logProposalEvent(proposal.id, "assessment_checkout_started", { amountCents, testMode: gate.testMode });
+  return { url: session.url };
+}
+
+/** Webhook: assessment reservation paid. Records it once; never converts the lead; keeps the program unselected. */
+async function handleAssessmentPaid(session: Stripe.Checkout.Session, rowId: string, systemUserId?: string) {
+  const now = new Date();
+  const claimed = await prisma.proposalCheckout.updateMany({ where: { id: rowId, status: "OPEN" }, data: { status: "PAID", paidAt: now } });
+  if (claimed.count === 0) return { ok: true, alreadyProcessed: true };
+  const row = await prisma.proposalCheckout.findUniqueOrThrow({ where: { id: rowId }, include: { proposal: { include: { lead: true, client: true } } } });
+  const p = row.proposal;
+  // A second paid reservation on the same proposal (e.g. two Stripe tabs) is flagged for a refund, never credited twice.
+  const earlier = await prisma.proposalCheckout.count({ where: { proposalId: p.id, kind: "assessment", status: "PAID", id: { not: row.id } } });
+  if (earlier > 0) {
+    await logProposalEvent(p.id, "assessment_duplicate_paid", { sessionId: session.id, amountCents: row.amountCents });
+    await createNotification({ clientId: p.clientId ?? undefined, category: "PAYMENTS", description: `${p.clientName} paid the assessment reservation twice — refund ${money(row.amountCents)} in Stripe (only one is credited).`, linkUrl: `/hub/proposals/${p.id}` });
+    return { ok: true, note: "duplicate assessment payment flagged" };
+  }
+  if (p.clientId) {
+    const pay = await prisma.payment.create({
+      data: { clientId: p.clientId, amountCents: row.amountCents, method: "CARD", status: "PAID", paymentType: "DEPOSIT", reference: session.id, paidAt: now, notes: "Body Blueprint™ Assessment reservation (client proposal) — credited once toward the program.", createdById: systemUserId },
+    });
+    await prisma.proposalCheckout.update({ where: { id: row.id }, data: { paymentId: pay.id } });
+  }
+  if (p.leadId) {
+    await prisma.lead.update({ where: { id: p.leadId }, data: { paymentStatus: "CONFIRMED" } });
+    await advanceLeadStatus(p.leadId, "PAYMENT_CONFIRMED", `Body Blueprint™ Assessment reserved — ${money(row.amountCents)} paid (proposal)`, systemUserId);
+  }
+  await logProposalEvent(p.id, "assessment_paid", { sessionId: session.id, amountCents: row.amountCents });
+  const email = session.customer_details?.email ?? p.client?.email ?? p.lead?.email ?? null;
+  const firstName = p.client?.firstName ?? p.lead?.firstName ?? p.clientName;
+  await sendAssessmentReservedEmails({
+    clientId: p.clientId ?? undefined,
+    leadId: p.leadId ?? undefined,
+    firstName,
+    clientName: p.clientName,
+    email,
+    amountLabel: money(row.amountCents),
+    dateISO: p.assessmentDate ? p.assessmentDate.toISOString().slice(0, 10) : null,
+    time: p.assessmentTimeConfirmed ? p.assessmentTime : null,
+    hubUrl: p.leadId ? `https://www.bodyshapersystem.com/hub/leads/${p.leadId}` : `https://www.bodyshapersystem.com/hub/proposals/${p.id}`,
+  }).catch((e) => console.error("assessment emails", e));
+  await createNotification({
+    clientId: p.clientId ?? undefined,
+    category: "PAYMENTS",
+    description: `${p.clientName} reserved her Body Blueprint™ Assessment — ${money(row.amountCents)} paid (program not chosen yet)`,
+    linkUrl: p.leadId ? `/hub/leads/${p.leadId}` : `/hub/proposals/${p.id}`,
+  });
+  return { ok: true, assessment: true };
 }
 
 /**
@@ -158,10 +291,45 @@ export async function handleProposalCheckoutCompleted(session: Stripe.Checkout.S
     await logProposalEvent(row.proposalId, "amount_mismatch", { sessionId: session.id, charged: session.amount_total, expected: row.amountCents });
     return { ok: true, note: "amount mismatch — not recorded as paid" };
   }
+  if (row.kind === "assessment") return handleAssessmentPaid(session, row.id, systemUserId);
+
+  // Claim the credit exactly once (unique creditFromCheckoutId). If another paid program already
+  // used it, the payment is still recorded and the owner is told to collect the difference.
+  if (row.creditCents > 0) {
+    const credit = await prisma.proposalCheckout.findFirst({ where: { proposalId: row.proposalId, kind: "assessment", status: "PAID" }, orderBy: { paidAt: "asc" } });
+    let claimedCredit = false;
+    if (credit) {
+      try {
+        await prisma.proposalCheckout.update({ where: { id: row.id }, data: { creditFromCheckoutId: credit.id } });
+        claimedCredit = true;
+      } catch {
+        claimedCredit = false;
+      }
+    }
+    if (!claimedCredit) {
+      await logProposalEvent(row.proposalId, "credit_conflict", { sessionId: session.id, creditCents: row.creditCents });
+      await createNotification({ category: "PAYMENTS", description: `${row.proposal.clientName}: assessment credit of ${money(row.creditCents)} was already used — collect the difference.`, linkUrl: `/hub/proposals/${row.proposalId}` });
+    }
+  }
 
   const proposal = row.proposal;
   let clientId = proposal.clientId;
   let client = clientId ? await prisma.client.findUnique({ where: { id: clientId } }) : null;
+  // Proposal prepared for a lead: the paid program is the acceptance — convert THAT lead
+  // (keeps its Blueprint, proposal and payment history) instead of creating a new one.
+  if (!client && proposal.leadId) {
+    await advanceLeadStatus(proposal.leadId, "PROPOSAL_ACCEPTED", `Program paid via proposal — ${row.programName}`, systemUserId);
+    const res = await convertExistingLeadForPayment(proposal.leadId, systemUserId);
+    if (res.success) {
+      client = res.client;
+      clientId = res.clientId;
+      await prisma.clientProposal.update({ where: { id: proposal.id }, data: { clientId } });
+      await attachLeadProposalsToClient(proposal.leadId, clientId, systemUserId); // earlier assessment deposit → Payment
+    } else {
+      console.error("[stripe-webhook] client_proposal could not convert lead", session.id, res.error);
+      await logProposalEvent(proposal.id, "client_link_failed", { sessionId: session.id, error: res.error });
+    }
+  }
   if (!client) {
     const details = session.customer_details;
     const email = details?.email ?? session.customer_email ?? "";
@@ -216,7 +384,7 @@ export async function handleProposalCheckoutCompleted(session: Stripe.Checkout.S
       });
       paymentId = p.id;
       if (isSplit) {
-        const second = row.programTotalCents - row.amountCents;
+        const second = row.programTotalCents - row.amountCents - row.creditCents;
         // Keep the Stripe ids needed for the automatic 2nd charge (never card data).
         const piId = typeof session.payment_intent === "string" ? session.payment_intent : session.payment_intent?.id;
         if (piId) {
@@ -256,7 +424,8 @@ export async function handleProposalCheckoutCompleted(session: Stripe.Checkout.S
 
   await prisma.proposalCheckout.update({ where: { id: row.id }, data: { status: "PAID", paidAt: now, paymentId } });
   const paidSoFar = proposal.amountPaidCents + row.amountCents;
-  const balance = Math.max(0, row.programTotalCents - (row.installmentNumber === 2 ? paidSoFar : row.amountCents));
+  const firstCredit = row.installmentNumber === 2 ? (await prisma.proposalCheckout.findFirst({ where: { proposalId: proposal.id, status: "PAID", paymentMode: "split", installmentNumber: 1 } }))?.creditCents ?? 0 : row.creditCents;
+  const balance = Math.max(0, row.programTotalCents - firstCredit - (row.installmentNumber === 2 ? paidSoFar : row.amountCents));
   await prisma.clientProposal.update({
     where: { id: proposal.id },
     data: {
@@ -321,7 +490,7 @@ export async function chargeDueInstallments(now = new Date()) {
       results.push({ paymentId: pay.id, status: "gave_up" });
       continue;
     }
-    const amount = first.programTotalCents - first.amountCents;
+    const amount = first.programTotalCents - first.amountCents - first.creditCents;
     try {
       const pi = await getStripeClient().paymentIntents.create(
         {

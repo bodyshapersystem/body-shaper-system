@@ -10,6 +10,7 @@ import { z } from "zod";
 import type { LeadStatus, PaymentStatus } from "@prisma/client";
 import { sendWelcomeActivationEmail, sendAmbassadorWelcomeEmail } from "@/lib/email/service";
 import { createNotification } from "@/lib/notifications";
+import { attachLeadProposalsToClient } from "@/lib/proposals/lead";
 import { linkAssessmentToClient } from "@/lib/blueprint-assessments";
 import { fetchAndStoreJotformSubmissionPdf } from "@/lib/jotform-pdf";
 
@@ -230,7 +231,7 @@ export async function finishConversion(
           fullName: `${lead.firstName} ${lead.lastName}`,
           roleId: "role_client",
           portalStatus: "INVITATION_PENDING",
-          createdById: convertedById,
+          createdById: convertedById || null,
         },
       });
     }
@@ -244,7 +245,7 @@ export async function finishConversion(
         email: lead.email,
         phone: lead.phone,
         city: lead.city,
-        createdById: convertedById,
+        createdById: convertedById || null,
         clientType,
       },
     });
@@ -258,7 +259,7 @@ export async function finishConversion(
         points: 100,
         action: "Welcome Bonus",
         notes: "Every new client starts with 100 points for their first Body Shaper System™.",
-        createdById: convertedById,
+        createdById: convertedById || null,
       },
     });
     await tx.messageThread.create({ data: { clientId: client.id } });
@@ -275,7 +276,7 @@ export async function finishConversion(
       data: {
         leadId: lead.id,
         toStatus: "CONVERTED",
-        changedById: convertedById,
+        changedById: convertedById || null,
         note: "Converted to client",
       },
     });
@@ -291,7 +292,11 @@ export async function finishConversion(
   // new Client. If the lead was created manually with no Jotform
   // submission, this creates a blank ACTIVE assessment instead — every
   // Client always has at least one baseline assessment.
-  await linkAssessmentToClient(lead.id, result.client.id, convertedById);
+  await linkAssessmentToClient(lead.id, result.client.id, convertedById || undefined);
+
+  // Proposals prepared while this was a lead (and any assessment deposit or program payment made
+  // on them) move to the client with their full history.
+  await attachLeadProposalsToClient(lead.id, result.client.id, convertedById || null).catch((e) => console.error("attach lead proposals", e));
 
   // Automatic intake document capture — per the shared-vault
   // direction: no manual "assign this document" step. If the lead's

@@ -43,5 +43,5 @@ export default async function ProposalPage({
   const proposal = await findActiveProposal(token);
   if (!proposal) notFound();
   const view = await buildProposalView(proposal);
-  return <ProposalExperience view={view} checkoutState={checkout === "success" ? "success" : null} />;
+  return <ProposalExperience view={view} checkoutState={checkout === "success" || checkout === "assessment" || checkout === "cancelled" ? checkout : null} />;
 }
