@@ -5743,3 +5743,11 @@
   .holiday-ribbon-image+.home-hero-photo,.home-hero-photo{margin-top:0!important;border-top:0!important}
 }
 @media(min-width:901px){.holiday-ribbon-image{margin-top:76px!important}.holiday-ribbon-tile{background-size:auto 220%!important}}
+/* appointment panel — reschedule / cancel choices */
+.apd-choice{ display:grid; gap:8px; padding:12px; border-radius:10px; background:rgba(246,243,238,0.1); border:1px solid rgba(246,243,238,0.22); font-family:var(--sans); font-size:12px; color:#F6F3EE; line-height:1.45; }
+.apd-choice label{ display:flex; gap:8px; align-items:flex-start; cursor:pointer; }
+.apd-choice input[type=radio]{ margin-top:2px; accent-color:#e9d3ae; }
+.apd-choice-q{ margin:2px 0 0; font-size:11px; letter-spacing:.12em; text-transform:uppercase; color:rgba(246,243,238,0.75); }
+.apd-choice-warn{ margin:0; color:#f0c58a; }
+.apd-choice-quote{ margin:0; padding:10px 12px; border-left:2px solid #e9d3ae; background:rgba(0,0,0,0.15); font-style:italic; }
+.apd-choice p{ margin:0; }

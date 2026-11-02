@@ -1,3 +1,4 @@
+import { isClientCancellation } from "@/lib/cancellations";
 import { notFound, redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { getCurrentHubUser, hasPermission } from "@/lib/permissions";
@@ -489,7 +490,7 @@ export default async function ClientDetailPage({
       {tab === "appointments" && (
         <div style={{ maxWidth: 640 }}>
           {(() => {
-            const cancelledCount = appointments.filter((a) => a.status === "CANCELLED").length;
+            const cancelledCount = appointments.filter((a) => isClientCancellation(a)).length;
             return cancelledCount > 0 ? (
               <p className="pay-history-meta" style={{ marginBottom: 14 }}>
                 <strong>{cancelledCount}</strong> cancellation{cancelledCount === 1 ? "" : "s"} on record

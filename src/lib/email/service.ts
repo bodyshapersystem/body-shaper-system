@@ -17,7 +17,7 @@ import {
   buildSleepNudgeEmail,
   buildPeptideUpcomingNudgeEmail,
   buildPeptideOverdueNudgeEmail,
-  buildAppointmentNudgeEmail,
+  buildAppointmentNudgeEmail, buildRescheduleLimitCancellationEmail,
   buildWeeklyCheckinNudgeEmail,
   buildPeptideJourneyInviteEmail,
   buildPaymentReminderEmail,
@@ -78,7 +78,8 @@ type EmailTemplateName =
   | "NUDGE_PEPTIDE_OVERDUE"
   | "NUDGE_APPOINTMENT"
   | "NUDGE_WEEKLY_CHECKIN"
-  | "PEPTIDE_JOURNEY_INVITE";
+  | "PEPTIDE_JOURNEY_INVITE"
+  | "APPOINTMENT_CANCELLED";
 
 async function logAndSend(params: {
   clientId?: string;
@@ -541,6 +542,12 @@ export async function sendPeptideOverdueNudgeEmail(params: { clientId: string; f
   const { clientId, firstName, email, peptideName } = params;
   const { subject, html } = buildPeptideOverdueNudgeEmail({ firstName, peptideName });
   return logAndSend({ clientId, template: "NUDGE_PEPTIDE_OVERDUE", sender: SENDERS.concierge, recipient: email, subject, html });
+}
+
+/** Owner-triggered notice: session cancelled after reaching the reschedule limit (never automatic). */
+export async function sendRescheduleLimitCancellationEmail(params: { clientId: string; firstName: string; email: string; title: string; startsAt: Date; attempts: number }) {
+  const { subject, html } = buildRescheduleLimitCancellationEmail(params);
+  return logAndSend({ clientId: params.clientId, template: "APPOINTMENT_CANCELLED", sender: SENDERS.concierge, recipient: params.email, subject, html });
 }
 
 export async function sendAppointmentNudgeEmail(params: { clientId: string; firstName: string; email: string; title: string; startsAt: Date }) {
