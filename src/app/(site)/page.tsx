@@ -3,6 +3,9 @@ import Link from "next/link";
 import { INSTAGRAM_URL, WHATSAPP_URL } from "@/lib/nav";
 import { buildMetadata } from "@/lib/seo";
 import DesktopPanoramaHero from "@/components/DesktopPanoramaHero";
+import InstagramStrip from "@/components/InstagramStrip";
+
+export const revalidate = 3600;
 
 export const metadata: Metadata = buildMetadata({
   title: "Non-Surgical Body Contouring & Skin Tightening in Miami",
@@ -245,23 +248,7 @@ export default function HomePage() {
           client results and behind-the-scenes moments from Body Shaper
           System™.
         </p>
-        <div className="ig-strip reveal">
-          <a href={INSTAGRAM_URL} className="tile">
-            <img src="/images/ig1-sculpt-systems.jpg" alt="Sculpt Start™ & Sculpt Signature™" />
-          </a>
-          <a href={INSTAGRAM_URL} className="tile">
-            <img src="/images/ig2-office-briefcase.jpg" alt="Body Shaper System™ — behind the scenes" />
-          </a>
-          <a href={INSTAGRAM_URL} className="tile">
-            <img src="/images/ig3-glp1-reshape.jpg" alt="GLP-1 Reshape™ Talks" />
-          </a>
-          <a href={INSTAGRAM_URL} className="tile">
-            <img src="/images/ig4-body-blueprint.jpg" alt="The Body Blueprint™ — Science. Strategy. Transformation." />
-          </a>
-          <a href={INSTAGRAM_URL} className="tile">
-            <img src="/images/ig5-ideal-system.jpg" alt="What is the ideal system for you?" />
-          </a>
-        </div>
+        <InstagramStrip />
         <a
           href={INSTAGRAM_URL}
           className="btn btn-dark-outline reveal"

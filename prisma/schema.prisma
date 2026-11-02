@@ -1478,3 +1478,17 @@ model ProposalSettings {
 
   @@map("proposal_settings")
 }
+
+/// Connected Instagram professional account (single row, id = "default") for the live website feed.
+model InstagramConnection {
+  id          String   @id @default("default")
+  igUserId    String
+  username    String
+  accessToken String
+  expiresAt   DateTime
+  connectedAt DateTime @default(now())
+  refreshedAt DateTime @default(now())
+  lastError   String?
+
+  @@map("instagram_connections")
+}
