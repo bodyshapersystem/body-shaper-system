@@ -33,3 +33,7 @@
 .of-done-actions { display: grid; gap: 12px; margin-top: 26px; }
 .of-done-actions a { text-decoration: none; }
 @media (max-width: 380px) { .of-row { grid-template-columns: 1fr; } }
+.of-inside { list-style: none; padding: 0; margin: 22px 0 0; text-align: left; border-top: 1px solid var(--gold-line); }
+.of-inside li { display: grid; gap: 2px; padding: 12px 4px; border-bottom: 1px solid var(--gold-line); }
+.of-inside b { font-family: var(--serif); font-weight: 500; font-size: 19px; text-transform: lowercase; color: var(--champagne); }
+.of-inside span { font-size: 13px; line-height: 1.5; color: var(--ivory-soft); }

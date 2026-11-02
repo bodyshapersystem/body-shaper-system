@@ -39,6 +39,7 @@ export default function AlmostDoneNative({ client }: { client: { firstName: stri
       const j = await r.json().catch(() => ({}));
       if (!r.ok) throw new Error(j.error || "we couldn't save your agreement. please try again.");
       go(N + 1);
+      setTimeout(() => window.location.assign("/portal/onboarding/welcome"), 1800);
     } catch (e) {
       setError(e instanceof Error ? e.message : "we couldn't save your agreement. please try again.");
     } finally {
@@ -81,8 +82,8 @@ export default function AlmostDoneNative({ client }: { client: { firstName: stri
           </h3>
           <p className="bp2-lead">your client agreement is signed. a copy is saved in your private portal and we've sent you a confirmation by email.</p>
           <div className="of-done-actions">
-            <a className="bp2-btn champagne" href="/portal/dashboard">
-              go to my portal <span className="bp2-arrow" aria-hidden="true" />
+            <a className="bp2-btn champagne" href="/portal/onboarding/welcome">
+              opening your portal… <span className="bp2-arrow" aria-hidden="true" />
             </a>
           </div>
         </div>

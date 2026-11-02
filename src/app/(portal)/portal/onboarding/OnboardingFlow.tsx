@@ -72,7 +72,7 @@ export default function OnboardingFlow({
   useEffect(() => {
     if (step !== "done") return;
     const timeout = setTimeout(() => {
-      router.push("/portal/dashboard");
+      router.push("/portal/onboarding/welcome");
     }, 2200);
     return () => clearTimeout(timeout);
   }, [step, router]);
