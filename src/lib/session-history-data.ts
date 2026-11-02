@@ -1,3 +1,4 @@
+import { isClientCancellation } from "@/lib/cancellations";
 import { prisma } from "@/lib/prisma";
 
 /**
@@ -30,7 +31,7 @@ export async function getSessionHistoryData(clientId: string) {
     orderBy: { startsAt: "desc" },
   });
   const sessionsOnly = appointments.filter((a) => a.technologies != null && a.status === "COMPLETED");
-  const cancellationCount = appointments.filter((a) => a.status === "CANCELLED").length;
+  const cancellationCount = appointments.filter((a) => isClientCancellation(a)).length;
 
   return {
     sessions: sessionsOnly.map((a) => ({

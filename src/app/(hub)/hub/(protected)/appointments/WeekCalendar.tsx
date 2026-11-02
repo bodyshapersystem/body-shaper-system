@@ -27,6 +27,7 @@ export type CalendarEvent = {
   hasWaiver: boolean;
   isFirstAppt: boolean;
   isVip: boolean;
+  rescheduleCount?: number;
   tier: string;
   durationMinutes: number | null;
   therapistName: string | null;

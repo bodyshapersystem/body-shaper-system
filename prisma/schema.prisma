@@ -1183,6 +1183,11 @@ model Appointment {
   // of rescheduled again.
   rescheduleCount     Int                     @default(0)
   sessionForfeited    Boolean                 @default(false)
+  // Why a CANCELLED appointment was cancelled: RESCHEDULED (moved to a new time — never counts
+  // against the client), BUSINESS (changed by Body Shaper — never counts), CLIENT (client
+  // cancellation, policy applies) or RESCHEDULE_LIMIT (owner sent the reschedule-limit notice).
+  // Null on older rows; "[Rescheduled to" in notes marks legacy reschedules.
+  cancelReason        String?
 
   // Long-term architecture: every appointment is the permanent
   // clinical session record. Photos, Renpho scans, professional
@@ -1340,6 +1345,7 @@ enum EmailTemplate {
   NUDGE_APPOINTMENT
   NUDGE_WEEKLY_CHECKIN
   PEPTIDE_JOURNEY_INVITE
+  APPOINTMENT_CANCELLED
 }
 
 enum EmailStatus {

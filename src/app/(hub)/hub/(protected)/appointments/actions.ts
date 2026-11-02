@@ -3,7 +3,8 @@
 import { prisma } from "@/lib/prisma";
 import { getCurrentHubUser, hasPermission } from "@/lib/permissions";
 import { revalidatePath } from "next/cache";
-import { sendAppointmentConfirmationEmail, sendSystemCompletedEmail, sendMidpointDataReadyEmail, sendMidpointDataMissingEmail } from "@/lib/email/service";
+import { CLIENT_CANCELLATION_WHERE } from "@/lib/cancellations";
+import { sendRescheduleLimitCancellationEmail, sendAppointmentConfirmationEmail, sendSystemCompletedEmail, sendMidpointDataReadyEmail, sendMidpointDataMissingEmail } from "@/lib/email/service";
 import { createNotification } from "@/lib/notifications";
 import { getNextSessionNumber } from "@/lib/session-number";
 import { getBusinessTimezone, formatDateInTimezone, formatTimeInTimezone } from "@/lib/format-datetime";
@@ -104,19 +105,14 @@ export async function createAppointment(formData: FormData) {
 }
 
 /**
- * Real reschedule action — replaces the previous behavior of
- * silently overwriting the appointment's startsAt in place, which
- * left zero trace that a reschedule ever happened (confirmed: this
- * is exactly why a client's real cancellation/reschedule count could
- * never be recovered after the fact). Now: the original appointment
- * is marked CANCELLED (keeping its real original date/time as the
- * permanent record of "this was rescheduled away from"), and a new
- * appointment is created at the new time with the same real
- * title/technologies/location/notes — so a "N cancellations on
- * record" count going forward actually reflects reschedules too, not
- * just outright cancellations.
+ * Reschedule from the Hub. Never cancels or forfeits anything on its own: the original row is
+ * kept as CANCELLED with cancelReason RESCHEDULED (never counted as a client cancellation) and a
+ * new appointment is created at the new time. Only when the owner marks the change as requested
+ * by the client does the session's client reschedule count go up. Reaching the limit only shows
+ * a warning — the owner decides whether to send the reschedule-limit notice
+ * (cancelForRescheduleLimit).
  */
-export async function rescheduleAppointment(appointmentId: string, newStartsAt: string) {
+export async function rescheduleAppointment(appointmentId: string, newStartsAt: string, requestedBy: "client" | "business" = "business") {
   const user = await getCurrentHubUser();
   if (!user || !hasPermission(user, "appointments.manage")) {
     return { error: "You don't have permission to edit appointments." };
@@ -124,29 +120,17 @@ export async function rescheduleAppointment(appointmentId: string, newStartsAt: 
 
   const original = await prisma.appointment.findUnique({ where: { id: appointmentId } });
   if (!original) return { error: "Appointment not found." };
-
-  // Real reschedule-limit policy: this same session chain may be
-  // rescheduled twice for free. On the 3rd attempt (rescheduleCount
-  // already at 2), the session is forfeited instead of moved again —
-  // the client loses it, no new appointment is created.
-  if (original.rescheduleCount >= 2) {
-    await prisma.appointment.update({
-      where: { id: appointmentId },
-      data: { status: "CANCELLED", sessionForfeited: true, notes: original.notes ? `${original.notes}\n[Forfeited — 3rd reschedule attempt]` : "[Forfeited — 3rd reschedule attempt]" },
-    });
-    revalidatePath(`/hub/clients/${original.clientId}`);
-    revalidatePath("/hub/appointments");
-    return { success: true, forfeited: true };
-  }
+  const newStart = new Date(newStartsAt);
+  if (isNaN(newStart.getTime())) return { error: "Choose a valid date and time." };
 
   const durationMs = original.endsAt ? original.endsAt.getTime() - original.startsAt.getTime() : null;
-  const newStart = new Date(newStartsAt);
   const newEnd = durationMs !== null ? new Date(newStart.getTime() + durationMs) : null;
+  const tag = `[Rescheduled to ${newStart.toISOString()}${requestedBy === "business" ? " — changed by Body Shaper" : " — requested by client"}]`;
 
   const [, created] = await prisma.$transaction([
     prisma.appointment.update({
       where: { id: appointmentId },
-      data: { status: "CANCELLED", notes: original.notes ? `${original.notes}\n[Rescheduled to ${newStart.toISOString()}]` : `[Rescheduled to ${newStart.toISOString()}]` },
+      data: { status: "CANCELLED", cancelReason: "RESCHEDULED", sessionForfeited: false, notes: original.notes ? `${original.notes}\n${tag}` : tag },
     }),
     prisma.appointment.create({
       data: {
@@ -158,7 +142,7 @@ export async function rescheduleAppointment(appointmentId: string, newStartsAt: 
         locationType: original.locationType,
         technologies: original.technologies ?? undefined,
         estimatedMinutes: original.estimatedMinutes,
-        rescheduleCount: original.rescheduleCount + 1,
+        rescheduleCount: original.rescheduleCount + (requestedBy === "client" ? 1 : 0),
         createdById: user.id,
       },
     }),
@@ -166,7 +150,32 @@ export async function rescheduleAppointment(appointmentId: string, newStartsAt: 
 
   revalidatePath(`/hub/clients/${original.clientId}`);
   revalidatePath("/hub/appointments");
-  return { success: true, newAppointmentId: created.id };
+  return { success: true, newAppointmentId: created.id, clientReschedules: created.rescheduleCount };
+}
+
+/**
+ * Owner-triggered (never automatic): cancel this session because the client reached the
+ * reschedule limit, mark it as used, and send the client the system notice by email plus a
+ * portal message-style notification.
+ */
+export async function cancelForRescheduleLimit(appointmentId: string) {
+  const user = await getCurrentHubUser();
+  if (!user || !hasPermission(user, "appointments.manage")) {
+    return { error: "You don't have permission to edit appointments." };
+  }
+  const appt = await prisma.appointment.findUnique({ where: { id: appointmentId }, include: { client: true } });
+  if (!appt) return { error: "Appointment not found." };
+  if (appt.status !== "SCHEDULED") return { error: "Only scheduled appointments can be cancelled." };
+  const attempts = Math.max(appt.rescheduleCount + 1, 3);
+  await prisma.appointment.update({
+    where: { id: appointmentId },
+    data: { status: "CANCELLED", cancelReason: "RESCHEDULE_LIMIT", sessionForfeited: true, notes: appt.notes ? `${appt.notes}\n[Cancelled — reschedule limit notice sent]` : "[Cancelled — reschedule limit notice sent]" },
+  });
+  await sendRescheduleLimitCancellationEmail({ clientId: appt.clientId, firstName: appt.client.firstName, email: appt.client.email, title: appt.title, startsAt: appt.startsAt, attempts }).catch((e) => console.error("reschedule-limit email", e));
+  revalidatePath(`/hub/clients/${appt.clientId}`);
+  revalidatePath("/hub/appointments");
+  revalidatePath("/hub/dashboard");
+  return { success: true };
 }
 
 export async function updateAppointment(
@@ -253,24 +262,25 @@ export async function updateAppointment(
 }
 
 /**
- * Real cancellation policy: the client's first-ever cancellation is
- * always forgiven (sessionForfeited stays false — doesn't consume a
- * purchased session). Every cancellation after that is forfeited:
- * the client loses that session. Counts every real CANCELLED
- * appointment this client has ever had (excluding the one being
- * cancelled right now, obviously, since it doesn't exist yet as
- * CANCELLED) to decide which one this is.
+ * Cancellation from the Hub. "business" = changed by Body Shaper: never counts against the
+ * client and never consumes a session. "client" = the client cancelled: her first real client
+ * cancellation is forgiven, later ones consume the session. Reschedules and business
+ * cancellations are never counted as prior client cancellations.
  */
-export async function cancelAppointment(appointmentId: string) {
+export async function cancelAppointment(appointmentId: string, cancelledBy: "client" | "business" = "client") {
   const appointment = await prisma.appointment.findUnique({ where: { id: appointmentId }, select: { clientId: true } });
   if (!appointment) return { error: "Appointment not found." };
-
-  const priorCancellations = await prisma.appointment.count({
-    where: { clientId: appointment.clientId, status: "CANCELLED" },
+  const res = await updateAppointment(appointmentId, { status: "CANCELLED", sessionForfeited: false });
+  if ("error" in res) return res;
+  if (cancelledBy === "business") {
+    await prisma.appointment.update({ where: { id: appointmentId }, data: { cancelReason: "BUSINESS" } });
+    return res;
+  }
+  const priorClientCancellations = await prisma.appointment.count({
+    where: { clientId: appointment.clientId, id: { not: appointmentId }, ...CLIENT_CANCELLATION_WHERE },
   });
-  const sessionForfeited = priorCancellations >= 1;
-
-  return updateAppointment(appointmentId, { status: "CANCELLED", sessionForfeited });
+  await prisma.appointment.update({ where: { id: appointmentId }, data: { cancelReason: "CLIENT", sessionForfeited: priorClientCancellations >= 1 } });
+  return res;
 }
 
 /**

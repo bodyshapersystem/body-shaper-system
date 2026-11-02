@@ -1096,6 +1096,27 @@ export function buildAppointmentNudgeEmail(p: { firstName: string; title: string
   };
 }
 
+export const rescheduleLimitText = (p: { title: string; startsAt: Date; attempts: number }) => {
+  const when = p.startsAt.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", timeZone: "America/New_York" });
+  return `As outlined in our Appointment Policies, each session may be rescheduled up to two times. After ${p.attempts} reschedule attempts, your ${p.title} session originally scheduled for ${when} has been cancelled and is considered used. If you have any questions, simply reply to this email or message us through your Client Portal.`;
+};
+
+export function buildRescheduleLimitCancellationEmail(p: { firstName: string; title: string; startsAt: Date; attempts: number }): { subject: string; html: string } {
+  return {
+    subject: "Your session has been cancelled ✦ Body Shaper System™",
+    html: nudgeEmailShell({
+      firstName: p.firstName,
+      category: "APPOINTMENT UPDATE",
+      headline: "Your session has been cancelled.",
+      bodyText: rescheduleLimitText(p),
+      progressLabel: p.title,
+      progressValue: "Cancelled · reschedule limit reached",
+      primaryCtaLabel: "VIEW MY APPOINTMENTS →",
+      primaryCtaUrl: "https://www.bodyshapersystem.com/portal/appointments",
+    }),
+  };
+}
+
 export function buildWeeklyCheckinNudgeEmail(p: { firstName: string; outstanding: string[] }): { subject: string; html: string } {
   return {
     subject: "Your weekly check-in ✦",

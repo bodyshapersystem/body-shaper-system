@@ -127,6 +127,7 @@ export default async function HubAppointmentsPage({
       hasWaiver,
       isFirstAppt,
       isVip: !!isVip,
+      rescheduleCount: a.rescheduleCount,
       tier: a.client.rewardsAccount?.tier ?? "Standard",
       durationMinutes: a.estimatedMinutes,
       therapistName: a.createdById ? therapistNameById.get(a.createdById) ?? null : null,
