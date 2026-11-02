@@ -215,6 +215,16 @@ export default async function LeadDetailPage({
           )}
           {hasPermission(user, "leads.edit") && <LeadStatusForm leadId={lead.id} currentStatus={lead.status} />}
 
+          {hasPermission(user, "payments.manage") && (
+            <div style={{ marginTop: 24, marginBottom: 16 }}>
+              <a className="cl-quick-btn" href={`/hub/proposals/new?leadId=${encodeURIComponent(lead.id)}`}>
+                Create Proposal for {lead.firstName} (no conversion required)
+              </a>
+              <p style={{ fontSize: 12, opacity: 0.7, marginTop: 8 }}>
+                Share the private proposal link, then mark this lead as Proposal Sent. Convert to client after acceptance.
+              </p>
+            </div>
+          )}
           <div style={{ marginTop: 32 }}>
             <LeadConversionPanel
               leadId={lead.id}
