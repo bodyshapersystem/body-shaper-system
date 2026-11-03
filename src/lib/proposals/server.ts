@@ -153,9 +153,22 @@ export function sampleProposal(lang: Lang = "en"): ClientProposal {
     personalMessage: null,
     internalNotes: null,
     programs: (lang === "es"
-      ? KEY_BISCAYNE_TEMPLATE_ES.map((p) => p.key === "total-body-optimization"
-          ? { ...p, sessions: { exilis: 8, endospheres: 6, ems: 4 } }
-          : p)
+      ? KEY_BISCAYNE_TEMPLATE_ES.map((p) => {
+          const complimentaryArms = p.key === "total-body-optimization" ? 4 : 2;
+          return {
+            ...p,
+            ...(p.key === "sculpt-signature-i"
+              ? { sessions: { exilis: 6, endospheres: 6, ems: 4 } }
+              : p.key === "total-body-optimization"
+                ? { sessions: { exilis: 8, endospheres: 6, ems: 4 } }
+                : {}),
+            bonus: {
+              sessions: { exilis: complimentaryArms },
+              label: `${complimentaryArms} sesiones adicionales de Exilis Ultra en brazos de cortesía`,
+              fullOnly: false,
+            },
+          };
+        })
       : KEY_BISCAYNE_TEMPLATE) as unknown as ClientProposal["programs"],
     recommendedKey: "sculpt-signature-ii",
     promoEnabled: true,
