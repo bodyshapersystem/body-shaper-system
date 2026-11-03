@@ -161,7 +161,9 @@ export function sampleProposal(lang: Lang = "en"): ClientProposal {
               ? { sessions: { exilis: 8, endospheres: 6, ems: 0 } }
               : p.key === "total-body-optimization"
                 ? { sessions: { exilis: 8, endospheres: 6, ems: 4 } }
-                : {}),
+                : p.key === "sculpt-signature-ii"
+                  ? { sessions: { exilis: 6, endospheres: 4, ems: 4 } }
+                  : {}),
             bonus: {
               sessions: { exilis: complimentaryArms },
               label: `${complimentaryArms} sesiones adicionales de Exilis Ultra en brazos de cortesía`,
