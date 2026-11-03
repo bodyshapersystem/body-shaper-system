@@ -152,7 +152,11 @@ export function sampleProposal(lang: Lang = "en"): ClientProposal {
     goals: ["laxity", "muscle-tone", "firmness"],
     personalMessage: null,
     internalNotes: null,
-    programs: (lang === "es" ? KEY_BISCAYNE_TEMPLATE_ES : KEY_BISCAYNE_TEMPLATE) as unknown as ClientProposal["programs"],
+    programs: (lang === "es"
+      ? KEY_BISCAYNE_TEMPLATE_ES.map((p) => p.key === "total-body-optimization"
+          ? { ...p, sessions: { exilis: 8, endospheres: 6, ems: 4 } }
+          : p)
+      : KEY_BISCAYNE_TEMPLATE) as unknown as ClientProposal["programs"],
     recommendedKey: "sculpt-signature-ii",
     promoEnabled: true,
     showWelcomeVideo: false,
