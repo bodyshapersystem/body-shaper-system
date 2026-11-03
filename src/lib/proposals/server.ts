@@ -145,7 +145,7 @@ export function sampleProposal(lang: Lang = "en"): ClientProposal {
     assessmentDate: null,
     assessmentTimeConfirmed: false,
     assessmentTime: null,
-    clientName: lang === "es" ? "tu nombre" : "your name",
+    clientName: lang === "es" ? "Gabi" : "your name",
     locationLabel: null,
     language: lang,
     zones: ["legs"],
