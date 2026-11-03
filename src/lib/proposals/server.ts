@@ -155,8 +155,14 @@ export function sampleProposal(lang: Lang = "en"): ClientProposal {
     programs: (lang === "es"
       ? KEY_BISCAYNE_TEMPLATE_ES.map((p) => {
           const complimentaryArms = p.key === "total-body-optimization" ? 4 : 2;
+          const totalCents = p.key === "sculpt-signature-i"
+            ? 192000
+            : p.key === "sculpt-signature-ii"
+              ? 235000
+              : 270000;
           return {
             ...p,
+            totalCents,
             ...(p.key === "sculpt-signature-i"
               ? { sessions: { exilis: 8, endospheres: 6, ems: 0 } }
               : p.key === "total-body-optimization"
