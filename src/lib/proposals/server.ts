@@ -158,7 +158,7 @@ export function sampleProposal(lang: Lang = "en"): ClientProposal {
           return {
             ...p,
             ...(p.key === "sculpt-signature-i"
-              ? { sessions: { exilis: 6, endospheres: 6, ems: 4 } }
+              ? { sessions: { exilis: 8, endospheres: 6, ems: 0 } }
               : p.key === "total-body-optimization"
                 ? { sessions: { exilis: 8, endospheres: 6, ems: 4 } }
                 : {}),
