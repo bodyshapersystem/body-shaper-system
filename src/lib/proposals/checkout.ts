@@ -355,23 +355,31 @@ async function syncPurchasedProgramToBlueprint(clientId: string, proposal: { id:
     where: { clientId, status: { in: ["ACTIVE", "BASELINE_PENDING", "BASELINE_COMPLETED", "VALIDATED", "IN_PROGRESS"] } },
     orderBy: { version: "desc" },
   });
-  if (!assessment) throw new Error("Linked client has no active Blueprint Assessment");
+  const linkedAssessment = assessment ?? await prisma.blueprintAssessment.create({
+    data: { clientId, status: "BASELINE_PENDING" },
+  });
 
   // Do not overwrite a strategy already validated by the specialist.
-  if (assessment.validatedAt || assessment.status === "VALIDATED" || assessment.status === "IN_PROGRESS") return;
+  if (linkedAssessment.validatedAt || linkedAssessment.status === "VALIDATED" || linkedAssessment.status === "IN_PROGRESS") return;
 
   const paidSessions = program.sessions.exilis + program.sessions.endospheres + program.sessions.ems;
-  const complimentary = program.bonus?.label
-    ? program.bonus.label
-    : null;
+  const complimentary = program.bonus?.label ?? null;
+  const purchaseSummary =
+    `Paid proposal ${proposal.id}: ${row.programName} — ${program.sessions.exilis} Exilis Ultra, ${program.sessions.endospheres} Endospheres, ${program.sessions.ems} EMS` +
+    (complimentary ? ` — courtesy: ${complimentary}` : "") +
+    ". Session areas and eligibility pending specialist assessment.";
+  const notes = linkedAssessment.optimizationNotes ?? "";
   await prisma.blueprintAssessment.update({
-    where: { id: assessment.id },
+    where: { id: linkedAssessment.id },
     data: {
       recommendedSystem: row.programName,
       initialSessionCount: paidSessions,
       complementarySessions: complimentary,
       planTotalCents: row.programTotalCents,
-      // originalRecommendedSystem, intake answers, specialist validation and measurements unchanged.
+      optimizationNotes: notes.includes(`Paid proposal ${proposal.id}:`)
+        ? notes
+        : [notes, purchaseSummary].filter(Boolean).join("\\n"),
+      // Original intake, original recommendation, validated strategy and measurements stay unchanged.
     },
   });
 }
