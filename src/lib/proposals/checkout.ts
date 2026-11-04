@@ -230,32 +230,97 @@ export async function createAssessmentCheckout(args: { proposalId: string; token
 /** Webhook: assessment reservation paid. Records it once; never converts the lead; keeps the program unselected. */
 async function handleAssessmentPaid(session: Stripe.Checkout.Session, rowId: string, systemUserId?: string) {
   const now = new Date();
-  const claimed = await prisma.proposalCheckout.updateMany({ where: { id: rowId, status: "OPEN" }, data: { status: "PAID", paidAt: now } });
-  if (claimed.count === 0) return { ok: true, alreadyProcessed: true };
-  const row = await prisma.proposalCheckout.findUniqueOrThrow({ where: { id: rowId }, include: { proposal: { include: { lead: true, client: true } } } });
+  // Payment has already been verified by the caller against Stripe signature, status and amount.
+  // Mark it paid only once. A retry can still finish a previously interrupted client conversion.
+  const claimed = await prisma.proposalCheckout.updateMany({
+    where: { id: rowId, status: "OPEN" },
+    data: { status: "PAID", paidAt: now },
+  });
+  const row = await prisma.proposalCheckout.findUniqueOrThrow({
+    where: { id: rowId },
+    include: { proposal: { include: { lead: true, client: true } } },
+  });
+  if (row.status !== "PAID") throw new Error("Assessment payment was not recorded");
   const p = row.proposal;
-  // A second paid reservation on the same proposal (e.g. two Stripe tabs) is flagged for a refund, never credited twice.
-  const earlier = await prisma.proposalCheckout.count({ where: { proposalId: p.id, kind: "assessment", status: "PAID", id: { not: row.id } } });
+
+  // A second paid reservation is never credited twice. On retries, do not alert twice.
+  const earlier = await prisma.proposalCheckout.count({
+    where: { proposalId: p.id, kind: "assessment", status: "PAID", id: { not: row.id } },
+  });
   if (earlier > 0) {
-    await logProposalEvent(p.id, "assessment_duplicate_paid", { sessionId: session.id, amountCents: row.amountCents });
-    await createNotification({ clientId: p.clientId ?? undefined, category: "PAYMENTS", description: `${p.clientName} paid the assessment reservation twice — refund ${money(row.amountCents)} in Stripe (only one is credited).`, linkUrl: `/hub/proposals/${p.id}` });
+    if (claimed.count) {
+      await logProposalEvent(p.id, "assessment_duplicate_paid", { sessionId: session.id, amountCents: row.amountCents });
+      await createNotification({
+        clientId: p.clientId ?? undefined, category: "PAYMENTS",
+        description: `${p.clientName} paid the assessment reservation twice — refund ${money(row.amountCents)} in Stripe (only one is credited).`,
+        linkUrl: `/hub/proposals/${p.id}`,
+      });
+    }
     return { ok: true, note: "duplicate assessment payment flagged" };
   }
-  if (p.clientId) {
-    const pay = await prisma.payment.create({
-      data: { clientId: p.clientId, amountCents: row.amountCents, method: "CARD", status: "PAID", paymentType: "DEPOSIT", reference: session.id, paidAt: now, notes: "Body Blueprint™ Assessment reservation (client proposal) — credited once toward the program.", createdById: systemUserId },
+
+  if (p.leadId) {
+    await prisma.lead.update({ where: { id: p.leadId }, data: { paymentStatus: "CONFIRMED" } });
+    await advanceLeadStatus(p.leadId, "PAYMENT_CONFIRMED",
+      `Body Blueprint™ Assessment reserved — ${money(row.amountCents)} paid (proposal)`, systemUserId);
+  }
+
+  let clientId = p.clientId;
+  let client = p.client;
+  if (!clientId && p.leadId) {
+    const result = await convertExistingLeadForPayment(p.leadId, systemUserId);
+    if (!result.success) {
+      await logProposalEvent(p.id, "assessment_client_link_failed",
+        { sessionId: session.id, error: result.error });
+      // A non-2xx webhook response makes Stripe retry. The paid checkout remains recorded.
+      throw new Error(`Paid assessment could not convert lead: ${result.error}`);
+    }
+    clientId = result.clientId;
+    client = result.client;
+    await prisma.clientProposal.update({ where: { id: p.id }, data: { clientId } });
+    // Conversion normally attaches the paid deposit already; also safe on retries.
+    await attachLeadProposalsToClient(p.leadId, clientId, systemUserId);
+  } else if (!clientId && !p.leadId) {
+    const email = session.customer_details?.email ?? session.customer_email;
+    if (!email) throw new Error("Paid assessment has no customer email for client creation");
+    const parts = (session.customer_details?.name ?? p.clientName).trim().split(/\\s+/);
+    const result = await findOrCreateClientFromCheckout({
+      firstName: parts[0] || p.clientName,
+      lastName: parts.slice(1).join(" ") || "—",
+      email,
+      phone: session.customer_details?.phone ?? undefined,
+      city: p.locationLabel ?? undefined,
+      source: "Body Blueprint Assessment Reservation",
+      systemUserId,
+    });
+    if (!result.success) throw new Error(`Paid assessment could not create client: ${result.error}`);
+    clientId = result.clientId;
+    client = result.client;
+    await prisma.clientProposal.update({ where: { id: p.id }, data: { clientId } });
+  }
+
+  // Attach exactly one Payment to this checkout, even when conversion was retried.
+  const latest = await prisma.proposalCheckout.findUniqueOrThrow({ where: { id: row.id } });
+  if (clientId && !latest.paymentId) {
+    const existing = await prisma.payment.findFirst({ where: { reference: session.id, clientId } });
+    const pay = existing ?? await prisma.payment.create({
+      data: {
+        clientId, amountCents: row.amountCents, method: "CARD", status: "PAID",
+        paymentType: "DEPOSIT", reference: session.id, paidAt: row.paidAt ?? now,
+        notes: "Body Blueprint™ Assessment reservation (client proposal) — credited once toward the program.",
+        createdById: systemUserId,
+      },
     });
     await prisma.proposalCheckout.update({ where: { id: row.id }, data: { paymentId: pay.id } });
   }
-  if (p.leadId) {
-    await prisma.lead.update({ where: { id: p.leadId }, data: { paymentStatus: "CONFIRMED" } });
-    await advanceLeadStatus(p.leadId, "PAYMENT_CONFIRMED", `Body Blueprint™ Assessment reserved — ${money(row.amountCents)} paid (proposal)`, systemUserId);
-  }
-  await logProposalEvent(p.id, "assessment_paid", { sessionId: session.id, amountCents: row.amountCents });
-  const email = session.customer_details?.email ?? p.client?.email ?? p.lead?.email ?? null;
-  const firstName = p.client?.firstName ?? p.lead?.firstName ?? p.clientName;
+
+  // Webhook retries must not resend booking emails or duplicate owner notifications.
+  if (!claimed.count) return { ok: true, alreadyProcessed: true, clientId };
+  await logProposalEvent(p.id, "assessment_paid", { sessionId: session.id, amountCents: row.amountCents, clientId });
+  const email = session.customer_details?.email ?? client?.email ?? p.lead?.email ?? null;
+  const firstName = client?.firstName ?? p.lead?.firstName ?? p.clientName;
   await sendAssessmentReservedEmails({
-    clientId: p.clientId ?? undefined,
+    clientId: clientId ?? undefined,
     leadId: p.leadId ?? undefined,
     firstName,
     clientName: p.clientName,
@@ -263,15 +328,17 @@ async function handleAssessmentPaid(session: Stripe.Checkout.Session, rowId: str
     amountLabel: money(row.amountCents),
     dateISO: p.assessmentDate ? p.assessmentDate.toISOString().slice(0, 10) : null,
     time: p.assessmentTimeConfirmed ? p.assessmentTime : null,
-    hubUrl: p.leadId ? `https://www.bodyshapersystem.com/hub/leads/${p.leadId}` : `https://www.bodyshapersystem.com/hub/proposals/${p.id}`,
+    hubUrl: clientId
+      ? `https://www.bodyshapersystem.com/hub/clients/${clientId}`
+      : `https://www.bodyshapersystem.com/hub/proposals/${p.id}`,
   }).catch((e) => console.error("assessment emails", e));
   await createNotification({
-    clientId: p.clientId ?? undefined,
+    clientId: clientId ?? undefined,
     category: "PAYMENTS",
-    description: `${p.clientName} reserved her Body Blueprint™ Assessment — ${money(row.amountCents)} paid (program not chosen yet)`,
-    linkUrl: p.leadId ? `/hub/leads/${p.leadId}` : `/hub/proposals/${p.id}`,
+    description: `${p.clientName} reserved her Body Blueprint™ Assessment — ${money(row.amountCents)} paid; client converted (program not chosen yet)`,
+    linkUrl: clientId ? `/hub/clients/${clientId}` : `/hub/proposals/${p.id}`,
   });
-  return { ok: true, assessment: true };
+  return { ok: true, assessment: true, clientId };
 }
 
 /**
@@ -284,7 +351,7 @@ export async function handleProposalCheckoutCompleted(session: Stripe.Checkout.S
     console.error("[stripe-webhook] client_proposal session without a ProposalCheckout row", session.id);
     return { ok: true, note: "unknown session" };
   }
-  if (row.status === "PAID") return { ok: true, alreadyProcessed: true };
+  if (row.status === "PAID" && row.kind !== "assessment") return { ok: true, alreadyProcessed: true };
   if (session.payment_status !== "paid") return { ok: true, note: `payment_status ${session.payment_status}` };
   if ((session.amount_total ?? -1) !== row.amountCents) {
     console.error("[stripe-webhook] client_proposal amount mismatch", session.id, session.amount_total, row.amountCents);
