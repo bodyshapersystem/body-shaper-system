@@ -342,6 +342,41 @@ async function handleAssessmentPaid(session: Stripe.Checkout.Session, rowId: str
 }
 
 /**
+ * Populate the linked client's pending Body Blueprint from the PAID program.
+ * Never replace original intake responses or a specialist-validated strategy.
+ * Paid proposal JSON remains the detailed record of technology allocations.
+ */
+async function syncPurchasedProgramToBlueprint(clientId: string, proposal: { id: string; programs: unknown }, row: {
+  programKey: string; programName: string; programTotalCents: number;
+}) {
+  const program = normalizePrograms(proposal.programs).find((p) => p.key === row.programKey);
+  if (!program) throw new Error("Paid program not found in proposal");
+  const assessment = await prisma.blueprintAssessment.findFirst({
+    where: { clientId, status: { in: ["ACTIVE", "BASELINE_PENDING", "BASELINE_COMPLETED", "VALIDATED", "IN_PROGRESS"] } },
+    orderBy: { version: "desc" },
+  });
+  if (!assessment) throw new Error("Linked client has no active Blueprint Assessment");
+
+  // Do not overwrite a strategy already validated by the specialist.
+  if (assessment.validatedAt || assessment.status === "VALIDATED" || assessment.status === "IN_PROGRESS") return;
+
+  const paidSessions = program.sessions.exilis + program.sessions.endospheres + program.sessions.ems;
+  const complimentary = program.bonus?.label
+    ? program.bonus.label
+    : null;
+  await prisma.blueprintAssessment.update({
+    where: { id: assessment.id },
+    data: {
+      recommendedSystem: row.programName,
+      initialSessionCount: paidSessions,
+      complementarySessions: complimentary,
+      planTotalCents: row.programTotalCents,
+      // originalRecommendedSystem, intake answers, specialist validation and measurements unchanged.
+    },
+  });
+}
+
+/**
  * Webhook branch for flowType "client_proposal" (checkout.session.completed).
  * Idempotent: a ProposalCheckout row is marked PAID exactly once.
  */
@@ -395,6 +430,9 @@ export async function handleProposalCheckoutCompleted(session: Stripe.Checkout.S
     } else {
       console.error("[stripe-webhook] client_proposal could not convert lead", session.id, res.error);
       await logProposalEvent(proposal.id, "client_link_failed", { sessionId: session.id, error: res.error });
+      // Do not silently create a different Client for this paid lead.
+      // Keep checkout OPEN so a webhook retry can link the correct lead.
+      throw new Error("Paid proposal could not convert its existing lead");
     }
   }
   if (!client) {
@@ -419,6 +457,12 @@ export async function handleProposalCheckoutCompleted(session: Stripe.Checkout.S
         await logProposalEvent(proposal.id, "client_link_failed", { sessionId: session.id, error: res.error });
       }
     }
+  }
+
+  // A paid program (full or first installment) establishes the client's
+  // purchased strategy. A $350 assessment reservation does not.
+  if (clientId && row.installmentNumber === 1) {
+    await syncPurchasedProgramToBlueprint(clientId, proposal, row);
   }
 
   const now = new Date();
