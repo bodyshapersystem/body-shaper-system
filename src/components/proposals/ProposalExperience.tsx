@@ -252,7 +252,7 @@ export default function ProposalExperience({ view, checkoutState }: Props) {
   // the master walkthrough, technology catalogue, testimonials, or assessment.
   if (isGabiPackages) {
     return (
-      <div className="pp" ref={rootRef} style={{ minHeight: "100vh", backgroundColor: "#421a27", backgroundImage: "linear-gradient(140deg, rgba(50, 12, 25, .12), rgba(68, 19, 35, .2)), url('/proposal-assets/brand/backgrounds/burgundy-marble/burgundy-marble-original.png')", backgroundSize: "cover", backgroundPosition: "center", backgroundRepeat: "repeat-y", backgroundAttachment: "scroll", color: "#f8efe3", padding: "40px 16px 68px" }}>
+      <div className="pp" ref={rootRef} style={{ minHeight: "100vh", backgroundColor: "#421a27", backgroundImage: "url('/proposal-assets/brand/backgrounds/gabi-approved-vinotinto.jpg')", backgroundSize: "cover", backgroundPosition: "center", backgroundRepeat: "repeat-y", backgroundAttachment: "scroll", color: "#f8efe3", padding: "40px 16px 68px" }}>
         <main style={{ maxWidth: 1080, width: "100%", margin: "0 auto" }}>
           <div style={{ position: "relative", zIndex: 1, display: "block", width: "100%", textAlign: "center", margin: "0 auto 32px", padding: "4px 0 14px", boxSizing: "border-box" }}>
             <p style={{ fontFamily: "Georgia,serif", fontSize: 27, letterSpacing: ".1em", marginBottom: 10 }}>body shaper system<sup style={{ fontSize: 10 }}>™</sup></p>
