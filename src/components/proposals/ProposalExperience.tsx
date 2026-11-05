@@ -252,18 +252,18 @@ export default function ProposalExperience({ view, checkoutState }: Props) {
   // the master walkthrough, technology catalogue, testimonials, or assessment.
   if (isGabiPackages) {
     return (
-      <div className="pp" ref={rootRef} style={{ minHeight: "100vh", backgroundColor: "#421a27", backgroundImage: "linear-gradient(140deg, rgba(50, 12, 25, .62), rgba(68, 19, 35, .48)), url('/proposal-assets/brand/backgrounds/burgundy-marble/burgundy-marble-original.png')", backgroundSize: "cover", backgroundPosition: "center", backgroundAttachment: "fixed", color: "#f8efe3", padding: "40px 16px 68px" }}>
-        <main style={{ maxWidth: 1080, margin: "0 auto" }}>
-          <header style={{ textAlign: "center", marginBottom: 28 }}>
+      <div className="pp" ref={rootRef} style={{ minHeight: "100vh", backgroundColor: "#421a27", backgroundImage: "linear-gradient(140deg, rgba(50, 12, 25, .12), rgba(68, 19, 35, .2)), url('/proposal-assets/brand/backgrounds/burgundy-marble/burgundy-marble-original.png')", backgroundSize: "cover", backgroundPosition: "center", backgroundRepeat: "repeat-y", backgroundAttachment: "scroll", color: "#f8efe3", padding: "40px 16px 68px" }}>
+        <main style={{ maxWidth: 1080, width: "100%", margin: "0 auto" }}>
+          <div style={{ position: "relative", zIndex: 1, display: "block", width: "100%", textAlign: "center", margin: "0 auto 32px", padding: "4px 0 14px", boxSizing: "border-box" }}>
             <p style={{ fontFamily: "Georgia,serif", fontSize: 27, letterSpacing: ".1em", marginBottom: 10 }}>body shaper system<sup style={{ fontSize: 10 }}>™</sup></p>
             <p style={{ fontSize: 12, letterSpacing: ".14em", textTransform: "uppercase", color: "#dcc2a5" }}>Propuesta privada para Gabi</p>
             <h1 style={{ fontFamily: "Georgia,serif", fontSize: "clamp(27px, 4vw, 39px)", fontWeight: 400, margin: "16px 0" }}>Elige tu paquete</h1>
             <p style={{ fontSize: 15 }}>Tu abono de <strong>$359</strong> se descuenta del paquete que elijas.</p>
-          </header>
+          </div>
 
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 285px), 1fr))", gap: 17, alignItems: "stretch" }}>
             {view.programs.map((p, i) => (
-              <article key={p.key} style={{ borderRadius: 14, background: "#f8efe5", color: "#421a27", padding: 23, border: programKey === p.key && sheetOpen ? "3px solid #b18e73" : "1px solid #ccb29c" }}>
+              <article key={p.key} style={{ borderRadius: 14, background: "#f8efe5", color: "#421a27", minWidth: 0, overflowWrap: "anywhere", padding: 23, border: programKey === p.key && sheetOpen ? "3px solid #b18e73" : "1px solid #ccb29c" }}>
                 <p style={{ fontSize: 11, textTransform: "uppercase", letterSpacing: ".16em", color: "#88654f" }}>Opción {i + 1}</p>
                 <h2 style={{ fontFamily: "Georgia,serif", fontSize: 24, lineHeight: 1.2, margin: "12px 0 18px", fontWeight: 400 }}>{displayName(p.name)}</h2>
                 <div style={{ lineHeight: 1.8, borderTop: "1px solid #dcc8b6", paddingTop: 12 }}>
