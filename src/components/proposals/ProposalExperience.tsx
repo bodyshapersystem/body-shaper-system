@@ -277,7 +277,13 @@ export default function ProposalExperience({ view, checkoutState }: Props) {
                   <p style={{ margin: "5px 0" }}>Abono recibido: <strong>−$359</strong></p>
                   <p style={{ fontSize: 13, margin: "18px 0 4px" }}>Restante pagando completo (−$100)</p>
                   <p style={{ fontFamily: "Georgia,serif", fontSize: 30, margin: "0 0 12px" }}>{money(Math.max(0, p.pricing.fullCents - creditAvail))}</p>
-                  <p style={{ fontSize: 13, margin: "5px 0" }}>Restante en 2 pagos (sin descuento): <strong>{money(Math.max(0, p.pricing.regularCents - creditAvail))}</strong></p>
+                  {p.pricing.split && (
+                    <div style={{ fontSize: 13, margin: "13px 0 3px", lineHeight: 1.7 }}>
+                      <div>En 2 pagos (sin descuento): <strong>{money(p.pricing.regularCents - creditAvail)} pendientes</strong></div>
+                      <div>Primera cuota: <strong>{money(p.pricing.split.firstCents - creditAvail)}</strong></div>
+                      <div>Segunda cuota: <strong>{money(p.pricing.split.secondCents)}</strong></div>
+                    </div>
+                  )}
                 </div>
                 <button type="button" className="pp-btn pp-btn-burgundy pp-btn-wide" onClick={() => openSheet(p.key)} style={{ marginTop: 19, width: "100%" }}>Elegir y pagar</button>
               </article>
@@ -295,8 +301,9 @@ export default function ProposalExperience({ view, checkoutState }: Props) {
                 <button type="button" className="pp-modal-close" onClick={() => setSheetOpen(false)} aria-label="Cerrar" />
                 <p className="pp-eyebrow" style={{ color: "#6b3a35" }}>Tu paquete</p>
                 <h2 id="gabi-pay-title" style={{ fontFamily: "Georgia,serif", fontSize: 26, fontWeight: 400 }}>{displayName(program.name)}</h2>
-                <p>Precio total: {money(pricing.regularCents)}</p>
-                <p>Abono ya recibido: −{money(creditAvail)}</p>
+                <p>Precio regular del paquete: <strong>{money(pricing.regularCents)}</strong></p>
+                <p>Abono ya recibido: <strong>−{money(creditAvail)}</strong></p>
+                <p>Descuento adicional solo pagando completo: <strong>−{money(pricing.savingCents)}</strong></p>
                 <fieldset className="pp-options">
                   <legend className="pp-sr">Elige cómo pagar</legend>
                   <label className="pp-option">
