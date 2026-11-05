@@ -132,10 +132,14 @@ export function applyCredit(pricing: ProgramPricing, mode: PaymentMode, creditCe
     const c = Math.min(credit, pricing.fullCents);
     return { creditCents: c, todayCents: pricing.fullCents - c, secondCents: 0, totalCents: pricing.fullCents };
   }
+  // Deduct an already-paid assessment from the package before dividing the
+  // remaining balance into two equal installments. For odd cents, the first
+  // installment carries the extra cent.
   const sp = pricing.split!;
-  const c1 = Math.min(credit, sp.firstCents);
-  const c2 = Math.min(credit - c1, sp.secondCents);
-  return { creditCents: c1 + c2, todayCents: sp.firstCents - c1, secondCents: sp.secondCents - c2, totalCents: sp.totalCents };
+  const c = Math.min(credit, sp.totalCents);
+  const remaining = sp.totalCents - c;
+  const second = Math.floor(remaining / 2);
+  return { creditCents: c, todayCents: remaining - second, secondCents: second, totalCents: sp.totalCents };
 }
 
 /** Validates/normalises programs coming from the Hub form or the DB JSON. */
