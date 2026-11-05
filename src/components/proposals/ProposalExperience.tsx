@@ -265,6 +265,7 @@ export default function ProposalExperience({ view, checkoutState }: Props) {
             {view.programs.map((p, i) => (
               <article key={p.key} style={{ borderRadius: 14, background: "#f8efe5", color: "#421a27", minWidth: 0, overflowWrap: "anywhere", padding: 23, border: programKey === p.key && sheetOpen ? "3px solid #b18e73" : "1px solid #ccb29c" }}>
                 <p style={{ fontSize: 11, textTransform: "uppercase", letterSpacing: ".16em", color: "#88654f" }}>Opción {i + 1}</p>
+                {p.key === view.recommendedKey && <p style={{ display: "inline-block", background: "#542134", color: "#fff2e6", padding: "6px 12px", fontSize: 12, fontWeight: 600, letterSpacing: ".08em", borderRadius: 100, marginTop: 8 }}>★ RECOMENDADO</p>}
                 <h2 style={{ fontFamily: "Georgia,serif", fontSize: 24, lineHeight: 1.2, margin: "12px 0 18px", fontWeight: 400 }}>{displayName(p.name)}</h2>
                 <div style={{ lineHeight: 1.8, borderTop: "1px solid #dcc8b6", paddingTop: 12 }}>
                   {p.sessions.exilis > 0 && <div>{p.sessions.exilis} sesiones de Exilis Ultra</div>}
