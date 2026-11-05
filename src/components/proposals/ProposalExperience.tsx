@@ -252,7 +252,7 @@ export default function ProposalExperience({ view, checkoutState }: Props) {
   // the master walkthrough, technology catalogue, testimonials, or assessment.
   if (isGabiPackages) {
     return (
-      <div className="pp" ref={rootRef} style={{ minHeight: "100vh", background: "#421a27", color: "#f8efe3", padding: "40px 16px 68px" }}>
+      <div className="pp" ref={rootRef} style={{ minHeight: "100vh", backgroundColor: "#421a27", backgroundImage: "linear-gradient(140deg, rgba(50, 12, 25, .62), rgba(68, 19, 35, .48)), url('/proposal-assets/brand/backgrounds/burgundy-marble/burgundy-marble-original.png')", backgroundSize: "cover", backgroundPosition: "center", backgroundAttachment: "fixed", color: "#f8efe3", padding: "40px 16px 68px" }}>
         <main style={{ maxWidth: 1080, margin: "0 auto" }}>
           <header style={{ textAlign: "center", marginBottom: 28 }}>
             <p style={{ fontFamily: "Georgia,serif", fontSize: 27, letterSpacing: ".1em", marginBottom: 10 }}>body shaper system<sup style={{ fontSize: 10 }}>™</sup></p>
@@ -286,7 +286,8 @@ export default function ProposalExperience({ view, checkoutState }: Props) {
           <p style={{ maxWidth: 830, margin: "30px auto 0", textAlign: "center", fontSize: 14, lineHeight: 1.7 }}>
             Ya abonaste $359 por Zelle. Si pagas todo el restante, obtienes $100 de descuento adicional.
             En dos pagos no se aplica ese descuento. Zelle no tiene cargo adicional.
-            Para pagos con tarjeta se informa un cargo de 3.9%; confirma el importe final antes de realizar el cobro.
+            <br />Pagar con Zelle (sin cargo adicional): <strong>hello@orvesociety.com</strong>
+            <br />Pago con tarjeta: el total se confirma en la pantalla segura de Stripe antes de autorizar el cobro.
           </p>
           <dialog ref={sheetRef} className="pp-modal pp-sheet" aria-labelledby="gabi-pay-title" onClose={() => setSheetOpen(false)}>
             {sheetOpen && program && pricing && (
@@ -333,6 +334,7 @@ export default function ProposalExperience({ view, checkoutState }: Props) {
                 )}
                 <div className="pp-due"><span>A pagar hoy</span><strong>{money(due)}</strong></div>
                 <button type="button" className="pp-btn pp-btn-burgundy pp-btn-wide" disabled={busy !== null || (mode === "split" && (!secondDate || !consent))} onClick={() => startCheckout("program")}>{busy ? "Abriendo pago seguro…" : "Continuar al pago seguro"}</button>
+                <p style={{ marginTop: 15, fontSize: 13 }}>Si prefieres Zelle, envía el restante a <strong>hello@orvesociety.com</strong> y confirma tu transferencia. No tiene cargo adicional.</p>
                 {error && <p className="pp-error" role="alert">{error}</p>}
               </div>
             )}
