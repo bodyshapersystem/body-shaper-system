@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import { getCurrentHubUser } from "@/lib/permissions";
+import { getCurrentHubUser, hasPermission } from "@/lib/permissions";
 import { getPhotoSignedUrl } from "../clients/[id]/blueprint-actions";
 import Link from "next/link";
 import BlueprintWaves from "@/components/BlueprintWaves";
@@ -206,6 +206,60 @@ export default async function HubDashboardPage() {
           <img src="/images/emmy-hero.jpg" alt={firstName} className="dash-hero-photo" />
         </div>
       </div>
+
+      {/* Prominent, one-tap shortcut to the existing appointment creation form. */}
+      {user && hasPermission(user, "appointments.manage") && (
+        <section
+          aria-label="Quick appointment booking"
+          style={{
+            margin: "22px 0 28px",
+            padding: "clamp(18px, 3vw, 28px)",
+            background: "linear-gradient(120deg, #fcf6f0 0%, #f7e8e3 100%)",
+            border: "1px solid #e2c9c3",
+            borderRadius: 22,
+            display: "flex",
+            flexWrap: "wrap",
+            gap: 18,
+            alignItems: "center",
+            justifyContent: "space-between",
+          }}
+        >
+          <div>
+            <p style={{ margin: "0 0 6px", color: "#7b293b", letterSpacing: "0.15em", fontSize: 11, fontWeight: 750, textTransform: "uppercase" }}>
+              Appointments
+            </p>
+            <h2 style={{ margin: 0, color: "#4b1927", fontSize: "clamp(21px, 3vw, 29px)", fontFamily: "var(--serif)", lineHeight: 1.15 }}>
+              Need to book a client?
+            </h2>
+            <p style={{ margin: "7px 0 0", color: "#694e53", fontSize: 14 }}>
+              Add a new appointment in one tap.
+            </p>
+          </div>
+          <Link
+            href="/hub/appointments#new-appointment"
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: 12,
+              minHeight: 60,
+              padding: "16px 28px",
+              borderRadius: 14,
+              background: "#711d35",
+              color: "#fff9f4",
+              fontSize: 18,
+              fontWeight: 750,
+              letterSpacing: "0.01em",
+              textDecoration: "none",
+              boxShadow: "0 8px 22px rgba(87, 18, 39, .2)",
+              width: "min(100%, 310px)",
+            }}
+          >
+            <span aria-hidden="true" style={{ fontSize: 25, lineHeight: 1 }}>+</span>
+            New Appointment
+          </Link>
+        </section>
+      )}
 
       {/* ---------- Below Hero: editorial panels ---------- */}
       <div className="dash-two-col">
