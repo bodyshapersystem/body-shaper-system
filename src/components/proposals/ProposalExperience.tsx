@@ -281,8 +281,8 @@ export default function ProposalExperience({ view, checkoutState }: Props) {
                   {p.pricing.split && (
                     <div style={{ fontSize: 13, margin: "13px 0 3px", lineHeight: 1.7 }}>
                       <div>En 2 pagos (sin descuento): <strong>{money(p.pricing.regularCents - creditAvail)} pendientes</strong></div>
-                      <div>Primera cuota: <strong>{money(p.pricing.split.firstCents - creditAvail)}</strong></div>
-                      <div>Segunda cuota: <strong>{money(p.pricing.split.secondCents)}</strong></div>
+                      <div>Primera cuota: <strong>{money(applyCredit(p.pricing, "split", creditAvail).todayCents)}</strong></div>
+                      <div>Segunda cuota: <strong>{money(applyCredit(p.pricing, "split", creditAvail).secondCents)}</strong></div>
                     </div>
                   )}
                 </div>
