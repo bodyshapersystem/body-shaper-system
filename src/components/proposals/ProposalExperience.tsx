@@ -247,6 +247,101 @@ export default function ProposalExperience({ view, checkoutState }: Props) {
   const tech = techOpen ? t.tech[techOpen] : null;
   const waText = encodeURIComponent(es ? "hola, tengo una pregunta sobre mi body blueprint." : "hi, i have a question about my body blueprint.");
 
+
+  // This private client requested a direct, payment-only proposal. Do not render
+  // the master walkthrough, technology catalogue, testimonials, or assessment.
+  if (isGabiPackages) {
+    return (
+      <div className="pp" ref={rootRef} style={{ minHeight: "100vh", background: "#421a27", color: "#f8efe3", padding: "40px 16px 68px" }}>
+        <main style={{ maxWidth: 1080, margin: "0 auto" }}>
+          <header style={{ textAlign: "center", marginBottom: 28 }}>
+            <p style={{ fontFamily: "Georgia,serif", fontSize: 27, letterSpacing: ".1em", marginBottom: 10 }}>body shaper system<sup style={{ fontSize: 10 }}>™</sup></p>
+            <p style={{ fontSize: 12, letterSpacing: ".14em", textTransform: "uppercase", color: "#dcc2a5" }}>Propuesta privada para Gabi</p>
+            <h1 style={{ fontFamily: "Georgia,serif", fontSize: "clamp(27px, 4vw, 39px)", fontWeight: 400, margin: "16px 0" }}>Elige tu paquete</h1>
+            <p style={{ fontSize: 15 }}>Tu abono de <strong>$359</strong> se descuenta del paquete que elijas.</p>
+          </header>
+
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 285px), 1fr))", gap: 17, alignItems: "stretch" }}>
+            {view.programs.map((p, i) => (
+              <article key={p.key} style={{ borderRadius: 14, background: "#f8efe5", color: "#421a27", padding: 23, border: programKey === p.key && sheetOpen ? "3px solid #b18e73" : "1px solid #ccb29c" }}>
+                <p style={{ fontSize: 11, textTransform: "uppercase", letterSpacing: ".16em", color: "#88654f" }}>Opción {i + 1}</p>
+                <h2 style={{ fontFamily: "Georgia,serif", fontSize: 24, lineHeight: 1.2, margin: "12px 0 18px", fontWeight: 400 }}>{displayName(p.name)}</h2>
+                <div style={{ lineHeight: 1.8, borderTop: "1px solid #dcc8b6", paddingTop: 12 }}>
+                  {p.sessions.exilis > 0 && <div>{p.sessions.exilis} sesiones de Exilis Ultra</div>}
+                  {p.sessions.endospheres > 0 && <div>{p.sessions.endospheres} sesiones de Endospheres</div>}
+                  {p.sessions.ems > 0 && <div>{p.sessions.ems} sesiones de EMS</div>}
+                  {p.bonus?.label && <p style={{ color: "#856142", fontSize: 13, marginTop: 9 }}>✦ {p.bonus.label}</p>}
+                </div>
+                <div style={{ borderTop: "1px solid #dcc8b6", paddingTop: 14, marginTop: 16 }}>
+                  <p style={{ margin: "5px 0" }}>Precio del paquete: <strong>{money(p.pricing.regularCents)}</strong></p>
+                  <p style={{ margin: "5px 0" }}>Abono recibido: <strong>−$359</strong></p>
+                  <p style={{ fontSize: 13, margin: "18px 0 4px" }}>Restante pagando completo (−$100)</p>
+                  <p style={{ fontFamily: "Georgia,serif", fontSize: 30, margin: "0 0 12px" }}>{money(Math.max(0, p.pricing.fullCents - creditAvail))}</p>
+                  <p style={{ fontSize: 13, margin: "5px 0" }}>Restante en 2 pagos (sin descuento): <strong>{money(Math.max(0, p.pricing.regularCents - creditAvail))}</strong></p>
+                </div>
+                <button type="button" className="pp-btn pp-btn-burgundy pp-btn-wide" onClick={() => openSheet(p.key)} style={{ marginTop: 19, width: "100%" }}>Elegir y pagar</button>
+              </article>
+            ))}
+          </div>
+          <p style={{ maxWidth: 830, margin: "30px auto 0", textAlign: "center", fontSize: 14, lineHeight: 1.7 }}>
+            Ya abonaste $359 por Zelle. Si pagas todo el restante, obtienes $100 de descuento adicional.
+            En dos pagos no se aplica ese descuento. Zelle no tiene cargo adicional.
+            Para pagos con tarjeta se informa un cargo de 3.9%; confirma el importe final antes de realizar el cobro.
+          </p>
+          <dialog ref={sheetRef} className="pp-modal pp-sheet" aria-labelledby="gabi-pay-title" onClose={() => setSheetOpen(false)}>
+            {sheetOpen && program && pricing && (
+              <div className="pp-modal-in">
+                <button type="button" className="pp-modal-close" onClick={() => setSheetOpen(false)} aria-label="Cerrar" />
+                <p className="pp-eyebrow" style={{ color: "#6b3a35" }}>Tu paquete</p>
+                <h2 id="gabi-pay-title" style={{ fontFamily: "Georgia,serif", fontSize: 26, fontWeight: 400 }}>{displayName(program.name)}</h2>
+                <p>Precio total: {money(pricing.regularCents)}</p>
+                <p>Abono ya recibido: −{money(creditAvail)}</p>
+                <fieldset className="pp-options">
+                  <legend className="pp-sr">Elige cómo pagar</legend>
+                  <label className="pp-option">
+                    <input type="radio" name="gabi-mode" checked={mode === "full"} onChange={() => setMode("full")} />
+                    <span className="pp-radio" aria-hidden="true" />
+                    <span className="pp-option-t">Pagar todo el restante (−$100)</span>
+                    <strong className="pp-option-p">{money(pricing.fullCents - creditAvail)}</strong>
+                  </label>
+                  {pricing.split && (
+                    <label className="pp-option">
+                      <input type="radio" name="gabi-mode" checked={mode === "split"} onChange={() => { setMode("split"); setConsent(false); }} />
+                      <span className="pp-radio" aria-hidden="true" />
+                      <span className="pp-option-t">Pagar en 2 partes (sin descuento)</span>
+                      <strong className="pp-option-p">{money(pricing.regularCents - creditAvail)}</strong>
+                    </label>
+                  )}
+                </fieldset>
+                {mode === "split" && applied && (
+                  <div>
+                    <p>Primera cuota: <strong>{money(applied.todayCents)}</strong></p>
+                    <p>Segunda cuota: <strong>{money(applied.secondCents)}</strong></p>
+                    <fieldset className="pp-dates">
+                      <legend>Elige fecha para la segunda cuota</legend>
+                      <div className="pp-dates-row">
+                        {dateOptions.map((d) => (
+                          <label key={d} className={`pp-date${secondDate === d ? " on" : ""}`}>
+                            <input type="radio" name="gabi-date" checked={secondDate === d} onChange={() => { setSecondDate(d); setConsent(false); }} />
+                            {formatDay(d, view.lang)}
+                          </label>
+                        ))}
+                      </div>
+                    </fieldset>
+                    {secondDate && <label className="pp-consent"><input type="checkbox" checked={consent} onChange={(e) => setConsent(e.target.checked)} /><span>Autorizo la segunda cuota de {money(applied.secondCents)} en mi tarjeta el {formatDay(secondDate, view.lang)}.</span></label>}
+                  </div>
+                )}
+                <div className="pp-due"><span>A pagar hoy</span><strong>{money(due)}</strong></div>
+                <button type="button" className="pp-btn pp-btn-burgundy pp-btn-wide" disabled={busy !== null || (mode === "split" && (!secondDate || !consent))} onClick={() => startCheckout("program")}>{busy ? "Abriendo pago seguro…" : "Continuar al pago seguro"}</button>
+                {error && <p className="pp-error" role="alert">{error}</p>}
+              </div>
+            )}
+          </dialog>
+        </main>
+      </div>
+    );
+  }
+
   return (
     <div className="pp" ref={rootRef}>
       <header className={`pp-top${solid ? " is-solid" : ""}`}>
