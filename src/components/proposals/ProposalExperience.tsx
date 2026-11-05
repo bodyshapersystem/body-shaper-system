@@ -226,6 +226,7 @@ export default function ProposalExperience({ view, checkoutState }: Props) {
 
   // Only explain the technologies that are actually part of this client's programs.
   const usedTech = TECHNOLOGIES.filter((k) => view.programs.some((p) => p.sessions[k] > 0)).length >= 2 ? TECHNOLOGIES.filter((k) => view.programs.some((p) => p.sessions[k] > 0)) : [...TECHNOLOGIES];
+  const isGabiPackages = view.token === "b6I1-9Bo9Aoy1suAXCwb-kufb8tReEvmQEAoEqeBeQ4";
   const pricing = program?.pricing;
   const creditAvail = view.assessment?.creditAvailableCents ?? 0;
   const applied = pricing && (mode === "full" || pricing.split) ? applyCredit(pricing, mode, creditAvail) : null;
@@ -524,11 +525,22 @@ export default function ProposalExperience({ view, checkoutState }: Props) {
                         {open ? t.hideDetails : t.viewDetails} <span className="pp-plus" aria-hidden="true" />
                       </button>
                     )}
-                    <div className="pp-price">
-                      {t.from} <strong>{money(p.pricing.fullCents)}</strong>
-                      {p.pricing.savingCents > 0 && <span className="pp-regular"> · {es ? "precio regular" : "regular"} <s>{money(p.pricing.regularCents)}</s></span>}
-                    </div>
-                    {p.pricing.split && <p className="pp-split-line">{es ? "o en 2 pagos" : "or pay in 2"}: {money(p.pricing.split.firstCents)} + {money(p.pricing.split.secondCents)}</p>}
+                    {isGabiPackages ? (
+                      <>
+                        <p className="pp-split-line">Precio total: <strong>{money(p.pricing.regularCents)}</strong></p>
+                        <p className="pp-split-line">Abono Zelle: <strong>−{money(creditAvail)}</strong></p>
+                        <div className="pp-price">Restante pago completo (−$100): <strong>{money(Math.max(0,p.pricing.fullCents-creditAvail))}</strong></div>
+                        <p className="pp-split-line">O en 2 pagos sin descuento: <strong>{money(Math.max(0,p.pricing.regularCents-creditAvail))}</strong></p>
+                      </>
+                    ) : (
+                      <>
+                        <div className="pp-price">
+                          {t.from} <strong>{money(p.pricing.fullCents)}</strong>
+                          {p.pricing.savingCents > 0 && <span className="pp-regular"> · {es ? "precio regular" : "regular"} <s>{money(p.pricing.regularCents)}</s></span>}
+                        </div>
+                        {p.pricing.split && <p className="pp-split-line">{es ? "o en 2 pagos" : "or pay in 2"}: {money(p.pricing.split.firstCents)} + {money(p.pricing.split.secondCents)}</p>}
+                      </>
+                    )}
                     <button type="button" className={`pp-btn ${rec ? "pp-btn-burgundy" : "pp-btn-line"}`} aria-haspopup="dialog" onClick={() => openSheet(p.key)}>
                       {t.sec.select} <span className="pp-arrow" aria-hidden="true" />
                     </button>
@@ -632,7 +644,7 @@ export default function ProposalExperience({ view, checkoutState }: Props) {
                     <span className="pp-option-t">{t.payFull}</span>
                     {pricing.savingCents > 0 && <span className="pp-option-s">{t.payFullNote(money(pricing.savingCents))}</span>}
                   </span>
-                  <span className="pp-option-p">{money(pricing.fullCents)}</span>
+                  <span className="pp-option-p">{money(isGabiPackages ? Math.max(0,pricing.fullCents-creditAvail) : pricing.fullCents)}</span>
                 </label>
                 {pricing.split && (
                   <label className="pp-option">
@@ -643,8 +655,8 @@ export default function ProposalExperience({ view, checkoutState }: Props) {
                       <span className="pp-option-s">{t.pay2Note(money(pricing.split.firstCents), money(pricing.split.secondCents))}</span>
                     </span>
                     <span className="pp-option-p">
-                      {money(pricing.split.firstCents)}
-                      <small>{pricing.split.firstCents === pricing.split.secondCents ? t.each : "+ " + money(pricing.split.secondCents)}</small>
+                      {money(isGabiPackages ? Math.max(0,pricing.split.firstCents-creditAvail) : pricing.split.firstCents)}
+                      <small>{pricing.split.firstCents === pricing.split.secondCents && !isGabiPackages ? t.each : "+ " + money(pricing.split.secondCents)}</small>
                     </span>
                   </label>
                 )}
