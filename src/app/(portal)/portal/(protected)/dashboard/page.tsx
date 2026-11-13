@@ -6,6 +6,7 @@ import { getBusinessTimezone, formatDateInTimezone, formatTimeInTimezone, getTim
 import { getClientPhotoSignedUrl } from "../photos/actions";
 import { buildGoogleCalendarUrl } from "@/lib/google-calendar";
 import BookSessionButton from "./BookSessionButton";
+import { computePackageTracker, parsePackageTechnologies } from "@/lib/tech-count";
 
 export const dynamic = "force-dynamic";
 
@@ -135,6 +136,24 @@ export default async function PortalDashboardPage() {
 
   const focusText = FOCUS_ROTATION[weekNumber % FOCUS_ROTATION.length];
 
+  // Package — per-technology progress when the owner set it up, otherwise sessions done / total.
+  const pkg = parsePackageTechnologies(assessment?.packageTechnologies);
+  const packageRows = pkg ? computePackageTracker(pkg, appointments) : [];
+  const packageLeft = packageRows.reduce((sum, r) => sum + (r.total - r.done), 0);
+
+  // Preparation for the next visit — general comfort/logistics + her own home-care plan.
+  const prep: string[] = [
+    "Stay well hydrated the day before and the day of your session.",
+    "Avoid a heavy meal in the 2 hours before.",
+    "Wear comfortable, loose clothing.",
+  ];
+  if (nextAppointmentDetail?.locationType === "HOME") prep.push("Have a clean, private space ready — we bring everything else.");
+  if (assessment?.compressionGarmentRecommended) {
+    prep.push(
+      `Compression garment${assessment.compressionGarmentHoursPerDay ? `: ${assessment.compressionGarmentHoursPerDay} hours a day` : ""}${assessment.compressionGarmentNote ? ` — ${assessment.compressionGarmentNote.trim()}` : ""}.`
+    );
+  }
+
   return (
     <div className="cat-body portal-page">
       {/* ---------- Hero ---------- */}
@@ -143,23 +162,20 @@ export default async function PortalDashboardPage() {
           <p className="pv2-hero-eyebrow">{getTimeBasedGreeting(timezone)},</p>
           <h1 className="pv2-hero-title">{client.firstName}.</h1>
           <p className="pv2-hero-sub">Everything you need for your transformation, in one place.</p>
-          {assessment?.recommendedSystem && (
-            <p className="pv2-hero-week">✨ Week {weekNumber} of your {assessment.recommendedSystem}</p>
-          )}
+          {assessment?.recommendedSystem && <p className="pv2-hero-week">✨ Week {weekNumber} of your {assessment.recommendedSystem}</p>}
         </div>
         <img src="/images/dashboard/hero-photography.png" alt="" className="pv2-hero-photo" />
       </div>
 
-      {/* ---------- Hero Metrics ---------- */}
-      {/* ---------- Appointments CTA (burgundy marble) ---------- */}
-      <div className="apd-panel apd-panel-marble pdash-appt-cta">
+      {/* ---------- Next appointment + preparation (burgundy marble) ---------- */}
+      <div className="apd-panel apd-panel-marble pdash-appt-cta pdash-next">
         <div className="pdash-appt-cta-text">
-          <p className="pdash-appt-cta-eyebrow">appointments</p>
+          <p className="pdash-appt-cta-eyebrow">{nextAppointmentDetail ? "your next session" : "appointments"}</p>
           {nextAppointmentDetail ? (
             <>
               <h2 className="pdash-appt-cta-title">{nextAppointmentDetail.dateLabel}</h2>
               <p className="pdash-appt-cta-sub">
-                {nextAppointmentDetail.timeLabel} · {nextAppointmentDetail.locationType === "HOME" ? "at your home" : "studio"}
+                arrive {nextAppointmentDetail.arrivalWindowLabel} · {nextAppointmentDetail.locationType === "HOME" ? "at your home" : "studio"}
               </p>
             </>
           ) : (
@@ -168,152 +184,93 @@ export default async function PortalDashboardPage() {
               <p className="pdash-appt-cta-sub">Send a request and we&apos;ll confirm the best time for you.</p>
             </>
           )}
+          <div className="pdash-appt-cta-actions" style={{ marginTop: 16 }}>
+            <BookSessionButton />
+            <Link href="/portal/appointments" className="apd-btn-secondary pdash-appt-cta-link">My sessions →</Link>
+            {nextAppointmentDetail && (
+              <a href={nextAppointmentDetail.calendarUrl} target="_blank" rel="noopener noreferrer" className="apd-btn-secondary pdash-appt-cta-link">
+                + Google Calendar
+              </a>
+            )}
+          </div>
         </div>
-        <div className="pdash-appt-cta-actions">
-          <BookSessionButton />
-          <Link href="/portal/appointments" className="apd-btn-secondary pdash-appt-cta-link">
-            My sessions →
-          </Link>
-        </div>
+        {nextAppointmentDetail && (
+          <div className="pdash-prep">
+            <p className="pdash-appt-cta-eyebrow">before you come</p>
+            <ul>
+              {prep.map((p) => (
+                <li key={p}>{p}</li>
+              ))}
+            </ul>
+            <Link href="/portal/appointments/preparation" className="pdash-prep-link">full preparation guide →</Link>
+          </div>
+        )}
       </div>
 
-      <div className="trk-summary-bar" style={{ marginBottom: 24 }}>
-        <div className="rw-stat-card rw-card-stone" style={{ padding: 16 }}>
-          <p className="trk-summary-label">Sessions Completed</p>
-          <p className="trk-summary-value">{completedCount}</p>
-        </div>
-        <div className="rw-stat-card rw-card-paper" style={{ padding: 16 }}>
-          <p className="trk-summary-label">Sessions Remaining</p>
-          <p className="trk-summary-value">{remaining ?? "—"}</p>
-        </div>
-        <div className="rw-stat-card rw-card-metal" style={{ padding: 16 }}>
-          <p className="trk-summary-label rw-label-on-dark">Current System</p>
-          <p className="trk-summary-value rw-value-on-dark" style={{ fontSize: 14 }}>{assessment?.recommendedSystem ?? "Not set"}</p>
-        </div>
-        <div className="rw-stat-card rw-card-glass" style={{ padding: 16 }}>
-          <p className="trk-summary-label">Journey Progress</p>
-          <p className="trk-summary-value">{progressPercent !== null ? `${progressPercent}%` : "—"}</p>
-        </div>
-      </div>
-
-      <div className="cap-layout" style={{ marginBottom: 24 }}>
-        <div className="cap-main">
-          <div className="doc-card-grid" style={{ marginBottom: 20 }}>
-            {/* Card 1 — Today's Focus */}
-            <div className="rw-stat-card rw-card-paper" style={{ padding: 20 }}>
-              <h3 className="trk-card-title">Today's Focus</h3>
-              <p className="pay-history-meta" style={{ marginBottom: 14 }}>{focusText}</p>
-              <div className="trk-water-circles">
-                {Array.from({ length: 8 }, (_, i) => (
-                  <span key={i} className={`trk-water-dot ${i < (todayTracker?.waterGlasses ?? 0) ? "trk-water-dot-filled" : ""}`} />
-                ))}
-              </div>
-              <p className="pay-history-meta">{todayTracker?.waterGlasses ?? 0} / 8 glasses today</p>
-            </div>
-
-            {/* Card 2 — Next Milestone */}
-            <div className="rw-stat-card rw-card-glass" style={{ padding: 20, textAlign: "center" }}>
-              <h3 className="trk-card-title">Next Milestone</h3>
-              <div className="trk-progress-circle" style={{ margin: "0 auto 10px", background: `conic-gradient(#6B4E3D ${milestonePercent}%, rgba(0,0,0,0.06) 0)` }}>
-                <div className="trk-progress-circle-inner"><strong>{milestonePercent}%</strong></div>
-              </div>
-              <p className="pay-history-meta">{sessionsUntilMilestone} session{sessionsUntilMilestone === 1 ? "" : "s"} until next milestone</p>
-            </div>
-
-            {/* Card 3 — Your Journey */}
-            <div className="rw-stat-card rw-card-stone rw-card-stone-waves" style={{ padding: 20 }}>
-              <h3 className="trk-card-title">Your Journey</h3>
-              <p style={{ fontFamily: "var(--serif)", fontSize: 15, color: "#6B4E3D", marginBottom: 4 }}>● {journeyPhase}</p>
-              {totalSessions !== null && <p className="pay-history-meta" style={{ marginBottom: 10 }}>Week {weekNumber} of {Math.ceil(totalSessions / 1.5)}</p>}
-              <div className="trk-week-dots">
-                {JOURNEY_PHASES.map((phase, i) => (
-                  <div key={phase} className="trk-week-day">
-                    <span className={`trk-week-circle ${i <= phaseIndex ? "trk-week-circle-filled" : ""}`} />
-                  </div>
-                ))}
-              </div>
-            </div>
+      {/* ---------- Your package ---------- */}
+      {(packageRows.length > 0 || totalSessions !== null) && (
+        <div className="pd-card pdash-package">
+          <div className="pdash-package-head">
+            <h3>your system{assessment?.recommendedSystem ? ` · ${assessment.recommendedSystem}` : ""}</h3>
+            <span>
+              {packageRows.length > 0
+                ? packageLeft === 0
+                  ? "complete ✓"
+                  : `${packageLeft} treatment${packageLeft === 1 ? "" : "s"} left`
+                : `${remaining ?? 0} session${remaining === 1 ? "" : "s"} left`}
+            </span>
           </div>
-
-          {/* Transformation Preview */}
-          {transformation && (
-            <div className="pd-card" style={{ marginBottom: 20 }}>
-              <h3 style={{ fontFamily: "var(--sans)", fontSize: 13, marginBottom: 14 }}>Transformation Preview</h3>
-              {transformation.beforeUrl && transformation.afterUrl && (
-                <div style={{ display: "flex", gap: 12, marginBottom: 16 }}>
-                  <img src={transformation.beforeUrl} alt="Before" style={{ flex: 1, borderRadius: 12, objectFit: "cover", maxHeight: 240 }} />
-                  <img src={transformation.afterUrl} alt="After" style={{ flex: 1, borderRadius: 12, objectFit: "cover", maxHeight: 240 }} />
-                </div>
-              )}
-              <div className="trk-summary-bar" style={{ marginBottom: 0 }}>
-                <div><p className="trk-summary-label">Weight</p><p className="trk-summary-value" style={{ fontSize: 15 }}>{transformation.weightDeltaLbs !== null ? `${transformation.weightDeltaLbs > 0 ? "-" : "+"}${Math.abs(transformation.weightDeltaLbs)} lbs` : "—"}</p></div>
-                <div><p className="trk-summary-label">Waist</p><p className="trk-summary-value" style={{ fontSize: 15 }}>{transformation.waistDeltaIn !== null ? `${transformation.waistDeltaIn > 0 ? "-" : "+"}${Math.abs(transformation.waistDeltaIn)} in` : "—"}</p></div>
-                <div><p className="trk-summary-label">Body Fat</p><p className="trk-summary-value" style={{ fontSize: 15 }}>{transformation.bodyFatDeltaPercent !== null ? `${transformation.bodyFatDeltaPercent > 0 ? "-" : "+"}${Math.abs(transformation.bodyFatDeltaPercent)}%` : "—"}</p></div>
-                <div><p className="trk-summary-label">Hips</p><p className="trk-summary-value" style={{ fontSize: 15 }}>{transformation.hipsDeltaIn !== null ? `${transformation.hipsDeltaIn > 0 ? "-" : "+"}${Math.abs(transformation.hipsDeltaIn)} in` : "—"}</p></div>
-              </div>
-            </div>
-          )}
-
-          {/* Payments Overview */}
-          <div className="pd-card pd-card-taupe" style={{ marginBottom: 20 }}>
-            <h3 style={{ fontFamily: "var(--sans)", fontSize: 13, marginBottom: 14 }}>Payments Overview</h3>
-            <div className="cl-summary-list" style={{ marginBottom: 12 }}>
-              <div className="cl-summary-row"><span>Collected</span><strong>{money(collectedCents)}</strong></div>
-              <div className="cl-summary-row"><span>Pending</span><strong>{money(pendingCents)}</strong></div>
-              <div className="cl-summary-row"><span>Outstanding Balance</span><strong>{outstandingCents !== null ? money(outstandingCents) : "—"}</strong></div>
-            </div>
-            <Link href="/portal/payments" className="cap-secondary-btn">View Payments</Link>
-          </div>
-
-          {/* Quick Actions */}
-          <h3 className="dash-section-title">Quick Actions</h3>
-          <div className="doc-card-grid" style={{ marginBottom: 20 }}>
-            <Link href="/portal/blueprint" className="doc-client-card doc-client-card-burgundy">📘 Blueprint™</Link>
-            <Link href="/portal/daily-trackers" className="doc-client-card doc-client-card-burgundy">💧 Daily Trackers</Link>
-            <Link href="/portal/documents" className="doc-client-card doc-client-card-burgundy">📄 Documents</Link>
-            <Link href="/portal/payments" className="doc-client-card doc-client-card-burgundy">💳 Payments</Link>
-          </div>
-        </div>
-
-        <div className="cap-side">
-          {/* Appointment Card */}
-          {nextAppointmentDetail ? (
-            <div className="apd-panel apd-panel-marble apd-panel-marble-dash" style={{ position: "static", width: "100%", borderRadius: 18 }}>
-              <div className="apd-time-row">
-                <span className="apd-status-pill" style={{ background: "rgba(246,243,238,0.2)" }}>Confirmed</span>
-              </div>
-              <div className="apd-detail-list">
-                <div className="apd-detail-row"><span>date</span><strong>{nextAppointmentDetail.dateLabel}</strong></div>
-                <div className="apd-detail-row"><span>arrival window</span><strong>{nextAppointmentDetail.arrivalWindowLabel}</strong></div>
-                <div className="apd-detail-row"><span>treatment</span><strong>{nextAppointmentDetail.title}</strong></div>
-                <div className="apd-detail-row"><span>location</span><strong>{nextAppointmentDetail.locationType === "HOME" ? "🏡 At Your Home" : "🏢 Studio"}</strong></div>
-                {nextAppointmentDetail.totalSessions !== null && (
-                  <div className="apd-detail-row"><span>session</span><strong>{nextAppointmentDetail.sessionNumber} of {nextAppointmentDetail.totalSessions}</strong></div>
-                )}
-                <div className="apd-detail-row"><span>payment status</span><strong>{nextAppointmentDetail.paymentStatus}</strong></div>
-                {nextAppointmentDetail.zone && <div className="apd-detail-row"><span>service zone</span><strong>{nextAppointmentDetail.zone}</strong></div>}
-              </div>
-              <Link href="/portal/appointments" className="apd-btn-primary" style={{ display: "block", marginBottom: 8 }}>View Appointment Details</Link>
-              <a href={nextAppointmentDetail.calendarUrl} target="_blank" rel="noopener noreferrer" className="apd-btn-secondary" style={{ display: "block" }}>➕ Add to Google Calendar</a>
-            </div>
+          {packageRows.length > 0 ? (
+            <ul className="pdash-package-list">
+              {packageRows.map((r) => (
+                <li key={r.name} className={r.complete ? "done" : ""}>
+                  <span className="pdash-check">{r.complete ? "✓" : ""}</span>
+                  <span className="pdash-tech">{r.name}</span>
+                  <span className="pdash-count">{r.done} of {r.total}</span>
+                  <span className="pdash-bar">
+                    <span style={{ width: `${(r.done / r.total) * 100}%` }} />
+                  </span>
+                  <span className="pdash-meta">{r.complete ? "complete" : r.scheduled > 0 ? `${r.scheduled} booked` : `${r.total - r.done} left`}</span>
+                </li>
+              ))}
+            </ul>
           ) : (
-            <div className="cap-next-card">
-              <p className="cap-next-eyebrow">next appointment</p>
-              <div className="module-empty">No upcoming appointment scheduled yet.</div>
-            </div>
+            <>
+              <div className="pdash-bar pdash-bar-lg">
+                <span style={{ width: `${Math.min(progressPercent ?? 0, 100)}%` }} />
+              </div>
+              <p className="pay-history-meta">{completedCount} of {totalSessions} sessions completed</p>
+            </>
           )}
         </div>
-      </div>
+      )}
 
-      {/* ---------- Weekly Focus Banner ---------- */}
-      <div className="trk-cta-bar" style={{ marginBottom: 24 }}>
-        <div>
-          <h3>This week's focus</h3>
-          <p>{focusText} Hydrate, wear your compression garment, and complete your Daily Trackers.</p>
+      {/* Transformation Preview */}
+      {transformation && (
+        <div className="pd-card" style={{ marginBottom: 20 }}>
+          <h3 style={{ fontFamily: "var(--sans)", fontSize: 13, marginBottom: 14 }}>Transformation Preview</h3>
+          {transformation.beforeUrl && transformation.afterUrl && (
+            <div style={{ display: "flex", gap: 12, marginBottom: 16 }}>
+              <img src={transformation.beforeUrl} alt="Before" style={{ flex: 1, borderRadius: 12, objectFit: "cover", maxHeight: 240 }} />
+              <img src={transformation.afterUrl} alt="After" style={{ flex: 1, borderRadius: 12, objectFit: "cover", maxHeight: 240 }} />
+            </div>
+          )}
+          <div className="trk-summary-bar" style={{ marginBottom: 0 }}>
+            <div><p className="trk-summary-label">Weight</p><p className="trk-summary-value" style={{ fontSize: 15 }}>{transformation.weightDeltaLbs !== null ? `${transformation.weightDeltaLbs > 0 ? "-" : "+"}${Math.abs(transformation.weightDeltaLbs)} lbs` : "—"}</p></div>
+            <div><p className="trk-summary-label">Waist</p><p className="trk-summary-value" style={{ fontSize: 15 }}>{transformation.waistDeltaIn !== null ? `${transformation.waistDeltaIn > 0 ? "-" : "+"}${Math.abs(transformation.waistDeltaIn)} in` : "—"}</p></div>
+            <div><p className="trk-summary-label">Body Fat</p><p className="trk-summary-value" style={{ fontSize: 15 }}>{transformation.bodyFatDeltaPercent !== null ? `${transformation.bodyFatDeltaPercent > 0 ? "-" : "+"}${Math.abs(transformation.bodyFatDeltaPercent)}%` : "—"}</p></div>
+            <div><p className="trk-summary-label">Hips</p><p className="trk-summary-value" style={{ fontSize: 15 }}>{transformation.hipsDeltaIn !== null ? `${transformation.hipsDeltaIn > 0 ? "-" : "+"}${Math.abs(transformation.hipsDeltaIn)} in` : "—"}</p></div>
+          </div>
         </div>
-        <Link href="/portal/daily-trackers" className="apt-new-btn">View Daily Trackers →</Link>
-      </div>
+      )}
 
+      {/* ---------- Quick Actions ---------- */}
+      <div className="doc-card-grid" style={{ marginBottom: 20 }}>
+        <Link href="/portal/blueprint" className="doc-client-card doc-client-card-burgundy">📘 Blueprint™</Link>
+        <Link href="/portal/photos" className="doc-client-card doc-client-card-burgundy">📷 Progress Photos</Link>
+        <Link href="/portal/documents" className="doc-client-card doc-client-card-burgundy">📄 Documents</Link>
+        <Link href="/portal/invite" className="doc-client-card doc-client-card-burgundy">✨ Invite &amp; Earn</Link>
+      </div>
     </div>
   );
 }
