@@ -1,7 +1,7 @@
 "use server";
 
 import { prisma } from "@/lib/prisma";
-import type { Prisma } from "@prisma/client";
+import { Prisma } from "@prisma/client";
 import { getCurrentHubUser, hasPermission } from "@/lib/permissions";
 import { revalidatePath } from "next/cache";
 import { CLIENT_CANCELLATION_WHERE } from "@/lib/cancellations";
@@ -10,7 +10,7 @@ import { createNotification } from "@/lib/notifications";
 import { getNextSessionNumber } from "@/lib/session-number";
 import { getBusinessTimezone, formatDateInTimezone, formatTimeInTimezone } from "@/lib/format-datetime";
 import { isMidpointEligible, getOrCreateMidpointReview } from "@/lib/midpoint";
-import { suggestNextTechNumbers } from "@/lib/tech-count";
+import { suggestNextTechNumbers, parsePackageTechnologies, computePackageTracker, type PackageTechnologies } from "@/lib/tech-count";
 
 export async function createAppointment(formData: FormData) {
   const user = await getCurrentHubUser();
@@ -420,5 +420,47 @@ export async function updateAppointmentTechNumbers(appointmentId: string, number
   await prisma.appointment.update({ where: { id: appointmentId }, data: { technologies: technologies as Prisma.InputJsonValue } });
   revalidatePath("/hub/appointments");
   revalidatePath(`/hub/clients/${appt.clientId}`);
+  return { success: true };
+}
+
+/**
+ * Hub-only package tracker for the scheduler: per-technology totals of
+ * the client's current package vs. what's done / already booked.
+ * Never exposed to the Client Portal.
+ */
+export async function getClientPackageTracker(clientId: string) {
+  const user = await getCurrentHubUser();
+  if (!user) return null;
+  const assessment = await prisma.blueprintAssessment.findFirst({
+    where: { clientId, status: { in: ["ACTIVE", "BASELINE_PENDING", "BASELINE_COMPLETED", "VALIDATED", "IN_PROGRESS", "COMPLETED"] } },
+    orderBy: { version: "desc" },
+    select: { id: true, packageTechnologies: true, recommendedSystem: true },
+  });
+  if (!assessment) return null;
+  const pkg = parsePackageTechnologies(assessment.packageTechnologies);
+  if (!pkg) return { assessmentId: assessment.id, system: assessment.recommendedSystem, pkg: null, rows: [] };
+  const appointments = await prisma.appointment.findMany({
+    where: { clientId, status: { in: ["COMPLETED", "SCHEDULED"] } },
+    select: { startsAt: true, status: true, technologies: true },
+  });
+  return { assessmentId: assessment.id, system: assessment.recommendedSystem, pkg, rows: computePackageTracker(pkg, appointments) };
+}
+
+export async function updatePackageTechnologies(assessmentId: string, pkg: PackageTechnologies) {
+  const user = await getCurrentHubUser();
+  if (!user || !hasPermission(user, "appointments.manage")) {
+    return { error: "You don't have permission to edit packages." };
+  }
+  const items = pkg.items
+    .map((i) => ({ name: i.name.trim(), total: Math.floor(Number(i.total)) }))
+    .filter((i) => i.name && i.total > 0);
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(pkg.since)) return { error: "Choose the package start date." };
+  const assessment = await prisma.blueprintAssessment.update({
+    where: { id: assessmentId },
+    data: { packageTechnologies: items.length > 0 ? { since: pkg.since, items } : Prisma.DbNull },
+    select: { clientId: true },
+  });
+  if (assessment.clientId) revalidatePath(`/hub/clients/${assessment.clientId}`);
+  revalidatePath("/hub/appointments");
   return { success: true };
 }

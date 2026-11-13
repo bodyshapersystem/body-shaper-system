@@ -48,3 +48,63 @@ export function suggestNextTechNumbers(
   }
   return next;
 }
+
+/* ------------------------------------------------------------------ */
+/* Package tracker (Hub-only)                                          */
+/* ------------------------------------------------------------------ */
+
+/** Stored on BlueprintAssessment.packageTechnologies. */
+export type PackageTechnologies = {
+  /** yyyy-mm-dd — appointments before this belong to an earlier package. */
+  since: string;
+  items: { name: string; total: number }[];
+};
+
+export type PackageTrackerRow = {
+  name: string;
+  total: number;
+  done: number;
+  scheduled: number;
+  /** Still to be booked: total − done − scheduled (never below 0). */
+  toBook: number;
+  complete: boolean;
+};
+
+export function parsePackageTechnologies(raw: unknown): PackageTechnologies | null {
+  if (!raw || typeof raw !== "object") return null;
+  const r = raw as { since?: unknown; items?: unknown };
+  if (typeof r.since !== "string" || !Array.isArray(r.items)) return null;
+  const items = r.items
+    .filter((i): i is { name: string; total: number } => !!i && typeof i.name === "string" && typeof i.total === "number" && i.total > 0)
+    .map((i) => ({ name: i.name, total: Math.floor(i.total) }));
+  return { since: r.since, items };
+}
+
+/**
+ * done      = highest # recorded on a COMPLETED appointment in this package
+ * scheduled = upcoming SCHEDULED appointments in this package that include it
+ */
+export function computePackageTracker(
+  pkg: PackageTechnologies,
+  appointments: { startsAt: Date | string; status: string; technologies: unknown }[],
+  now: Date = new Date()
+): PackageTrackerRow[] {
+  const since = new Date(pkg.since + "T00:00:00").getTime();
+  const inPackage = appointments.filter((a) => new Date(a.startsAt).getTime() >= since);
+
+  return pkg.items.map(({ name, total }) => {
+    const key = techKey(name);
+    let done = 0;
+    let scheduled = 0;
+    for (const a of inPackage) {
+      if (!Array.isArray(a.technologies)) continue;
+      const t = (a.technologies as TechEntry[]).find((x) => x?.name && techKey(x.name) === key);
+      if (!t) continue;
+      if (a.status === "COMPLETED" && typeof t.number === "number") done = Math.max(done, t.number);
+      if (a.status === "SCHEDULED" && new Date(a.startsAt).getTime() >= now.getTime()) scheduled += 1;
+    }
+    done = Math.min(done, total);
+    const toBook = Math.max(total - done - scheduled, 0);
+    return { name, total, done, scheduled, toBook, complete: done >= total };
+  });
+}

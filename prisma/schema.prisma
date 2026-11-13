@@ -414,6 +414,10 @@ model BlueprintAssessment {
   // needing to fabricate backdated Appointment rows for history that
   // predates this system. Set directly by the Owner, defaults to 0.
   priorCompletedSessions         Int     @default(0)
+  // Hub-only package tracker — per-technology totals for the current
+  // package, e.g. [{ name: "Exilis Elite™", total: 6 }]. Progress is
+  // read from the per-technology `number` on Appointment.technologies.
+  packageTechnologies            Json?
   complementarySessions          String?
   homeCareGuidance               String?
   // Compression Garment — the default Home Care recommendation,
