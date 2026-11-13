@@ -4,6 +4,8 @@ import { getBusinessTimezone, formatDateInTimezone, formatTimeInTimezone } from 
 import { categorizeAppointment } from "@/lib/appointment-categories";
 import { buildGoogleCalendarUrl } from "@/lib/google-calendar";
 import ClientAppointmentsView from "./ClientAppointmentsView";
+import PackageWaves from "@/components/PackageWaves";
+import { computePackageTracker, parsePackageTechnologies } from "@/lib/tech-count";
 
 /**
  * Real, shared appointments data + view — used by both the standalone
@@ -48,8 +50,13 @@ export default async function AppointmentsPageContent({ heading = true }: { head
       category,
       locationType: a.locationType,
       durationMinutes: a.estimatedMinutes,
+      technologies: Array.isArray(a.technologies)
+        ? (a.technologies as { name?: string; number?: number }[]).filter((t) => t?.name).map((t) => ({ name: String(t.name), number: typeof t.number === "number" ? t.number : null }))
+        : [],
     };
   });
+  const pkg = parsePackageTechnologies(assessment?.packageTechnologies);
+  const packageRows = pkg ? computePackageTracker(pkg, appointments) : [];
 
   const nextAppointment = appointments.find((a) => a.status === "SCHEDULED" && a.startsAt >= now) ?? null;
 
@@ -106,6 +113,10 @@ export default async function AppointmentsPageContent({ heading = true }: { head
           <h1>appointments.</h1>
           <p className="portal-page-sub">View your upcoming sessions and stay on track.</p>
         </div>
+      )}
+
+      {packageRows.length > 0 && (
+        <PackageWaves rows={packageRows} timeZone={timezone} title={`your system${assessment?.recommendedSystem ? ` · ${assessment.recommendedSystem}` : ""}`} />
       )}
 
       <ClientAppointmentsView
