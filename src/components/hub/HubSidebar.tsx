@@ -45,6 +45,7 @@ const NAV_GROUPS: NavGroup[] = [
       },
       { href: "/hub/payments", label: "Payments", icon: "card" },
       { href: "/hub/proposals", label: "Client Proposals", icon: "card" },
+      { href: "/hub/society", label: "Shaper Society™", icon: "star" },
       { href: "/hub/analytics", label: "Analytics", icon: "chart" },
     ],
   },

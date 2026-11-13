@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import { attachSocietyReferralToLead } from "@/lib/society";
 import { notFound } from "next/navigation";
 import { buildProposalView, findActiveProposal, sampleProposal } from "@/lib/proposals/server";
 import ProposalExperience from "@/components/proposals/ProposalExperience";
@@ -42,6 +43,8 @@ export default async function ProposalPage({
 
   const proposal = await findActiveProposal(token);
   if (!proposal) notFound();
+  // A referral cookie on the visitor credits the proposal's lead (if not already credited).
+  if (proposal.leadId) await attachSocietyReferralToLead(proposal.leadId);
   const view = await buildProposalView(proposal);
   const isGabiOnly = proposal.id === "cprop_6e14280813e543fd88fd73e213fcb640";
   const experience = <ProposalExperience view={view} checkoutState={checkout === "success" || checkout === "assessment" || checkout === "cancelled" ? checkout : null} />;

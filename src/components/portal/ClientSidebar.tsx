@@ -17,6 +17,7 @@ const NAV: NavItem[] = [
   // Rewards + Messages archived (stand-by) — pages still exist in code;
   // /portal/rewards/* redirects to the dashboard, /portal/messages is a
   // simple "contact your specialist" page. Re-add here to bring back.
+  { href: "/portal/invite", label: "Invite & Earn", icon: "star" },
   { href: "/portal/photos", label: "Progress Photos", icon: "camera" },
   { href: "/portal/documents", label: "Documents", icon: "doc" },
   { href: "/portal/profile", label: "Profile", icon: "person" },

@@ -1170,3 +1170,67 @@ export function buildPeptideJourneyInviteEmail(params: { firstName: string; pers
     ),
   };
 }
+
+/* ---------------- Shaper Society ---------------- */
+
+const societyEsc = (v: string) => v.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]!);
+
+export function buildSocietyApplicationReceivedEmail(params: { firstName: string }) {
+  const name = societyEsc(params.firstName?.trim() || "beautiful");
+  return {
+    subject: "We received your Shaper Society application ✨",
+    html: emailShell({
+      headline: "thank you for applying.",
+      headlineAccent: "we'll be in touch soon.",
+      subheadlineLines: ["SHAPER SOCIETY™"],
+      bodyParagraphs: [
+        `Hi ${name},`,
+        "Thank you for your interest in the Shaper Society — our referral program for collaborators and ambassadors who share Body Shaper System™ with their community.",
+        "We personally review every application. Once you're approved you'll receive an email to create your login, see your personal link and start earning commission on every referral who completes their system.",
+      ],
+      closingText: "Shaper Society — share the system. Earn with every transformation.",
+    }),
+  };
+}
+
+export function buildSocietyApprovedEmail(params: { firstName: string; activationUrl: string; code: string; discountLabel: string | null }) {
+  const name = societyEsc(params.firstName?.trim() || "beautiful");
+  return {
+    subject: "You're in — welcome to the Shaper Society ✨",
+    html: emailShell({
+      headline: "you're approved.",
+      headlineAccent: "welcome to the society.",
+      subheadlineLines: ["SHAPER SOCIETY™"],
+      bodyParagraphs: [
+        `Hi ${name},`,
+        `Your personal code is <strong>${societyEsc(params.code)}</strong>. Create your login to see your link, track visits and referrals, and follow your commissions.`,
+        params.discountLabel
+          ? `People who arrive through your link receive <strong>${societyEsc(params.discountLabel)} off</strong> their first system.`
+          : "",
+        "You earn a percentage of every referral who completes payment for their system — and your percentage grows with every level you reach.",
+      ].filter(Boolean),
+      ctaLabel: "Create My Login",
+      ctaUrl: params.activationUrl,
+      closingText: "Shaper Society — share the system. Earn with every transformation.",
+    }),
+  };
+}
+
+export function buildSocietyCommissionEmail(params: { firstName: string; amountLabel: string; dashboardUrl: string }) {
+  const name = societyEsc(params.firstName?.trim() || "beautiful");
+  return {
+    subject: `You earned ${params.amountLabel} in the Shaper Society ✨`,
+    html: emailShell({
+      headline: "a new commission.",
+      headlineAccent: "thank you for sharing.",
+      subheadlineLines: ["SHAPER SOCIETY™"],
+      bodyParagraphs: [
+        `Hi ${name},`,
+        `Someone you referred just completed payment for their system. You earned <strong>${societyEsc(params.amountLabel)}</strong>. It will show as pending until it's approved, then you can request your payout from your dashboard.`,
+      ],
+      ctaLabel: "View My Dashboard",
+      ctaUrl: params.dashboardUrl,
+      closingText: "Shaper Society — share the system. Earn with every transformation.",
+    }),
+  };
+}
