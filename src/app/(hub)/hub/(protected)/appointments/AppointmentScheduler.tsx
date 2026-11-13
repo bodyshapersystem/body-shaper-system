@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import { createAppointment, getClientSessionContext, getClientAppointmentHistory, getClientTechNumberSuggestions, getClientPackageTracker } from "./actions";
 import PackageTracker from "./PackageTracker";
 import { techKey, formatTechList } from "@/lib/tech-count";
+import { zonesFor, zoneShort } from "@/lib/tech-zones";
+import { TECHNOLOGIES } from "@/lib/technologies";
 import MiniCalendar from "./MiniCalendar";
 import ClientAppointmentHistoryCalendar from "./ClientAppointmentHistoryCalendar";
 
@@ -34,19 +36,14 @@ type TechSelection = {
   minutes: number;
   /** Specialist's running count for this technology ("Exilis #3"). */
   number?: number;
+  /** Treatment zone (lib/tech-zones), e.g. "legs-front", "glutes". */
+  zone?: string;
   bodyArea?: string;
   intensity?: string;
   notes?: string;
 };
 
-const TECHNOLOGIES: { name: string; minutes: number; label: string }[] = [
-  { name: "Exilis Elite™", minutes: 50, label: "45–50 min" },
-  { name: "EMS™", minutes: 30, label: "30 min" },
-  { name: "Endospheres™", minutes: 30, label: "30 min" },
-  { name: "Carboxy™", minutes: 30, label: "30 min" },
-  { name: "Lymphatic Drainage™", minutes: 30, label: "30 min" },
-  { name: "RF + Cavitation™", minutes: 45, label: "40–50 min" },
-];
+// shared list — see lib/technologies.ts
 
 const TIME_SLOTS = [
   "08:00", "08:30", "09:00", "09:30", "10:00", "10:30", "11:00", "11:30",
@@ -154,6 +151,10 @@ export default function AppointmentScheduler({
     );
   }
 
+  function setTechZone(name: string, zone: string) {
+    setSelectedTechs((prev) => prev.map((t) => (t.name === name ? { ...t, zone: t.zone === zone ? undefined : zone } : t)));
+  }
+
   function setTechNumber(name: string, value: string) {
     const n = value === "" ? undefined : Math.max(1, Math.floor(Number(value)));
     setSelectedTechs((prev) => prev.map((t) => (t.name === name ? { ...t, number: n } : t)));
@@ -248,7 +249,7 @@ export default function AppointmentScheduler({
           {selectedTechs.length > 0 && (
             <div>
               <span>Technologies</span>
-              <strong>{formatTechList(selectedTechs)}</strong>
+              <strong>{selectedTechs.map((t) => `${formatTechList([t])}${t.zone ? ` (${zoneShort(t.name, t.zone)})` : ""}`).join(" + ")}</strong>
             </div>
           )}
         </div>
@@ -366,8 +367,9 @@ export default function AppointmentScheduler({
             <ul className="sched-tech-list">
               {TECHNOLOGIES.map((tech) => {
                 const selected = selectedTechs.find((t) => t.name === tech.name);
+                const zones = zonesFor(tech.name);
                 return (
-                  <li key={tech.name} style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <li key={tech.name} style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
                     <label className="sched-tech-row" style={{ flex: 1 }}>
                       <input type="checkbox" checked={!!selected} onChange={() => toggleTech(tech)} className="sched-checkbox" />
                       <span className="sched-tech-name">{tech.name}</span>
@@ -388,6 +390,15 @@ export default function AppointmentScheduler({
                           aria-label={`${tech.name} count`}
                         />
                       </label>
+                    )}
+                    {selected && zones.length > 0 && (
+                      <div className="zone-chips" role="group" aria-label={`${tech.name} zone`}>
+                        {zones.map((z) => (
+                          <button key={z.key} type="button" className={selected.zone === z.key ? "zone-chip on" : "zone-chip"} onClick={() => setTechZone(tech.name, z.key)}>
+                            {z.label}
+                          </button>
+                        ))}
+                      </div>
                     )}
                   </li>
                 );

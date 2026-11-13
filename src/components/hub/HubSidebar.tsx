@@ -24,6 +24,7 @@ const NAV_GROUPS: NavGroup[] = [
     items: [
       { href: "/hub/blueprints", label: "Body Blueprint™", icon: "brain" },
       { href: "/hub/appointments", label: "Appointments", icon: "calendar" },
+      { href: "/hub/recap", label: "Session Recap", icon: "calendar" },
       { href: "/hub/documents", label: "Client Records™", icon: "doc" },
       { href: "/hub/messages", label: "Messages", icon: "chat" },
       { href: "/hub/measurements", label: "Progress™", icon: "ruler" },

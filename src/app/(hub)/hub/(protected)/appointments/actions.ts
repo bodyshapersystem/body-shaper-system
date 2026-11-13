@@ -32,7 +32,7 @@ export async function createAppointment(formData: FormData) {
     return { error: "Client, title, and start time are required." };
   }
 
-  let technologies: { name: string; minutes: number; number?: number; bodyArea?: string; intensity?: string; notes?: string }[] | undefined;
+  let technologies: { name: string; minutes: number; number?: number; zone?: string; bodyArea?: string; intensity?: string; notes?: string }[] | undefined;
   if (technologiesRaw) {
     try {
       const parsed = JSON.parse(technologiesRaw);
@@ -463,4 +463,53 @@ export async function updatePackageTechnologies(assessmentId: string, pkg: Packa
   if (assessment.clientId) revalidatePath(`/hub/clients/${assessment.clientId}`);
   revalidatePath("/hub/appointments");
   return { success: true };
+}
+
+/**
+ * Save what was actually done in a session (treatments, # and zone) and,
+ * optionally, its status. Used by the 8 pm recap and the appointment panel.
+ */
+export async function saveSessionRecap(
+  appointmentId: string,
+  data: { technologies: { name: string; minutes?: number; number?: number | null; zone?: string | null }[]; status?: "COMPLETED" | "NO_SHOW" | "SCHEDULED" }
+) {
+  const user = await getCurrentHubUser();
+  if (!user || !hasPermission(user, "appointments.manage")) {
+    return { error: "You don't have permission to edit appointments." };
+  }
+  const appt = await prisma.appointment.findUnique({ where: { id: appointmentId }, select: { technologies: true, clientId: true, status: true } });
+  if (!appt) return { error: "Appointment not found." };
+  const previous = Array.isArray(appt.technologies) ? (appt.technologies as Record<string, unknown>[]) : [];
+  const technologies = data.technologies.map((t) => {
+    const prev = previous.find((p) => p.name === t.name) ?? {};
+    const out: Record<string, unknown> = { ...prev, name: t.name, minutes: t.minutes ?? (prev.minutes as number | undefined) ?? 30 };
+    if (t.number && t.number > 0) out.number = Math.floor(t.number);
+    else delete out.number;
+    if (t.zone) out.zone = t.zone;
+    else delete out.zone;
+    return out;
+  });
+  const estimatedMinutes = technologies.reduce((s, t) => s + (Number(t.minutes) || 0), 0) || null;
+  await prisma.appointment.update({
+    where: { id: appointmentId },
+    data: { technologies: technologies as Prisma.InputJsonValue, ...(estimatedMinutes ? { estimatedMinutes } : {}) },
+  });
+  if (data.status && data.status !== appt.status) {
+    const r = await updateAppointment(appointmentId, { status: data.status });
+    if (r && "error" in r) return r;
+  }
+  revalidatePath("/hub/appointments");
+  revalidatePath("/hub/recap");
+  revalidatePath(`/hub/clients/${appt.clientId}`);
+  return { success: true };
+}
+
+/** Recap: mark the given scheduled sessions as completed exactly as planned. */
+export async function confirmSessionsAsPlanned(ids: string[]) {
+  const user = await getCurrentHubUser();
+  if (!user || !hasPermission(user, "appointments.manage")) return { error: "You don't have permission to edit appointments." };
+  const appts = await prisma.appointment.findMany({ where: { id: { in: ids }, status: "SCHEDULED" }, select: { id: true } });
+  for (const a of appts) await updateAppointment(a.id, { status: "COMPLETED" });
+  revalidatePath("/hub/recap");
+  return { success: true, count: appts.length };
 }

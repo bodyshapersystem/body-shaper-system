@@ -1363,6 +1363,7 @@ enum EmailTemplate {
   SOCIETY_APPLICATION
   SOCIETY_APPROVED
   SOCIETY_COMMISSION
+  DAILY_RECAP
 }
 
 enum EmailStatus {

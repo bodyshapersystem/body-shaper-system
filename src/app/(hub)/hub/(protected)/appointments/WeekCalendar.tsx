@@ -32,7 +32,7 @@ export type CalendarEvent = {
   durationMinutes: number | null;
   therapistName: string | null;
   currentSessionNumber: number;
-  technologies: { name: string; number?: number | null }[] | null;
+  technologies: { name: string; number?: number | null; zone?: string | null; minutes?: number }[] | null;
 };
 
 const DAY_LABELS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];

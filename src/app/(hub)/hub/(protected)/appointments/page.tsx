@@ -132,7 +132,7 @@ export default async function HubAppointmentsPage({
       durationMinutes: a.estimatedMinutes,
       therapistName: a.createdById ? therapistNameById.get(a.createdById) ?? null : null,
       currentSessionNumber: (completedCountByClient.get(a.clientId) ?? 0) + 1,
-      technologies: Array.isArray(a.technologies) ? (a.technologies as { name: string; number?: number | null }[]) : null,
+      technologies: Array.isArray(a.technologies) ? (a.technologies as { name: string; number?: number | null; zone?: string | null; minutes?: number }[]) : null,
     };
   });
 

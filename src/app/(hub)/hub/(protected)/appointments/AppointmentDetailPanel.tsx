@@ -3,8 +3,10 @@
 import { useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { updateAppointment, cancelAppointment, deleteAppointmentPermanently, rescheduleAppointment, cancelForRescheduleLimit, updateAppointmentTechNumbers } from "./actions";
+import { updateAppointment, cancelAppointment, deleteAppointmentPermanently, rescheduleAppointment, cancelForRescheduleLimit } from "./actions";
 import { formatTechList } from "@/lib/tech-count";
+import { zoneShort } from "@/lib/tech-zones";
+import SessionDoneEditor from "@/components/hub/SessionDoneEditor";
 import { CATEGORY_LABELS } from "@/lib/appointment-categories";
 import type { CalendarEvent } from "./WeekCalendar";
 
@@ -27,19 +29,7 @@ export default function AppointmentDetailPanel({
   const [limitOpen, setLimitOpen] = useState(false);
   const [message, setMessage] = useState("");
   const [editingCounts, setEditingCounts] = useState(false);
-  const [counts, setCounts] = useState<Record<string, string>>(() =>
-    Object.fromEntries((event.technologies ?? []).map((t) => [t.name, t.number ? String(t.number) : ""]))
-  );
 
-  function handleSaveCounts() {
-    const numbers = Object.fromEntries(Object.entries(counts).map(([k, v]) => [k, v === "" ? null : Number(v)]));
-    startTransition(async () => {
-      const r = await updateAppointmentTechNumbers(event.id, numbers);
-      if ("error" in r && r.error) return setMessage(r.error);
-      setEditingCounts(false);
-      router.refresh();
-    });
-  }
   const clientReschedules = event.rescheduleCount ?? 0;
   const scheduled = event.status === "SCHEDULED";
 
@@ -122,38 +112,18 @@ export default function AppointmentDetailPanel({
             <div className="apd-detail-row">
               <span>technologies</span>
               <strong>
-                {formatTechList(event.technologies)}
+                {event.technologies.map((t) => `${formatTechList([t])}${t.zone ? ` · ${zoneShort(t.name, t.zone)}` : ""}`).join(" + ")}
                 {canManage && (
                   <button type="button" className="apd-inline-link" onClick={() => setEditingCounts((v) => !v)} style={{ marginLeft: 8, background: "none", border: 0, textDecoration: "underline", cursor: "pointer", color: "inherit", font: "inherit", opacity: 0.7 }}>
-                    edit #
+                    edit what was done
                   </button>
                 )}
               </strong>
             </div>
           )}
-          {editingCounts && event.technologies && (
+          {editingCounts && (
             <div className="apd-choice">
-              {event.technologies.map((t) => (
-                <label key={t.name} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
-                  {t.name}
-                  <span>
-                    #{" "}
-                    <input
-                      type="number"
-                      min={1}
-                      inputMode="numeric"
-                      value={counts[t.name] ?? ""}
-                      onChange={(e) => setCounts((c) => ({ ...c, [t.name]: e.target.value }))}
-                      className="sched-inline-input"
-                      style={{ width: 56, textAlign: "center" }}
-                    />
-                  </span>
-                </label>
-              ))}
-              {message && <p className="apd-choice-warn">{message}</p>}
-              <button type="button" className="sched-cta" onClick={handleSaveCounts} disabled={isPending}>
-                {isPending ? "Saving…" : "Save counts"}
-              </button>
+              <SessionDoneEditor appointmentId={event.id} initial={event.technologies ?? []} status={event.status} compact onDone={() => setEditingCounts(false)} />
             </div>
           )}
           {event.totalSessions !== null && (

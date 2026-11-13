@@ -113,7 +113,10 @@ export default async function OwnerOverview() {
       <section className="oov-card oov-week">
         <div className="oov-head">
           <h3>this week</h3>
-          <Link href="/hub/appointments" className="pd-link">calendar →</Link>
+          <span style={{ display: "flex", gap: 14 }}>
+            <Link href="/hub/recap" className="pd-link">today&apos;s recap →</Link>
+            <Link href="/hub/appointments" className="pd-link">calendar →</Link>
+          </span>
         </div>
         <div className="oov-days">
           {days.map((d) => (
