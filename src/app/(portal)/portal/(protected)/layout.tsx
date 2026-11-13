@@ -20,7 +20,7 @@ export default async function PortalProtectedLayout({ children }: { children: Re
     <div className="portal-shell">
       <ClientSidebar
         name={`${client.firstName} ${client.lastName}`}
-        tier={client.rewardsAccount?.tier ?? "Standard"}
+        tier=""
         logoutAction={logoutPortalClient}
       />
       <main className="portal-main">{children}</main>

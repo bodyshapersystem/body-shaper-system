@@ -209,7 +209,7 @@ export default function ClientAppointmentsView({
             ) : (
               <p className="pay-history-meta" style={{ marginTop: 10 }}>Your reschedule request has been sent to your specialist.</p>
             )}
-            <Link href="/portal/messages" className="cap-secondary-btn">Message Your Specialist</Link>
+            <Link href="/portal/messages" className="cap-secondary-btn">Contact Your Specialist</Link>
 
             <div className="cap-info-bar">
               {nextAppointment.locationType === "HOME" ? (

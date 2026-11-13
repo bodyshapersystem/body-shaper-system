@@ -1,49 +1,47 @@
 import { getCurrentPortalClient } from "@/lib/permissions";
 import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
-import { replyAsClient } from "./actions";
 
 export const dynamic = "force-dynamic";
 
-export default async function MessagesPage() {
+/**
+ * In-portal messaging is archived (stand-by) — the original thread page
+ * lives in src/_archive/portal-messages/page.v1.tsx. Existing "message
+ * your specialist" links land here and get direct text / call / email.
+ */
+export default async function ContactSpecialistPage() {
   const client = await getCurrentPortalClient();
   if (!client) redirect("/portal/login");
 
-  const thread = await prisma.messageThread.findUnique({
-    where: { clientId: client.id },
-    include: { messages: { orderBy: { createdAt: "asc" } } },
-  });
+  const business = await prisma.businessSettings.findUnique({ where: { id: "default" } });
+  const phone = business?.contactPhone?.replace(/[^\d+]/g, "") || null;
+  const email = business?.contactEmail || null;
 
   return (
     <div className="cat-body portal-page">
       <div className="portal-page-head">
-        <p className="portal-eyebrow">Secure Communication</p>
-        <h1>messages.</h1>
-        <p className="portal-page-sub">Connect with your care team.</p>
+        <p className="portal-eyebrow">your specialist</p>
+        <h1>contact.</h1>
+        <p className="portal-page-sub">Questions about a session or your system? Reach us directly.</p>
       </div>
-
-      <div className="simple-card msg-thread">
-        {(!thread || thread.messages.length === 0) && (
-          <p style={{ opacity: 0.6 }}>No messages yet — send one below to get started.</p>
+      <div className="apd-panel apd-panel-marble" style={{ position: "static", width: "100%", maxWidth: 520, borderRadius: 18, display: "flex", flexDirection: "column", gap: 10 }}>
+        {phone && (
+          <a href={`sms:${phone}`} className="apd-btn-primary" style={{ display: "block", textAlign: "center" }}>
+            Text Us
+          </a>
         )}
-        {thread?.messages.map((m) => (
-          <div key={m.id} className={m.senderType === "CLIENT" ? "msg-bubble me" : "msg-bubble"}>
-            {m.body}
-          </div>
-        ))}
-        <form
-          action={async (formData: FormData) => {
-            "use server";
-            await replyAsClient(formData);
-          }}
-        >
-          <textarea name="body" className="msg-input" placeholder="Write a message…" rows={2} required />
-          <button type="submit" className="pd-link" style={{ marginTop: 8 }}>
-            Send
-          </button>
-        </form>
+        {phone && (
+          <a href={`tel:${phone}`} className="apd-btn-secondary" style={{ display: "block", textAlign: "center" }}>
+            Call
+          </a>
+        )}
+        {email && (
+          <a href={`mailto:${email}`} className="apd-btn-secondary" style={{ display: "block", textAlign: "center" }}>
+            Email
+          </a>
+        )}
+        {!phone && !email && <p>Contact details coming soon.</p>}
       </div>
     </div>
   );
 }
-

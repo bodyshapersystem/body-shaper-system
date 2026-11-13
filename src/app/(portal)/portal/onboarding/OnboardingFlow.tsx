@@ -113,7 +113,7 @@ export default function OnboardingFlow({
         <h2 className="onb-step-title">{current.title}</h2>
         <p className="onb-step-sub">{current.sub}</p>
         {step === 3 ? (
-          <a href="/portal/messages" className="onb-cta">Message Your Specialist</a>
+          <a href="/portal/messages" className="onb-cta">Contact Your Specialist</a>
         ) : clickedContinue ? (
           <div className="onb-cta onb-cta-processing" aria-live="polite">
             Waiting for your submission to process…

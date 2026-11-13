@@ -5751,3 +5751,11 @@
 .apd-choice-warn{ margin:0; color:#f0c58a; }
 .apd-choice-quote{ margin:0; padding:10px 12px; border-left:2px solid #e9d3ae; background:rgba(0,0,0,0.15); font-style:italic; }
 .apd-choice p{ margin:0; }
+
+/* ---------- Portal dashboard: Appointments CTA (burgundy marble) ---------- */
+.pdash-appt-cta{ position:static !important; width:100% !important; border-radius:18px; padding:26px 28px; margin-bottom:24px; display:flex; align-items:center; justify-content:space-between; gap:20px; flex-wrap:wrap; }
+.pdash-appt-cta-eyebrow{ font-family:var(--sans); font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:rgba(184,160,136,0.8); margin:0 0 6px; }
+.pdash-appt-cta-title{ font-family:var(--serif); font-size:26px; font-weight:500; color:#F6F3EE; margin:0; line-height:1.15; }
+.pdash-appt-cta-sub{ font-family:var(--sans); font-size:13px; color:#B8A088; margin:6px 0 0; }
+.pdash-appt-cta-actions{ display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
+.pdash-appt-cta-link{ display:inline-block; text-decoration:none; }
