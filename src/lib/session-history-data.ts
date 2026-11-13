@@ -38,7 +38,7 @@ export async function getSessionHistoryData(clientId: string) {
       id: a.id,
       startsAt: a.startsAt.toISOString(),
       status: a.status,
-      technologies: a.technologies as { name: string; areas?: string[]; objectives?: string[] }[] | null,
+      technologies: a.technologies as { name: string; number?: number | null; areas?: string[]; objectives?: string[] }[] | null,
       blueprintAlignment: a.blueprintAlignment as { matched: string[]; unmatched: string[] } | null,
       notes: a.notes,
     })),

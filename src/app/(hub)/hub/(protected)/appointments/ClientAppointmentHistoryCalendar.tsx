@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { formatTechList } from "@/lib/tech-count";
 
 const WEEKDAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 const MONTHS = [
@@ -13,7 +14,7 @@ type HistoryAppointment = {
   title: string;
   startsAt: string;
   status: string;
-  technologies: { name: string; minutes: number; bodyArea?: string }[] | null;
+  technologies: { name: string; minutes: number; number?: number; bodyArea?: string }[] | null;
 };
 
 function toDateKey(d: Date) {
@@ -108,7 +109,7 @@ export default function ClientAppointmentHistoryCalendar({ appointments }: { app
               <p className="cah-appt-title">{a.title}</p>
               <p className="pay-history-meta">
                 {new Date(a.startsAt).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })}
-                {a.technologies && a.technologies.length > 0 ? ` · ${a.technologies.map((t) => t.name).join(", ")}` : ""}
+                {a.technologies && a.technologies.length > 0 ? ` · ${formatTechList(a.technologies)}` : ""}
               </p>
             </div>
           ))}

@@ -3,7 +3,8 @@
 import { useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { updateAppointment, cancelAppointment, deleteAppointmentPermanently, rescheduleAppointment, cancelForRescheduleLimit } from "./actions";
+import { updateAppointment, cancelAppointment, deleteAppointmentPermanently, rescheduleAppointment, cancelForRescheduleLimit, updateAppointmentTechNumbers } from "./actions";
+import { formatTechList } from "@/lib/tech-count";
 import { CATEGORY_LABELS } from "@/lib/appointment-categories";
 import type { CalendarEvent } from "./WeekCalendar";
 
@@ -25,6 +26,20 @@ export default function AppointmentDetailPanel({
   const [cancelledBy, setCancelledBy] = useState<"business" | "client">("business");
   const [limitOpen, setLimitOpen] = useState(false);
   const [message, setMessage] = useState("");
+  const [editingCounts, setEditingCounts] = useState(false);
+  const [counts, setCounts] = useState<Record<string, string>>(() =>
+    Object.fromEntries((event.technologies ?? []).map((t) => [t.name, t.number ? String(t.number) : ""]))
+  );
+
+  function handleSaveCounts() {
+    const numbers = Object.fromEntries(Object.entries(counts).map(([k, v]) => [k, v === "" ? null : Number(v)]));
+    startTransition(async () => {
+      const r = await updateAppointmentTechNumbers(event.id, numbers);
+      if ("error" in r && r.error) return setMessage(r.error);
+      setEditingCounts(false);
+      router.refresh();
+    });
+  }
   const clientReschedules = event.rescheduleCount ?? 0;
   const scheduled = event.status === "SCHEDULED";
 
@@ -103,6 +118,44 @@ export default function AppointmentDetailPanel({
         <div className="apd-detail-list">
           <div className="apd-detail-row"><span>system / treatment</span><strong>{event.title}</strong></div>
           <div className="apd-detail-row"><span>appointment type</span><strong>Mobile Appointment</strong></div>
+          {event.technologies && event.technologies.length > 0 && (
+            <div className="apd-detail-row">
+              <span>technologies</span>
+              <strong>
+                {formatTechList(event.technologies)}
+                {canManage && (
+                  <button type="button" className="apd-inline-link" onClick={() => setEditingCounts((v) => !v)} style={{ marginLeft: 8, background: "none", border: 0, textDecoration: "underline", cursor: "pointer", color: "inherit", font: "inherit", opacity: 0.7 }}>
+                    edit #
+                  </button>
+                )}
+              </strong>
+            </div>
+          )}
+          {editingCounts && event.technologies && (
+            <div className="apd-choice">
+              {event.technologies.map((t) => (
+                <label key={t.name} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
+                  {t.name}
+                  <span>
+                    #{" "}
+                    <input
+                      type="number"
+                      min={1}
+                      inputMode="numeric"
+                      value={counts[t.name] ?? ""}
+                      onChange={(e) => setCounts((c) => ({ ...c, [t.name]: e.target.value }))}
+                      className="sched-inline-input"
+                      style={{ width: 56, textAlign: "center" }}
+                    />
+                  </span>
+                </label>
+              ))}
+              {message && <p className="apd-choice-warn">{message}</p>}
+              <button type="button" className="sched-cta" onClick={handleSaveCounts} disabled={isPending}>
+                {isPending ? "Saving…" : "Save counts"}
+              </button>
+            </div>
+          )}
           {event.totalSessions !== null && (
             <div className="apd-detail-row"><span>session</span><strong>{event.currentSessionNumber} of {event.totalSessions}</strong></div>
           )}
