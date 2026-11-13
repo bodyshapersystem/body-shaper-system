@@ -54,7 +54,7 @@ export default function ProfileLogout({
       <span className="profile-logout-avatar">{initials}</span>
       <span className="profile-logout-text">
         {name}
-        <small>{tier}</small>
+        {tier ? <small>{tier}</small> : null}
       </span>
       <span className="profile-logout-icon" aria-hidden="true">
         <IconLogout />

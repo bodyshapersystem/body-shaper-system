@@ -14,20 +14,11 @@ const NAV: NavItem[] = [
   { href: "/portal/systems-sessions", label: "Systems & Sessions™", icon: "star" },
   { href: "/portal/appointments", label: "Appointments", icon: "calendar" },
   { href: "/portal/daily-trackers", label: "Daily Trackers", icon: "drop" },
-  {
-    href: "/portal/rewards",
-    label: "Rewards",
-    icon: "star",
-    children: [
-      { href: "/portal/rewards/overview", label: "Overview" },
-      { href: "/portal/rewards/experiences", label: "Unlock Experiences" },
-      { href: "/portal/rewards/missions", label: "Secret Missions" },
-      { href: "/portal/rewards/privileges", label: "Privileges" },
-    ],
-  },
+  // Rewards + Messages archived (stand-by) — pages still exist in code;
+  // /portal/rewards/* redirects to the dashboard, /portal/messages is a
+  // simple "contact your specialist" page. Re-add here to bring back.
   { href: "/portal/photos", label: "Progress Photos", icon: "camera" },
   { href: "/portal/documents", label: "Documents", icon: "doc" },
-  { href: "/portal/messages", label: "Messages", icon: "chat" },
   { href: "/portal/profile", label: "Profile", icon: "person" },
 ];
 

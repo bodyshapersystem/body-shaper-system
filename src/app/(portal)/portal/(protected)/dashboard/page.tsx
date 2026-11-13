@@ -151,6 +151,32 @@ export default async function PortalDashboardPage() {
       </div>
 
       {/* ---------- Hero Metrics ---------- */}
+      {/* ---------- Appointments CTA (burgundy marble) ---------- */}
+      <div className="apd-panel apd-panel-marble pdash-appt-cta">
+        <div className="pdash-appt-cta-text">
+          <p className="pdash-appt-cta-eyebrow">appointments</p>
+          {nextAppointmentDetail ? (
+            <>
+              <h2 className="pdash-appt-cta-title">{nextAppointmentDetail.dateLabel}</h2>
+              <p className="pdash-appt-cta-sub">
+                {nextAppointmentDetail.timeLabel} · {nextAppointmentDetail.locationType === "HOME" ? "at your home" : "studio"}
+              </p>
+            </>
+          ) : (
+            <>
+              <h2 className="pdash-appt-cta-title">Ready for your next session?</h2>
+              <p className="pdash-appt-cta-sub">Send a request and we&apos;ll confirm the best time for you.</p>
+            </>
+          )}
+        </div>
+        <div className="pdash-appt-cta-actions">
+          <BookSessionButton />
+          <Link href="/portal/appointments" className="apd-btn-secondary pdash-appt-cta-link">
+            My sessions →
+          </Link>
+        </div>
+      </div>
+
       <div className="trk-summary-bar" style={{ marginBottom: 24 }}>
         <div className="rw-stat-card rw-card-stone" style={{ padding: 16 }}>
           <p className="trk-summary-label">Sessions Completed</p>
@@ -245,7 +271,6 @@ export default async function PortalDashboardPage() {
             <Link href="/portal/blueprint" className="doc-client-card doc-client-card-burgundy">📘 Blueprint™</Link>
             <Link href="/portal/daily-trackers" className="doc-client-card doc-client-card-burgundy">💧 Daily Trackers</Link>
             <Link href="/portal/documents" className="doc-client-card doc-client-card-burgundy">📄 Documents</Link>
-            <Link href="/portal/rewards" className="doc-client-card doc-client-card-burgundy">⭐ Rewards</Link>
             <Link href="/portal/payments" className="doc-client-card doc-client-card-burgundy">💳 Payments</Link>
           </div>
         </div>
@@ -289,14 +314,6 @@ export default async function PortalDashboardPage() {
         <Link href="/portal/daily-trackers" className="apt-new-btn">View Daily Trackers →</Link>
       </div>
 
-      {/* ---------- Bottom CTA ---------- */}
-      <div className="trk-cta-bar">
-        <div>
-          <h3>Ready to book your next session?</h3>
-          <p>Our team will review your request and contact you with the best available options.</p>
-        </div>
-        <BookSessionButton />
-      </div>
     </div>
   );
 }

@@ -62,7 +62,7 @@ export default function PreparationInstructionsPage() {
           Have a specific question about preparing for your treatment? Your specialist is always happy to help.
         </p>
         <Link href="/portal/messages" className="cap-primary-btn" style={{ display: "inline-block", width: "auto", padding: "10px 20px" }}>
-          Message Your Specialist
+          Contact Your Specialist
         </Link>
       </div>
     </div>
