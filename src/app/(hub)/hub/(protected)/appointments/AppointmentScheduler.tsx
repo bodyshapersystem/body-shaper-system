@@ -2,7 +2,8 @@
 
 import { useState, useTransition, useMemo } from "react";
 import { useRouter } from "next/navigation";
-import { createAppointment, getClientSessionContext, getClientAppointmentHistory, getClientTechNumberSuggestions } from "./actions";
+import { createAppointment, getClientSessionContext, getClientAppointmentHistory, getClientTechNumberSuggestions, getClientPackageTracker } from "./actions";
+import PackageTracker from "./PackageTracker";
 import { techKey, formatTechList } from "@/lib/tech-count";
 import MiniCalendar from "./MiniCalendar";
 import ClientAppointmentHistoryCalendar from "./ClientAppointmentHistoryCalendar";
@@ -91,6 +92,11 @@ export default function AppointmentScheduler({
 
   const [selectedTechs, setSelectedTechs] = useState<TechSelection[]>([]);
   const [techSuggestions, setTechSuggestions] = useState<Record<string, number>>({});
+  const [tracker, setTracker] = useState<Awaited<ReturnType<typeof getClientPackageTracker>>>(null);
+
+  function refreshTracker(id: string) {
+    startTransition(async () => setTracker(await getClientPackageTracker(id)));
+  }
   const [notes, setNotes] = useState("");
   const [locationType, setLocationType] = useState<"HOME" | "STUDIO">("HOME");
 
@@ -117,15 +123,18 @@ export default function AppointmentScheduler({
     setSystemOverride("");
     setSessionOverride("");
     setTechSuggestions({});
+    setTracker(null);
     setSelectedTechs([]);
     if (!id) return;
     setLoadingContext(true);
     startTransition(async () => {
-      const [ctx, history, suggestions] = await Promise.all([
+      const [ctx, history, suggestions, pkgTracker] = await Promise.all([
         getClientSessionContext(id),
         getClientAppointmentHistory(id),
         getClientTechNumberSuggestions(id),
+        getClientPackageTracker(id),
       ]);
+      setTracker(pkgTracker);
       setContext(ctx);
       setTechSuggestions(suggestions);
       setAppointmentHistory(history);
@@ -331,6 +340,15 @@ export default function AppointmentScheduler({
             </div>
           </div>
         </div>
+      )}
+
+      {context && tracker && (
+        <PackageTracker
+          key={tracker.assessmentId + JSON.stringify(tracker.pkg)}
+          data={tracker}
+          technologyOptions={TECHNOLOGIES.map((t) => t.name)}
+          onSaved={() => refreshTracker(clientId)}
+        />
       )}
 
       {context && step === 1 && (
