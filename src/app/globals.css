@@ -6155,3 +6155,36 @@ div.hsoc-kpi:hover{ transform:none; }
 @media (max-width: 900px){ .hsoc-how{ grid-template-columns:1fr 1fr; } }
 @media (max-width: 640px){ .hsoc-how{ grid-template-columns:1fr; } }
 @media (max-width: 640px){ .hsoc-kpis{ grid-template-columns:1fr 1fr; gap:8px; } .hsoc-kpi{ padding:12px; } .hsoc-kpi strong{ font-size:24px; } }
+
+/* ---------- Portal: sessions timeline ---------- */
+.stl{ display:flex; flex-direction:column; gap:10px; }
+.stl-label{ font-family:var(--sans); font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:#A18A78; margin:6px 0 2px; }
+.stl-label-past{ margin-top:18px; }
+.stl-empty{ font-family:var(--sans); font-size:14px; color:#6E5B4D; padding:18px; border-radius:18px; border:1px dashed rgba(161,138,120,.5); background:#FBF8F4; }
+.stl-empty a{ color:#5C1A1F; }
+.stl-timeline{ position:relative; display:flex; flex-direction:column; gap:10px; padding-left:18px; }
+.stl-timeline::before{ content:""; position:absolute; left:5px; top:10px; bottom:10px; width:0; border-left:1.5px dashed rgba(200,161,90,.7); }
+.stl-item{ position:relative; display:grid; grid-template-columns:62px 1fr auto; gap:14px; align-items:center; padding:12px 14px 12px 12px; border-radius:18px;
+  background:#FBF8F4 url('/images/blueprint-waves.png') right -40px center / auto 240% no-repeat; border:1px solid rgba(92,26,31,0.08);
+  opacity:0; transform:translateY(8px); animation:pw-in .5s cubic-bezier(.2,.7,.2,1) forwards; }
+.stl-timeline .stl-item::before{ content:""; position:absolute; left:-19px; top:50%; width:11px; height:11px; margin-top:-5.5px; border-radius:50%; background:#5C1A1F; box-shadow:0 0 0 3px #F4F1ED; }
+.stl-date{ width:62px; height:66px; border-radius:14px; display:flex; flex-direction:column; align-items:center; justify-content:center; background:#fff; border:1px solid rgba(200,161,90,.45); }
+.stl-date strong{ font-family:var(--sans); font-weight:300; font-size:26px; line-height:1; color:#2B2622; }
+.stl-wd, .stl-mo{ font-family:var(--sans); font-size:10px; letter-spacing:.12em; text-transform:uppercase; color:#A18A78; }
+.stl-upcoming{ background:#3A0F16 url('/images/rewards/society-rules-bg.jpg') center/cover no-repeat; border:none; box-shadow:0 16px 34px -22px rgba(58,15,22,.7); }
+.stl-upcoming .stl-date{ background:rgba(246,243,238,.1); border-color:rgba(200,161,90,.55); }
+.stl-upcoming .stl-date strong{ color:#F6F3EE; }
+.stl-upcoming .stl-wd, .stl-upcoming .stl-mo{ color:#C8A15A; }
+.stl-upcoming .stl-title, .stl-upcoming .stl-tech{ color:#F6F3EE; }
+.stl-upcoming .stl-tech{ background:rgba(246,243,238,.1); border-color:rgba(200,161,90,.4); }
+.stl-upcoming .stl-meta{ color:#E3CFA8; }
+.stl-body{ min-width:0; display:flex; flex-direction:column; gap:6px; }
+.stl-techs{ display:flex; flex-wrap:wrap; gap:6px; }
+.stl-tech{ display:inline-flex; align-items:center; gap:7px; padding:4px 10px 4px 4px; border-radius:999px; background:#fff; border:1px solid rgba(0,0,0,0.06); font-family:var(--serif); font-size:17px; color:#2B2622; }
+.stl-tech img, .stl-tech-dot{ width:26px; height:26px; border-radius:50%; object-fit:cover; box-shadow:0 0 0 1px rgba(200,161,90,.6); display:inline-block; background:#E6DED4; }
+.stl-tech b{ font-family:var(--sans); font-weight:500; font-size:11.5px; color:#C8A15A; letter-spacing:.04em; }
+.stl-title{ font-family:var(--serif); font-size:18px; color:#2B2622; margin:0; }
+.stl-meta{ font-family:var(--sans); font-size:12px; color:#8a7f74; margin:0; }
+.stl-check{ width:26px; height:26px; border-radius:50%; background:#5C1A1F; color:#F6F3EE; font-size:12px; display:flex; align-items:center; justify-content:center; }
+.stl-soon{ font-family:var(--sans); font-size:10px; letter-spacing:.12em; text-transform:uppercase; color:#3A0F16; background:#C8A15A; border-radius:999px; padding:4px 10px; }
+.stl-no_show, .stl-cancelled{ opacity:.6; }

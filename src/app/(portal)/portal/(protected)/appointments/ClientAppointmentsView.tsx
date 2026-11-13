@@ -15,7 +15,16 @@ type ClientEvent = {
   category: AppointmentColorCategory;
   locationType: "HOME" | "STUDIO";
   durationMinutes: number | null;
+  technologies?: { name: string; number: number | null }[];
 };
+
+const TECH_THUMBS: Record<string, string> = {
+  exilis: "/images/tech-thumbs/exilis.webp",
+  endospheres: "/images/tech-thumbs/endospheres.webp",
+  ems: "/images/tech-thumbs/ems.webp",
+};
+const techKeyOf = (n: string) => n.replace(/[™®]/g, "").replace(/elite/i, "").trim().toLowerCase();
+const techLabel = (n: string) => n.replace(/[™®]/g, "").replace(/ Elite/i, "").trim();
 
 type NextAppointmentDetail = {
   id: string;
@@ -103,37 +112,20 @@ export default function ClientAppointmentsView({
         </div>
 
         {tab === "list" && (
-          <div className="cap-list">
-            {upcoming.length === 0 && <div className="module-empty">No upcoming sessions scheduled yet.</div>}
-            {upcoming.map((e) => (
-              <div key={e.id} className={`cap-card wk-event-${e.category}`}>
-                <div className="cap-card-time">{fmtDate(e.startsAt)} · {fmtTime(e.startsAt)}</div>
-                <div className="cap-card-title">{e.title}</div>
-                <div className="cap-card-meta">
-                  {e.locationType === "HOME" ? "🏡" : "🏢"} {e.locationType === "HOME" ? "At Your Home" : "Studio"}
-                  {e.durationMinutes && ` · ${e.durationMinutes} min`}
-                </div>
-              </div>
+          <div className="stl">
+            <p className="stl-label">upcoming</p>
+            {upcoming.length === 0 && <div className="stl-empty">No upcoming sessions yet — <Link href="/portal/dashboard">book your next one</Link>.</div>}
+            {upcoming.map((e, i) => (
+              <SessionItem key={e.id} e={e} timezone={timezone} upcoming index={i} />
             ))}
             {past.length > 0 && (
               <>
-                <p className="cap-past-label">
-                  Past Appointments
-                  {past.filter((e) => e.status === "CANCELLED").length > 0 && (
-                    <span style={{ fontWeight: 400 }}>
-                      {" "}
-                      · {past.filter((e) => e.status === "CANCELLED").length} cancellation
-                      {past.filter((e) => e.status === "CANCELLED").length === 1 ? "" : "s"}
-                    </span>
-                  )}
-                </p>
-                {past.map((e) => (
-                  <div key={e.id} className="cap-card cap-card-past">
-                    <div className="cap-card-time">{fmtDate(e.startsAt)}</div>
-                    <div className="cap-card-title">{e.title}</div>
-                    <div className="cap-card-meta">{e.status.toLowerCase()}</div>
-                  </div>
-                ))}
+                <p className="stl-label stl-label-past">completed sessions · {past.filter((e) => e.status === "COMPLETED").length}</p>
+                <div className="stl-timeline">
+                  {[...past].reverse().map((e, i) => (
+                    <SessionItem key={e.id} e={e} timezone={timezone} index={i} />
+                  ))}
+                </div>
               </>
             )}
           </div>
@@ -312,5 +304,44 @@ function ClientMonthView({ events, timezone }: { events: ClientEvent[]; timezone
         );
       })}
     </div>
+  );
+}
+
+function SessionItem({ e, timezone, upcoming = false, index }: { e: ClientEvent; timezone: string; upcoming?: boolean; index: number }) {
+  const d = new Date(e.startsAt);
+  const part = (o: Intl.DateTimeFormatOptions) => new Intl.DateTimeFormat("en-US", { timeZone: timezone, ...o }).format(d);
+  const techs = e.technologies ?? [];
+  return (
+    <article className={upcoming ? "stl-item stl-upcoming" : `stl-item stl-${e.status.toLowerCase()}`} style={{ animationDelay: `${Math.min(index, 12) * 60}ms` }}>
+      <div className="stl-date">
+        <span className="stl-wd">{part({ weekday: "short" })}</span>
+        <strong>{part({ day: "numeric" })}</strong>
+        <span className="stl-mo">{part({ month: "short" })}</span>
+      </div>
+      <div className="stl-body">
+        {techs.length > 0 ? (
+          <div className="stl-techs">
+            {techs.map((t) => {
+              const thumb = TECH_THUMBS[techKeyOf(t.name)];
+              return (
+                <span key={t.name} className="stl-tech">
+                  {thumb ? <img src={thumb} alt="" /> : <span className="stl-tech-dot" />}
+                  {techLabel(t.name)}
+                  {t.number ? <b>#{t.number}</b> : null}
+                </span>
+              );
+            })}
+          </div>
+        ) : (
+          <p className="stl-title">{e.title.replace(/^Session \d+ — /, "")}</p>
+        )}
+        <p className="stl-meta">
+          {part({ hour: "numeric", minute: "2-digit" })} · {e.locationType === "HOME" ? "at your home" : "studio"}
+          {upcoming || e.status === "COMPLETED" ? "" : ` · ${e.status.toLowerCase().replace("_", " ")}`}
+        </p>
+      </div>
+      {!upcoming && e.status === "COMPLETED" && <span className="stl-check" aria-label="completed">✓</span>}
+      {upcoming && <span className="stl-soon">booked</span>}
+    </article>
   );
 }
