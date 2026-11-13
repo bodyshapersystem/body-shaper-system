@@ -27,6 +27,7 @@ import SessionHistoryList from "@/components/SessionHistoryList";
 import { getSessionHistoryData } from "@/lib/session-history-data";
 import DocumentUploadSheet from "./DocumentUploadSheet";
 import DocumentRowActions from "../../documents/DocumentRowActions";
+import ClientOverviewPanel from "./ClientOverviewPanel";
 
 export const dynamic = "force-dynamic";
 
@@ -214,98 +215,16 @@ export default async function ClientDetailPage({
               <CollaborationSheet clientId={client.id} collaboration={collaboration} staff={staff} />
             </div>
           )}
-          <div className="pd-card">
-            <h3 style={{ fontFamily: "var(--sans)", fontSize: 13, marginBottom: 16 }}>Client Summary</h3>
-            <div className="cl-summary-list">
-              <div className="cl-summary-row">
-                <span>Personalized System™</span>
-                <span>{overview.system ?? "Not set"}</span>
-              </div>
-              <div className="cl-summary-row">
-                <span>Total Sessions</span>
-                <span>{overview.totalSessions ?? "Not set"}</span>
-              </div>
-              <div className="cl-summary-row">
-                <span>Completed</span>
-                <span>{overview.completedCount}</span>
-              </div>
-              <div className="cl-summary-row">
-                <span>Remaining</span>
-                <span>{overview.remaining ?? "—"}</span>
-              </div>
-              <div className="cl-summary-row">
-                <span>Plan Value</span>
-                <span>{overview.planTotalCents !== null ? money(overview.planTotalCents) : "Not set"}</span>
-              </div>
-              <div className="cl-summary-row">
-                <span>Paid to Date</span>
-                <span>{money(overview.paidCents)}</span>
-              </div>
-              <div className="cl-summary-row">
-                <span>Balance</span>
-                <span>{overview.balanceCents !== null ? money(overview.balanceCents) : "—"}</span>
-              </div>
-              <div className="cl-summary-row">
-                <span>Next Appointment</span>
-                <span>
-                  {overview.nextAppointment
-                    ? `${formatDateInTimezone(overview.nextAppointment.startsAt, timezone)} · ${formatTimeInTimezone(overview.nextAppointment.startsAt, timezone)}`
-                    : "No upcoming"}
-                </span>
-              </div>
-            </div>
-          </div>
-
-          <div>
-            <div className="pd-card" style={{ marginBottom: 20 }}>
-              <h3 style={{ fontFamily: "var(--sans)", fontSize: 13, marginBottom: 16 }}>Progress Overview</h3>
-              {overview.assessmentId && (
-                <EditPriorSessionsButton assessmentId={overview.assessmentId} currentValue={overview.priorCompletedSessions} />
-              )}
-              <div className="cl-ring-wrap">
-                <div
-                  className="cl-ring"
-                  style={{
-                    background: `conic-gradient(#5C1A1F ${overview.overallProgressPercent ?? 0}%, rgba(92,26,31,0.15) 0)`,
-                  }}
-                >
-                  <div className="cl-ring-inner">
-                    <strong>{overview.overallProgressPercent !== null ? `${overview.overallProgressPercent}%` : "—"}</strong>
-                    <span>Overall</span>
-                  </div>
-                </div>
-                <div className="cl-ring-legend">
-                  <span>
-                    <span className="cl-ring-legend-dot" style={{ background: "#5C1A1F" }} />
-                    {overview.completedCount} Completed
-                  </span>
-                  <span>
-                    <span className="cl-ring-legend-dot" style={{ background: "rgba(92,26,31,0.15)" }} />
-                    {overview.remaining ?? "—"} Remaining
-                  </span>
-                  <span>
-                    <span className="cl-ring-legend-dot" style={{ background: "#93650f" }} />
-                    {overview.onHoldCount} On Hold
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            <h3 style={{ fontFamily: "var(--sans)", fontSize: 13, marginBottom: 4 }}>Quick Actions</h3>
-            <div className="cl-quick-actions">
-              <a href="/hub/appointments" className="cl-quick-btn">
-                + New Appointment
-              </a>
-              <a href="/hub/payments" className="cl-quick-btn">
-                $ Record Payment
-              </a>
-              <a href={`/hub/clients/${id}?tab=blueprint`} className="cl-quick-btn">
-                ↑ Upload Progress Photos
-              </a>
-              <a href={`/hub/clients/${id}?tab=notes`} className="cl-quick-btn">
-                ✎ Add Note
-              </a>
-            </div>
+          <div style={{ gridColumn: "1 / -1" }}>
+            <ClientOverviewPanel
+              clientId={id}
+              overview={overview}
+              appointments={appointments}
+              payments={payments}
+              packageRaw={client.blueprintAssessments[0]?.packageTechnologies}
+              timezone={timezone}
+              priorCreditSlot={overview.assessmentId ? <EditPriorSessionsButton assessmentId={overview.assessmentId} currentValue={overview.priorCompletedSessions} /> : null}
+            />
           </div>
         </div>
       )}
