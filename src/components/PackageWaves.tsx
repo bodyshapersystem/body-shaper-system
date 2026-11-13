@@ -52,10 +52,10 @@ export default function PackageWaves({ rows, title, subtitle, compact = false, t
   return (
     <section className={`pw ${compact ? "pw-compact" : ""} ${ready ? "pw-ready" : ""}`}>
       {(title || subtitle) && (
-        <header className="pw-head">
+        <div className="pw-head">
           {title && <h3>{title}</h3>}
           <span>{left === 0 ? "system complete ✓" : subtitle ?? `${left} treatment${left === 1 ? "" : "s"} to go`}</span>
-        </header>
+        </div>
       )}
       <div className="pw-grid">
         {rows.map((r, idx) => (
