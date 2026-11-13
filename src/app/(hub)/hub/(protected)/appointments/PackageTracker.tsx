@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import { updatePackageTechnologies } from "./actions";
 import type { PackageTechnologies, PackageTrackerRow } from "@/lib/tech-count";
+import PackageWaves from "@/components/PackageWaves";
 
 /**
  * Hub-only package tracker shown in the scheduler under the client
@@ -58,26 +59,7 @@ export default function PackageTracker({
 
       {!editing && data.pkg && (
         <>
-          <ul className="pkt-list">
-            {data.rows.map((r) => (
-              <li key={r.name} className={r.complete ? "pkt-row pkt-row-done" : "pkt-row"}>
-                <span className={r.complete ? "pkt-check pkt-check-on" : "pkt-check"}>{r.complete ? "✓" : ""}</span>
-                <span className="pkt-name">{r.name}</span>
-                <span className="pkt-count">
-                  {r.done} of {r.total}
-                </span>
-                <span className="pkt-meta">
-                  {r.complete
-                    ? "complete"
-                    : [r.scheduled > 0 ? `${r.scheduled} booked` : null, r.toBook > 0 ? `${r.toBook} to book` : "all booked"].filter(Boolean).join(" · ")}
-                </span>
-                <span className="pkt-bar">
-                  <span className="pkt-bar-done" style={{ width: `${(r.done / r.total) * 100}%` }} />
-                  <span className="pkt-bar-booked" style={{ width: `${(Math.min(r.scheduled, r.total - r.done) / r.total) * 100}%` }} />
-                </span>
-              </li>
-            ))}
-          </ul>
+          <PackageWaves rows={data.rows} compact />
           <p className="pkt-foot">
             {totalLeft === 0 ? "package complete" : `${totalLeft} treatment${totalLeft === 1 ? "" : "s"} left`} · since{" "}
             {new Date(data.pkg.since + "T00:00:00").toLocaleDateString("en-US", { month: "short", day: "numeric" })}

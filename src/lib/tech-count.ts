@@ -68,6 +68,8 @@ export type PackageTrackerRow = {
   /** Still to be booked: total − done − scheduled (never below 0). */
   toBook: number;
   complete: boolean;
+  /** One entry per session in the package, in order — for the wave view. */
+  sessions: { n: number; state: "done" | "booked" | "open"; at: string | null }[];
 };
 
 export function parsePackageTechnologies(raw: unknown): PackageTechnologies | null {
@@ -96,15 +98,35 @@ export function computePackageTracker(
     const key = techKey(name);
     let done = 0;
     let scheduled = 0;
+    const doneAt = new Map<number, string>();
+    const upcoming: { at: string; number: number | null }[] = [];
     for (const a of inPackage) {
       if (!Array.isArray(a.technologies)) continue;
       const t = (a.technologies as TechEntry[]).find((x) => x?.name && techKey(x.name) === key);
       if (!t) continue;
-      if (a.status === "COMPLETED" && typeof t.number === "number") done = Math.max(done, t.number);
-      if (a.status === "SCHEDULED" && new Date(a.startsAt).getTime() >= now.getTime()) scheduled += 1;
+      const at = new Date(a.startsAt).toISOString();
+      if (a.status === "COMPLETED" && typeof t.number === "number") {
+        done = Math.max(done, t.number);
+        doneAt.set(t.number, at);
+      }
+      if (a.status === "SCHEDULED" && new Date(a.startsAt).getTime() >= now.getTime()) {
+        scheduled += 1;
+        upcoming.push({ at, number: typeof t.number === "number" ? t.number : null });
+      }
     }
     done = Math.min(done, total);
     const toBook = Math.max(total - done - scheduled, 0);
-    return { name, total, done, scheduled, toBook, complete: done >= total };
+    upcoming.sort((x, y) => x.at.localeCompare(y.at));
+    const sessions: PackageTrackerRow["sessions"] = Array.from({ length: total }, (_, i) => ({
+      n: i + 1,
+      state: i + 1 <= done ? "done" : "open",
+      at: i + 1 <= done ? doneAt.get(i + 1) ?? null : null,
+    }));
+    upcoming.forEach((u, i) => {
+      const n = u.number && u.number > done ? u.number : done + i + 1;
+      const s = sessions[n - 1];
+      if (s && s.state === "open") Object.assign(s, { state: "booked", at: u.at });
+    });
+    return { name, total, done, scheduled, toBook, complete: done >= total, sessions };
   });
 }

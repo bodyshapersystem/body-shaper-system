@@ -6,6 +6,7 @@ import { getBusinessTimezone, formatDateInTimezone, formatTimeInTimezone, getTim
 import { getClientPhotoSignedUrl } from "../photos/actions";
 import { buildGoogleCalendarUrl } from "@/lib/google-calendar";
 import BookSessionButton from "./BookSessionButton";
+import PackageWaves from "@/components/PackageWaves";
 import { computePackageTracker, parsePackageTechnologies } from "@/lib/tech-count";
 
 export const dynamic = "force-dynamic";
@@ -207,43 +208,25 @@ export default async function PortalDashboardPage() {
         )}
       </div>
 
-      {/* ---------- Your package ---------- */}
-      {(packageRows.length > 0 || totalSessions !== null) && (
+      {/* ---------- Your package (Blueprint Waves™) ---------- */}
+      {packageRows.length > 0 ? (
+        <PackageWaves
+          rows={packageRows}
+          timeZone={timezone}
+          title={`your system${assessment?.recommendedSystem ? ` · ${assessment.recommendedSystem}` : ""}`}
+        />
+      ) : totalSessions !== null ? (
         <div className="pd-card pdash-package">
           <div className="pdash-package-head">
             <h3>your system{assessment?.recommendedSystem ? ` · ${assessment.recommendedSystem}` : ""}</h3>
-            <span>
-              {packageRows.length > 0
-                ? packageLeft === 0
-                  ? "complete ✓"
-                  : `${packageLeft} treatment${packageLeft === 1 ? "" : "s"} left`
-                : `${remaining ?? 0} session${remaining === 1 ? "" : "s"} left`}
-            </span>
+            <span>{`${remaining ?? 0} session${remaining === 1 ? "" : "s"} left`}</span>
           </div>
-          {packageRows.length > 0 ? (
-            <ul className="pdash-package-list">
-              {packageRows.map((r) => (
-                <li key={r.name} className={r.complete ? "done" : ""}>
-                  <span className="pdash-check">{r.complete ? "✓" : ""}</span>
-                  <span className="pdash-tech">{r.name}</span>
-                  <span className="pdash-count">{r.done} of {r.total}</span>
-                  <span className="pdash-bar">
-                    <span style={{ width: `${(r.done / r.total) * 100}%` }} />
-                  </span>
-                  <span className="pdash-meta">{r.complete ? "complete" : r.scheduled > 0 ? `${r.scheduled} booked` : `${r.total - r.done} left`}</span>
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <>
-              <div className="pdash-bar pdash-bar-lg">
-                <span style={{ width: `${Math.min(progressPercent ?? 0, 100)}%` }} />
-              </div>
-              <p className="pay-history-meta">{completedCount} of {totalSessions} sessions completed</p>
-            </>
-          )}
+          <div className="pdash-bar pdash-bar-lg">
+            <span style={{ width: `${Math.min(progressPercent ?? 0, 100)}%` }} />
+          </div>
+          <p className="pay-history-meta">{completedCount} of {totalSessions} sessions completed</p>
         </div>
-      )}
+      ) : null}
 
       {/* Transformation Preview */}
       {transformation && (
