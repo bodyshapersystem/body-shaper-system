@@ -5,6 +5,7 @@ import { createNotification } from "@/lib/notifications";
 import { sendBlueprintReceivedEmail, sendBlueprintOwnerAlerts } from "@/lib/email/service";
 import { blueprintSections } from "@/app/(site)/body-blueprint/blueprint-fields";
 import type { Prisma } from "@prisma/client";
+import { attachSocietyReferralToLead } from "@/lib/society";
 export const runtime="nodejs";
 export async function POST(req:NextRequest){
  let data:Record<string,unknown>;
@@ -36,6 +37,7 @@ export async function POST(req:NextRequest){
   const existing=await prisma.lead.findFirst({where:{email:{equals:email,mode:"insensitive"},archivedAt:null},orderBy:{createdAt:"desc"}});
   const goals=Array.isArray(clean.goals)?clean.goals.join(", "):undefined;
   const lead=existing?await prisma.lead.update({where:{id:existing.id},data:{firstName,lastName,phone:String(clean.phone||""),city:String(clean.city||""),goals,status:"BLUEPRINT_COMPLETED"}}):await prisma.lead.create({data:{firstName,lastName,email,phone:String(clean.phone||""),city:String(clean.city||""),goals,status:"BLUEPRINT_COMPLETED",source:"website:native-blueprint"}});
+  await attachSocietyReferralToLead(lead.id);
   await createOrUpdateDraftAssessment(lead.id,{jotformRawData:{source:"native-blueprint",version:1,answers:clean} as Prisma.InputJsonValue,goals,treatmentInterests:Array.isArray(clean.areas)?clean.areas.join(", "):undefined});
   await prisma.leadStatusHistory.create({data:{leadId:lead.id,fromStatus:existing?.status,toStatus:"BLUEPRINT_COMPLETED",note:"Native Blueprint submission from website"}});
   await createNotification({category:"FORMS",description:`New Blueprint submitted by ${firstName} ${lastName}`,linkUrl:`/hub/leads/${lead.id}`});

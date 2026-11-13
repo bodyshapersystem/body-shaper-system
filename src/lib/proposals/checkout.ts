@@ -1,4 +1,5 @@
 import "server-only";
+import { societyDiscountForProposal, createCommissionForPaidProposal } from "@/lib/society";
 import type Stripe from "stripe";
 import { prisma } from "@/lib/prisma";
 import { getStripeClient, isStripeConfigured } from "@/lib/stripe";
@@ -59,6 +60,7 @@ export async function createProposalCheckout(args: CreateArgs): Promise<{ url: s
   let amountCents: number;
   let programTotalCents: number;
   let creditCents = 0;
+  let societyDiscountCents = 0;
   let secondAfterCredit = pricing.split?.secondCents ?? 0;
   if (args.installment === 1) {
     if (args.mode === "full") programTotalCents = pricing.fullCents;
@@ -69,6 +71,12 @@ export async function createProposalCheckout(args: CreateArgs): Promise<{ url: s
     amountCents = applied.todayCents;
     creditCents = applied.creditCents;
     secondAfterCredit = applied.secondCents;
+    // Shaper Society collab/ambassador discount: taken off today's charge and off the
+    // program total, so a split plan's 2nd installment stays exactly the same.
+    const society = await societyDiscountForProposal(proposal.id);
+    societyDiscountCents = Math.min(society.cents, Math.max(amountCents - 50, 0));
+    amountCents -= societyDiscountCents;
+    programTotalCents -= societyDiscountCents;
   } else {
     if (args.mode !== "split") return { error: "Invalid installment.", status: 400 };
     const first = await prisma.proposalCheckout.findFirst({ where: { proposalId: proposal.id, status: "PAID", paymentMode: "split", installmentNumber: 1 } });
@@ -81,7 +89,9 @@ export async function createProposalCheckout(args: CreateArgs): Promise<{ url: s
   if (args.mode === "split" && args.installment === 1 && !autoSecond) return { error: "Please choose the day for your second payment.", status: 400 };
 
   const gift = bonusApplies(program, args.mode) && program.bonus?.label ? ` · Complimentary gift: ${program.bonus.label}` : "";
-  const creditNote = creditCents ? ` · Assessment credit applied: ${money(creditCents, { cents: true })}` : "";
+  const creditNote =
+    (creditCents ? ` · Assessment credit applied: ${money(creditCents, { cents: true })}` : "") +
+    (societyDiscountCents ? ` · Shaper Society discount: ${money(societyDiscountCents, { cents: true })}` : "");
   const email = proposal.client?.email ?? proposal.lead?.email ?? null;
   const label =
     args.mode === "full" ? "Pay in full" : args.installment === 1 ? "Installment 1 of 2 (at booking)" : "Installment 2 of 2 (Week 2)";
@@ -146,6 +156,7 @@ export async function createProposalCheckout(args: CreateArgs): Promise<{ url: s
       amountCents,
       programTotalCents,
       creditCents,
+      societyDiscountCents,
       secondChargeDate: autoSecond ? new Date(`${autoSecond}T14:00:00Z`) : null,
     },
   });
@@ -556,6 +567,7 @@ export async function handleProposalCheckoutCompleted(session: Stripe.Checkout.S
       checkoutStatus: !isSplit ? "paid_in_full" : row.installmentNumber === 1 ? "first_installment_paid" : "completed",
     },
   });
+  if (!isSplit || row.installmentNumber === 2) await createCommissionForPaidProposal(proposal.id);
   await logProposalEvent(proposal.id, "paid", { programKey: row.programKey, mode: row.paymentMode, installment: row.installmentNumber, amountCents: row.amountCents, sessionId: session.id });
 
   if (client && clientId) {

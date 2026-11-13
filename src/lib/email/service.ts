@@ -32,6 +32,9 @@ import {
   buildAmbassadorWelcomeEmail,
   buildWeMissYouEmail,
   buildSocietyWelcomeEmail,
+  buildSocietyApplicationReceivedEmail,
+  buildSocietyApprovedEmail,
+  buildSocietyCommissionEmail,
 } from "./templates";
 
 /**
@@ -79,7 +82,10 @@ type EmailTemplateName =
   | "NUDGE_APPOINTMENT"
   | "NUDGE_WEEKLY_CHECKIN"
   | "PEPTIDE_JOURNEY_INVITE"
-  | "APPOINTMENT_CANCELLED";
+  | "APPOINTMENT_CANCELLED"
+  | "SOCIETY_APPLICATION"
+  | "SOCIETY_APPROVED"
+  | "SOCIETY_COMMISSION";
 
 async function logAndSend(params: {
   clientId?: string;
@@ -626,4 +632,28 @@ export async function sendPrepareExperienceNotifications(params:{clientId:string
   logAndSend({clientId,template:"NEW_DOCUMENT_AVAILABLE",sender:SENDERS.concierge,recipient:email,subject:"Your experience is almost ready ✦ Body Shaper System™",html:clientHtml}),
   ...["beautyboxmia@gmail.com","bodyshapersystem@gmail.com"].map(recipient=>logAndSend({clientId,template:"NEW_DOCUMENT_AVAILABLE",sender:SENDERS.owner,recipient,subject:`New signed evaluation: ${firstName} ${lastName}`,html:ownerHtml}))
  ]);
+}
+
+/* ---------------- Shaper Society ---------------- */
+
+export async function sendSocietyApplicationEmails(params: { firstName: string; lastName: string; email: string; phone: string | null; instagram: string | null; note: string | null }) {
+  const { subject, html } = buildSocietyApplicationReceivedEmail({ firstName: params.firstName });
+  const e = ownerEsc;
+  const ownerHtml = `<h2>New Shaper Society application</h2><p><b>Name:</b> ${e(params.firstName + " " + params.lastName)}</p><p><b>Email:</b> ${e(params.email)}</p><p><b>Phone:</b> ${e(params.phone ?? "—")}</p><p><b>Instagram:</b> ${e(params.instagram ?? "—")}</p><p><b>Note:</b> ${e(params.note ?? "—")}</p><p><a href="https://www.bodyshapersystem.com/hub/society">Review it in the Hub</a></p>`;
+  return Promise.allSettled([
+    logAndSend({ template: "SOCIETY_APPLICATION", sender: SENDERS.concierge, recipient: params.email, subject, html }),
+    ...OWNER_INBOXES.map((recipient) =>
+      logAndSend({ template: "SOCIETY_APPLICATION", sender: SENDERS.owner, recipient, subject: `Shaper Society application: ${params.firstName} ${params.lastName}`, html: ownerHtml })
+    ),
+  ]);
+}
+
+export async function sendSocietyApprovedEmail(params: { clientId?: string; firstName: string; email: string; activationUrl: string; code: string; discountLabel: string | null }) {
+  const { subject, html } = buildSocietyApprovedEmail(params);
+  return logAndSend({ clientId: params.clientId, template: "SOCIETY_APPROVED", sender: SENDERS.concierge, recipient: params.email, subject, html });
+}
+
+export async function sendSocietyCommissionEmail(params: { clientId?: string; firstName: string; email: string; amountLabel: string; dashboardUrl: string }) {
+  const { subject, html } = buildSocietyCommissionEmail(params);
+  return logAndSend({ clientId: params.clientId, template: "SOCIETY_COMMISSION", sender: SENDERS.concierge, recipient: params.email, subject, html });
 }

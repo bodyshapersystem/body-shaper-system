@@ -150,7 +150,7 @@ enum PaymentStatus {
 }
 
 model Lead {
-  id                    String  @id @default(cuid())
+  id                    String              @id @default(cuid())
   firstName             String
   lastName              String
   email                 String
@@ -159,8 +159,14 @@ model Lead {
   goals                 String?
   source                String? // e.g. "website", "instagram", "referral", "jotform:lets-build-your-blueprint"
   referredByClientId    String? // the real Client whose referral link/code brought this lead in
-  referredByClient      Client? @relation("ClientReferrals", fields: [referredByClientId], references: [id])
-  referralRewardGranted Boolean @default(false) // guards against double-awarding the 250 Society Points
+  referredByClient      Client?             @relation("ClientReferrals", fields: [referredByClientId], references: [id])
+  referralRewardGranted Boolean             @default(false) // guards against double-awarding the 250 Society Points
+  // Shaper Society — the participant whose /r/CODE link brought this lead in
+  // (first valid referral within 30 days). Separate from the points-based
+  // referredByClientId above.
+  societyParticipantId  String?
+  societyParticipant    SocietyParticipant? @relation(fields: [societyParticipantId], references: [id], onDelete: SetNull)
+  societyVisitId        String?
 
   status        LeadStatus    @default(NEW)
   paymentStatus PaymentStatus @default(NOT_REQUIRED)
@@ -287,6 +293,7 @@ model Client {
   techSupportPurchases TechSupportPurchase[]
   collaboration        Collaboration?
   referrals            Lead[]                @relation("ClientReferrals")
+  societyParticipant   SocietyParticipant?
   formSubmissions      FormSubmission[]
   progressSnapshots    ProgressSnapshot[]
   appointments         Appointment[]
@@ -1349,6 +1356,9 @@ enum EmailTemplate {
   NUDGE_WEEKLY_CHECKIN
   PEPTIDE_JOURNEY_INVITE
   APPOINTMENT_CANCELLED
+  SOCIETY_APPLICATION
+  SOCIETY_APPROVED
+  SOCIETY_COMMISSION
 }
 
 enum EmailStatus {
@@ -1397,46 +1407,46 @@ enum ProposalStatus {
 }
 
 model ClientProposal {
-  id                  String         @id @default(cuid())
-  token               String         @unique // 256-bit random, base64url — the only thing in the private link
-  status              ProposalStatus @default(DRAFT)
-  clientId            String?
-  client              Client?        @relation(fields: [clientId], references: [id], onDelete: SetNull)
+  id                      String         @id @default(cuid())
+  token                   String         @unique // 256-bit random, base64url — the only thing in the private link
+  status                  ProposalStatus @default(DRAFT)
+  clientId                String?
+  client                  Client?        @relation(fields: [clientId], references: [id], onDelete: SetNull)
   // Proposals can be prepared for a lead before conversion; the link survives conversion.
-  leadId              String?
-  lead                Lead?          @relation(fields: [leadId], references: [id], onDelete: SetNull)
+  leadId                  String?
+  lead                    Lead?          @relation(fields: [leadId], references: [id], onDelete: SetNull)
   // Body Blueprint™ Assessment reservation (rule for every proposal; amount in ProposalSettings).
-  assessmentEnabled   Boolean        @default(true)
-  assessmentDate      DateTime?      @db.Date // tentative date shown to the client
-  assessmentTimeConfirmed Boolean    @default(false)
-  assessmentTime      String? // e.g. "10:00 am" once confirmed
-  clientName          String // display name only (editable) — never derived from another client
-  locationLabel       String?
-  language            String         @default("en") // en | es
-  zones               String[]       @default([])
-  goals               String[]       @default([])
-  personalMessage     String?
-  internalNotes       String? // Hub-only, never sent to the page
-  programs            Json // ProposalProgram[] — see src/lib/proposals/types.ts
-  recommendedKey      String?
-  promoEnabled        Boolean        @default(false)
-  showWelcomeVideo    Boolean        @default(false)
-  resultCaseIds       String[]       @default([])
-  expiresAt           DateTime?
-  programStartDate    DateTime? // real start date — drives the Week 2 due date of a 2nd installment
-  viewCount           Int            @default(0)
-  firstViewedAt       DateTime?
-  lastViewedAt        DateTime?
-  selectedProgramKey  String?
-  selectedPaymentMode String? // full | split
-  checkoutStatus      String? // started | paid_in_full | first_installment_paid | completed
-  amountPaidCents     Int            @default(0)
-  balanceDueCents     Int            @default(0)
-  splitConsentAt      DateTime?
-  splitConsentText    String?
-  createdById         String?
-  createdAt           DateTime       @default(now())
-  updatedAt           DateTime       @updatedAt
+  assessmentEnabled       Boolean        @default(true)
+  assessmentDate          DateTime?      @db.Date // tentative date shown to the client
+  assessmentTimeConfirmed Boolean        @default(false)
+  assessmentTime          String? // e.g. "10:00 am" once confirmed
+  clientName              String // display name only (editable) — never derived from another client
+  locationLabel           String?
+  language                String         @default("en") // en | es
+  zones                   String[]       @default([])
+  goals                   String[]       @default([])
+  personalMessage         String?
+  internalNotes           String? // Hub-only, never sent to the page
+  programs                Json // ProposalProgram[] — see src/lib/proposals/types.ts
+  recommendedKey          String?
+  promoEnabled            Boolean        @default(false)
+  showWelcomeVideo        Boolean        @default(false)
+  resultCaseIds           String[]       @default([])
+  expiresAt               DateTime?
+  programStartDate        DateTime? // real start date — drives the Week 2 due date of a 2nd installment
+  viewCount               Int            @default(0)
+  firstViewedAt           DateTime?
+  lastViewedAt            DateTime?
+  selectedProgramKey      String?
+  selectedPaymentMode     String? // full | split
+  checkoutStatus          String? // started | paid_in_full | first_installment_paid | completed
+  amountPaidCents         Int            @default(0)
+  balanceDueCents         Int            @default(0)
+  splitConsentAt          DateTime?
+  splitConsentText        String?
+  createdById             String?
+  createdAt               DateTime       @default(now())
+  updatedAt               DateTime       @updatedAt
 
   events    ProposalEvent[]
   checkouts ProposalCheckout[]
@@ -1468,6 +1478,8 @@ model ProposalCheckout {
   // A paid assessment deposit credited toward this program checkout (once, enforced by unique).
   creditCents           Int            @default(0)
   creditFromCheckoutId  String?        @unique
+  // Shaper Society collab/ambassador discount taken off this checkout (installment 1 only).
+  societyDiscountCents  Int            @default(0)
   programKey            String
   programName           String
   paymentMode           String // full | split
@@ -1490,13 +1502,117 @@ model ProposalCheckout {
 }
 
 model ProposalSettings {
-  id             String   @id @default("default")
-  founderTitle   String   @default("the vision behind body shaper system™")
-  founderBio     String?
-  founderBioEs   String?
-  activeCampaign String?  @default("holiday_333") // null = no seasonal module available
-  assessmentCents Int     @default(35000) // Body Blueprint™ Assessment reservation, credited toward the program
-  updatedAt      DateTime @updatedAt
+  id              String   @id @default("default")
+  founderTitle    String   @default("the vision behind body shaper system™")
+  founderBio      String?
+  founderBioEs    String?
+  activeCampaign  String?  @default("holiday_333") // null = no seasonal module available
+  assessmentCents Int      @default(35000) // Body Blueprint™ Assessment reservation, credited toward the program
+  updatedAt       DateTime @updatedAt
 
   @@map("proposal_settings")
+}
+
+// ---------------------------------------------------------------------------
+// Shaper Society — referral program with money commissions (Hub-managed).
+// Clients join from the portal; externals (collabs / ambassadors) apply at
+// /society/join and the owner approves them.
+// ---------------------------------------------------------------------------
+
+model SocietyParticipant {
+  id                    String    @id @default(cuid())
+  code                  String    @unique // uppercase, used in /r/CODE
+  type                  String    @default("EXTERNAL") // CLIENT | EXTERNAL
+  status                String    @default("PENDING") // PENDING | ACTIVE | PAUSED | REJECTED
+  firstName             String
+  lastName              String?
+  email                 String    @unique
+  phone                 String?
+  instagram             String?
+  applicationNote       String?
+  clientId              String?   @unique
+  client                Client?   @relation(fields: [clientId], references: [id], onDelete: SetNull)
+  authUserId            String?   @unique // externals only (clients use their portal login)
+  activationToken       String?   @unique
+  // Extra discount for people who arrive through this link (collabs / ambassadors), in cents.
+  referralDiscountCents Int       @default(0)
+  // Optional fixed % that overrides the level table for this participant.
+  percentOverride       Int?
+  agreementVersion      String?
+  agreementAcceptedAt   DateTime?
+  payoutMethod          String? // Zelle | PayPal | Other
+  payoutHandle          String?
+  internalNotes         String?
+  approvedAt            DateTime?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  leads       Lead[]
+  visits      SocietyVisit[]
+  commissions SocietyCommission[]
+  payouts     SocietyPayout[]
+
+  @@map("society_participants")
+}
+
+model SocietyVisit {
+  id            String             @id @default(cuid())
+  participantId String
+  participant   SocietyParticipant @relation(fields: [participantId], references: [id], onDelete: Cascade)
+  visitorId     String
+  channel       String             @default("link")
+  landingPath   String?
+  visitedAt     DateTime           @default(now())
+
+  @@index([participantId, visitedAt])
+  @@map("society_visits")
+}
+
+model SocietyLevel {
+  id       String @id @default(cuid())
+  sort     Int
+  name     String
+  minSales Int // the paid referral number that opens this level (1, 6, 11, 21…)
+  percent  Int
+
+  @@map("society_levels")
+}
+
+model SocietyCommission {
+  id            String             @id @default(cuid())
+  participantId String
+  participant   SocietyParticipant @relation(fields: [participantId], references: [id], onDelete: Cascade)
+  clientId      String?
+  leadId        String?
+  proposalId    String?            @unique // one commission per paid proposal
+  description   String
+  baseCents     Int
+  percent       Int
+  amountCents   Int
+  saleNumber    Int
+  levelName     String?
+  status        String             @default("PENDING") // PENDING | APPROVED | PAID | VOID
+  payoutId      String?
+  payout        SocietyPayout?     @relation(fields: [payoutId], references: [id], onDelete: SetNull)
+  createdAt     DateTime           @default(now())
+  approvedAt    DateTime?
+  paidAt        DateTime?
+
+  @@index([participantId, status])
+  @@map("society_commissions")
+}
+
+model SocietyPayout {
+  id            String              @id @default(cuid())
+  participantId String
+  participant   SocietyParticipant  @relation(fields: [participantId], references: [id], onDelete: Cascade)
+  amountCents   Int
+  status        String              @default("REQUESTED") // REQUESTED | PAID
+  method        String?
+  handle        String?
+  requestedAt   DateTime            @default(now())
+  paidAt        DateTime?
+  commissions   SocietyCommission[]
+
+  @@map("society_payouts")
 }
