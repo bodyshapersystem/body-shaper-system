@@ -1,6 +1,7 @@
 "use server";
 
 import { prisma } from "@/lib/prisma";
+import type { Prisma } from "@prisma/client";
 import { getCurrentHubUser, hasPermission } from "@/lib/permissions";
 import { revalidatePath } from "next/cache";
 import { CLIENT_CANCELLATION_WHERE } from "@/lib/cancellations";
@@ -9,6 +10,7 @@ import { createNotification } from "@/lib/notifications";
 import { getNextSessionNumber } from "@/lib/session-number";
 import { getBusinessTimezone, formatDateInTimezone, formatTimeInTimezone } from "@/lib/format-datetime";
 import { isMidpointEligible, getOrCreateMidpointReview } from "@/lib/midpoint";
+import { suggestNextTechNumbers } from "@/lib/tech-count";
 
 export async function createAppointment(formData: FormData) {
   const user = await getCurrentHubUser();
@@ -30,7 +32,7 @@ export async function createAppointment(formData: FormData) {
     return { error: "Client, title, and start time are required." };
   }
 
-  let technologies: { name: string; minutes: number; bodyArea?: string; intensity?: string; notes?: string }[] | undefined;
+  let technologies: { name: string; minutes: number; number?: number; bodyArea?: string; intensity?: string; notes?: string }[] | undefined;
   if (technologiesRaw) {
     try {
       const parsed = JSON.parse(technologiesRaw);
@@ -357,7 +359,7 @@ export async function getClientAppointmentHistory(clientId: string) {
     title: a.title,
     startsAt: a.startsAt.toISOString(),
     status: a.status,
-    technologies: a.technologies as { name: string; minutes: number; bodyArea?: string }[] | null,
+    technologies: a.technologies as { name: string; minutes: number; number?: number; bodyArea?: string }[] | null,
   }));
 }
 
@@ -375,5 +377,48 @@ export async function deleteAppointmentPermanently(appointmentId: string) {
   await prisma.appointment.delete({ where: { id: appointmentId } });
   revalidatePath("/hub/appointments");
   revalidatePath("/hub/dashboard");
+  return { success: true };
+}
+
+/**
+ * Suggested next per-technology count for a client ("Exilis #4"),
+ * based on their most recent numbered, non-cancelled appointment for
+ * each technology. Only a suggestion — the scheduler lets the
+ * specialist type any number (e.g. 1 when a new package starts).
+ */
+export async function getClientTechNumberSuggestions(clientId: string) {
+  const user = await getCurrentHubUser();
+  if (!user) return {};
+  const appointments = await prisma.appointment.findMany({
+    where: { clientId, status: { not: "CANCELLED" } },
+    select: { startsAt: true, technologies: true },
+  });
+  return suggestNextTechNumbers(appointments);
+}
+
+/**
+ * Edit only the per-technology counts on an existing appointment.
+ * `numbers` is keyed by the technology's exact stored name; an empty
+ * value clears that technology's count.
+ */
+export async function updateAppointmentTechNumbers(appointmentId: string, numbers: Record<string, number | null>) {
+  const user = await getCurrentHubUser();
+  if (!user || !hasPermission(user, "appointments.manage")) {
+    return { error: "You don't have permission to edit appointments." };
+  }
+  const appt = await prisma.appointment.findUnique({ where: { id: appointmentId }, select: { technologies: true, clientId: true } });
+  if (!appt || !Array.isArray(appt.technologies)) return { error: "This appointment has no technologies to number." };
+
+  const technologies = (appt.technologies as Record<string, unknown>[]).map((t) => {
+    const name = String(t.name ?? "");
+    if (!(name in numbers)) return t;
+    const n = numbers[name];
+    const { number: _old, ...rest } = t;
+    return n && n > 0 ? { ...rest, number: Math.floor(n) } : rest;
+  });
+
+  await prisma.appointment.update({ where: { id: appointmentId }, data: { technologies: technologies as Prisma.InputJsonValue } });
+  revalidatePath("/hub/appointments");
+  revalidatePath(`/hub/clients/${appt.clientId}`);
   return { success: true };
 }

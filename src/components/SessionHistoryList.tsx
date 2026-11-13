@@ -3,12 +3,13 @@
 import { useState } from "react";
 import SessionSummaryModal from "./SessionSummaryModal";
 import SessionAreaMapCard from "./SessionAreaMapCard";
+import { formatTechList } from "@/lib/tech-count";
 
 type SessionRecord = {
   id: string;
   startsAt: string;
   status: string;
-  technologies: { name: string; areas?: string[]; objectives?: string[] }[] | null;
+  technologies: { name: string; number?: number | null; areas?: string[]; objectives?: string[] }[] | null;
   blueprintAlignment: { matched: string[]; unmatched: string[] } | null;
   notes: string | null;
 };
@@ -74,7 +75,7 @@ export default function SessionHistoryList({
             <button type="button" className="shl-row-main" onClick={() => setExpanded(isOpen ? null : i)}>
               <span className="shl-num-circle">{sessionNumber}</span>
               <span className="shl-row-text">
-                <span className="shl-tech-name">{tech?.name ?? "Session"}</span>
+                <span className="shl-tech-name">{s.technologies && s.technologies.length > 0 ? formatTechList(s.technologies) : "Session"}</span>
                 {tech?.areas && tech.areas.length > 0 && <span className="shl-tech-area">{tech.areas[0].toLowerCase()}</span>}
               </span>
               <span className="shl-row-date">{dateLabel}</span>

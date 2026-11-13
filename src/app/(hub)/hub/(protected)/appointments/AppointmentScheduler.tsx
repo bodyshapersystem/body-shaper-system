@@ -2,7 +2,8 @@
 
 import { useState, useTransition, useMemo } from "react";
 import { useRouter } from "next/navigation";
-import { createAppointment, getClientSessionContext, getClientAppointmentHistory } from "./actions";
+import { createAppointment, getClientSessionContext, getClientAppointmentHistory, getClientTechNumberSuggestions } from "./actions";
+import { techKey, formatTechList } from "@/lib/tech-count";
 import MiniCalendar from "./MiniCalendar";
 import ClientAppointmentHistoryCalendar from "./ClientAppointmentHistoryCalendar";
 
@@ -30,6 +31,8 @@ type SessionContext = {
 type TechSelection = {
   name: string;
   minutes: number;
+  /** Specialist's running count for this technology ("Exilis #3"). */
+  number?: number;
   bodyArea?: string;
   intensity?: string;
   notes?: string;
@@ -80,13 +83,14 @@ export default function AppointmentScheduler({
   const [clientId, setClientId] = useState("");
   const [context, setContext] = useState<SessionContext | null>(null);
   const [appointmentHistory, setAppointmentHistory] = useState<
-    { id: string; title: string; startsAt: string; status: string; technologies: { name: string; minutes: number; bodyArea?: string }[] | null }[]
+    { id: string; title: string; startsAt: string; status: string; technologies: { name: string; minutes: number; number?: number; bodyArea?: string }[] | null }[]
   >([]);
   const [loadingContext, setLoadingContext] = useState(false);
   const [systemOverride, setSystemOverride] = useState("");
   const [sessionOverride, setSessionOverride] = useState<number | "">("");
 
   const [selectedTechs, setSelectedTechs] = useState<TechSelection[]>([]);
+  const [techSuggestions, setTechSuggestions] = useState<Record<string, number>>({});
   const [notes, setNotes] = useState("");
   const [locationType, setLocationType] = useState<"HOME" | "STUDIO">("HOME");
 
@@ -112,11 +116,18 @@ export default function AppointmentScheduler({
     setAppointmentHistory([]);
     setSystemOverride("");
     setSessionOverride("");
+    setTechSuggestions({});
+    setSelectedTechs([]);
     if (!id) return;
     setLoadingContext(true);
     startTransition(async () => {
-      const [ctx, history] = await Promise.all([getClientSessionContext(id), getClientAppointmentHistory(id)]);
+      const [ctx, history, suggestions] = await Promise.all([
+        getClientSessionContext(id),
+        getClientAppointmentHistory(id),
+        getClientTechNumberSuggestions(id),
+      ]);
       setContext(ctx);
+      setTechSuggestions(suggestions);
       setAppointmentHistory(history);
       setLoadingContext(false);
       // Slot was clicked directly on the calendar — date/time are already
@@ -130,8 +141,13 @@ export default function AppointmentScheduler({
     setSelectedTechs((prev) =>
       prev.some((t) => t.name === tech.name)
         ? prev.filter((t) => t.name !== tech.name)
-        : [...prev, { name: tech.name, minutes: tech.minutes }]
+        : [...prev, { name: tech.name, minutes: tech.minutes, number: techSuggestions[techKey(tech.name)] }]
     );
+  }
+
+  function setTechNumber(name: string, value: string) {
+    const n = value === "" ? undefined : Math.max(1, Math.floor(Number(value)));
+    setSelectedTechs((prev) => prev.map((t) => (t.name === name ? { ...t, number: n } : t)));
   }
 
   const estimatedDuration = selectedTechs.reduce((sum, t) => sum + t.minutes, 0);
@@ -223,7 +239,7 @@ export default function AppointmentScheduler({
           {selectedTechs.length > 0 && (
             <div>
               <span>Technologies</span>
-              <strong>{selectedTechs.map((t) => t.name).join(", ")}</strong>
+              <strong>{formatTechList(selectedTechs)}</strong>
             </div>
           )}
         </div>
@@ -328,22 +344,36 @@ export default function AppointmentScheduler({
         <>
           <div className="sched-section">
             <h4 className="sched-subheading">Today's Tech</h4>
-            <p className="sched-hint">Select every technology included in today's visit.</p>
+            <p className="sched-hint">Select every technology included in today's visit. The # is that technology's count in the current package — suggested from the last visit, edit it if needed (e.g. 1 for a new package).</p>
             <ul className="sched-tech-list">
-              {TECHNOLOGIES.map((tech) => (
-                <li key={tech.name}>
-                  <label className="sched-tech-row">
-                    <input
-                      type="checkbox"
-                      checked={selectedTechs.some((t) => t.name === tech.name)}
-                      onChange={() => toggleTech(tech)}
-                      className="sched-checkbox"
-                    />
-                    <span className="sched-tech-name">{tech.name}</span>
-                    <span className="sched-tech-time">{tech.label}</span>
-                  </label>
-                </li>
-              ))}
+              {TECHNOLOGIES.map((tech) => {
+                const selected = selectedTechs.find((t) => t.name === tech.name);
+                return (
+                  <li key={tech.name} style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                    <label className="sched-tech-row" style={{ flex: 1 }}>
+                      <input type="checkbox" checked={!!selected} onChange={() => toggleTech(tech)} className="sched-checkbox" />
+                      <span className="sched-tech-name">{tech.name}</span>
+                      <span className="sched-tech-time">{tech.label}</span>
+                    </label>
+                    {selected && (
+                      <label className="sched-tech-number" title="Count for this technology in the current package">
+                        #
+                        <input
+                          type="number"
+                          min={1}
+                          inputMode="numeric"
+                          value={selected.number ?? ""}
+                          onChange={(e) => setTechNumber(tech.name, e.target.value)}
+                          placeholder="—"
+                          className="sched-inline-input"
+                          style={{ width: 52, marginLeft: 4, textAlign: "center" }}
+                          aria-label={`${tech.name} count`}
+                        />
+                      </label>
+                    )}
+                  </li>
+                );
+              })}
             </ul>
             <div className="sched-duration-summary">
               <span>Estimated Duration</span>
