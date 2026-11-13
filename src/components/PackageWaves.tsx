@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { techKey } from "@/lib/tech-count";
+import { zonesFor, zoneShort } from "@/lib/tech-zones";
 
 /**
  * Package progress as Blueprint Waves™: each technology is a card whose
@@ -16,7 +17,8 @@ export type WaveRow = {
   done: number;
   scheduled: number;
   complete: boolean;
-  sessions: { n: number; state: "done" | "booked" | "open"; at: string | null }[];
+  sessions: { n: number; state: "done" | "booked" | "open"; at: string | null; zone?: string | null }[];
+  zones?: Record<string, number>;
 };
 
 const THUMBS: Record<string, string> = {
@@ -83,7 +85,11 @@ function TechCard({ row, path, delay, timeZone }: { row: WaveRow; path: string; 
   const pct = Math.round((row.done / row.total) * 100);
   const clipId = `pw-clip-${key}`;
 
-  const label = focus ? fmt(focus.at, timeZone) : null;
+  const zoneTxt = focus?.zone ? zoneShort(row.name, focus.zone) : null;
+  const label = focus ? [fmt(focus.at, timeZone), zoneTxt].filter(Boolean).join(" · ") || null : null;
+  const zoneCounts = zonesFor(row.name)
+    .map((z) => ({ ...z, count: row.zones?.[z.key] ?? 0 }))
+    .filter((z) => z.count > 0);
   const caption = (() => {
     if (focus) {
       if (focus.state === "done") return `#${focus.n} · completed${label ? ` · ${label}` : ""}`;
@@ -135,6 +141,15 @@ function TechCard({ row, path, delay, timeZone }: { row: WaveRow; path: string; 
       </div>
       </div>
       <p className="pw-caption">{caption}</p>
+      {zoneCounts.length > 0 && (
+        <div className="pw-zones">
+          {zoneCounts.map((z) => (
+            <span key={z.key}>
+              {zoneShort(row.name, z.key)} <b>{z.count}</b>
+            </span>
+          ))}
+        </div>
+      )}
     </article>
   );
 }

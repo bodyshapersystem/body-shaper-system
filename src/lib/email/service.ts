@@ -85,7 +85,8 @@ type EmailTemplateName =
   | "APPOINTMENT_CANCELLED"
   | "SOCIETY_APPLICATION"
   | "SOCIETY_APPROVED"
-  | "SOCIETY_COMMISSION";
+  | "SOCIETY_COMMISSION"
+  | "DAILY_RECAP";
 
 async function logAndSend(params: {
   clientId?: string;
@@ -656,4 +657,33 @@ export async function sendSocietyApprovedEmail(params: { clientId?: string; firs
 export async function sendSocietyCommissionEmail(params: { clientId?: string; firstName: string; email: string; amountLabel: string; dashboardUrl: string }) {
   const { subject, html } = buildSocietyCommissionEmail(params);
   return logAndSend({ clientId: params.clientId, template: "SOCIETY_COMMISSION", sender: SENDERS.concierge, recipient: params.email, subject, html });
+}
+
+/** 8 pm owner recap: today's sessions with a link to confirm or correct them. */
+export async function sendDailyRecapEmail(params: {
+  dateKey: string;
+  dateLabel: string;
+  sessions: { time: string; client: string; planned: string; status: string }[];
+}) {
+  const e = ownerEsc;
+  const url = `https://www.bodyshapersystem.com/hub/recap?date=${params.dateKey}`;
+  const toConfirm = params.sessions.filter((s) => s.status === "SCHEDULED").length;
+  const rows = params.sessions
+    .map(
+      (s) =>
+        `<tr><td style="padding:10px 8px;border-bottom:1px solid #eee3d6;color:#6E5B4D;font-size:13px;white-space:nowrap">${e(s.time)}</td><td style="padding:10px 8px;border-bottom:1px solid #eee3d6;font-size:15px;color:#2B2622">${e(s.client)}<br><span style="font-size:12.5px;color:#8a7f74">${e(s.planned)}</span></td><td style="padding:10px 8px;border-bottom:1px solid #eee3d6;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:${s.status === "SCHEDULED" ? "#A0522D" : "#5C1A1F"}">${s.status === "SCHEDULED" ? "to confirm" : s.status === "COMPLETED" ? "done" : "didn't happen"}</td></tr>`
+    )
+    .join("");
+  const html = `<div style="background:#F4F1ED;padding:28px 16px;font-family:Helvetica,Arial,sans-serif"><div style="max-width:560px;margin:0 auto;background:#FBF8F4;border-radius:20px;padding:26px 24px;border:1px solid #eadfd2">
+<p style="margin:0 0 4px;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#A18A78">end of day · ${e(params.dateLabel)}</p>
+<h1 style="margin:0 0 8px;font-family:Georgia,serif;font-weight:normal;font-size:28px;color:#2B2622">session recap.</h1>
+<p style="margin:0 0 18px;font-size:14px;color:#6E5B4D">${toConfirm > 0 ? `${toConfirm} session${toConfirm === 1 ? "" : "s"} to confirm. Check that the treatment, # and zone match what you actually did — or correct it.` : "Everything from today is confirmed."}</p>
+<table style="width:100%;border-collapse:collapse">${rows}</table>
+<p style="margin:22px 0 0;text-align:center"><a href="${url}" style="display:inline-block;background:#3A0F16;color:#F6F3EE;text-decoration:none;padding:14px 26px;border-radius:999px;font-size:14px;letter-spacing:.06em">confirm or correct today →</a></p>
+</div></div>`;
+  return Promise.allSettled(
+    OWNER_INBOXES.map((recipient) =>
+      logAndSend({ template: "DAILY_RECAP", sender: SENDERS.owner, recipient, subject: `Today's sessions — ${toConfirm > 0 ? `${toConfirm} to confirm` : "all confirmed"} (${params.dateLabel})`, html })
+    )
+  );
 }

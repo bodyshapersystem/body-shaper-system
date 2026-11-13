@@ -8,7 +8,7 @@
  * the next number from the client's most recent numbered appointment.
  */
 
-export type TechEntry = { name: string; number?: number | null; [key: string]: unknown };
+export type TechEntry = { name: string; number?: number | null; zone?: string | null; [key: string]: unknown };
 
 /** "Exilis Elite™" / "Exilis" / "EMS™" / "EMS" → comparable key. */
 export function techKey(name: string): string {
@@ -69,7 +69,9 @@ export type PackageTrackerRow = {
   toBook: number;
   complete: boolean;
   /** One entry per session in the package, in order — for the wave view. */
-  sessions: { n: number; state: "done" | "booked" | "open"; at: string | null }[];
+  sessions: { n: number; state: "done" | "booked" | "open"; at: string | null; zone?: string | null }[];
+  /** Completed sessions in this package by treatment zone (e.g. { "legs-front": 2 }). */
+  zones: Record<string, number>;
 };
 
 export function parsePackageTechnologies(raw: unknown): PackageTechnologies | null {
@@ -99,7 +101,9 @@ export function computePackageTracker(
     let done = 0;
     let scheduled = 0;
     const doneAt = new Map<number, string>();
-    const upcoming: { at: string; number: number | null }[] = [];
+    const doneZone = new Map<number, string | null>();
+    const zones: Record<string, number> = {};
+    const upcoming: { at: string; number: number | null; zone: string | null }[] = [];
     for (const a of inPackage) {
       if (!Array.isArray(a.technologies)) continue;
       const t = (a.technologies as TechEntry[]).find((x) => x?.name && techKey(x.name) === key);
@@ -108,10 +112,12 @@ export function computePackageTracker(
       if (a.status === "COMPLETED" && typeof t.number === "number") {
         done = Math.max(done, t.number);
         doneAt.set(t.number, at);
+        doneZone.set(t.number, (t.zone as string) ?? null);
       }
+      if (a.status === "COMPLETED" && typeof t.zone === "string" && t.zone) zones[t.zone] = (zones[t.zone] ?? 0) + 1;
       if (a.status === "SCHEDULED" && new Date(a.startsAt).getTime() >= now.getTime()) {
         scheduled += 1;
-        upcoming.push({ at, number: typeof t.number === "number" ? t.number : null });
+        upcoming.push({ at, number: typeof t.number === "number" ? t.number : null, zone: (t.zone as string) ?? null });
       }
     }
     done = Math.min(done, total);
@@ -121,12 +127,13 @@ export function computePackageTracker(
       n: i + 1,
       state: i + 1 <= done ? "done" : "open",
       at: i + 1 <= done ? doneAt.get(i + 1) ?? null : null,
+      zone: i + 1 <= done ? doneZone.get(i + 1) ?? null : null,
     }));
     upcoming.forEach((u, i) => {
       const n = u.number && u.number > done ? u.number : done + i + 1;
       const s = sessions[n - 1];
-      if (s && s.state === "open") Object.assign(s, { state: "booked", at: u.at });
+      if (s && s.state === "open") Object.assign(s, { state: "booked", at: u.at, zone: u.zone });
     });
-    return { name, total, done, scheduled, toBook, complete: done >= total, sessions };
+    return { name, total, done, scheduled, toBook, complete: done >= total, sessions, zones };
   });
 }

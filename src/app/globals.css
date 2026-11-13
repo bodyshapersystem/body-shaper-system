@@ -6245,3 +6245,47 @@ div.hsoc-kpi:hover{ transform:none; }
 .cov-actions{ margin-top:4px; }
 @media (max-width: 900px){ .cov-kpis{ grid-template-columns:1fr 1fr; } .cov-kpi-next{ grid-column:1 / -1; } .cov-two{ grid-template-columns:1fr; } }
 @media (max-width: 640px){ .cov-actions{ grid-template-columns:1fr 1fr; } .cov-actions .ptile{ min-height:88px; padding:14px 16px; } .cov-actions .ptile-title{ font-size:19px; } }
+
+/* ---------- treatment zone chips ---------- */
+.zone-chips{ flex-basis:100%; display:flex; flex-wrap:wrap; gap:6px; padding:2px 0 6px 30px; }
+.zone-chip{ border:1px solid rgba(92,26,31,.22); background:#fff; color:#6E5B4D; border-radius:999px; padding:6px 12px; font-family:var(--sans); font-size:12px; cursor:pointer; }
+.zone-chip.on{ background:#3A0F16 url('/images/rewards/society-rules-bg.jpg') center/cover; color:#F6F3EE; border-color:transparent; }
+
+/* ---------- SessionDoneEditor ---------- */
+.sde{ display:flex; flex-direction:column; gap:12px; }
+.sde-techs{ display:flex; flex-direction:column; gap:6px; }
+.sde-tech{ display:flex; flex-wrap:wrap; align-items:center; gap:8px; padding:8px 10px; border-radius:14px; border:1px solid rgba(0,0,0,0.06); background:#fff; }
+.sde-tech.on{ border-color:rgba(200,161,90,.6); background:#FFFDF9; }
+.sde-tech-toggle{ display:flex; align-items:center; gap:10px; background:none; border:0; padding:2px 0; cursor:pointer; font-family:var(--sans); font-size:14px; color:#2B2622; flex:1; text-align:left; }
+.sde-box{ width:20px; height:20px; border-radius:6px; border:1.5px solid rgba(92,26,31,.35); display:inline-flex; align-items:center; justify-content:center; font-size:12px; color:#fff; }
+.sde-tech.on .sde-box{ background:#5C1A1F; border-color:#5C1A1F; }
+.sde-num{ display:flex; align-items:center; gap:4px; font-family:var(--sans); font-size:13px; color:#A18A78; }
+.sde-num input{ width:52px; padding:6px; border-radius:8px; border:1px solid rgba(0,0,0,0.12); text-align:center; font-family:var(--sans); font-size:14px; }
+.sde-zones{ padding-left:30px; }
+.sde-actions{ display:flex; flex-wrap:wrap; gap:8px; align-items:center; }
+.sde-msg{ font-family:var(--sans); font-size:13px; color:#5C1A1F; }
+.sde-compact .sde-tech{ padding:6px 8px; }
+
+/* ---------- Hub: end-of-day recap ---------- */
+.rcp-daynav{ display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:16px; }
+.rcp-daynav strong{ font-family:var(--serif); font-size:22px; font-weight:500; color:#2B2622; text-align:center; }
+.rcp-all{ display:flex; justify-content:space-between; align-items:center; gap:14px; flex-wrap:wrap; padding:18px 20px; border-radius:20px; margin-bottom:14px; background:#3A0F16 url('/images/rewards/society-rules-bg.jpg') center/cover; }
+.rcp-all strong{ font-family:var(--serif); font-size:22px; font-weight:500; color:#F6F3EE; }
+.rcp-all p{ font-family:var(--sans); font-size:13px; color:#E3CFA8; margin:2px 0 0; }
+.rcp-list{ display:flex; flex-direction:column; gap:12px; }
+.rcp-card{ border-radius:22px; padding:16px 18px; background:#FBF8F4; border:1px solid rgba(92,26,31,0.1); display:flex; flex-direction:column; gap:12px; }
+.rcp-scheduled{ border-color:rgba(200,161,90,.7); box-shadow:0 0 0 3px rgba(200,161,90,.12); }
+.rcp-head{ display:grid; grid-template-columns:auto 1fr auto; gap:12px; align-items:center; }
+.rcp-head .stl-date{ width:auto; height:auto; padding:8px 10px; }
+.rcp-head .stl-wd{ font-size:12px; color:#5C1A1F; letter-spacing:.04em; }
+.rcp-who a{ display:block; font-family:var(--serif); font-size:20px; color:#2B2622; text-decoration:none; }
+.rcp-who em{ font-family:var(--sans); font-style:normal; font-size:12px; color:#8a7f74; }
+.rcp-status{ font-family:var(--sans); font-size:10.5px; letter-spacing:.1em; text-transform:uppercase; padding:4px 10px; border-radius:999px; background:#C8A15A; color:#3A0F16; }
+.rcp-status-completed{ background:#3A0F16; color:#F6F3EE; }
+.rcp-status-no_show{ background:#E6DED4; color:#6E5B4D; }
+.pw-zones{ display:flex; flex-wrap:wrap; gap:6px; margin-top:6px; }
+.pw-zones span{ font-family:var(--sans); font-size:11.5px; color:#6E5B4D; background:rgba(200,161,90,.15); border-radius:999px; padding:3px 10px; }
+.pw-zones b{ color:#5C1A1F; font-weight:600; }
+.pw-card-complete .pw-zones span{ background:rgba(246,243,238,.12); color:#E3CFA8; }
+.pw-card-complete .pw-zones b{ color:#F6F3EE; }
+.sde-add{ display:flex; flex-wrap:wrap; gap:6px; } .sde-add .zone-chip{ border-style:dashed; }
