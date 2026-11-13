@@ -58,17 +58,40 @@ export default function HubSociety({ participants, commissions, payouts, levels 
     }, ok);
   };
 
+  const [copiedProgram, setCopiedProgram] = useState(false);
   const pending = participants.filter((p) => p.status === "PENDING");
+  const owed = commissions.filter((c) => c.status === "PENDING" || c.status === "APPROVED").reduce((s, c) => s + c.amountCents, 0);
+  const paidOut = commissions.filter((c) => c.status === "PAID").reduce((s, c) => s + c.amountCents, 0);
+  const visits = participants.reduce((s, p) => s + p.visits, 0);
+  const programUrl = "https://www.bodyshapersystem.com/society";
   const toApprove = commissions.filter((c) => c.status === "PENDING");
   const openPayouts = payouts.filter((p) => p.status === "REQUESTED");
 
   return (
     <div className="hsoc">
+      <ol className="ss-how hsoc-how">
+        <li><span>1</span><strong>Approve a member</strong><em>a client joins from her portal, or a collab applies</em></li>
+        <li><span>2</span><strong>She shares her link</strong><em>visits are tracked for 30 days</em></li>
+        <li><span>3</span><strong>Her referral pays</strong><em>a commission appears “to approve”</em></li>
+        <li><span>4</span><strong>You approve &amp; pay</strong><em>she requests payout → mark it paid</em></li>
+      </ol>
+
       <div className="hsoc-kpis">
-        <div><span>members</span><strong>{participants.filter((p) => p.status === "ACTIVE").length}</strong></div>
-        <div><span>applications</span><strong>{pending.length}</strong></div>
-        <div><span>commissions to approve</span><strong>{toApprove.length}</strong></div>
-        <div><span>payout requests</span><strong>{openPayouts.length}</strong></div>
+        <button type="button" className="hsoc-kpi hsoc-kpi-marble" onClick={() => setTab("commissions")}><span>owed to members</span><strong>{money(owed)}</strong><em>{toApprove.length} to approve</em></button>
+        <button type="button" className="hsoc-kpi" onClick={() => setTab("payouts")}><span>payout requests</span><strong>{openPayouts.length}</strong><em>paid so far {money(paidOut)}</em></button>
+        <button type="button" className="hsoc-kpi" onClick={() => setTab("participants")}><span>members</span><strong>{participants.filter((p) => p.status === "ACTIVE").length}</strong><em>{pending.length} application{pending.length === 1 ? "" : "s"} waiting</em></button>
+        <div className="hsoc-kpi"><span>link visits</span><strong>{visits}</strong><em>all members</em></div>
+      </div>
+
+      <div className="hsoc-share">
+        <div>
+          <p className="ss-label">invite collabs &amp; ambassadors</p>
+          <code>{programUrl.replace("https://www.", "")}</code>
+        </div>
+        <div className="ss-actions">
+          <button type="button" className="ss-btn ss-btn-sm" onClick={() => navigator.clipboard?.writeText(programUrl).then(() => { setCopiedProgram(true); setTimeout(() => setCopiedProgram(false), 1800); })}>{copiedProgram ? "copied ✓" : "copy link"}</button>
+          <button type="button" className="ss-btn ss-btn-sm ss-btn-outline-dark" onClick={() => setTab("tools")}>+ add someone yourself</button>
+        </div>
       </div>
 
       <div className="hsoc-tabs">
@@ -80,15 +103,28 @@ export default function HubSociety({ participants, commissions, payouts, levels 
 
       {tab === "participants" && (
         <div className="hsoc-list">
-          {participants.length === 0 && <p className="dash-empty">No participants yet. Add one in “tools”, or share bodyshapersystem.com/society.</p>}
+          {participants.length === 0 && (
+            <div className="hsoc-empty">
+              <h4>No members yet</h4>
+              <p>Share the link above with your collabs, or add an ambassador yourself. Clients can join from Invite &amp; Earn in their portal.</p>
+              <button type="button" className="ss-btn" onClick={() => setTab("tools")}>+ add your first ambassador</button>
+            </div>
+          )}
           {participants.map((p) => (
             <div key={p.id} className={`hsoc-row hsoc-${p.status.toLowerCase()}`}>
               <div className="hsoc-row-main">
-                <div>
-                  <strong>{p.name}</strong> <em className="hsoc-pill">{p.type === "CLIENT" ? "client" : "collab"}</em> <em className={`hsoc-pill hsoc-pill-${p.status.toLowerCase()}`}>{p.status.toLowerCase()}</em>
+                <span className="hsoc-avatar">{p.name.split(" ").map((w) => w[0]).slice(0, 2).join("").toUpperCase()}</span>
+                <div className="hsoc-row-body">
+                  <strong>{p.name}</strong> <code className="hsoc-code">{p.code}</code> <em className="hsoc-pill">{p.type === "CLIENT" ? "client" : "collab"}</em> <em className={`hsoc-pill hsoc-pill-${p.status.toLowerCase()}`}>{p.status.toLowerCase()}</em>
                   <p className="hsoc-meta">{p.email}{p.phone ? ` · ${p.phone}` : ""}{p.instagram ? ` · ${p.instagram}` : ""}</p>
+                  <div className="hsoc-mini">
+                    <span><b>{p.visits}</b> visits</span>
+                    <span><b>{p.leads}</b> referrals</span>
+                    <span><b>{p.sales}</b> paid</span>
+                    <span><b>{money(p.owed)}</b> owed</span>
+                  </div>
                   <p className="hsoc-meta">
-                    code <b>{p.code}</b> · {p.percentOverride != null ? `${p.percentOverride}% fixed` : "level %"} · discount {p.discountCents ? money(p.discountCents) : "none"} · {p.visits} visits · {p.leads} referrals · {p.sales} paid · owed {money(p.owed)} · paid {money(p.paid)}
+                    {p.percentOverride != null ? `${p.percentOverride}% fixed` : "level %"} · friend discount {p.discountCents ? money(p.discountCents) : "none"} · paid out {money(p.paid)}
                     {!p.agreement && " · agreement not accepted yet"}
                   </p>
                   {p.payout && <p className="hsoc-meta">payout: {p.payout}</p>}
@@ -195,6 +231,22 @@ export default function HubSociety({ participants, commissions, payouts, levels 
       )}
 
       {tab === "levels" && (
+        <>
+        <div className="ss-step">
+          <p className="ss-label">current levels</p>
+          <div className="ss-levels">
+            <span className="ss-levels-line" />
+            {levels.map((l, i) => {
+              const nextMin = levels[i + 1]?.minSales;
+              return (
+                <div key={l.name} className="ss-level ss-level-next">
+                  <span className="ss-level-dot">{l.percent}%</span>
+                  <span className="ss-level-range">{nextMin ? `${l.minSales}–${nextMin - 1}` : `${l.minSales}+`} paid</span>
+                </div>
+              );
+            })}
+          </div>
+        </div>
         <form className="hsoc-form" onSubmit={form(saveLevels, "Levels saved — they apply to future sales only.")}>
           <p className="hsoc-meta hsoc-wide">The paid referral that opens a level is paid at that level. Past commissions never change.</p>
           {[...levels, ...Array.from({ length: Math.max(0, 6 - levels.length) }, () => ({ name: "", minSales: 0, percent: 0 }))].map((l, i) => (
@@ -206,6 +258,7 @@ export default function HubSociety({ participants, commissions, payouts, levels 
           ))}
           <button type="submit" className="pt-btn solid" disabled={isPending}>save levels</button>
         </form>
+        </>
       )}
     </div>
   );

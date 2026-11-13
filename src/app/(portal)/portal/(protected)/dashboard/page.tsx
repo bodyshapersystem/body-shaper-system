@@ -247,13 +247,21 @@ export default async function PortalDashboardPage() {
         </div>
       )}
 
-      {/* ---------- Quick Actions ---------- */}
-      <div className="doc-card-grid" style={{ marginBottom: 20 }}>
-        <Link href="/portal/blueprint" className="doc-client-card doc-client-card-burgundy">📘 Blueprint™</Link>
-        <Link href="/portal/photos" className="doc-client-card doc-client-card-burgundy">📷 Progress Photos</Link>
-        <Link href="/portal/documents" className="doc-client-card doc-client-card-burgundy">📄 Documents</Link>
-        <Link href="/portal/invite" className="doc-client-card doc-client-card-burgundy">✨ Invite &amp; Earn</Link>
-      </div>
+      {/* ---------- Quick links (marble, no icons) ---------- */}
+      <nav className="ptiles" aria-label="Quick links">
+        {[
+          { href: "/portal/blueprint", eyebrow: "your plan", title: "Body Blueprint™" },
+          { href: "/portal/photos", eyebrow: "your results", title: "Progress Photos" },
+          { href: "/portal/documents", eyebrow: "your records", title: "Documents" },
+          { href: "/portal/invite", eyebrow: "share & earn", title: "Invite & Earn" },
+        ].map((t) => (
+          <Link key={t.href} href={t.href} className="ptile">
+            <span className="ptile-eyebrow">{t.eyebrow}</span>
+            <span className="ptile-title">{t.title}</span>
+            <span className="ptile-arrow" aria-hidden="true">→</span>
+          </Link>
+        ))}
+      </nav>
     </div>
   );
 }
