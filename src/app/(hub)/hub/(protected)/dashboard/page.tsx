@@ -4,6 +4,7 @@ import { getPhotoSignedUrl } from "../clients/[id]/blueprint-actions";
 import Link from "next/link";
 import BlueprintWaves from "@/components/BlueprintWaves";
 import { formatTimeInTimezone } from "@/lib/format-datetime";
+import OwnerOverview from "./OwnerOverview";
 
 const NOTIFICATION_ICONS: Record<string, string> = {
   PORTAL: "🟢",
@@ -261,6 +262,9 @@ export default async function HubDashboardPage() {
         </section>
       )}
 
+      {/* ---------- Money · week · funnel ---------- */}
+      <OwnerOverview />
+
       {/* ---------- Below Hero: editorial panels ---------- */}
       <div className="dash-two-col">
         <div className="pd-card dash-editorial-panel">
@@ -393,27 +397,6 @@ export default async function HubDashboardPage() {
           <p className="dash-empty">No transformation with both before/after photos and weight tracking yet — it will appear here automatically once available.</p>
         </div>
       )}
-
-      {/* ---------- Business Overview ---------- */}
-      <h3 className="dash-section-title">Business Overview</h3>
-      <div className="pd-stats" style={{ marginBottom: 32 }}>
-        <div className="pd-stat">
-          <span className="pd-stat-label">Revenue (This Month)</span>
-          <strong>{money(revenueThisMonth)}</strong>
-        </div>
-        <div className="pd-stat">
-          <span className="pd-stat-label">Active Clients</span>
-          <strong>{activeClientsCount}</strong>
-        </div>
-        <div className="pd-stat">
-          <span className="pd-stat-label">Today's Appointments</span>
-          <strong>{todaysAppointments.length}</strong>
-        </div>
-        <div className="pd-stat">
-          <span className="pd-stat-label">Conversion Rate</span>
-          <strong>{conversionRate}%</strong>
-        </div>
-      </div>
 
       {/* ---------- Quick Actions ---------- */}
       <h3 className="dash-section-title">Quick Actions</h3>
