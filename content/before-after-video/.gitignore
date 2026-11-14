@@ -1,0 +1,8 @@
+src/
+crops/
+graded/
+frames/
+*.mp4
+*.wav
+timing.json
+__pycache__/
