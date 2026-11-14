@@ -17,6 +17,17 @@ Video vertical 1080×1350, 30 fps, ~25 s, con música B (deep house elegante) y 
 5. **CTA:** logo real (bss-wordmark en crema), "tu cuerpo, con un plan.", "AGENDA TU BODY BLUEPRINT™",
    "link en bio" + "o escríbenos “PALABRA” por DM", flecha animada.
 
+## Fondos (uno por video, para no repetir el vinotinto en el feed)
+`"theme"` en el config: `wine` (mármol vinotinto), `green` (mármol verde), `sand` (mármol arena).
+Los fondos oficiales están en `bgs/` (también crema, lino, acanalados y seda bronce para futuros temas).
+
+## Fotos
+- `"shape":"rect"` (recomendado): tarjeta vertical con esquinas redondeadas, **encuadre alejado**
+  (debajo del busto hasta medio muslo) para que se vea la diferencia. `crop_rect.py` recorta antes/después
+  a la misma escala usando puntos fijos (ombligo, borde del bra) y empareja la luz.
+- Varias vistas en un video: `"pairs"` con `label` ("frente", "perfil"); cada una tiene su revelación.
+- Config de ejemplo: `example-config.json`; correr con `CFG=mi-config.json python3 make_video.py`.
+
 ## Reglas de fotos
 - Encuadre alejado para que se vea el contorno (cintura, caderas).
 - Quitar branding viejo ("The Box"), collages y manos del fondo. **Nunca retocar el cuerpo.**

@@ -91,11 +91,12 @@ for t0 in (4.7,5.2,5.7):
 for k in range(6): bell(78+[0,2,4,7,9,12][k],0.7,6,0.05,0.2+0.12*k,6.4+2.0*k/5)
 tt=T(1.0); put(fx,lp(rng.standard_normal(len(tt)),40)*(tt/1.0)**2*0.3,B(10.4))
 tt=T(1.0); f=40+80*np.exp(-tt*20); put(fx,np.sin(2*np.pi*np.cumsum(f)/SR)*np.exp(-tt*4)*0.4,B(11.4))
-tt=T(1.4); put(fx,lp(rng.standard_normal(len(tt)),30)*(tt/1.4)**2*0.22,B(13.0))
-for m in (81,85,88,93): bell(m,3,1.6,0.05,0.5,14.4)
-for k in range(3):
-  for m in (88,95): bell(m,0.8,6,0.04,0.3+0.2*k,14.7+k*0.35)
-for m,dt in ((78,0),(85,0.12)): bell(m,1.5,2,0.06,0.5,18.0+dt)
+for T0 in TM.get("reveals",[11.4]):
+  tt=T(1.4); put(fx,lp(rng.standard_normal(len(tt)),30)*(tt/1.4)**2*0.22,B(T0+1.6))
+  for m in (81,85,88,93): bell(m,3,1.6,0.05,0.5,T0+3.0)
+  for k in range(3):
+    for m in (88,95): bell(m,0.8,6,0.04,0.3+0.2*k,T0+3.3+k*0.35)
+for m,dt in ((78,0),(85,0.12)): bell(m,1.5,2,0.06,0.5,TM.get("cta",17.0)+1.0+dt)
 # duck music during "y esto es lo que pasa"
 duck=np.ones(n); a,b=int(B(10.3)*SR),int(B(11.5)*SR); duck[a:b]=0.45
 mus*=duck[:,None]

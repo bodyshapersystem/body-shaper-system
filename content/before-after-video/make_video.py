@@ -9,7 +9,15 @@ CFG=dict(pair="c5", zone="abdomen", benefits="firmeza · tono · contorno",
   zone_pts=[(170,350),(134,338),(206,338)],               # silhouette coords (navel, flanks)
   photo_tags=[((-0.58,0.10),"contorno","L"),((0.61,0.10),"cintura","R"),((0.07,0.30),"firmeza","L")],
   out="bb-abdomen.mp4")
-HOOK=5.0; SKIP=0.3; BODY=20.0; DUR=HOOK+BODY-SKIP; N=int(DUR*FPS)
+if os.environ.get("CFG"): CFG.update(json.load(open(os.environ["CFG"])))
+THEMES={"wine":dict(bg="burgundy-marble.jpg",waves=True,gold=(200,161,90),cream=(246,243,238),champ=(227,207,168),shadow=(40,8,16),spark=(246,243,238)),
+ "green":dict(bg="bgs/green-marble.png",waves=False,gold=(214,178,104),cream=(248,244,234),champ=(232,216,180),shadow=(20,32,18),spark=(250,246,236)),
+ "sand":dict(bg="bgs/sand-marble.png",waves=False,gold=(122,84,36),cream=(52,34,24),champ=(86,62,42),shadow=(235,222,200),spark=(255,246,226))}
+TH=THEMES[CFG.get("theme","wine")]; GOLD,CREAM,CHAMP=TH["gold"],TH["cream"],TH["champ"]; SPARK=TH["spark"]
+CFG.setdefault("stats",[[CFG["sessions"],"","SESIONES"],[CFG["minutes"],"","MIN · SESIÓN"],[None,CFG["freq"],CFG["freq_lbl"]]])
+CFG.setdefault("caption",f"{CFG['tech']}  ·  {CFG['sessions']} sesiones  ·  {CFG['minutes']} min")
+if "hookl" in CFG: pass
+HOOK=5.0; SKIP=0.3
 def font(p,s,v=None):
   f=ImageFont.truetype(p,s)
   if v: f.set_variation_by_name(v)
@@ -23,10 +31,14 @@ def eob(t):  # ease-out-back (pop)
 def seg(t,a,b): return (t-a)/(b-a)
 def win(t,a,b,c,d): return ease(seg(t,a,b))*(1-ease(seg(t,c,d)))
 
-bg=Image.open("burgundy-marble.jpg").convert("RGB").resize((W,H))
-waves=Image.open("waves.png").convert("RGBA"); waves=waves.resize((int(waves.width*H/waves.height),H))
-waves.putalpha(waves.split()[3].point(lambda v:int(v*0.7)))
-base=bg.copy().convert("RGBA"); base.alpha_composite(waves,(W-waves.width+60,0))
+_b=Image.open(TH["bg"]).convert("RGB")
+if _b.width/_b.height>W/H:
+  _s=H/_b.height; _b=_b.resize((int(_b.width*_s)+1,H),Image.LANCZOS); _x=int((_b.width-W)*CFG.get("bgx",0.5)); bg=_b.crop((_x,0,_x+W,H))
+else: bg=_b.resize((W,H))
+base=bg.copy().convert("RGBA")
+if TH["waves"]:
+  waves=Image.open("waves.png").convert("RGBA"); waves=waves.resize((int(waves.width*H/waves.height),H))
+  waves.putalpha(waves.split()[3].point(lambda v:int(v*0.7))); base.alpha_composite(waves,(W-waves.width+60,0))
 
 s=Image.open("silo.png").convert("L"); S=3
 s=s.resize((s.width*S,s.height*S),Image.LANCZOS)
@@ -39,13 +51,22 @@ lg=Image.open("logo.png").convert("RGBA"); LOGO=Image.new("RGBA",lg.size,CREAM+(
 LOGO=LOGO.resize((int(lg.width*0.62),int(lg.height*0.62)),Image.LANCZOS)
 
 R=360; PCX,PCY=W//2,600; D=2*R
-def load(tag):
-  im=Image.open(f"graded/{CFG['pair']}-{tag}-circle-clean.png").convert("RGB").resize((D,D),Image.LANCZOS)
-  patch=base.crop((PCX-R,PCY-R,PCX+R,PCY+R)).convert("RGB")
-  x=np.clip((0.34-np.linspace(0,1,D))/0.17,0,1); g=(x*x*(3-2*x))[:,None]*np.ones((1,D))
+RECT=CFG.get("shape","circle")=="rect"
+if RECT: CW_,CH_=620,820; PCY=612
+else: CW_,CH_=D,D
+def load(tag,pair=None):
+  suf="rect" if RECT else "circle-clean"
+  im=Image.open(f"graded/{pair or CFG['pair']}-{tag}-{suf}.png").convert("RGB").resize((CW_,CH_),Image.LANCZOS)
+  patch=base.crop((PCX-CW_//2,PCY-CH_//2,PCX-CW_//2+CW_,PCY-CH_//2+CH_)).convert("RGB")
+  F=CFG.get("fade",0.34); x=np.clip((F-np.linspace(0,1,CH_))/max(F*0.5,1e-3),0,1); g=(x*x*(3-2*x))[:,None]*np.ones((1,CW_))
   return Image.composite(patch,im,Image.fromarray((g*255).astype(np.uint8)))
-before,after=load("before"),load("after")
-cmask=Image.new("L",(D,D),0); ImageDraw.Draw(cmask).ellipse((0,0,D-1,D-1),fill=255)
+cmask=Image.new("L",(CW_,CH_),0)
+if RECT: ImageDraw.Draw(cmask).rounded_rectangle((0,0,CW_-1,CH_-1),radius=34,fill=255)
+else: ImageDraw.Draw(cmask).ellipse((0,0,D-1,D-1),fill=255)
+PLEN=5.6
+PAIRS=[dict(p) for p in CFG.get("pairs",[{"pair":CFG["pair"],"tags":CFG["photo_tags"],"label":""}])]
+for P in PAIRS: P["imgs"]=(load("before",P["pair"]),load("after",P["pair"]))
+BODY=11.4+len(PAIRS)*PLEN+3.0; DUR=HOOK+BODY-SKIP; N=int(DUR*FPS)
 
 class Dr:
   def __init__(s,im): s.im=im; s.m=ImageDraw.Draw(Image.new("L",(1,1)))
@@ -78,7 +99,7 @@ def marker(g,glow,x,y,t,t0,a=1.0,scale=1.0):
   for k in range(2):  # ripples
     q=((p*0.8+k*0.5)%1.0); rr=(14+62*q)*scale*K
     g.ellipse((X-rr,Y-rr,X+rr,Y+rr),outline=CHAMP+(A(220*(1-q),a),),width=2*K)
-  r0=11*pop*K; g.ellipse((X-r0,Y-r0,X+r0,Y+r0),fill=CREAM+(A(255,a),))
+  r0=11*pop*K; g.ellipse((X-r0,Y-r0,X+r0,Y+r0),fill=SPARK+(A(255,a),))
   r1=17*pop*K; g.ellipse((X-r1,Y-r1,X+r1,Y+r1),outline=GOLD+(A(255,a),),width=2*K)
   for k in range(4):
     ang=k*1.7+t0*3; dist=(34+10*math.sin(t*3+k))*scale*K
@@ -124,7 +145,7 @@ def body_frame(t):
   if a1>0.01:  # anchored on the silhouette's collarbone
     cyb=oy+510*sc-14; f=SAN(30,b"Regular"); txt="BODY BLUEPRINT™"
     sh=Image.new("RGBA",(W,H),(0,0,0,0)); sd=ImageDraw.Draw(sh); w=sd.textlength(txt,font=f)
-    sd.text(((W-w)/2,cyb),txt,font=f,fill=(40,8,16,A(200,a1))); im.alpha_composite(sh.filter(ImageFilter.GaussianBlur(6)))
+    sd.text(((W-w)/2,cyb),txt,font=f,fill=TH['shadow']+(A(200,a1),)); im.alpha_composite(sh.filter(ImageFilter.GaussianBlur(6)))
     tc(d,cyb,txt,f,CREAM+(A(255,a1),))
   a2=win(t,2.7,3.2,4.0,4.4)
   tc(d,1045,CFG["zone"],SER(96),CREAM+(A(255,a2),)); tc(d,1160,CFG["benefits"],SAN(34),CHAMP+(A(255,a2),))
@@ -133,7 +154,7 @@ def body_frame(t):
   if pa>0.01:
     hud,glow=layers(); g=ImageDraw.Draw(hud)
     tc(d,200,CFG["system"],SER(84),CREAM+(A(255,pa),)); tc(d,305,"EL PROTOCOLO",SAN(26,b"Regular"),GOLD+(A(255,pa),))
-    stats=[(CFG["sessions"],"","SESIONES",4.7),(CFG["minutes"],"","MIN · SESIÓN",5.2),(None,CFG["freq"],CFG["freq_lbl"],5.7)]
+    stats=[tuple(x)+(4.7+0.5*k,) for k,x in enumerate(CFG["stats"])]
     for k,(num,txt,lbl,t0) in enumerate(stats):
       cx=W/2+(k-1)*320; q=ease(seg(t,t0,t0+0.6))*pa
       if q<=0.01: continue
@@ -160,48 +181,57 @@ def body_frame(t):
     flush(im,hud,glow)
   ya=win(t,10.40,10.80,11.30,11.60)
   tc(d,560,"y esto es",SERI(96),CREAM+(A(255,ya),)); tc(d,670,"lo que pasa",SERI(96),CREAM+(A(255,ya),))
-  # ---------- photo ----------
-  pha=win(t,11.40,12.00,16.60,17.00)
-  if pha>0.01:
+  # ---------- photo sections ----------
+  for si,P in enumerate(PAIRS):
+    T0=11.4+si*PLEN; last=(si==len(PAIRS)-1)
+    fin_a,fin_b=T0+5.2,T0+5.6
+    pha=win(t,T0,T0+0.6,fin_a,fin_b) if not (si>0) else win(t,T0,T0+0.4,fin_a,fin_b)
+    if pha<=0.01: continue
+    bef,aft=P["imgs"]
     hud,glow=layers(); g=ImageDraw.Draw(hud)
-    card=before.copy(); rev=ease(seg(t,13.00,14.40)) if t>=13.00 else 0
+    card=bef.copy(); rev=ease(seg(t,T0+1.6,T0+3.0)) if t>=T0+1.6 else 0
     if rev>0:
-      m=Image.new("L",(D,D),0); ImageDraw.Draw(m).pieslice((-D,-D,2*D,2*D),-90,-90+360*rev,fill=255)
-      card=Image.composite(after,card,m)
-    sc2=0.92+0.08*ease(seg(t,11.40,12.00)); dd=int(D*sc2)
-    c=card.resize((dd,dd),Image.LANCZOS).convert("RGBA"); c.putalpha(cmask.resize((dd,dd)).point(lambda v:int(v*pha)))
-    im.alpha_composite(c,(PCX-dd//2,PCY-dd//2))
-    rr=dd/2+8; g.ellipse(((PCX-rr)*K,(PCY-rr)*K,(PCX+rr)*K,(PCY+rr)*K),outline=GOLD+(A(255,pha),),width=2*K)
+      m=Image.new("L",(CW_,CH_),0); ImageDraw.Draw(m).pieslice((-2*CH_,-2*CH_,CW_+2*CH_,CH_+2*CH_),-90,-90+360*rev,fill=255)
+      card=Image.composite(aft,card,m)
+    sc2=0.92+0.08*ease(seg(t,T0,T0+0.6)); dw,dh=int(CW_*sc2),int(CH_*sc2)
+    c=card.resize((dw,dh),Image.LANCZOS).convert("RGBA"); c.putalpha(cmask.resize((dw,dh)).point(lambda v:int(v*pha)))
+    im.alpha_composite(c,(PCX-dw//2,PCY-dh//2))
+    bx0,by0,bx1,by1=(PCX-dw/2-8)*K,(PCY-dh/2-8)*K,(PCX+dw/2+8)*K,(PCY+dh/2+8)*K
+    if RECT: g.rounded_rectangle((bx0,by0,bx1,by1),radius=40*K,outline=GOLD+(A(255,pha),),width=2*K)
+    else: g.ellipse((bx0,by0,bx1,by1),outline=GOLD+(A(255,pha),),width=2*K)
     if 0<rev<1:
-      a2=math.radians(-90+360*rev); R2=R*K
+      a2=math.radians(-90+360*rev); R2=(min(CW_,CH_)/2 if not RECT else CW_/2)*K
       for k in range(14):
         aa=math.degrees(a2)-k*2.2
         g.pieslice((PCX*K-R2,PCY*K-R2,PCX*K+R2,PCY*K+R2),aa-2.2,aa,fill=GOLD+(int(60*(1-k/14)),))
       g.line((PCX*K,PCY*K,PCX*K+R2*math.cos(a2),PCY*K+R2*math.sin(a2)),fill=CHAMP+(255,),width=3*K)
-    # sparkle tags on the result
-    for k,((rx,ry),lbl,side) in enumerate(CFG["photo_tags"]):
-      t0=14.70+k*0.35; q=win(t,t0,t0+0.4,16.40,16.80)
+    tags=[]
+    for k,((rx,ry),lbl,side) in enumerate(P["tags"]):
+      t0=T0+3.3+k*0.35; q=win(t,t0,t0+0.4,T0+5.0,T0+5.4)
       if q<=0.01: continue
-      mx,my=PCX+rx*R,PCY+ry*R; marker(g,glow,mx,my,t,t0,q,scale=0.7)
-      ex=PCX+(R+30)*(-1 if side=="L" else 1); lx=mx+(ex-mx)*ease(seg(t,t0+0.1,t0+0.5))
+      mx,my=PCX+rx*CW_/2,PCY+ry*CH_/2; marker(g,glow,mx,my,t,t0,q,scale=0.7)
+      ex=PCX+(CW_/2+30)*(-1 if side=="L" else 1); lx=mx+(ex-mx)*ease(seg(t,t0+0.1,t0+0.5))
       g.line((mx*K,my*K,lx*K,my*K),fill=CHAMP+(A(230,q),),width=2*K)
-      flush_later=(lbl,side,ex,my,q); CFG.setdefault("_tags",[]).append(flush_later)
+      tags.append((lbl,side,ex,my,q))
     flush(im,hud,glow)
-    for (lbl,side,ex,my,q) in CFG.pop("_tags",[]):
+    for (lbl,side,ex,my,q) in tags:
       f=SERI(44); w=d.textlength(lbl,font=f)
       x=ex+12 if side=="R" else ex-12-w
       x=min(max(x,18),W-18-w); d.text((x,my-30),lbl,font=f,fill=CREAM+(A(255,q),))
-    lb=win(t,11.80,12.30,13.00,13.40); la=win(t,14.30,14.80,16.60,17.00)
-    tc(d,92,"antes",SERI(70),CREAM+(A(255,lb),)); tc(d,92,"después",SERI(70),CREAM+(A(255,la),))
-    cap=win(t,12.00,12.60,16.60,17.00)
-    tc(d,1010,CFG["system"],SER(84),CREAM+(A(255,cap),))
-    tc(d,1115,f"{CFG['tech']}  ·  {CFG['sessions']} sesiones  ·  {CFG['minutes']} min".upper(),SAN(28,b"Regular"),GOLD+(A(255,cap),))
-    tc(d,1185,"resultados reales · sin retoque · resultados varían",SAN(24),CHAMP+(A(230,win(t,14.60,15.00,16.60,17.00)),))
+    lb=win(t,T0+0.4,T0+0.9,T0+1.6,T0+2.0); la=win(t,T0+2.9,T0+3.4,fin_a,fin_b)
+    sub=P.get("label","")
+    tc(d,92,("antes"+(" · "+sub if sub else "")),SERI(70),CREAM+(A(255,lb),)); tc(d,92,("después"+(" · "+sub if sub else "")),SERI(70),CREAM+(A(255,la),))
+    EE=11.4+len(PAIRS)*PLEN; cap=win(t,12.0,12.6,EE-0.4,EE)
+    CY0=1058 if RECT else 1010
+    tc(d,CY0,CFG["system"],SER(84),CREAM+(A(255,cap),))
+    tc(d,CY0+105,CFG["caption"].upper(),SAN(28,b"Regular"),GOLD+(A(255,cap),))
+    tc(d,CY0+175,"resultados reales · sin retoque · resultados varían",SAN(24),CHAMP+(A(230,win(t,T0+3.2,T0+3.6,fin_a,fin_b)),))
   # ---------- CTA ----------
-  e=ease(seg(t,17.00,17.60))
+  E=11.4+len(PAIRS)*PLEN
+  e=ease(seg(t,E,E+0.6))
   if e>0.01:
     L=LOGO.copy(); L.putalpha(L.split()[3].point(lambda v:int(v*e))); im.alpha_composite(L,((W-L.width)//2,int(250-20*e)))
-    c1=ease(seg(t,17.60,18.10)); c2=ease(seg(t,18.00,18.50))
+    c1=ease(seg(t,E+0.6,E+1.1)); c2=ease(seg(t,E+1.0,E+1.5))
     tc(d,640,"tu cuerpo, con un plan.",SERI(66),CREAM+(A(255,c1),))
     tc(d,735,"AGENDA TU BODY BLUEPRINT™",SAN(36,b"Regular"),GOLD+(A(255,c1),))
     wl=540*c1; d.line((W/2-wl/2,792,W/2+wl/2,792),fill=GOLD+(A(255,c1),),width=2)
@@ -213,7 +243,7 @@ def body_frame(t):
   return im.convert("RGB")
 
 # ---------- hook ----------
-HOOKL=[("lo que","small"),("6 sesiones","big"),("le hicieron a este abdomen","mid")]
+HOOKL=[tuple(x) for x in CFG.get("hookl",[("lo que","small"),("6 sesiones","big"),("le hicieron a este abdomen","mid")])]
 HFN={"small":SERI(84),"big":SER(176,b"SemiBold"),"mid":SER(74,b"Medium")}
 HY={"small":440,"big":520,"mid":745}
 SLAM=1.05; HT=[]; HTL=[]
@@ -254,8 +284,8 @@ def hook_rings(g,glow,t):
   for k,(orb,spd,ph) in enumerate(((r+24,1.4,0),(r+50,-0.9,2.1),(r-26,1.9,4.0))):
     ang=t*spd+ph; x=cx+orb*math.cos(ang); y=cy+orb*math.sin(ang)
     gd.ellipse((x-22,y-22,x+22,y+22),fill=GOLD+(A(160,draw),))
-    star(g,x*K2,y*K2,(14+6*math.sin(t*6+k))*K2,CREAM,draw)
-    g.ellipse((x*K2-4*K2,y*K2-4*K2,x*K2+4*K2,y*K2+4*K2),fill=CREAM+(A(255,draw),))
+    star(g,x*K2,y*K2,(14+6*math.sin(t*6+k))*K2,SPARK,draw)
+    g.ellipse((x*K2-4*K2,y*K2-4*K2,x*K2+4*K2,y*K2+4*K2),fill=SPARK+(A(255,draw),))
   # drifting dust sparkles
   for k in range(14):
     a0=k*2.399; rad=r*(0.4+0.75*((k*0.37)%1)); ang=a0+t*0.25*(1 if k%2 else -1)
@@ -305,7 +335,7 @@ def frame(i):
     out=Image.blend(a,body_frame(SKIP),p)
     return Image.blend(out,Image.new("RGB",(W,H),CHAMP),0.18*math.sin(math.pi*p))
   return body_frame(t-HOOK+SKIP)
-json.dump({"hook":HOOK,"skip":SKIP,"typing":HT,"slam":SLAM,"mira":MIRA,"dur":DUR},open("timing.json","w"))
+json.dump({"reveals":[11.4+i*PLEN for i in range(len(PAIRS))],"cta":11.4+len(PAIRS)*PLEN,"hook":HOOK,"skip":SKIP,"typing":HT,"slam":SLAM,"mira":MIRA,"dur":DUR},open("timing.json","w"))
 if __name__=="__main__":
   only=[float(x) for x in sys.argv[1:]]
   if only:
