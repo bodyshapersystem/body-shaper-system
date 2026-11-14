@@ -12,6 +12,7 @@ CFG=dict(pair="c5", zone="abdomen", benefits="firmeza · tono · contorno",
 if os.environ.get("CFG"): CFG.update(json.load(open(os.environ["CFG"])))
 THEMES={"wine":dict(bg="burgundy-marble.jpg",waves=True,gold=(200,161,90),cream=(246,243,238),champ=(227,207,168),shadow=(40,8,16),spark=(246,243,238)),
  "green":dict(bg="bgs/green-marble.png",waves=False,gold=(214,178,104),cream=(248,244,234),champ=(232,216,180),shadow=(20,32,18),spark=(250,246,236)),
+ "bronze":dict(bg="bgs/bronze-silk.png",waves=False,gold=(222,184,120),cream=(248,240,226),champ=(232,210,176),shadow=(30,18,10),spark=(255,246,226),duo_dark=(40,26,14)),
  "sand":dict(bg="bgs/sand-marble.png",waves=False,gold=(122,84,36),cream=(52,34,24),champ=(86,62,42),shadow=(235,222,200),spark=(255,246,226))}
 TH=THEMES[CFG.get("theme","wine")]; GOLD,CREAM,CHAMP=TH["gold"],TH["cream"],TH["champ"]; SPARK=TH["spark"]
 CFG.setdefault("stats",[[CFG["sessions"],"","SESIONES"],[CFG["minutes"],"","MIN · SESIÓN"],[None,CFG["freq"],CFG["freq_lbl"]]])
@@ -51,8 +52,8 @@ lg=Image.open("logo.png").convert("RGBA"); LOGO=Image.new("RGBA",lg.size,CREAM+(
 LOGO=LOGO.resize((int(lg.width*0.62),int(lg.height*0.62)),Image.LANCZOS)
 
 R=360; PCX,PCY=W//2,600; D=2*R
-RECT=CFG.get("shape","circle")=="rect"
-if RECT: CW_,CH_=620,820; PCY=612
+RECT=CFG.get("shape","circle") in ("rect","square")
+if RECT: CW_,CH_=((620,820) if CFG.get("shape")=="rect" else (720,720)); PCY=612
 else: CW_,CH_=D,D
 def load(tag,pair=None):
   suf="rect" if RECT else "circle-clean"
@@ -67,6 +68,13 @@ PLEN=5.6
 PAIRS=[dict(p) for p in CFG.get("pairs",[{"pair":CFG["pair"],"tags":CFG["photo_tags"],"label":""}])]
 for P in PAIRS: P["imgs"]=(load("before",P["pair"]),load("after",P["pair"]))
 BODY=11.4+len(PAIRS)*PLEN+3.0; DUR=HOOK+BODY-SKIP; N=int(DUR*FPS)
+PHOTO_SILO=CFG.get("silo")=="photo"
+if PHOTO_SILO:
+  PS_W,PS_H=CW_,CH_
+  gimg=PAIRS[0]["imgs"][0].convert("L").resize((PS_W,PS_H))
+  ga=np.asarray(gimg).astype(float)/255; dark=np.array(TH.get("duo_dark",(60,40,22))); lite=np.array(GOLD)*1.15
+  duo=dark[None,None,:]*(1-ga[...,None])+np.clip(lite,0,255)[None,None,:]*ga[...,None]
+  DUO=Image.fromarray(np.clip(duo,0,255).astype(np.uint8)).convert("RGBA"); DUOM=cmask.copy()
 
 class Dr:
   def __init__(s,im): s.im=im; s.m=ImageDraw.Draw(Image.new("L",(1,1)))
@@ -125,25 +133,44 @@ def body_frame(t):
   im=base.copy(); hud,glow=layers(); g=ImageDraw.Draw(hud)
   # silhouette
   sil_a=ease(seg(t,0,0.35))*(1-0.85*ease(seg(t,4.0,4.6)))*(1-ease(seg(t,10.0,10.6)))
-  zt=ease(seg(t,1.9,3.3)); zoom=1+1.35*zt; sc=(1080/SH)*zoom
-  fx=SW/2+(ZX-SW/2)*zt; fy=SH*0.5+(ZY-SH*0.5)*zt
-  ox=W/2-fx*sc; oy=H*0.47-fy*sc
-  if sil_a>0.01:
-    ss=silo.resize((int(SW*sc),int(SH*sc)),Image.LANCZOS)
-    ss.putalpha(ss.split()[3].point(lambda v:int(v*sil_a))); im.alpha_composite(ss,(int(ox),int(oy)))
-  sa=win(t,0.4,0.6,1.3,1.6)
-  if sa>0.01:
-    y=oy+SH*sc*(0.04+0.92*seg(t,0.4,1.5)); gd=ImageDraw.Draw(glow)
-    gd.rectangle((W*0.22,y-14,W*0.78,y+14),fill=GOLD+(A(110,sa),))
-    g.line((W*0.18*K,y*K,W*0.82*K,y*K),fill=CHAMP+(A(230,sa),),width=2*K)
-  # sparkling zone markers (move with zoom)
-  ma=win(t,1.2,1.3,4.0,4.5)
-  for k,(px,py) in enumerate(CFG["zone_pts"]):
-    marker(g,glow,ox+px*S*sc,oy+py*S*sc,t,1.2+k*0.18,ma,scale=1.0+0.25*zt if k==0 else 0.8+0.1*zt)
+  zt=ease(seg(t,1.9,3.3))
+  if PHOTO_SILO:
+    zx,zy=CFG["photo_zone"][0]; sc=1+0.55*zt; pw,ph=int(PS_W*sc),int(PS_H*sc)
+    cx=W/2-zx*PS_W/2*sc*zt; cy=H*0.47-zy*PS_H/2*sc*zt
+    if sil_a>0.01:
+      c=DUO.resize((pw,ph),Image.LANCZOS); c.putalpha(DUOM.resize((pw,ph)).point(lambda v:int(v*sil_a)))
+      im.alpha_composite(c,(int(cx-pw/2),int(cy-ph/2)))
+      g.rounded_rectangle(((cx-pw/2-8)*K,(cy-ph/2-8)*K,(cx+pw/2+8)*K,(cy+ph/2+8)*K),radius=40*K,outline=GOLD+(A(230,sil_a),),width=2*K)
+    sa=win(t,0.4,0.6,1.3,1.6)
+    if sa>0.01:
+      y=cy-ph/2+ph*(0.04+0.92*seg(t,0.4,1.5)); gd=ImageDraw.Draw(glow)
+      gd.rectangle((cx-pw/2,y-14,cx+pw/2,y+14),fill=GOLD+(A(110,sa),))
+      g.line(((cx-pw/2)*K,y*K,(cx+pw/2)*K,y*K),fill=CHAMP+(A(230,sa),),width=2*K)
+    ma=win(t,1.2,1.3,4.0,4.5)
+    for k,(px,py) in enumerate(CFG["photo_zone"]):
+      marker(g,glow,cx+px*pw/2,cy+py*ph/2,t,1.2+k*0.18,ma,scale=1.0+0.25*zt if k==0 else 0.8+0.1*zt)
+    cyb=cy-ph/2+ph*0.08
+  else:
+    zt=ease(seg(t,1.9,3.3)); zoom=1+1.35*zt; sc=(1080/SH)*zoom
+    fx=SW/2+(ZX-SW/2)*zt; fy=SH*0.5+(ZY-SH*0.5)*zt
+    ox=W/2-fx*sc; oy=H*0.47-fy*sc
+    if sil_a>0.01:
+      ss=silo.resize((int(SW*sc),int(SH*sc)),Image.LANCZOS)
+      ss.putalpha(ss.split()[3].point(lambda v:int(v*sil_a))); im.alpha_composite(ss,(int(ox),int(oy)))
+    sa=win(t,0.4,0.6,1.3,1.6)
+    if sa>0.01:
+      y=oy+SH*sc*(0.04+0.92*seg(t,0.4,1.5)); gd=ImageDraw.Draw(glow)
+      gd.rectangle((W*0.22,y-14,W*0.78,y+14),fill=GOLD+(A(110,sa),))
+      g.line((W*0.18*K,y*K,W*0.82*K,y*K),fill=CHAMP+(A(230,sa),),width=2*K)
+    # sparkling zone markers (move with zoom)
+    ma=win(t,1.2,1.3,4.0,4.5)
+    for k,(px,py) in enumerate(CFG["zone_pts"]):
+      marker(g,glow,ox+px*S*sc,oy+py*S*sc,t,1.2+k*0.18,ma,scale=1.0+0.25*zt if k==0 else 0.8+0.1*zt)
+    cyb=oy+510*sc-14
   d=Dr(im); flush(im,hud,glow)
   a1=win(t,0.3,0.8,2.6,3.1)
   if a1>0.01:  # anchored on the silhouette's collarbone
-    cyb=oy+510*sc-14; f=SAN(30,b"Regular"); txt="BODY BLUEPRINT™"
+    f=SAN(30,b"Regular"); txt="BODY BLUEPRINT™"
     sh=Image.new("RGBA",(W,H),(0,0,0,0)); sd=ImageDraw.Draw(sh); w=sd.textlength(txt,font=f)
     sd.text(((W-w)/2,cyb),txt,font=f,fill=TH['shadow']+(A(200,a1),)); im.alpha_composite(sh.filter(ImageFilter.GaussianBlur(6)))
     tc(d,cyb,txt,f,CREAM+(A(255,a1),))
@@ -222,7 +249,7 @@ def body_frame(t):
     sub=P.get("label","")
     tc(d,92,("antes"+(" · "+sub if sub else "")),SERI(70),CREAM+(A(255,lb),)); tc(d,92,("después"+(" · "+sub if sub else "")),SERI(70),CREAM+(A(255,la),))
     EE=11.4+len(PAIRS)*PLEN; cap=win(t,12.0,12.6,EE-0.4,EE)
-    CY0=1058 if RECT else 1010
+    CY0=int(PCY+CH_/2+46) if RECT else 1010
     tc(d,CY0,CFG["system"],SER(84),CREAM+(A(255,cap),))
     tc(d,CY0+105,CFG["caption"].upper(),SAN(28,b"Regular"),GOLD+(A(255,cap),))
     tc(d,CY0+175,"resultados reales · sin retoque · resultados varían",SAN(24),CHAMP+(A(230,win(t,T0+3.2,T0+3.6,fin_a,fin_b)),))
@@ -301,7 +328,13 @@ def hook_frame(t):
       p=seg(t,SLAM,SLAM+0.35)
       if p<=0: continue
       sc_=1.7-0.7*eob(p); a_=ease(p*2.5)
-      L=Image.new("RGBA",(int(w)+80,260),(0,0,0,0)); ld=ImageDraw.Draw(L); ld.text((40,10),ln,font=f,fill=GOLD+(255,))
+      parts=ln.split(" ",1)
+      if parts[0][:1].isdigit() and len(parts)==2:
+        fn=SAN(150,b"Regular"); wn=d.textlength(parts[0]+" ",font=fn); wr=d.textlength(parts[1],font=f); w=wn+wr
+        L=Image.new("RGBA",(int(w)+80,260),(0,0,0,0)); ld=ImageDraw.Draw(L)
+        ld.text((40,36),parts[0]+" ",font=fn,fill=GOLD+(255,)); ld.text((40+wn,10),parts[1],font=f,fill=GOLD+(255,))
+      else:
+        L=Image.new("RGBA",(int(w)+80,260),(0,0,0,0)); ld=ImageDraw.Draw(L); ld.text((40,10),ln,font=f,fill=GOLD+(255,))
       # shimmer sweep across the gold word
       q=seg(t,SLAM+0.35,SLAM+1.1)
       if 0<q<1:
