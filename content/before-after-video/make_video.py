@@ -13,6 +13,7 @@ if os.environ.get("CFG"): CFG.update(json.load(open(os.environ["CFG"])))
 THEMES={"wine":dict(bg="burgundy-marble.jpg",waves=True,gold=(200,161,90),cream=(246,243,238),champ=(227,207,168),shadow=(40,8,16),spark=(246,243,238)),
  "green":dict(bg="bgs/green-marble.png",waves=False,gold=(214,178,104),cream=(248,244,234),champ=(232,216,180),shadow=(20,32,18),spark=(250,246,236)),
  "bronze":dict(bg="bgs/bronze-silk.png",waves=False,gold=(222,184,120),cream=(248,240,226),champ=(232,210,176),shadow=(30,18,10),spark=(255,246,226),duo_dark=(40,26,14)),
+ "cream":dict(bg="bgs/cream-marble.png",waves=False,gold=(150,112,52),cream=(58,40,30),champ=(96,74,54),shadow=(250,244,232),spark=(255,250,238),duo_dark=(110,80,50),duo_lite=(246,234,210)),
  "sand":dict(bg="bgs/sand-marble.png",waves=False,gold=(122,84,36),cream=(52,34,24),champ=(86,62,42),shadow=(235,222,200),spark=(255,246,226))}
 TH=THEMES[CFG.get("theme","wine")]; GOLD,CREAM,CHAMP=TH["gold"],TH["cream"],TH["champ"]; SPARK=TH["spark"]
 CFG.setdefault("stats",[[CFG["sessions"],"","SESIONES"],[CFG["minutes"],"","MIN · SESIÓN"],[None,CFG["freq"],CFG["freq_lbl"]]])
@@ -53,7 +54,7 @@ LOGO=LOGO.resize((int(lg.width*0.62),int(lg.height*0.62)),Image.LANCZOS)
 
 R=360; PCX,PCY=W//2,600; D=2*R
 RECT=CFG.get("shape","circle") in ("rect","square")
-if RECT: CW_,CH_=((620,820) if CFG.get("shape")=="rect" else (720,720)); PCY=612
+if RECT: CW_,CH_=((620,820) if CFG.get("shape")=="rect" else (CFG.get("square",720),)*2); PCY=612
 else: CW_,CH_=D,D
 def load(tag,pair=None):
   suf="rect" if RECT else "circle-clean"
@@ -71,10 +72,7 @@ BODY=11.4+len(PAIRS)*PLEN+3.0; DUR=HOOK+BODY-SKIP; N=int(DUR*FPS)
 PHOTO_SILO=CFG.get("silo")=="photo"
 if PHOTO_SILO:
   PS_W,PS_H=CW_,CH_
-  gimg=PAIRS[0]["imgs"][0].convert("L").resize((PS_W,PS_H))
-  ga=np.asarray(gimg).astype(float)/255; dark=np.array(TH.get("duo_dark",(60,40,22))); lite=np.array(GOLD)*1.15
-  duo=dark[None,None,:]*(1-ga[...,None])+np.clip(lite,0,255)[None,None,:]*ga[...,None]
-  DUO=Image.fromarray(np.clip(duo,0,255).astype(np.uint8)).convert("RGBA"); DUOM=cmask.copy()
+  DUO=PAIRS[0]["imgs"][0].resize((PS_W,PS_H)).convert("RGBA"); DUOM=cmask.copy()   # foto real, colores naturales
 
 class Dr:
   def __init__(s,im): s.im=im; s.m=ImageDraw.Draw(Image.new("L",(1,1)))

@@ -1,8 +1,1 @@
-{"pair":"p4","theme":"bronze","shape":"square","silo":"photo","fade":0.0,
- "photo_zone":[[0.0,0.52],[-0.45,0.42],[0.45,0.42]],
- "zone":"abdomen","benefits":"definición · firmeza · tono","system":"sculpt signature™","sessions":6,
- "stats":[[4,"","EXILIS · 45 MIN"],[6,"","EMS · 30 MIN"],[null,"1×","POR SEMANA"]],
- "caption":"exilis + ems  ·  4 + 6 sesiones",
- "hookl":[["lo que","small"],["10 sesiones","big"],["le hicieron a este abdomen","mid"]],
- "photo_tags":[[[-0.78,0.55],"contorno","L"],[[0.05,0.10],"definición","R"],[[0.0,0.62],"firmeza","R"]],
- "out":"bb-abdomen-4.mp4"}
+{"pair": "p4", "theme": "cream", "shape": "square", "silo": "photo", "fade": 0.0, "photo_zone": [[0.0, 0.52], [-0.45, 0.42], [0.45, 0.42]], "zone": "abdomen", "benefits": "definición · firmeza · tono", "system": "sculpt signature™", "sessions": 6, "stats": [[4, "", "EXILIS · 45 MIN"], [6, "", "EMS · 30 MIN"], [null, "1×", "POR SEMANA"]], "caption": "exilis + ems  ·  4 + 6 sesiones", "hookl": [["ellos también", "small"], ["esculpen", "big"], ["su abdomen sin cirugía", "mid"]], "photo_tags": [[[-0.78, 0.55], "contorno", "L"], [[0.05, 0.1], "definición", "R"], [[0.0, 0.62], "firmeza", "R"]], "out": "bb-abdomen-4.mp4", "square": 540}
