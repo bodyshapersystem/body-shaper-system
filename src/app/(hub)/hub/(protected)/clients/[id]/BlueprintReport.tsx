@@ -12,6 +12,7 @@ import MarkSystemCompletedButton from "./MarkSystemCompletedButton";
 import SendGoogleReviewButton from "./SendGoogleReviewButton";
 import SystemCompletionEditor from "./SystemCompletionEditor";
 import RecordRenphoScanSheet from "./RecordRenphoScanSheet";
+import RenphoSyncCard from "./RenphoSyncCard";
 import BodyTypeSheet from "./BodyTypeSheet";
 import MeasurementCompare from "./MeasurementCompare";
 import BodyCompositionGlance from "./BodyCompositionGlance";
@@ -481,6 +482,7 @@ export default async function BlueprintReport({
         <SectionLabel num="01" title="Your Body Composition" right="baseline overview" />
         {mode === "owner" && (
           <div style={{ marginBottom: 12 }}>
+            <RenphoSyncCard clientId={clientId} renphoName={client.renphoName ?? null} syncedAt={client.renphoSyncedAt ? client.renphoSyncedAt.toISOString() : null} />
             <RecordRenphoScanSheet clientId={clientId} assessmentId={assessment.id} />
           </div>
         )}

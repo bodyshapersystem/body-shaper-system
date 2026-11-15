@@ -6289,3 +6289,13 @@ div.hsoc-kpi:hover{ transform:none; }
 .pw-card-complete .pw-zones span{ background:rgba(246,243,238,.12); color:#E3CFA8; }
 .pw-card-complete .pw-zones b{ color:#F6F3EE; }
 .sde-add{ display:flex; flex-wrap:wrap; gap:6px; } .sde-add .zone-chip{ border-style:dashed; }
+
+/* ---------- RENPHO auto-sync (client blueprint) ---------- */
+.renpho-sync{margin:0 0 14px;padding:12px 14px;border:1px solid rgba(200,161,90,.35);border-radius:14px;background:rgba(246,243,238,.6)}
+.renpho-sync-row{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.renpho-sync-actions{display:flex;gap:14px;align-items:center}
+.renpho-profile-list{display:flex;flex-direction:column;gap:8px;margin:6px 0 14px;max-height:50vh;overflow:auto}
+.renpho-profile{display:flex;justify-content:space-between;align-items:center;padding:12px 14px;border:1px solid rgba(200,161,90,.4);border-radius:12px;background:#fff;font:inherit;text-align:left;cursor:pointer}
+.renpho-profile em{font-style:normal;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--mocha,#7a5c48)}
+.renpho-profile.on{border-color:#C8A15A;background:#F6F3EE}
+.renpho-profile:disabled{opacity:.55;cursor:default}

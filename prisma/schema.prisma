@@ -307,6 +307,11 @@ model Client {
   emailEvents          EmailEvent[]
   proposals            ClientProposal[]
 
+  // RENPHO Health auto-sync (one studio account, one RENPHO profile per client)
+  renphoUserId                     String?    @unique
+  renphoName                       String?
+  renphoTable                      String?
+  renphoSyncedAt                   DateTime?
   @@map("clients")
 }
 
@@ -636,6 +641,8 @@ model Measurement {
   // numbered session.
   sessionNumber          Int?
 
+  externalId             String?              @unique // e.g. "renpho:<table>:<recordId>" — prevents duplicate imports
+  externalRaw            Json?                // original RENPHO record, kept for audit
   @@map("measurements")
 }
 
