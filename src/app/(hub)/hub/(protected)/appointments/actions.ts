@@ -480,8 +480,13 @@ export async function saveSessionRecap(
   const appt = await prisma.appointment.findUnique({ where: { id: appointmentId }, select: { technologies: true, clientId: true, status: true } });
   if (!appt) return { error: "Appointment not found." };
   const previous = Array.isArray(appt.technologies) ? (appt.technologies as Record<string, unknown>[]) : [];
+  const used = new Set<number>();
   const technologies = data.technologies.map((t) => {
-    const prev = previous.find((p) => p.name === t.name) ?? {};
+    // Match an existing entry of the same technology once each, so the same
+    // technology can appear several times in one session (e.g. Exilis ×2).
+    const idx = previous.findIndex((p, i) => !used.has(i) && p.name === t.name);
+    if (idx >= 0) used.add(idx);
+    const prev = idx >= 0 ? previous[idx] : {};
     const out: Record<string, unknown> = { ...prev, name: t.name, minutes: t.minutes ?? (prev.minutes as number | undefined) ?? 30 };
     if (t.number && t.number > 0) out.number = Math.floor(t.number);
     else delete out.number;

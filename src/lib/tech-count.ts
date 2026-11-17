@@ -106,18 +106,21 @@ export function computePackageTracker(
     const upcoming: { at: string; number: number | null; zone: string | null }[] = [];
     for (const a of inPackage) {
       if (!Array.isArray(a.technologies)) continue;
-      const t = (a.technologies as TechEntry[]).find((x) => x?.name && techKey(x.name) === key);
-      if (!t) continue;
+      const entries = (a.technologies as TechEntry[]).filter((x) => x?.name && techKey(x.name) === key);
       const at = new Date(a.startsAt).toISOString();
-      if (a.status === "COMPLETED" && typeof t.number === "number") {
-        done = Math.max(done, t.number);
-        doneAt.set(t.number, at);
-        doneZone.set(t.number, (t.zone as string) ?? null);
-      }
-      if (a.status === "COMPLETED" && typeof t.zone === "string" && t.zone) zones[t.zone] = (zones[t.zone] ?? 0) + 1;
-      if (a.status === "SCHEDULED" && new Date(a.startsAt).getTime() >= now.getTime()) {
-        scheduled += 1;
-        upcoming.push({ at, number: typeof t.number === "number" ? t.number : null, zone: (t.zone as string) ?? null });
+      // The same technology can be logged more than once in one visit
+      // (e.g. Exilis front + Exilis back) — each entry is its own session.
+      for (const t of entries) {
+        if (a.status === "COMPLETED" && typeof t.number === "number") {
+          done = Math.max(done, t.number);
+          doneAt.set(t.number, at);
+          doneZone.set(t.number, (t.zone as string) ?? null);
+        }
+        if (a.status === "COMPLETED" && typeof t.zone === "string" && t.zone) zones[t.zone] = (zones[t.zone] ?? 0) + 1;
+        if (a.status === "SCHEDULED" && new Date(a.startsAt).getTime() >= now.getTime()) {
+          scheduled += 1;
+          upcoming.push({ at, number: typeof t.number === "number" ? t.number : null, zone: (t.zone as string) ?? null });
+        }
       }
     }
     done = Math.min(done, total);
