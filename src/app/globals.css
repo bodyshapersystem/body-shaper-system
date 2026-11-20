@@ -6331,6 +6331,8 @@ div.hsoc-kpi:hover{ transform:none; }
 .bf-card--best .bf-sessions span{color:var(--bf-ink)}
 .bf-price{font-family:var(--serif);font-size:44px;color:var(--bf-gold-ink);margin:14px 0 4px}
 .bf-card--best .bf-price{color:var(--bf-gold-2)}
+.bf-compare{font-family:var(--serif);font-style:italic;font-size:19px;color:var(--bf-brown);margin:2px 0 6px}
+.bf-card--best .bf-compare{color:var(--bf-gold-2)}
 .bf-per{font-size:12px;color:var(--bf-brown);opacity:.85;letter-spacing:.08em;margin:0 0 28px}
 .bf-card--best .bf-per{color:var(--bf-ink);opacity:.75}
 .bf-btn{display:inline-block;width:100%;margin-top:auto;background:var(--bf-wine);color:#f6efe6;border:0;border-radius:40px;padding:17px 18px;font-family:var(--sans);font-size:12px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;cursor:pointer;text-decoration:none;transition:background .3s}

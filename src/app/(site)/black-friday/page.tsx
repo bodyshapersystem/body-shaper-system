@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { buildMetadata } from "@/lib/seo";
 import BlackFridayCheckout from "@/components/BlackFridayCheckout";
-import { BLACK_FRIDAY_PACKS, blackFridayOpen, usd } from "@/lib/black-friday";
+import { BLACK_FRIDAY_PACKS, INDIVIDUAL_SESSION_CENTS, blackFridayOpen, usd } from "@/lib/black-friday";
 
 export const dynamic = "force-dynamic";
 
@@ -63,17 +63,18 @@ export default function BlackFridayPage() {
             const p = BLACK_FRIDAY_PACKS[key];
             return (
               <article key={key} className={`bf-card${note ? " bf-card--best" : ""}`}>
-                {note && <span className="bf-badge">{note}</span>}
+                <span className="bf-badge">Save up to {p.saveUpTo}%{note ? ` · ${note}` : ""}</span>
                 {lead && <p className="bf-card-lead">{lead}</p>}
                 <p className="bf-sessions"><span>{p.sessions}</span> sessions</p>
                 <p className="bf-price">{usd(p.amountCents)}</p>
+                <p className="bf-compare">vs. {usd(p.sessions * INDIVIDUAL_SESSION_CENTS.low)}–{usd(p.sessions * INDIVIDUAL_SESSION_CENTS.high)} individually</p>
                 <p className="bf-per">EMS · in-home · paid in full</p>
                 {open ? <BlackFridayCheckout pack={key} label={`Claim ${p.sessions} sessions · ${usd(p.amountCents)}`} /> : <p className="bf-ended-small">Offer ended</p>}
               </article>
             );
           })}
         </div>
-        <p className="bf-fine">Black Friday exclusive. Available through December 1st. One-time payment through secure Stripe checkout — your card details are never stored by Body Shaper System™. After your purchase we&apos;ll contact you to schedule your sessions.</p>
+        <p className="bf-fine">Black Friday exclusive. Available through December 1st. Savings are calculated against individual EMS sessions at $250–$300 each. One-time payment through secure Stripe checkout — your card details are never stored by Body Shaper System™. After your purchase we&apos;ll contact you to schedule your sessions.</p>
       </section>
 
       <section className="bf-close">
