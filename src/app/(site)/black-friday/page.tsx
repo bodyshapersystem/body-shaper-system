@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { buildMetadata } from "@/lib/seo";
 import BlackFridayCheckout from "@/components/BlackFridayCheckout";
-import { BLACK_FRIDAY_PACKS, INDIVIDUAL_SESSION_CENTS, blackFridayOpen, usd } from "@/lib/black-friday";
+import { BLACK_FRIDAY_PACKS, BLACK_FRIDAY_OFF_PCT, blackFridayOpen, usd } from "@/lib/black-friday";
 
 export const dynamic = "force-dynamic";
 
@@ -38,6 +38,7 @@ export default function BlackFridayPage() {
           <img className="bf-logo" src="/images/black-friday/logo-brown.png" alt="Body Shaper System™" width={200} height={164} />
           <p className="bf-eyebrow">Black Friday — Body Shaper System™</p>
           <h1>Your body.<br /><em>Your power.</em></h1>
+          <p className="bf-off">{BLACK_FRIDAY_OFF_PCT}% OFF</p>
           <p className="bf-lede">This Black Friday, take your sculpting experience to the next level.</p>
           {open ? <a href="#packages" className="bf-scroll">See the packages</a> : <p className="bf-ended">This offer ended on December 1st.</p>}
         </div>
@@ -58,23 +59,23 @@ export default function BlackFridayPage() {
       <section id="packages" className="bf-packs" aria-label="Black Friday EMS packages">
         <p className="bf-eyebrow">Black Friday exclusive</p>
         <h2>Choose your package</h2>
+        <p className="bf-off bf-off--packs">{BLACK_FRIDAY_OFF_PCT}% OFF</p>
         <div className="bf-grid">
           {PACKS.map(({ key, lead, note }) => {
             const p = BLACK_FRIDAY_PACKS[key];
             return (
               <article key={key} className={`bf-card${note ? " bf-card--best" : ""}`}>
-                <span className="bf-badge">Save up to {p.saveUpTo}%{note ? ` · ${note}` : ""}</span>
+                {note && <span className="bf-badge">{note}</span>}
                 {lead && <p className="bf-card-lead">{lead}</p>}
                 <p className="bf-sessions"><span>{p.sessions}</span> sessions</p>
                 <p className="bf-price">{usd(p.amountCents)}</p>
-                <p className="bf-compare">vs. {usd(p.sessions * INDIVIDUAL_SESSION_CENTS.low)}–{usd(p.sessions * INDIVIDUAL_SESSION_CENTS.high)} individually</p>
                 <p className="bf-per">EMS · in-home · paid in full</p>
                 {open ? <BlackFridayCheckout pack={key} label={`Claim ${p.sessions} sessions · ${usd(p.amountCents)}`} /> : <p className="bf-ended-small">Offer ended</p>}
               </article>
             );
           })}
         </div>
-        <p className="bf-fine">Black Friday exclusive. Available through December 1st. Savings are calculated against individual EMS sessions at $250–$300 each. One-time payment through secure Stripe checkout — your card details are never stored by Body Shaper System™. After your purchase we&apos;ll contact you to schedule your sessions.</p>
+        <p className="bf-fine">Black Friday exclusive. Available through December 1st. 45% off is approximate, compared with individual EMS sessions at $250–$300 each. One-time payment through secure Stripe checkout — your card details are never stored by Body Shaper System™. After your purchase we&apos;ll contact you to schedule your sessions.</p>
       </section>
 
       <section className="bf-close">

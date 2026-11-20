@@ -6,13 +6,13 @@
 export const BLACK_FRIDAY_FLOW = "black_friday_ems";
 
 export const BLACK_FRIDAY_PACKS = {
-  "4": { sessions: 4, amountCents: 59000, label: "4 EMS sessions", saveUpTo: 50 },
-  "6": { sessions: 6, amountCents: 83000, label: "6 EMS sessions", saveUpTo: 53 },
-  "12": { sessions: 12, amountCents: 150000, label: "12 EMS sessions", saveUpTo: 58 },
+  "4": { sessions: 4, amountCents: 59000, label: "4 EMS sessions" },
+  "6": { sessions: 6, amountCents: 83000, label: "6 EMS sessions" },
+  "12": { sessions: 12, amountCents: 150000, label: "12 EMS sessions" },
 } as const;
 
-/** Individual EMS session price range used for the savings line ($250–$300). "Save up to" = vs. $300, rounded down. */
-export const INDIVIDUAL_SESSION_CENTS = { low: 25000, high: 30000 } as const;
+/** Approximate global Black Friday discount vs. individual EMS sessions at $250–$300 each (set by Emmy). */
+export const BLACK_FRIDAY_OFF_PCT = 45;
 
 export type BlackFridayPackKey = keyof typeof BLACK_FRIDAY_PACKS;
 
