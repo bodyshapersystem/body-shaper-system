@@ -687,3 +687,10 @@ export async function sendDailyRecapEmail(params: {
     )
   );
 }
+
+/** Black Friday EMS package paid on /black-friday — alert to both owner inboxes. */
+export async function sendBlackFridayOwnerEmails(params: { clientId: string; clientName: string; email: string; phone: string | null; sessions: number; amountLabel: string }) {
+  const { clientId, clientName, email, phone, sessions, amountLabel } = params;
+  const html = `<h2>Black Friday EMS — ${ownerEsc(amountLabel)} paid</h2><p><b>${ownerEsc(clientName)}</b> (${ownerEsc(email)}${phone ? ` · ${ownerEsc(phone)}` : ""}) bought the <b>${sessions} EMS sessions</b> Black Friday package, paid in full.</p><p>Next step: contact her to schedule her sessions.</p><p><a href="https://www.bodyshapersystem.com/hub/clients/${encodeURIComponent(clientId)}">Open in Owner Hub</a></p>`;
+  return Promise.allSettled(OWNER_INBOXES.map((recipient) => logAndSend({ clientId, template: "PAYMENT_CONFIRMATION", sender: SENDERS.owner, recipient, subject: `Black Friday EMS: ${clientName} — ${sessions} sessions`, html })));
+}

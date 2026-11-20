@@ -6,6 +6,8 @@ import { sendAppointmentConfirmationEmail, sendSystemDepositReceivedEmail, sendP
 import { createNotification } from "@/lib/notifications";
 import { getBusinessTimezone, formatDateInTimezone, formatTimeInTimezone } from "@/lib/format-datetime";
 import type Stripe from "stripe";
+import { BLACK_FRIDAY_FLOW } from "@/lib/black-friday";
+import { handleBlackFridayCompleted } from "@/lib/black-friday-webhook";
 import { handleProposalCheckoutCompleted, handleProposalPromoCompleted } from "@/lib/proposals/checkout";
 
 export const dynamic = "force-dynamic";
@@ -83,6 +85,15 @@ export async function POST(request: NextRequest) {
   if (meta.product === "holiday_333" && meta.proposal_id) {
     await handleProposalPromoCompleted(session);
     return NextResponse.json({ received: true, flowType: "holiday_333_proposal" });
+  }
+
+  // Black Friday EMS (public /black-friday page): buyer details come from Stripe's
+  // customer_details, amount re-checked against the server-side price table.
+  if (flowType === BLACK_FRIDAY_FLOW) {
+    const owner = await prisma.user.findFirst({ where: { email: "hello@bodyshapersystem.com" } });
+    const result = await handleBlackFridayCompleted(session, owner?.id);
+    if (!result.ok) return NextResponse.json({ error: result.error }, { status: result.status });
+    return NextResponse.json({ received: true, flowType, ...result });
   }
 
   if (!firstName || !lastName || !email) {
