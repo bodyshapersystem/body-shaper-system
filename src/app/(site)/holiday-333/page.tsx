@@ -1,14 +1,18 @@
 import type { Metadata } from "next";
 import { buildMetadata } from "@/lib/seo";
 import HolidayCheckout from "@/components/HolidayCheckout";
+import { notFound } from "next/navigation";
+import { HOLIDAY_333_PUBLIC } from "@/lib/holiday-333";
 
 export const metadata: Metadata = buildMetadata({
   title: "333 Holiday Sculpt Ritual | Body Shaper System Miami",
   description: "Three Exilis Ultra, three Endospheres, three EMS sessions. Nine personalized treatments for $1,290 in Miami.",
   path: "/holiday-333",
+  noIndex: true,
 });
 
 export default function Holiday333Page() {
+  if (!HOLIDAY_333_PUBLIC) notFound(); // archived until the December relaunch
   return (
     <main className="holiday-333-editorial">
       <div className="holiday-333-poster-crop" role="img" aria-label="The 333 Holiday Sculpt Ritual — burgundy holiday campaign artwork">
