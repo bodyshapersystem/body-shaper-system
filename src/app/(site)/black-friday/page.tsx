@@ -34,11 +34,13 @@ export default function BlackFridayPage() {
     <main className="bf-page">
       <section className="bf-hero">
         <Waves />
-        <img className="bf-logo" src="/images/black-friday/logo-gold.png" alt="Body Shaper System™" width={230} height={189} />
-        <p className="bf-eyebrow">Black Friday — Body Shaper System™</p>
-        <h1>Your body.<br /><em>Your power.</em></h1>
-        <p className="bf-lede">This Black Friday, take your sculpting experience to the next level.</p>
-        {open ? <a href="#packages" className="bf-scroll">See the packages</a> : <p className="bf-ended">This offer ended on December 1st.</p>}
+        <div className="bf-hero-card">
+          <img className="bf-logo" src="/images/black-friday/logo-brown.png" alt="Body Shaper System™" width={200} height={164} />
+          <p className="bf-eyebrow">Black Friday — Body Shaper System™</p>
+          <h1>Your body.<br /><em>Your power.</em></h1>
+          <p className="bf-lede">This Black Friday, take your sculpting experience to the next level.</p>
+          {open ? <a href="#packages" className="bf-scroll">See the packages</a> : <p className="bf-ended">This offer ended on December 1st.</p>}
+        </div>
       </section>
 
       <section className="bf-ems">
@@ -75,7 +77,7 @@ export default function BlackFridayPage() {
       </section>
 
       <section className="bf-close">
-        <img src="/images/black-friday/logo-gold.png" alt="" width={120} height={98} />
+        <img src="/images/black-friday/logo-brown.png" alt="" width={130} height={107} />
         <p>Body Shaper System™. <em>Sculpt beyond ordinary.</em></p>
         <Link href="/faq">Questions? Read our FAQ</Link>
       </section>
