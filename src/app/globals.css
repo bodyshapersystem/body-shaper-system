@@ -6344,6 +6344,13 @@ div.hsoc-kpi:hover{ transform:none; }
 .bf-error{color:#a12035;font-size:13px;margin:12px 0 0}
 .bf-card--best .bf-error{color:#f2a3a3}
 .bf-ended-small{margin-top:auto;opacity:.7;letter-spacing:.14em;text-transform:uppercase;font-size:12px}
+.bf-steps{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;max-width:760px;margin:56px auto 0}
+.bf-step{text-align:left;padding:28px 30px;border-radius:24px;background:#efe6da url('/images/black-friday/cream-marble.jpg') center/cover;color:var(--bf-wine);border:1px solid rgba(180,140,60,.6)}
+.bf-step span{display:block;font-size:11px;letter-spacing:.26em;text-transform:uppercase;color:var(--bf-gold-ink);margin-bottom:10px}
+.bf-step p{margin:0;font-family:var(--serif);font-size:clamp(28px,3.4vw,38px);line-height:1.1}
+.bf-step em{color:var(--bf-gold-ink)}
+.bf-claim{font-family:var(--serif);font-style:italic;font-size:26px;color:var(--bf-gold-2);margin:26px 0 0}
+@media (max-width:640px){.bf-steps{grid-template-columns:1fr}}
 .bf-fine{max-width:640px;margin:40px auto 0;font-size:13px;line-height:1.7;opacity:.75}
 .bf-close{text-align:center;padding:70px 16px 90px;background:#efe6da url('/images/black-friday/cream-marble.jpg') center/cover;color:var(--bf-wine);border-top:1px solid rgba(180,140,60,.5)}
 .bf-close img{display:block;margin:0 auto;width:130px;height:auto}

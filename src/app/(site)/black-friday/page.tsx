@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { buildMetadata } from "@/lib/seo";
 import BlackFridayCheckout from "@/components/BlackFridayCheckout";
-import { BLACK_FRIDAY_PACKS, BLACK_FRIDAY_OFF_PCT, blackFridayOpen, usd } from "@/lib/black-friday";
+import { BLACK_FRIDAY_PACKS, BLACK_FRIDAY_OFF_PCT, BLACK_FRIDAY_FIRST_SESSION_BY, blackFridayOpen, usd } from "@/lib/black-friday";
 
 export const dynamic = "force-dynamic";
 
@@ -75,7 +75,12 @@ export default function BlackFridayPage() {
             );
           })}
         </div>
-        <p className="bf-fine">Black Friday exclusive. Available through December 1st. 45% off is approximate, compared with individual EMS sessions at $250–$300 each. One-time payment through secure Stripe checkout — your card details are never stored by Body Shaper System™. After your purchase we&apos;ll contact you to schedule your sessions.</p>
+        <div className="bf-steps" aria-label="How it works">
+          <div className="bf-step"><span>01 · Purchase</span><p>Buy by <em>December 1st.</em></p></div>
+          <div className="bf-step"><span>02 · First session</span><p>Start by <em>January 25th.</em></p></div>
+        </div>
+        <p className="bf-claim">Claim it now, begin in January.</p>
+        <p className="bf-fine">Black Friday exclusive. Available for purchase through December 1st, 2026; your first session must take place by {BLACK_FRIDAY_FIRST_SESSION_BY}. 45% off is approximate, compared with individual EMS sessions at $250–$300 each. One-time payment through secure Stripe checkout — your card details are never stored by Body Shaper System™. After your purchase we&apos;ll contact you to schedule your sessions.</p>
       </section>
 
       <section className="bf-close">

@@ -4,7 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { findOrCreateClientFromCheckout } from "@/lib/checkout-client";
 import { sendPaymentConfirmationEmail, sendBlackFridayOwnerEmails } from "@/lib/email/service";
 import { createNotification } from "@/lib/notifications";
-import { BLACK_FRIDAY_PACKS, isBlackFridayPack, usd } from "@/lib/black-friday";
+import { BLACK_FRIDAY_PACKS, BLACK_FRIDAY_TERMS, isBlackFridayPack, usd } from "@/lib/black-friday";
 
 /**
  * checkout.session.completed for the public Black Friday EMS page. Idempotent on the Stripe
@@ -52,7 +52,7 @@ export async function handleBlackFridayCompleted(session: Stripe.Checkout.Sessio
       origin: "CLIENT_PAYMENT",
       reference: session.id,
       paidAt: new Date(),
-      notes: `Black Friday EMS — ${p.sessions} sessions, paid in full online (${usd(p.amountCents)}).`,
+      notes: `Black Friday EMS — ${p.sessions} sessions, paid in full online (${usd(p.amountCents)}). ${BLACK_FRIDAY_TERMS}`,
       createdById: systemUserId || null,
     },
   });

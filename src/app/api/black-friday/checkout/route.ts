@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { getStripeClient, isStripeConfigured } from "@/lib/stripe";
-import { BLACK_FRIDAY_FLOW, BLACK_FRIDAY_PACKS, blackFridayOpen, isBlackFridayPack } from "@/lib/black-friday";
+import { BLACK_FRIDAY_FLOW, BLACK_FRIDAY_PACKS, BLACK_FRIDAY_TERMS, blackFridayOpen, isBlackFridayPack } from "@/lib/black-friday";
 
 export const runtime = "nodejs";
 
@@ -31,13 +31,13 @@ export async function POST(request: Request) {
             unit_amount: p.amountCents,
             product_data: {
               name: `Black Friday EMS — ${p.sessions} sessions`,
-              description: `${p.sessions} in-home EMS sessions with Body Shaper System™. Black Friday exclusive, paid in full.`,
+              description: `${p.sessions} in-home EMS sessions with Body Shaper System™. Black Friday exclusive, paid in full. ${BLACK_FRIDAY_TERMS}`,
             },
           },
           quantity: 1,
         },
       ],
-      metadata: { flowType: BLACK_FRIDAY_FLOW, pack, sessions: String(p.sessions), amountCents: String(p.amountCents) },
+      metadata: { flowType: BLACK_FRIDAY_FLOW, pack, sessions: String(p.sessions), amountCents: String(p.amountCents), terms: BLACK_FRIDAY_TERMS },
       success_url: `${origin}/black-friday/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${origin}/black-friday#packages`,
     });

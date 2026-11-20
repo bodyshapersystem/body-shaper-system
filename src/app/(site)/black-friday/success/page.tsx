@@ -9,7 +9,7 @@ export default function BlackFridaySuccess() {
       <img src="/images/black-friday/logo-brown.png" alt="Body Shaper System™" width={160} height={131} />
       <p className="bf-eyebrow">Black Friday EMS</p>
       <h1>Thank you. <em>Your power starts now.</em></h1>
-      <p>Your payment was submitted. You&apos;ll receive a confirmation by email once it&apos;s verified, and we&apos;ll contact you to schedule your in-home EMS sessions.</p>
+      <p>Your payment was submitted. You&apos;ll receive a confirmation by email once it&apos;s verified, and we&apos;ll contact you to schedule your in-home EMS sessions. Your first session must take place by January 25, 2027.</p>
       <Link href="/" className="bf-btn bf-btn--ghost">Return to Body Shaper System™</Link>
     </div></main>
   );
