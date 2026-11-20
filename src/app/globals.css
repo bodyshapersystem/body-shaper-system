@@ -6289,3 +6289,10 @@ div.hsoc-kpi:hover{ transform:none; }
 .pw-card-complete .pw-zones span{ background:rgba(246,243,238,.12); color:#E3CFA8; }
 .pw-card-complete .pw-zones b{ color:#F6F3EE; }
 .sde-add{ display:flex; flex-wrap:wrap; gap:6px; } .sde-add .zone-chip{ border-style:dashed; }
+/* Black Friday: black velvet + gold ribbon replaces the holiday satin ribbon (same height, seamless loop). */
+.bf-ribbon{--bf-tile:1000px;background:#0d0a0b!important}
+.bf-ribbon .holiday-ribbon-marquee{animation:bf-ribbon-scroll 26s linear infinite!important}
+.bf-ribbon .holiday-ribbon-tile{width:var(--bf-tile)!important;background-image:url('/images/black-friday/ribbon-black-friday.jpg')!important;background-size:100% 100%!important;background-position:0 0!important;background-repeat:no-repeat!important}
+@keyframes bf-ribbon-scroll{from{transform:translateX(0)}to{transform:translateX(calc(var(--bf-tile) * -2))}}
+@media(max-width:900px){.bf-ribbon{--bf-tile:871px}.bf-ribbon .holiday-ribbon-marquee{animation-duration:22s!important}}
+@media(prefers-reduced-motion:reduce){.bf-ribbon .holiday-ribbon-marquee{animation:none!important}}
